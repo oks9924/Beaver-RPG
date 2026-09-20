@@ -1,5 +1,5 @@
 {
- "_comment": "유물 10개 (12절). 효과는 mods(수치)와 procs(발동)로 데이터화한다. 발동형은 원인 ID와 내부 재사용 대기시간을 둔다. 검증 전 출발값.",
+ "_comment": "유물 36개 (12절). 효과는 mods(수치)와 procs(발동)로 데이터화한다. 발동형은 원인 ID와 내부 재사용 대기시간을 둔다. 검증 전 출발값.",
  "oak_heart": {
   "id": "oak_heart",
   "name_ko": "참나무 심장",
@@ -233,6 +233,453 @@
     "speed_mult": 0.08,
     "dodge_charges_add": 1
    }
+  }
+ },
+ "willow_bark": {
+  "id": "willow_bark",
+  "name_ko": "버들 껍질",
+  "desc_ko": "받는 피해 -6% (상한 60%)",
+  "rarity": "common",
+  "tags": [
+   "oak",
+   "body"
+  ],
+  "assets": {
+   "icon": "icon.relic.willow_bark"
+  },
+  "mods": {
+   "damage_reduction": 0.06
+  }
+ },
+ "beaver_grease": {
+  "id": "beaver_grease",
+  "name_ko": "비버 기름",
+  "desc_ko": "이동 속도 +6%, 회피 재충전 -0.5초",
+  "rarity": "common",
+  "tags": [
+   "paw"
+  ],
+  "assets": {
+   "icon": "icon.relic.beaver_grease"
+  },
+  "mods": {
+   "speed_mult": 0.06,
+   "dodge_recharge_add": -0.5
+  }
+ },
+ "amber_tooth": {
+  "id": "amber_tooth",
+  "name_ko": "호박 이빨",
+  "desc_ko": "기본 공격 피해 +3",
+  "rarity": "common",
+  "tags": [
+   "tooth",
+   "sap"
+  ],
+  "assets": {
+   "icon": "icon.relic.amber_tooth"
+  },
+  "mods": {
+   "basic_damage_add": 3
+  }
+ },
+ "river_pebbles": {
+  "id": "river_pebbles",
+  "name_ko": "강 자갈",
+  "desc_ko": "투사체 속도 +15%, 관통 +1",
+  "rarity": "common",
+  "tags": [
+   "river",
+   "hunt"
+  ],
+  "assets": {
+   "icon": "icon.relic.river_pebbles"
+  },
+  "mods": {
+   "pierce_add": 1,
+   "proj_speed_mult": 0.15
+  }
+ },
+ "moss_blanket": {
+  "id": "moss_blanket",
+  "name_ko": "이끼 담요",
+  "desc_ko": "휴식 노드 회복 +20%, 최대 체력 +8",
+  "rarity": "common",
+  "tags": [
+   "oak",
+   "kin"
+  ],
+  "assets": {
+   "icon": "icon.relic.moss_blanket"
+  },
+  "mods": {
+   "max_hp_add": 8,
+   "rest_heal_add": 0.2
+  }
+ },
+ "firefly_jar": {
+  "id": "firefly_jar",
+  "name_ko": "반딧불 병",
+  "desc_ko": "처치 시 5% 확률로 회복 도구 +1 (원정당 최대 2)",
+  "rarity": "rare",
+  "tags": [
+   "sap",
+   "kin"
+  ],
+  "assets": {
+   "icon": "icon.relic.firefly_jar"
+  },
+  "procs": [
+   {
+    "trigger": "on_kill",
+    "effect": "heal_charge",
+    "value": 1,
+    "chance": 0.05,
+    "icd_sec": 1.0,
+    "max_per_run": 2
+   }
+  ]
+ },
+ "thorn_crown": {
+  "id": "thorn_crown",
+  "name_ko": "가시 관",
+  "desc_ko": "피격 시 주변 적에게 8 피해 (2초 재사용)",
+  "rarity": "rare",
+  "tags": [
+   "thorn",
+   "body"
+  ],
+  "assets": {
+   "icon": "icon.relic.thorn_crown"
+  },
+  "procs": [
+   {
+    "trigger": "on_hurt",
+    "effect": "aoe_damage",
+    "value": 8,
+    "radius": 80,
+    "icd_sec": 2.0
+   }
+  ]
+ },
+ "dam_keeper_badge": {
+  "id": "dam_keeper_badge",
+  "name_ko": "댐지기 휘장",
+  "desc_ko": "구조물 내구도 +50%, 건설 목재 -1",
+  "rarity": "rare",
+  "tags": [
+   "oak",
+   "river"
+  ],
+  "assets": {
+   "icon": "icon.relic.dam_keeper_badge"
+  },
+  "mods": {
+   "structure_hp_mult": 0.5,
+   "build_cost_add": -1
+  }
+ },
+ "otter_whistle": {
+  "id": "otter_whistle",
+  "name_ko": "수달 호루라기",
+  "desc_ko": "구조 시간 -1초, 구조 후 보호 +1초",
+  "rarity": "rare",
+  "tags": [
+   "kin",
+   "river"
+  ],
+  "assets": {
+   "icon": "icon.relic.otter_whistle"
+  },
+  "mods": {
+   "rescue_hold_add": -1.0,
+   "rescue_protect_add": 1.0
+  }
+ },
+ "sap_lantern": {
+  "id": "sap_lantern",
+  "name_ko": "수액 등불",
+  "desc_ko": "회복 효과 +25%",
+  "rarity": "rare",
+  "tags": [
+   "sap",
+   "kin"
+  ],
+  "assets": {
+   "icon": "icon.relic.sap_lantern"
+  },
+  "mods": {
+   "heal_mult": 0.25
+  }
+ },
+ "lucky_acorn": {
+  "id": "lucky_acorn",
+  "name_ko": "행운의 도토리",
+  "desc_ko": "도토리 획득 +50%, 상점 가격 -10%",
+  "rarity": "common",
+  "tags": [
+   "acorn"
+  ],
+  "assets": {
+   "icon": "icon.relic.lucky_acorn"
+  },
+  "mods": {
+   "acorn_mult": 0.5,
+   "shop_discount": 0.1
+  }
+ },
+ "hunters_eye": {
+  "id": "hunters_eye",
+  "name_ko": "사냥꾼의 눈",
+  "desc_ko": "정예·보스에게 피해 +15%",
+  "rarity": "rare",
+  "tags": [
+   "hunt"
+  ],
+  "assets": {
+   "icon": "icon.relic.hunters_eye"
+  },
+  "mods": {
+   "boss_damage_mult": 0.15
+  }
+ },
+ "stone_shell": {
+  "id": "stone_shell",
+  "name_ko": "돌 껍질",
+  "desc_ko": "보호막 상한 +20, 보호막 지속 +3초",
+  "rarity": "rare",
+  "tags": [
+   "body",
+   "river"
+  ],
+  "assets": {
+   "icon": "icon.relic.stone_shell"
+  },
+  "mods": {
+   "shield_cap_add": 20,
+   "shield_duration_add": 3.0
+  }
+ },
+ "quick_gnaw": {
+  "id": "quick_gnaw",
+  "name_ko": "빠른 갉기",
+  "desc_ko": "상호작용 시간 -25%",
+  "rarity": "common",
+  "tags": [
+   "tooth",
+   "paw"
+  ],
+  "assets": {
+   "icon": "icon.relic.quick_gnaw"
+  },
+  "mods": {
+   "interact_speed": 0.25
+  }
+ },
+ "storm_tail": {
+  "id": "storm_tail",
+  "name_ko": "폭풍 꼬리",
+  "desc_ko": "넉백 +40%, 넉백당한 적 둔화 2초",
+  "rarity": "rare",
+  "tags": [
+   "tail",
+   "thorn"
+  ],
+  "assets": {
+   "icon": "icon.relic.storm_tail"
+  },
+  "mods": {
+   "knockback_mult": 0.4,
+   "knockback_slow": 0.3
+  }
+ },
+ "kin_totem": {
+  "id": "kin_totem",
+  "name_ko": "혈족 토템",
+  "desc_ko": "파티원 하나당 최대 체력 +4 (최대 +12)",
+  "rarity": "common",
+  "tags": [
+   "kin",
+   "oak"
+  ],
+  "assets": {
+   "icon": "icon.relic.kin_totem"
+  },
+  "mods": {
+   "hp_per_ally": 4
+  }
+ },
+ "acorn_cache": {
+  "id": "acorn_cache",
+  "name_ko": "도토리 창고",
+  "desc_ko": "원정 시작 도토리 +20",
+  "rarity": "common",
+  "tags": [
+   "acorn"
+  ],
+  "assets": {
+   "icon": "icon.relic.acorn_cache"
+  },
+  "mods": {
+   "start_acorns": 20
+  }
+ },
+ "bitter_sap": {
+  "id": "bitter_sap",
+  "name_ko": "쓴 수액",
+  "desc_ko": "둔화·속박 지속 -40%",
+  "rarity": "common",
+  "tags": [
+   "sap",
+   "paw"
+  ],
+  "assets": {
+   "icon": "icon.relic.bitter_sap"
+  },
+  "mods": {
+   "status_resist": 0.4
+  }
+ },
+ "hollow_log": {
+  "id": "hollow_log",
+  "name_ko": "속 빈 통나무",
+  "desc_ko": "회피 시 0.15초 무적 추가",
+  "rarity": "rare",
+  "tags": [
+   "oak",
+   "paw"
+  ],
+  "assets": {
+   "icon": "icon.relic.hollow_log"
+  },
+  "mods": {
+   "dodge_invuln_add": 0.15
+  }
+ },
+ "thorn_bolt": {
+  "id": "thorn_bolt",
+  "name_ko": "가시 화살촉",
+  "desc_ko": "투사체 피해 +2, 명중 시 출혈 1/초 2초",
+  "rarity": "rare",
+  "tags": [
+   "thorn",
+   "hunt"
+  ],
+  "assets": {
+   "icon": "icon.relic.thorn_bolt"
+  },
+  "mods": {
+   "proj_damage_add": 2,
+   "proj_bleed": 1.0
+  }
+ },
+ "river_heart": {
+  "id": "river_heart",
+  "name_ko": "강의 심장",
+  "desc_ko": "체력 30% 이하에서 초당 1 회복",
+  "rarity": "legendary",
+  "tags": [
+   "river",
+   "body",
+   "kin"
+  ],
+  "assets": {
+   "icon": "icon.relic.river_heart"
+  },
+  "mods": {
+   "low_hp_regen": 1.0
+  }
+ },
+ "ancient_incisor": {
+  "id": "ancient_incisor",
+  "name_ko": "고대 앞니",
+  "desc_ko": "모든 피해 +20%, 최대 체력 -10",
+  "rarity": "legendary",
+  "tags": [
+   "tooth",
+   "hunt"
+  ],
+  "assets": {
+   "icon": "icon.relic.ancient_incisor"
+  },
+  "mods": {
+   "damage_mult": 0.2,
+   "max_hp_add": -10
+  }
+ },
+ "memory_bloom": {
+  "id": "memory_bloom",
+  "name_ko": "기억 꽃",
+  "desc_ko": "방 클리어 시 기억 조각 +1 (원정당 최대 3)",
+  "rarity": "legendary",
+  "tags": [
+   "sap",
+   "oak"
+  ],
+  "assets": {
+   "icon": "icon.relic.memory_bloom"
+  },
+  "mods": {
+   "shard_bonus": 1
+  }
+ },
+ "tail_drum": {
+  "id": "tail_drum",
+  "name_ko": "꼬리 북",
+  "desc_ko": "스킬 사용 시 주변 아군 이동 속도 +20% 2초",
+  "rarity": "rare",
+  "tags": [
+   "tail",
+   "kin"
+  ],
+  "assets": {
+   "icon": "icon.relic.tail_drum"
+  },
+  "procs": [
+   {
+    "trigger": "on_skill",
+    "effect": "ally_haste",
+    "value": 0.2,
+    "radius": 160,
+    "icd_sec": 3.0
+   }
+  ]
+ },
+ "dam_bell": {
+  "id": "dam_bell",
+  "name_ko": "댐의 종",
+  "desc_ko": "수문·장치 조작 완료 시 파티 보호막 10",
+  "rarity": "rare",
+  "tags": [
+   "river",
+   "kin"
+  ],
+  "assets": {
+   "icon": "icon.relic.dam_bell"
+  },
+  "procs": [
+   {
+    "trigger": "on_interact",
+    "effect": "party_shield",
+    "value": 10,
+    "icd_sec": 5.0
+   }
+  ]
+ },
+ "gnawed_charm": {
+  "id": "gnawed_charm",
+  "name_ko": "갉아 만든 부적",
+  "desc_ko": "전투 시작 시 보호막 15",
+  "rarity": "common",
+  "tags": [
+   "tooth",
+   "body"
+  ],
+  "assets": {
+   "icon": "icon.relic.gnawed_charm"
+  },
+  "mods": {
+   "start_shield": 15
   }
  }
 }

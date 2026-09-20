@@ -1,0 +1,306 @@
+{
+ "_comment": "퀘스트 15개 (13절): 메인 3, 원정 선택 임무 8, 영구 해금 임무 4. objective.type: kills|kills_of|rooms_cleared|boss_kill|secrets|mechanic_success|structures_built|elite_no_structure|codex_enemies|escort_clear|sluice_toggles|run_complete|village_level|talk. 보상은 reward_id 로 한 번만 지급된다. 선택 임무 실패는 메인 진행을 막지 않는다.",
+ "quests": [
+  {
+   "id": "main_01",
+   "kind": "main",
+   "name_ko": "검은 물의 근원",
+   "giver": "elder_zelkova",
+   "desc_ko": "버들강 하류의 철턱 가재를 쓰러뜨리고 물길이 왜 검어졌는지 단서를 찾아라.",
+   "objective": {
+    "type": "boss_kill",
+    "target": "ironclaw",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 10,
+    "bond": {
+     "elder_zelkova": 1
+    }
+   },
+   "reward_id": "reward:main_01",
+   "auto_accept": true
+  },
+  {
+   "id": "main_02",
+   "kind": "main",
+   "name_ko": "습지의 등불",
+   "giver": "elder_zelkova",
+   "desc_ko": "검은 수액 습지의 늪등불 두꺼비를 쓰러뜨리고 기록관에게 잔향 이야기를 들어라.",
+   "objective": {
+    "type": "boss_kill",
+    "target": "lantern_toad",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 15,
+    "bond": {
+     "elder_zelkova": 1,
+     "archivist_willow": 1
+    }
+   },
+   "reward_id": "reward:main_02",
+   "requires": [
+    "main_01"
+   ]
+  },
+  {
+   "id": "main_03",
+   "kind": "main",
+   "name_ko": "뿌리왕의 대수문",
+   "giver": "elder_zelkova",
+   "desc_ko": "고대 뿌리댐의 뿌리왕을 쓰러뜨려 물길을 되돌려라. 기억 잔향을 모두 붙잡으면 다른 결말이 열린다.",
+   "objective": {
+    "type": "boss_kill",
+    "target": "root_king",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 25,
+    "bond": {
+     "elder_zelkova": 2
+    },
+    "unlock": "ending_base"
+   },
+   "reward_id": "reward:main_03",
+   "requires": [
+    "main_02"
+   ]
+  },
+  {
+   "id": "opt_01",
+   "kind": "optional",
+   "name_ko": "포자 확산 전에 정화",
+   "giver": "herbalist_moss",
+   "desc_ko": "한 원정에서 장치 방을 2번 클리어해 포자가 퍼지기 전에 정화하라.",
+   "objective": {
+    "type": "rooms_cleared_objective",
+    "target": "device",
+    "count": 2,
+    "per_run": true
+   },
+   "reward": {
+    "memory_shards": 4,
+    "bond": {
+     "herbalist_moss": 1
+    }
+   },
+   "reward_id": "reward:opt_01"
+  },
+  {
+   "id": "opt_02",
+   "kind": "optional",
+   "name_ko": "표류 물자 회수",
+   "giver": "merchant_doto",
+   "desc_ko": "호위 방을 클리어해 떠내려온 뗏목을 마을까지 보내라.",
+   "objective": {
+    "type": "escort_clear",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 4,
+    "bond": {
+     "merchant_doto": 1
+    }
+   },
+   "reward_id": "reward:opt_02"
+  },
+  {
+   "id": "opt_03",
+   "kind": "optional",
+   "name_ko": "맨손 돌파",
+   "giver": "smith_resin",
+   "desc_ko": "구조물을 하나도 짓지 않고 정예전을 클리어하라.",
+   "objective": {
+    "type": "elite_no_structure",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 6,
+    "bond": {
+     "smith_resin": 1
+    }
+   },
+   "reward_id": "reward:opt_03",
+   "fail_ko": "정예전에서 구조물을 지으면 이번 원정에서는 실패"
+  },
+  {
+   "id": "opt_04",
+   "kind": "optional",
+   "name_ko": "흩어진 기록 회수",
+   "giver": "archivist_willow",
+   "desc_ko": "지역 비밀을 3곳 찾아라.",
+   "objective": {
+    "type": "secrets",
+    "count": 3
+   },
+   "reward": {
+    "memory_shards": 6,
+    "bond": {
+     "archivist_willow": 1
+    }
+   },
+   "reward_id": "reward:opt_04"
+  },
+  {
+   "id": "opt_05",
+   "kind": "optional",
+   "name_ko": "수문지기",
+   "giver": "engineer_ripple",
+   "desc_ko": "한 원정에서 수문을 4번 조작하라.",
+   "objective": {
+    "type": "sluice_toggles",
+    "count": 4,
+    "per_run": true
+   },
+   "reward": {
+    "memory_shards": 4,
+    "bond": {
+     "engineer_ripple": 1
+    }
+   },
+   "reward_id": "reward:opt_05"
+  },
+  {
+   "id": "opt_06",
+   "kind": "optional",
+   "name_ko": "가재 사냥꾼",
+   "giver": "smith_resin",
+   "desc_ko": "철턱 가재의 기믹을 3개 성공시키고 처치하라.",
+   "objective": {
+    "type": "mechanic_success",
+    "target": "IC",
+    "count": 3,
+    "per_run": true
+   },
+   "reward": {
+    "memory_shards": 6,
+    "bond": {
+     "smith_resin": 1
+    }
+   },
+   "reward_id": "reward:opt_06"
+  },
+  {
+   "id": "opt_07",
+   "kind": "optional",
+   "name_ko": "이끼의 표본",
+   "giver": "herbalist_moss",
+   "desc_ko": "서로 다른 적 9종을 처치해 도감에 올려라.",
+   "objective": {
+    "type": "codex_enemies",
+    "count": 9
+   },
+   "reward": {
+    "memory_shards": 5,
+    "bond": {
+     "herbalist_moss": 1
+    },
+    "unlock": "heal_variant_moss"
+   },
+   "reward_id": "reward:opt_07"
+  },
+  {
+   "id": "opt_08",
+   "kind": "optional",
+   "name_ko": "등불 지킴이",
+   "giver": "archivist_willow",
+   "desc_ko": "늪등불 두꺼비의 등불 점화(TF-01)를 성공시켜라.",
+   "objective": {
+    "type": "mechanic_success",
+    "target": "TF-01",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 5,
+    "bond": {
+     "archivist_willow": 1
+    }
+   },
+   "reward_id": "reward:opt_08"
+  },
+  {
+   "id": "unlock_01",
+   "kind": "unlock",
+   "name_ko": "훈련장의 첫 삽",
+   "giver": "smith_resin",
+   "desc_ko": "훈련장을 1단계 복구하라.",
+   "objective": {
+    "type": "village_level",
+    "target": "training_ground",
+    "count": 1
+   },
+   "reward": {
+    "memory_shards": 3,
+    "bond": {
+     "smith_resin": 1
+    },
+    "unlock": "weapon_skin_resin"
+   },
+   "reward_id": "reward:unlock_01"
+  },
+  {
+   "id": "unlock_02",
+   "kind": "unlock",
+   "name_ko": "기록관의 벽",
+   "giver": "archivist_willow",
+   "desc_ko": "지역 비밀 9곳을 모두 찾아라.",
+   "objective": {
+    "type": "secrets",
+    "count": 9
+   },
+   "reward": {
+    "memory_shards": 12,
+    "bond": {
+     "archivist_willow": 2
+    },
+    "unlock": "ending_purified_hint"
+   },
+   "reward_id": "reward:unlock_02",
+   "requires": [
+    "opt_04"
+   ]
+  },
+  {
+   "id": "unlock_03",
+   "kind": "unlock",
+   "name_ko": "댐을 다시 세우기",
+   "giver": "engineer_ripple",
+   "desc_ko": "구조물을 총 30개 지어라.",
+   "objective": {
+    "type": "structures_built",
+    "count": 30
+   },
+   "reward": {
+    "memory_shards": 8,
+    "bond": {
+     "engineer_ripple": 2
+    },
+    "unlock": "build_kind_watchtower"
+   },
+   "reward_id": "reward:unlock_03"
+  },
+  {
+   "id": "unlock_04",
+   "kind": "unlock",
+   "name_ko": "마을의 기억",
+   "giver": "elder_zelkova",
+   "desc_ko": "원정을 3번 완주하라.",
+   "objective": {
+    "type": "run_complete",
+    "count": 3
+   },
+   "reward": {
+    "memory_shards": 10,
+    "bond": {
+     "elder_zelkova": 1
+    },
+    "unlock": "title_memory_keeper"
+   },
+   "reward_id": "reward:unlock_04",
+   "requires": [
+    "main_01"
+   ]
+  }
+ ]
+}

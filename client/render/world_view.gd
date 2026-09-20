@@ -10,6 +10,8 @@ var projectiles: Array = []       # PackedFloat32Array (Protocol.SNAP_PR)
 var objects: Array = []           # PackedFloat32Array (Protocol.SNAP_OB)
 var water_zone: PackedFloat32Array = PackedFloat32Array()
 var hazards: Array = []           # PackedFloat32Array [x,y,w,h,slow]
+var npcs: Array = []              # 마을 NPC [{id,name_ko,x,y,sprite}]
+var _npc_sprites: Array = []
 var boss_state: Dictionary = {}
 var _object_tex: Dictionary = {}
 var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
@@ -49,7 +51,7 @@ func _ready() -> void:
 		_audio_players.append(ap)
 	_tg_tex = AssetRegistry.get_texture("vfx.telegraph_circle")
 	for kind_asset in [["gnaw_tree", "prop.gnaw_tree"], ["device", "prop.device"], ["lever", "prop.lever"], ["structure", "prop.log_cover"], ["trap", "vfx.thorn_trap"], ["proj_enemy", "vfx.projectile_sap"], ["proj_player", "vfx.projectile_pinecone"],
-			["pillar", "prop.boss.pillar"], ["gate", "prop.boss.gate"], ["husk", "prop.boss.husk"], ["corridor", "prop.boss.corridor"], ["rope", "prop.boss.rope"], ["debris", "prop.boss.debris"], ["anchor", "prop.boss.anchor"], ["platform", "prop.boss.platform"], ["claw_link", "prop.boss.claw_link"], ["turret", "prop.turret"], ["dam", "prop.dam"], ["proj_water", "vfx.projectile_water"], ["raft", "prop.raft"]]:
+			["pillar", "prop.boss.pillar"], ["gate", "prop.boss.gate"], ["husk", "prop.boss.husk"], ["corridor", "prop.boss.corridor"], ["rope", "prop.boss.rope"], ["debris", "prop.boss.debris"], ["anchor", "prop.boss.anchor"], ["platform", "prop.boss.platform"], ["claw_link", "prop.boss.claw_link"], ["turret", "prop.turret"], ["dam", "prop.dam"], ["proj_water", "vfx.projectile_water"], ["raft", "prop.raft"], ["secret", "prop.secret"]]:
 		_object_tex[kind_asset[0]] = AssetRegistry.get_texture(kind_asset[1])
 
 
@@ -250,6 +252,9 @@ func _draw_telegraphs() -> void:
 				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80, 16), Color(0, 0, 0, 0.6))
 				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80 * prog, 16), Color(1.0, 0.3, 0.2) if st == 1 else Color(0.9, 0.7, 0.3))
 				_draw_progress(L, c + Vector2(0, 14), prog, "압력 %d%%" % int(prog * 100))
+			Protocol.ObKind.SECRET:
+				_draw_tex(L, _object_tex["secret"], c, 56, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(Time.get_ticks_msec() / 250.0)))
+				_draw_progress(L, c, prog, "F 조사 (지역 비밀)")
 			Protocol.ObKind.RAFT:
 				L.draw_circle(c, r + 100, Color(0.9, 0.85, 0.4, 0.06))
 				L.draw_arc(c, r + 100, 0, TAU, 48, Color(0.4, 0.9, 0.5, 0.6) if st == 1 else (Color(0.95, 0.4, 0.3, 0.7) if st == 2 else Color(0.9, 0.85, 0.4, 0.5)), 2.0)
@@ -469,3 +474,40 @@ func play_sound(asset_id: String, min_gap: float = 0.06) -> void:
 			ap.play()
 			_audio_last[asset_id] = now
 			return
+
+
+## 마을 NPC 표시 (서버가 hub_info 로 준 위치·이름). 상호작용 범위 안이면 안내 링을 그린다.
+func set_npcs(list: Array) -> void:
+	for sp: Node in _npc_sprites:
+		sp.queue_free()
+	_npc_sprites.clear()
+	npcs = list
+	for n: Dictionary in list:
+		var spr := Sprite2D.new()
+		spr.texture = AssetRegistry.get_texture(String(n.get("sprite", "npc.elder_zelkova")))
+		spr.position = Vector2(float(n.get("x", 0)), float(n.get("y", 0)))
+		spr.scale = Vector2.ONE * (96.0 / maxf(spr.texture.get_width(), 1))
+		spr.offset = Vector2(0, -40)
+		add_child(spr)
+		_npc_sprites.append(spr)
+		var lbl := Label.new()
+		lbl.text = String(n.get("name_ko", ""))
+		lbl.add_theme_font_override("font", AssetRegistry.get_font("font.ui.main"))
+		lbl.add_theme_font_size_override("font_size", 13)
+		lbl.add_theme_color_override("font_color", Color(1.0, 0.92, 0.6))
+		lbl.position = spr.position + Vector2(-40, -110)
+		lbl.custom_minimum_size = Vector2(80, 0)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		add_child(lbl)
+		_npc_sprites.append(lbl)
+
+
+func nearest_npc(pos: Vector2, max_d: float) -> Dictionary:
+	var best: Dictionary = {}
+	var best_d := max_d
+	for n: Dictionary in npcs:
+		var d := Vector2(float(n.get("x", 0)), float(n.get("y", 0))).distance_to(pos)
+		if d <= best_d:
+			best_d = d
+			best = n
+	return best

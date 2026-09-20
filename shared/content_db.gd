@@ -6,6 +6,8 @@ const DATA_DIR := "res://data/"
 
 var classes: Dictionary = {}
 var mastery: Dictionary = {}
+var npcs: Dictionary = {}
+var quests: Dictionary = {}
 var enemies: Dictionary = {}
 var party_scaling: Dictionary = {}
 var rules: Dictionary = {}
@@ -43,7 +45,9 @@ func reload() -> void:
 	bosses = _load_json("bosses.json") if FileAccess.file_exists(DATA_DIR + "bosses.json") else {}
 	village = _load_json("village.json")
 	mastery = _load_json("mastery.json") if FileAccess.file_exists(DATA_DIR + "mastery.json") else {}
-	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village, mastery]:
+	npcs = _load_json("npcs.json") if FileAccess.file_exists(DATA_DIR + "npcs.json") else {}
+	quests = _load_json("quests.json") if FileAccess.file_exists(DATA_DIR + "quests.json") else {}
+	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village, mastery, npcs, quests]:
 		d.erase("_comment")
 	_validate()
 

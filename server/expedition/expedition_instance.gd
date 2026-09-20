@@ -79,7 +79,7 @@ func add_member(s: Session, permanent: Dictionary = {}, trait_id: String = "") -
 	members[s.account_id] = {
 		"nickname": s.nickname, "class_id": s.class_id, "ready": false, "connected": true, "peer_id": s.peer_id,
 		"disconnect_at": 0.0, "joined_at": Time.get_unix_time_from_system(), "heal_uses": int(ContentDB.rule("heal_uses_per_expedition", 2)), "hp": -1.0,
-		"permanent": permanent, "trait": trait_id,
+		"permanent": permanent, "trait": trait_id, "secrets_found": [],
 	}
 	s.expedition_id = id
 	choices.erase(s.account_id)
@@ -230,7 +230,7 @@ func _new_run() -> void:
 		"region": region.get("id", "willow_river"), "region_name": region.get("name_ko", ""), "layers": layers, "layer": 0, "current": "", "path": [],
 		"xp": 0, "level": 1, "team_wood": 0, "players": {}, "next_room_budget_add": 0.0,
 		"pending_rewards": {}, "votes": {}, "menu": {}, "enemy_pool": region.get("enemy_pool", []),
-		"stats": {"rooms_cleared": 0, "enemies_killed": 0, "combat_sec": 0.0, "nodes": [], "started_at": Time.get_unix_time_from_system()},
+		"stats": {"rooms_cleared": 0, "enemies_killed": 0, "combat_sec": 0.0, "nodes": [], "started_at": Time.get_unix_time_from_system(), "memories": 0, "secrets": [], "mechanics_succeeded": [], "bosses_killed": []},
 		"reward_rng_state": reward_rng.state, "map_rng_state": map_rng.state, "checkpoint_note": "",
 	}
 	for aid: String in members.keys():
@@ -247,7 +247,7 @@ func _new_run() -> void:
 func _run_player(aid: String) -> Dictionary:
 	var rp: Dictionary = run["players"].get(aid, {})
 	if rp.is_empty():
-		rp = {"relics": [], "upgrades": [], "acorns": 0, "max_hp_add": 0, "shop_buys": {}, "level_seen": 1}
+		rp = {"relics": [], "upgrades": [], "acorns": int(members.get(aid, {}).get("permanent", {}).get("start_acorns", 0)), "max_hp_add": 0, "shop_buys": {}, "level_seen": 1}
 		run["players"][aid] = rp
 	return rp
 
@@ -405,7 +405,7 @@ func start_room() -> Dictionary:
 		if not m["connected"]:
 			continue
 		var mm := member_mods(aid)
-		var entry := {"account_id": aid, "nickname": m["nickname"], "class_id": m["class_id"], "connected": true, "heal_uses": m["heal_uses"], "mods": mm["mods"], "procs": mm["procs"], "build_kind": m.get("build_kind", "log_cover")}
+		var entry := {"account_id": aid, "nickname": m["nickname"], "class_id": m["class_id"], "connected": true, "heal_uses": m["heal_uses"], "mods": mm["mods"], "procs": mm["procs"], "build_kind": m.get("build_kind", "log_cover"), "secrets_found": m.get("secrets_found", [])}
 		if float(m.get("hp", -1.0)) >= 0.0:
 			entry["hp"] = float(m["hp"])
 		member_list.append(entry)
@@ -497,6 +497,15 @@ func _on_room_finished() -> void:
 	var victory: bool = room.outcome == Protocol.Outcome.VICTORY
 	run["team_wood"] = room.team_wood
 	run["stats"]["combat_sec"] = float(run["stats"]["combat_sec"]) + room.elapsed
+	for sid: String in last_result.get("stats", {}).get("secrets", []):
+		if not (run["stats"]["secrets"] as Array).has(sid):
+			run["stats"]["secrets"].append(sid)
+	for mid: String in last_result.get("mechanics_succeeded", []):
+		run["stats"]["mechanics_succeeded"].append(mid)
+		if mid == "RK-04":
+			run["stats"]["memories"] = int(run["stats"].get("memories", 0)) + 1
+	if int(last_result.get("outcome", 0)) == Protocol.Outcome.VICTORY and String(last_result.get("boss_id", "")) != "":
+		run["stats"]["bosses_killed"].append(String(last_result["boss_id"]))
 	run["stats"]["enemies_killed"] = int(run["stats"]["enemies_killed"]) + int(room.stats["enemies_killed"])
 	run["stats"]["nodes"].append({"node": run["current"], "room": room_id, "elapsed": room.elapsed, "outcome": room.outcome, "n": n_locked})
 	# 경험치(파티 공유)·도토리(개인)·체력 이월
@@ -535,8 +544,8 @@ func _on_room_finished() -> void:
 		run["stats"]["rooms_cleared"] = int(run["stats"]["rooms_cleared"]) + 1
 		run["path"].append(run["current"])
 		var node := current_node()
-		if String(node.get("type", "")) == "boss":
-			_finish_run(Protocol.Outcome.VICTORY)
+		if String(node.get("type", "")) == "boss" and int(run.get("layer", 0)) >= (run["layers"] as Array).size() - 1:
+			_finish_run(Protocol.Outcome.VICTORY)   # 마지막 지역 보스만 원정을 끝낸다. 중간 지역 보스는 다음 지역으로 이어진다.
 		else:
 			_begin_reward()
 	else:
@@ -718,7 +727,7 @@ func _begin_menu(kind: String, variant: String) -> void:
 			var hp := float(members[aid].get("hp", -1.0))
 			if hp < 0.0:
 				hp = max_hp
-			members[aid]["hp"] = minf(hp + max_hp * float(ContentDB.rule("rest_heal_fraction", 0.4)), max_hp)
+			members[aid]["hp"] = minf(hp + max_hp * (float(ContentDB.rule("rest_heal_fraction", 0.4)) + float(member_mods(aid)["mods"].get("rest_heal_add", 0.0))), max_hp)
 			members[aid]["heal_uses"] = int(ContentDB.rule("heal_uses_per_expedition", 2))
 		run["menu"]["applied"] = true
 	checkpoint_dirty = true
@@ -786,7 +795,7 @@ func _buy(aid: String, item_id: String) -> Dictionary:
 	var bought := int(rp["shop_buys"].get(item_id, 0))
 	if bought >= int(item.get("limit_per_player", 1)):
 		return {"ok": false, "error": "SOLD_OUT"}
-	var cost := int(item.get("cost", 0))
+	var cost := int(round(float(item.get("cost", 0)) * (1.0 - clampf(float(member_mods(aid)["mods"].get("shop_discount", 0.0)), 0.0, 0.5))))
 	if int(rp["acorns"]) < cost:
 		return {"ok": false, "error": "NOT_ENOUGH_ACORNS"}
 	# 서버가 한 번만 처리: 잔액 검증 후 즉시 차감. 음수 불가.

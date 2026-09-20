@@ -284,6 +284,8 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.HUB_UPGRADE: _handle_hub_upgrade(s, payload)
 				Protocol.C.MASTERY_TRAIT: _handle_mastery_trait(s, payload)
 				Protocol.C.BUILD_SELECT: _handle_build_select(s, payload)
+				Protocol.C.NPC_TALK: _handle_npc_talk(s, payload)
+				Protocol.C.QUEST_ACTION: _handle_quest_action(s, payload)
 				_: _err(s, Protocol.ERR_BAD_STATE, {"message": "unknown message %d" % type})
 
 
@@ -516,6 +518,13 @@ func _handle_board_start(s: Session) -> void:
 
 func _start_run(inst: ExpeditionInstance) -> void:
 	metrics["expeditions_started"] += 1
+	for aid: String in inst.members.keys():
+		var acc := store.get_account(aid)
+		if acc.is_empty():
+			continue
+		QuestEngine.on_run_start(acc["progression"])
+		inst.members[aid]["secrets_found"] = (acc["progression"].get("secrets_found", []) as Array).duplicate()
+		store.put_account(acc)
 	world["hub"]["total_expeditions"] = int(world["hub"].get("total_expeditions", 0)) + 1
 	store.save_world(world)
 	for aid: String in inst.members.keys():
@@ -580,19 +589,36 @@ func _on_run_finished(inst: ExpeditionInstance) -> void:
 		var st: Dictionary = acc["stats"]
 		var prog: Dictionary = acc["progression"]
 		var shard := 3 if victory else 0
+		QuestEngine.ensure(prog)
+		var completed: Array = []
 		if victory:
 			st["runs_completed"] = int(st.get("runs_completed", 0)) + 1
 			prog["memory_shards"] = int(prog.get("memory_shards", 0)) + shard
+			completed = QuestEngine.on_event(prog, {"type": "run_complete", "count": 1})
+			var ending := QuestEngine.ending_for(prog, inst.run.get("stats", {}))
+			if not (prog["endings_seen"] as Array).has(String(ending.get("id", "base"))):
+				prog["endings_seen"].append(String(ending.get("id", "base")))
+			inst.last_result["ending"] = ending
 			var codex: Dictionary = prog.get("codex", {"enemies": {}, "relics": [], "bosses": []})
-			var region_boss: String = String(ContentDB.regions.get(String(inst.run.get("region", "")), {}).get("boss", ""))
-			if region_boss != "" and not (codex.get("bosses", []) as Array).has(region_boss):
-				codex["bosses"].append(region_boss)
+			for bid: String in inst.run.get("stats", {}).get("bosses_killed", []):
+				if not (codex.get("bosses", []) as Array).has(bid):
+					codex["bosses"].append(bid)
 			prog["codex"] = codex
+		# 빌드 기록: 직업·유물·강화·결과 (최근 N개)
+		var rpx: Dictionary = inst.run.get("players", {}).get(aid, {})
+		var records: Array = prog.get("build_records", [])
+		records.push_front({"class_id": inst.members[aid]["class_id"], "relics": rpx.get("relics", []), "upgrades": rpx.get("upgrades", []), "outcome": inst.run_outcome, "rooms": int(inst.run.get("stats", {}).get("rooms_cleared", 0)), "at": int(Time.get_unix_time_from_system())})
+		while records.size() > int(ContentDB.rule("build_records_keep", 5)):
+			records.pop_back()
+		prog["build_records"] = records
 		if store.put_account(acc) != OK:
 			metrics["save_failures"] += 1
 		var entry: Dictionary = rewards.get(aid, {"memory_shards": 0, "mastery_xp": 0})
 		entry["memory_shards"] = int(entry.get("memory_shards", 0)) + shard
 		entry["totals"] = {"memory_shards": prog.get("memory_shards", 0), "mastery": prog.get("class_mastery", {}).get(String(inst.members[aid]["class_id"]), {})}
+		var qc: Array = entry.get("quests_completed", [])
+		qc.append_array(completed)
+		entry["quests_completed"] = qc
 		rewards[aid] = entry
 		var ms := _session_for_account(aid)
 		if ms != null:
@@ -645,6 +671,78 @@ func _handle_mastery_trait(s: Session, payload: Dictionary) -> void:
 		_err(s, Protocol.ERR_SAVE_FAILED)
 		return
 	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+
+
+func _npc_dialog(s: Session, npc_id: String) -> Dictionary:
+	var npc: Dictionary = ContentDB.npcs.get(npc_id, {})
+	var acc := store.get_account(s.account_id)
+	var prog: Dictionary = acc["progression"]
+	QuestEngine.ensure(prog)
+	var lv := QuestEngine.bond_level(prog, npc_id)
+	var lines: Array = (npc.get("lines", {}).get("greet", []) as Array).duplicate()
+	if lv >= 2:
+		lines.append_array(npc.get("lines", {}).get("bond2", []))
+	if lv >= 3:
+		lines.append_array(npc.get("lines", {}).get("bond3", []))
+	return {"npc": {"id": npc_id, "name_ko": npc.get("name_ko", npc_id), "role_ko": npc.get("role_ko", ""), "assets": npc.get("assets", {})}, "lines": lines, "bond_level": lv, "bond_points": int(prog.get("npc_bonds", {}).get(npc_id, 0)), "quests": QuestEngine.npc_view(prog, npc_id), "summary": QuestEngine.summary(prog)}
+
+
+func _handle_npc_talk(s: Session, payload: Dictionary) -> void:
+	if s.location != Protocol.Location.HUB:
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	var npc_id := String(payload.get("npc", ""))
+	var npc: Dictionary = ContentDB.npcs.get(npc_id, {})
+	if npc.is_empty():
+		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": npc_id})
+		return
+	if Vector2(float(npc.get("x", 0)), float(npc.get("y", 0))).distance_to(s.hub_pos) > float(ContentDB.rule("hub_talk_range", 90.0)) + 40.0:
+		_err(s, "TOO_FAR", {"npc": npc_id})
+		return
+	# 첫 대화는 인연 +1 (NPC 당 하루 한 번)
+	var acc := store.get_account(s.account_id)
+	var prog: Dictionary = acc["progression"]
+	QuestEngine.ensure(prog)
+	var talked: Dictionary = prog.get("npc_talked_day", {})
+	var day := int(Time.get_unix_time_from_system() / 86400)
+	if int(talked.get(npc_id, -1)) != day:
+		talked[npc_id] = day
+		prog["npc_talked_day"] = talked
+		QuestEngine.add_bond(prog, npc_id, 1)
+		QuestEngine.on_event(prog, {"type": "talk", "target": npc_id, "count": 1})
+		store.put_account(acc)
+	Net.send_to_peer(s.peer_id, Protocol.S.NPC_DIALOG, _npc_dialog(s, npc_id))
+
+
+func _handle_quest_action(s: Session, payload: Dictionary) -> void:
+	var qid := String(payload.get("quest", ""))
+	var action := String(payload.get("action", ""))
+	var acc := store.get_account(s.account_id)
+	var prog: Dictionary = acc["progression"]
+	QuestEngine.ensure(prog)
+	var q := QuestEngine.get_def(qid)
+	if q.is_empty():
+		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": qid})
+		return
+	var ok := false
+	match action:
+		"accept":
+			ok = QuestEngine.accept(prog, qid)
+		"claim":
+			var r := QuestEngine.claim(prog, qid)
+			ok = bool(r.get("ok", false))
+			if ok:
+				var rw: Dictionary = r.get("reward", {})
+				Net.send_to_peer(s.peer_id, Protocol.S.NOTICE, {"text": "퀘스트 완료: %s — 기억 조각 +%d%s" % [q.get("name_ko", qid), int(rw.get("memory_shards", 0)), (" · 해금: " + String(rw["unlock"])) if rw.has("unlock") else ""]})
+	if not ok:
+		_err(s, Protocol.ERR_BAD_STATE, {"quest": qid, "action": action})
+		return
+	if store.put_account(acc) != OK:
+		metrics["save_failures"] += 1
+		_err(s, Protocol.ERR_SAVE_FAILED)
+		return
+	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+	Net.send_to_peer(s.peer_id, Protocol.S.NPC_DIALOG, _npc_dialog(s, String(q.get("giver", ""))))
 
 
 func _handle_build_select(s: Session, payload: Dictionary) -> void:
@@ -776,6 +874,11 @@ func _handle_hub_upgrade(s: Session, payload: Dictionary) -> void:
 		_err(s, Protocol.ERR_SAVE_FAILED)
 		return
 	_log(1, "%s repaired %s to level %d (-%d shards)" % [s.nickname, sid, next, cost])
+	QuestEngine.ensure(acc["progression"])
+	var qdone: Array = QuestEngine.on_event(acc["progression"], {"type": "village_level", "target": sid, "count": next, "absolute": true})
+	store.put_account(acc)
+	if not qdone.is_empty():
+		Net.send_to_peer(s.peer_id, Protocol.S.NOTICE, {"text": "퀘스트 목표 달성: " + ", ".join(qdone.map(func(q: String) -> String: return String(QuestEngine.get_def(q).get("name_ko", q))))})
 	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
 	for hs: Session in hub.sessions.values():
 		Net.send_to_peer(hs.peer_id, Protocol.S.ENTER_HUB, {"hub": hub.hub_info(), "roster": hub.roster(), "board": expeditions.board_list(), "you": {"id": hs.account_id, "x": hs.hub_pos.x, "y": hs.hub_pos.y}, "refresh": true})
@@ -942,6 +1045,10 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		var prog: Dictionary = acc["progression"]
 		# 기억 조각: 방 클리어마다 1 (원정 완주 보너스는 _on_run_finished). 유물 도감·적 도감 갱신.
 		var shard := 1 if victory else 0
+		var rp: Dictionary = inst.run.get("players", {}).get(aid, {})
+		if victory and int(inst.member_mods(aid)["mods"].get("shard_bonus", 0)) > 0 and int(rp.get("shard_bonus_used", 0)) < 3:
+			shard += 1
+			rp["shard_bonus_used"] = int(rp.get("shard_bonus_used", 0)) + 1
 		prog["memory_shards"] = int(prog.get("memory_shards", 0)) + shard
 		var cls: String = inst.members[aid]["class_id"]
 		var mastery: Dictionary = prog.get("class_mastery", {})
@@ -950,6 +1057,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		var xp_gain := int(ps.get("kills", 0)) * int(xpr.get("per_kill", 5)) + (int(xpr.get("room_clear", 10)) if victory else int(xpr.get("room_wipe", 2)))
 		if victory and String(res.get("objective", "")) == "boss":
 			xp_gain += int(xpr.get("boss_kill", 40))
+		xp_gain = int(round(xp_gain * (1.0 + float(_permanent_bonus(aid).get("mastery_xp_mult", 0.0)))))
 		entry["xp"] = int(entry.get("xp", 0)) + xp_gain
 		entry["level"] = ContentDB.mastery_level(int(entry["xp"]))
 		mastery[cls] = entry
@@ -961,9 +1069,35 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 			if not (codex["relics"] as Array).has(rid):
 				codex["relics"].append(rid)
 		prog["codex"] = codex
+		# 지역 비밀·퀘스트 진행 (한 번만 반영)
+		QuestEngine.ensure(prog)
+		for sid: String in res.get("stats", {}).get("secrets", []):
+			if not (prog["secrets_found"] as Array).has(sid):
+				prog["secrets_found"].append(sid)
+				prog["memory_shards"] = int(prog["memory_shards"]) + int(ContentDB.rule("secret_reward_shards", 2))
+		inst.members[aid]["secrets_found"] = (prog["secrets_found"] as Array).duplicate()
+		var completed: Array = []
+		completed.append_array(QuestEngine.on_event(prog, {"type": "kills", "count": int(ps.get("kills", 0))}))
+		completed.append_array(QuestEngine.on_event(prog, {"type": "codex_enemies", "count": codex["enemies"].size(), "absolute": true}))
+		completed.append_array(QuestEngine.on_event(prog, {"type": "secrets", "count": (prog["secrets_found"] as Array).size(), "absolute": true}))
+		completed.append_array(QuestEngine.on_event(prog, {"type": "structures_built", "count": int(res.get("stats", {}).get("builds", 0))}))
+		completed.append_array(QuestEngine.on_event(prog, {"type": "sluice_toggles", "count": int(res.get("stats", {}).get("sluice_toggles", 0))}))
+		for mid: String in res.get("mechanics_succeeded", []):
+			completed.append_array(QuestEngine.on_event(prog, {"type": "mechanic_success", "target": mid, "count": 1}))
+		if victory:
+			completed.append_array(QuestEngine.on_event(prog, {"type": "rooms_cleared_objective", "target": String(res.get("objective", "")), "count": 1}))
+			if String(res.get("objective", "")) == "escort":
+				completed.append_array(QuestEngine.on_event(prog, {"type": "escort_clear", "count": 1}))
+			if String(res.get("boss_id", "")) != "":
+				completed.append_array(QuestEngine.on_event(prog, {"type": "boss_kill", "target": String(res["boss_id"]), "count": 1}))
+			if bool(res.get("elite", false)):
+				if int(res.get("stats", {}).get("builds", 0)) == 0:
+					completed.append_array(QuestEngine.on_event(prog, {"type": "elite_no_structure", "count": 1}))
+				else:
+					QuestEngine.fail_for_run(prog, "opt_03")
 		if store.put_account(acc) != OK:
 			metrics["save_failures"] += 1
-		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}}
+		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}, "quests_completed": completed, "secrets": res.get("stats", {}).get("secrets", [])}
 		var ms := _session_for_account(aid)
 		if ms != null:
 			Net.send_to_peer(ms.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})

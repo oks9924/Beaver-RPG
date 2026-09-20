@@ -1,10 +1,147 @@
 {
-  "_comment": "마을 시설 복구 (13-1절). 시설은 공용 마을 상태이며 누구의 기억 조각으로든 복구할 수 있다. 영구 보너스는 통합 상한을 넘지 않는다. 검증 전 출발값.",
-  "permanent_caps": {"max_hp_add": 10, "damage_mult": 0.05},
-  "structures": {
-    "memory_tree": {"id": "memory_tree", "name_ko": "기억나무", "max_level": 3,
-      "levels": {"2": {"cost_shards": 5, "desc_ko": "전원 최대 체력 +5", "bonus": {"max_hp_add": 5}}, "3": {"cost_shards": 12, "desc_ko": "전원 최대 체력 +10 (누적, 상한)", "bonus": {"max_hp_add": 10}}}},
-    "workshop": {"id": "workshop", "name_ko": "작업실", "max_level": 2,
-      "levels": {"1": {"cost_shards": 4, "desc_ko": "출정 시 회복 도구 +1", "bonus": {"heal_uses_add": 1}}, "2": {"cost_shards": 10, "desc_ko": "출정 시 팀 목재 +3", "bonus": {"team_wood_add": 3}}}}
+ "_comment": "마을 시설 5개 × 3단계 (13-1절). 시설은 공용 마을 상태이며 누구의 기억 조각으로든 복구할 수 있다. 영구 보너스는 통합 상한(permanent_caps)을 넘지 않는다.",
+ "permanent_caps": {
+  "max_hp_add": 15,
+  "damage_mult": 0.06,
+  "heal_uses_add": 2,
+  "team_wood_add": 6,
+  "dodge_charges_add": 1
+ },
+ "structures": {
+  "memory_tree": {
+   "id": "memory_tree",
+   "name_ko": "기억나무",
+   "max_level": 3,
+   "levels": {
+    "2": {
+     "cost_shards": 5,
+     "desc_ko": "전원 최대 체력 +5",
+     "bonus": {
+      "max_hp_add": 5
+     }
+    },
+    "3": {
+     "cost_shards": 12,
+     "desc_ko": "전원 최대 체력 +10 (누적, 상한)",
+     "bonus": {
+      "max_hp_add": 10
+     }
+    }
+   }
+  },
+  "workshop": {
+   "id": "workshop",
+   "name_ko": "작업실",
+   "max_level": 3,
+   "levels": {
+    "1": {
+     "cost_shards": 4,
+     "desc_ko": "출정 시 회복 도구 +1",
+     "bonus": {
+      "heal_uses_add": 1
+     }
+    },
+    "2": {
+     "cost_shards": 10,
+     "desc_ko": "출정 시 팀 목재 +3",
+     "bonus": {
+      "team_wood_add": 3
+     }
+    },
+    "3": {
+     "cost_shards": 18,
+     "desc_ko": "출정 시 팀 목재 +6, 건설 목재 -1",
+     "bonus": {
+      "team_wood_add": 6,
+      "build_cost_add": -1
+     }
+    }
+   }
+  },
+  "training_ground": {
+   "id": "training_ground",
+   "name_ko": "훈련장",
+   "max_level": 3,
+   "levels": {
+    "1": {
+     "cost_shards": 6,
+     "desc_ko": "기초 피해 +2%",
+     "bonus": {
+      "damage_mult": 0.02
+     }
+    },
+    "2": {
+     "cost_shards": 14,
+     "desc_ko": "기초 피해 +4% (누적)",
+     "bonus": {
+      "damage_mult": 0.04
+     }
+    },
+    "3": {
+     "cost_shards": 24,
+     "desc_ko": "기초 피해 +6% (상한), 숙련 경험치 +20%",
+     "bonus": {
+      "damage_mult": 0.06,
+      "mastery_xp_mult": 0.2
+     }
+    }
+   }
+  },
+  "herb_hut": {
+   "id": "herb_hut",
+   "name_ko": "약초방",
+   "max_level": 3,
+   "levels": {
+    "1": {
+     "cost_shards": 5,
+     "desc_ko": "회복 도구 회복량 30%→35%",
+     "bonus": {
+      "heal_fraction_add": 0.05
+     }
+    },
+    "2": {
+     "cost_shards": 12,
+     "desc_ko": "회복 도구 +1 (누적 상한 2)",
+     "bonus": {
+      "heal_uses_add": 2
+     }
+    },
+    "3": {
+     "cost_shards": 20,
+     "desc_ko": "휴식 노드 회복 +15%",
+     "bonus": {
+      "rest_heal_add": 0.15
+     }
+    }
+   }
+  },
+  "archive": {
+   "id": "archive",
+   "name_ko": "기록관",
+   "max_level": 3,
+   "levels": {
+    "1": {
+     "cost_shards": 6,
+     "desc_ko": "보상 후보에 희귀 유물 확률 +10%",
+     "bonus": {
+      "rare_chance_add": 0.1
+     }
+    },
+    "2": {
+     "cost_shards": 14,
+     "desc_ko": "지역 비밀 위치가 미니맵에 표시",
+     "bonus": {
+      "reveal_secrets": 1
+     }
+    },
+    "3": {
+     "cost_shards": 24,
+     "desc_ko": "회피 충전 +1 (상한)",
+     "bonus": {
+      "dodge_charges_add": 1
+     }
+    }
+   }
   }
+ }
 }

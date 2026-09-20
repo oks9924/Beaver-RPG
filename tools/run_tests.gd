@@ -52,6 +52,10 @@ func _ready() -> void:
 	test_regions_and_enemies()
 	print("-- test_escort_and_elite")
 	test_escort_and_elite()
+	print("-- test_quests_and_progression")
+	test_quests_and_progression()
+	print("-- test_secrets_and_relics")
+	test_secrets_and_relics()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -1174,3 +1178,114 @@ func test_escort_and_elite() -> void:
 	var wood0 := er.team_wood
 	er._damage_enemy(elite, 100000.0, er.players["p0"], 0.0, 0.0)
 	check(er.team_wood - wood0 == 3, "elite drops triple wood")
+
+
+func test_quests_and_progression() -> void:
+	var prog := {"memory_shards": 0}
+	QuestEngine.ensure(prog)
+	check(prog["quests"].has("main_01") and prog["quests"]["main_01"]["state"] == "active", "main quest auto-accepted")
+	check(not prog["quests"].has("main_02"), "main_02 hidden until main_01 done")
+	check(prog["quests"].has("opt_02") and prog["quests"]["opt_02"]["state"] == "available", "optional quest available")
+	check(QuestEngine.accept(prog, "opt_02") and not QuestEngine.accept(prog, "opt_02"), "accept once")
+	var done := QuestEngine.on_event(prog, {"type": "boss_kill", "target": "ironclaw", "count": 1})
+	check(done.has("main_01") and prog["quests"]["main_01"]["state"] == "complete", "boss kill completes main_01")
+	var r := QuestEngine.claim(prog, "main_01")
+	check(bool(r["ok"]) and int(prog["memory_shards"]) == 10 and int(prog["npc_bonds"]["elder_zelkova"]) == 1, "claim grants shards and bond once")
+	var r2 := QuestEngine.claim(prog, "main_01")
+	check(not bool(r2["ok"]) and int(prog["memory_shards"]) == 10, "second claim rejected (no duplicate reward)")
+	check(prog["quests"].has("main_02") and prog["quests"]["main_02"]["state"] == "available", "main_02 unlocked after main_01")
+	# per_run 목표는 런 시작 시 초기화
+	QuestEngine.accept(prog, "opt_05")
+	QuestEngine.on_event(prog, {"type": "sluice_toggles", "count": 3})
+	check(int(prog["quests"]["opt_05"]["run_progress"]) == 3, "per-run progress accumulates")
+	QuestEngine.on_run_start(prog)
+	check(int(prog["quests"]["opt_05"]["run_progress"]) == 0, "per-run progress resets on run start")
+	QuestEngine.on_event(prog, {"type": "sluice_toggles", "count": 4})
+	check(prog["quests"]["opt_05"]["state"] == "complete", "per-run goal reached in one run")
+	# 절대값 목표 (도감·비밀)
+	QuestEngine.accept(prog, "opt_07")
+	QuestEngine.on_event(prog, {"type": "codex_enemies", "count": 9, "absolute": true})
+	check(prog["quests"]["opt_07"]["state"] == "complete", "absolute objective completes at threshold")
+	# 실패 표시: 정예전에서 구조물 건설
+	QuestEngine.accept(prog, "opt_03")
+	QuestEngine.fail_for_run(prog, "opt_03")
+	QuestEngine.on_event(prog, {"type": "elite_no_structure", "count": 1})
+	check(prog["quests"]["opt_03"]["state"] == "active", "failed-for-run quest does not progress this run")
+	QuestEngine.on_run_start(prog)
+	QuestEngine.on_event(prog, {"type": "elite_no_structure", "count": 1})
+	check(prog["quests"]["opt_03"]["state"] == "complete", "quest recovers next run")
+	check(QuestEngine.npc_view(prog, "elder_zelkova").size() >= 2 and QuestEngine.summary(prog)["done"] == 1, "npc view and summary")
+	# 결말 판정
+	prog["secrets_found"] = ["a", "b", "c", "d", "e", "f"]
+	check(QuestEngine.ending_for(prog, {"memories": 2})["id"] == "purified" and QuestEngine.ending_for(prog, {"memories": 1})["id"] == "base", "ending depends on memories and secrets")
+	# 인연 단계
+	QuestEngine.add_bond(prog, "smith_resin", 5)
+	check(QuestEngine.bond_level(prog, "smith_resin") == 2, "bond level from points")
+	# 마을 5시설 3단계 + 상한
+	check(ContentDB.village["structures"].size() == 5, "5 village structures")
+	var full := {}
+	for sid: String in ContentDB.village["structures"].keys():
+		full[sid] = {"level": 3}
+	var b := ContentDB.village_bonus(full)
+	check(float(b["damage_mult"]) <= float(ContentDB.village["permanent_caps"]["damage_mult"]) + 0.0001 and float(b["max_hp_add"]) <= float(ContentDB.village["permanent_caps"]["max_hp_add"]) and int(b["heal_uses_add"]) <= 2, "village bonuses capped: %s" % [b])
+	check(ContentDB.quests["quests"].size() == 15 and ContentDB.npcs.size() == 6, "15 quests, 6 npcs")
+
+
+func test_secrets_and_relics() -> void:
+	check(ContentDB.relics.keys().filter(func(k: String) -> bool: return not k.begins_with("_")).size() == 36, "36 relics")
+	for rid: String in ContentDB.relics.keys():
+		if rid.begins_with("_"):
+			continue
+		for k: String in ContentDB.relics[rid].get("mods", {}).keys():
+			check(RunMods.MOD_KEYS.has(k), "relic mod key known: %s.%s" % [rid, k])
+		check(AssetRegistry.has("icon.relic." + rid), "relic icon id: " + rid)
+	# 비밀: 방에 등장하고 조사하면 결과에 기록되며, 이미 찾은 계정에는 다시 나오지 않는다
+	var found_room := false
+	for seed_ in 20:
+		var room := CombatRoom.new(ContentDB.get_room_def("annihilate"), ContentDB.get_party_profile(1), ContentDB.rules, seed_, _members(1))
+		var sec: Dictionary = {}
+		for o: Dictionary in room.objects.values():
+			if o["kind"] == Protocol.ObKind.SECRET:
+				sec = o
+		if sec.is_empty():
+			continue
+		found_room = true
+		for e: Dictionary in room.enemies.values():
+			e["ai"] = Protocol.EnemyAI.DEAD
+			e["death_t"] = 0.0
+		var p: Dictionary = room.players["p0"]
+		p["pos"] = (sec["pos"] as Vector2) + Vector2(30, 0)
+		var seq := 1
+		var got := false
+		for i in 120:
+			room.queue_input("p0", seq, Vector2.ZERO, Vector2.ZERO, Protocol.BTN_INTERACT)
+			seq += 1
+			for ev: Dictionary in room.step(1.0 / 30.0):
+				if ev["k"] == "secret_found":
+					got = true
+		check(got and room.result_summary()["stats"]["secrets"] == ["wr_01"], "secret found and recorded in the room result")
+		var room2 := CombatRoom.new(ContentDB.get_room_def("annihilate"), ContentDB.get_party_profile(1), ContentDB.rules, seed_, [{"account_id": "p0", "nickname": "P0", "class_id": "guardian", "secrets_found": ["wr_01"]}])
+		var again := false
+		for o: Dictionary in room2.objects.values():
+			if o["kind"] == Protocol.ObKind.SECRET:
+				again = true
+		check(not again, "already found secret does not respawn for that account")
+		break
+	check(found_room, "secret spawns in some seeds")
+	# 유물 실측: 댐지기 휘장(건설 비용 -1, 내구 +50%), 강의 심장(저체력 회복), 고대 앞니
+	var mods: Dictionary = RunMods.build(["dam_keeper_badge", "river_heart", "ancient_incisor"], [], "guardian", 1, {}, ContentDB.rules)["mods"]
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 3, [{"account_id": "p0", "nickname": "P0", "class_id": "guardian", "mods": mods}])
+	var p: Dictionary = room.players["p0"]
+	check(is_equal_approx(p["max_hp"], 130.0), "ancient incisor lowers max hp (%.0f)" % p["max_hp"])
+	room.team_wood = 10
+	room.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT, Protocol.BTN_BUILD)
+	room.step(1.0 / 30.0)
+	var st: Dictionary = {}
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.STRUCTURE:
+			st = o
+	check(room.team_wood == 8 and not st.is_empty() and is_equal_approx(st["max_hp"], 90.0), "dam keeper badge: cost 2 wood, hp 90")
+	p["hp"] = 20.0
+	for i in 30:
+		room.step(1.0 / 30.0)
+	check(p["hp"] > 20.5, "river heart regenerates at low hp")

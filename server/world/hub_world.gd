@@ -93,5 +93,16 @@ func hub_info() -> Dictionary:
 		"obstacles": obstacles,
 		"spawn": [SPAWN.x, SPAWN.y],
 		"village": ContentDB.village.get("structures", {}),
+		"npcs": _npc_list(),
 		"bonus": ContentDB.village_bonus(world["hub"].get("structures", {})),
 	}
+
+
+func _npc_list() -> Array:
+	var out: Array = []
+	for nid: String in ContentDB.npcs.keys():
+		if nid.begins_with("_"):
+			continue
+		var n: Dictionary = ContentDB.npcs[nid]
+		out.append({"id": nid, "name_ko": n.get("name_ko", nid), "role_ko": n.get("role_ko", ""), "x": n.get("x", 0), "y": n.get("y", 0), "sprite": n.get("assets", {}).get("sprite", "")})
+	return out

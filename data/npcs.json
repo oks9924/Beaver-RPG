@@ -1,0 +1,141 @@
+{
+ "_comment": "마을 NPC 6명 (13절). 모두 창작 캐릭터. 마을 위치·기능·대화·인연 단계. 인연은 대화·퀘스트로 오른다.",
+ "elder_zelkova": {
+  "id": "elder_zelkova",
+  "name_ko": "느티 장로",
+  "role_ko": "메인 이야기, 원정 목표",
+  "x": 800,
+  "y": 300,
+  "assets": {
+   "portrait": "portrait.npc.elder_zelkova",
+   "sprite": "npc.elder_zelkova"
+  },
+  "lines": {
+   "greet": [
+    "강물이 검어진 뒤로 마을은 조용해졌네. 자네가 물길을 되돌릴 수 있을까.",
+    "기억나무가 아직 서 있는 한 우리는 잊히지 않는다."
+   ],
+   "bond2": [
+    "옛날 이야기를 해 주지. 댐이 무너지던 밤에 나는... 아니, 다음에."
+   ],
+   "bond3": [
+    "사실 그날 수문을 연 건 나였네. 그 죄를 자네가 씻어 주고 있군."
+   ]
+  }
+ },
+ "smith_resin": {
+  "id": "smith_resin",
+  "name_ko": "송진 대장장이",
+  "role_ko": "무기 외형·시작 장비 해금, 훈련장 복구",
+  "x": 500,
+  "y": 520,
+  "assets": {
+   "portrait": "portrait.npc.smith_resin",
+   "sprite": "npc.smith_resin"
+  },
+  "lines": {
+   "greet": [
+    "말은 짧게. 망치는 무겁게.",
+    "훈련장이 서면 새 비버들도 덜 죽을 거야."
+   ],
+   "bond2": [
+    "...이 망치, 자네 손에 맞게 손봐 뒀어."
+   ],
+   "bond3": [
+    "내 아버지의 도끼야. 톱니전사가 쓰던 거지. 가져가."
+   ]
+  }
+ },
+ "merchant_doto": {
+  "id": "merchant_doto",
+  "name_ko": "도토 상인",
+  "role_ko": "원정 상점, 구매·교환",
+  "x": 1150,
+  "y": 520,
+  "assets": {
+   "portrait": "portrait.npc.merchant_doto",
+   "sprite": "npc.merchant_doto"
+  },
+  "lines": {
+   "greet": [
+    "도토리는 굴러도 손해는 안 봐요. 원정 소문 들었어요?",
+    "습지 쪽 좌판은 값이 세요. 미리 사 두세요."
+   ],
+   "bond2": [
+    "단골한테만 알려주는 건데, 상자 냄새부터 맡아 보세요."
+   ],
+   "bond3": [
+    "당신 덕에 장사가 살았어요. 이건 덤이에요."
+   ]
+  }
+ },
+ "herbalist_moss": {
+  "id": "herbalist_moss",
+  "name_ko": "이끼 약초사",
+  "role_ko": "회복 도구 변형, 생물 도감",
+  "x": 420,
+  "y": 760,
+  "assets": {
+   "portrait": "portrait.npc.herbalist_moss",
+   "sprite": "npc.herbalist_moss"
+  },
+  "lines": {
+   "greet": [
+    "달팽이 껍질에 이끼가 끼는 속도로 물이 상하고 있어요.",
+    "도감에 새 생물을 적어 오면 회복 도구를 손봐 드릴게요."
+   ],
+   "bond2": [
+    "포자 버섯은 맥동할 때 건드리면 안 돼요. 적어 두세요."
+   ],
+   "bond3": [
+    "당신이 가져온 표본으로 정화 씨앗을 키웠어요."
+   ]
+  }
+ },
+ "archivist_willow": {
+  "id": "archivist_willow",
+  "name_ko": "버들 기록관",
+  "role_ko": "도감, 기억 조각, 결말 단서",
+  "x": 1050,
+  "y": 300,
+  "assets": {
+   "portrait": "portrait.npc.archivist_willow",
+   "sprite": "npc.archivist_willow"
+  },
+  "lines": {
+   "greet": [
+    "기억은 그림으로 남겨야 해요. 글은 물에 번지니까.",
+    "지역의 비밀을 찾으면 그려 둘게요."
+   ],
+   "bond2": [
+    "잔향을 세 번 붙잡은 사람은 댐 아래 무엇이 있는지 알게 돼요."
+   ],
+   "bond3": [
+    "정화 결말의 그림을 그리기 시작했어요. 당신이 완성해 주세요."
+   ]
+  }
+ },
+ "engineer_ripple": {
+  "id": "engineer_ripple",
+  "name_ko": "물결 기술자",
+  "role_ko": "건설 튜토리얼, 구조물 선택지",
+  "x": 1250,
+  "y": 760,
+  "assets": {
+   "portrait": "portrait.npc.engineer_ripple",
+   "sprite": "npc.engineer_ripple"
+  },
+  "lines": {
+   "greet": [
+    "B 로 짓고 G 로 바꿔요. 통나무·가시·등불, 셋 다 써 보세요.",
+    "수문은 열기 전에 경고가 와요. 물길 안에 서 있지 마세요."
+   ],
+   "bond2": [
+    "수압 포탑 설계도를 좀 손봤어요. 세 번째 포탑도 가능할지도."
+   ],
+   "bond3": [
+    "댐을 다시 세울 날이 오면 첫 삽은 당신이 떠요."
+   ]
+  }
+ }
+}

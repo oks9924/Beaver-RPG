@@ -103,5 +103,30 @@
    "heal_per_sec": 2,
    "desc_ko": "주변 아군을 초당 2 회복 (회복 상한 적용)"
   }
- }
+ },
+ "endings": {
+  "base": {
+   "id": "base",
+   "name_ko": "기본 결말",
+   "text_ko": "뿌리왕이 쓰러지고 물길이 열렸다. 강은 아직 탁하지만, 마을은 다시 소리를 냈다."
+  },
+  "purified": {
+   "id": "purified",
+   "name_ko": "정화 결말",
+   "text_ko": "기억 잔향이 모두 모여 댐 아래 잠긴 옛 수문이 열렸다. 검은 수액이 빠져나가고 버들강이 맑아졌다.",
+   "requires": {
+    "memories_in_run": 2,
+    "secrets_total": 6
+   }
+  }
+ },
+ "bond_levels": [
+  0,
+  2,
+  5,
+  9
+ ],
+ "secret_reward_shards": 2,
+ "hub_talk_range": 90.0,
+ "build_records_keep": 5
 }

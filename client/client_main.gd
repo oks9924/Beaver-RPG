@@ -27,6 +27,7 @@ var _seq: int = 0
 var _pending: Array = []            # [{seq, mv, dt}]
 var _pred_pos: Vector2 = Vector2.ZERO
 var selected_class: String = "guardian"
+var npc_panel := NpcPanel.new()
 var build_kind: String = "log_cover"
 var _me_snapshot: PackedFloat32Array = PackedFloat32Array()
 var _room_players: Array = []
@@ -111,6 +112,9 @@ func _ready() -> void:
 	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))
 	run_panels.route_voted.connect(func(n: String) -> void: net.send(Protocol.C.ROUTE_VOTE, {"node_id": n}))
 	run_panels.node_action.connect(func(p: Dictionary) -> void: net.send(Protocol.C.NODE_ACTION, p))
+	npc_panel.name = "NpcPanel"
+	root.add_child(npc_panel)
+	npc_panel.quest_action.connect(func(qid: String, action: String) -> void: net.send(Protocol.C.QUEST_ACTION, {"quest": qid, "action": action}))
 	net.state_changed.connect(_on_net_state)
 	net.hello_result.connect(_on_hello)
 	net.auth_result.connect(_on_auth)
@@ -264,6 +268,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			hub_screen.show_board(p.get("board", []), "")
 			hub_screen.show_party({}, my_id)
 			hub_screen.show_progression(hub_info, net.account)
+			world.set_npcs(hub_info.get("npcs", []))
 			_set_mode("hub")
 		Protocol.S.HUB_ROSTER:
 			roster = p.get("roster", [])
@@ -281,6 +286,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			var def: Dictionary = p.get("room_def", {})
 			var b: Dictionary = def.get("bounds", {"x": 0, "y": 0, "w": 1200, "h": 800})
 			world.clear_entities()
+			world.set_npcs([])
 			world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(def.get("assets", {}).get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []))
 			_pending.clear()
 			_me_snapshot = PackedFloat32Array()
@@ -316,6 +322,10 @@ func _on_message(type: int, p: Dictionary) -> void:
 		Protocol.S.NODE_MENU:
 			run_panels.show_menu(p, my_id, party.get("members", []))
 			_set_mode("phase")
+		Protocol.S.NPC_DIALOG:
+			npc_panel.show_dialog(p)
+			if p.has("summary"):
+				hub_screen.show_quests(p["summary"])
 		Protocol.S.NOTICE:
 			hud.toast(String(p.get("text", "")), 3.0)
 			hud.add_chat("알림", String(p.get("text", "")))
@@ -462,6 +472,10 @@ func _on_room_event(ev: Dictionary) -> void:
 			hud.toast("밸브가 되돌아갔다 — 동시에 돌리세요", 1.5)
 		"log_wrong":
 			hud.toast("틀린 순서! 처음부터", 1.5)
+		"secret_found":
+			hud.toast("지역 비밀 발견: %s (+%d 조각)" % [String(ev.get("name", "")), int(ContentDB.rule("secret_reward_shards", 2))], 3.0)
+			world.spawn_effect("vfx.rescue_ring", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
+			world.play_sound("sfx.rescue")
 		"elite_spawn":
 			hud.toast("정예: %s 등장!" % String(ev.get("name", "")), 3.0)
 			world.play_sound("sfx.tail_slam", 0.2)
@@ -741,6 +755,10 @@ func _physics_process(dt: float) -> void:
 		if Input.is_action_just_pressed("build_place"): btn |= Protocol.BTN_BUILD
 		if Input.is_action_just_pressed("build_cycle") and mode == "room":
 			_cycle_build_kind()
+		if mode == "hub" and Input.is_action_just_pressed("interact") and not npc_panel.visible:
+			var npc := world.nearest_npc(_pred_pos, float(ContentDB.rule("hub_talk_range", 90.0)))
+			if not npc.is_empty():
+				net.send(Protocol.C.NPC_TALK, {"npc": npc.get("id", "")})
 	var aim: Vector2 = demo_in["aim"] if demo else (world.get_global_mouse_position() - _pred_pos + Vector2(0, 24))
 	_seq += 1
 	net.send_input(_seq, mv, aim, btn)

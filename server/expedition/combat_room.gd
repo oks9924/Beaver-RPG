@@ -30,11 +30,12 @@ var wave_budget_total: float = 0.0
 var _wave_gap_t: float = 0.0
 var _all_spawned: bool = false
 var events: Array = []
-var stats := {"enemies_spawned": 0, "enemies_killed": 0, "downs": 0, "rescues": 0, "deaths": 0, "kills_by_type": {}, "wood_gained": 0, "builds": 0, "sluice_toggles": 0, "gnaws": 0}
+var stats := {"enemies_spawned": 0, "enemies_killed": 0, "downs": 0, "rescues": 0, "deaths": 0, "kills_by_type": {}, "wood_gained": 0, "builds": 0, "sluice_toggles": 0, "gnaws": 0, "secrets": []}
 var hit_damage_mult: float = 1.0
 var team_wood: int = 0
 var water_zone: Dictionary = {}   # {x,y,w,h,state(0 low,1 warning,2 high), t}
 var hazards: Array = []           # 지역 위험 구역 [{x,y,w,h,kind,slow,dps}] (수액 웅덩이 등)
+var _members_snapshot: Array = []
 var elite_spawned: bool = false
 var enemy_pool: Array = []
 var boss: RefCounted = null        # 보스방일 때 BossController (단계 2-3)
@@ -60,8 +61,9 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 	wave_budget_total = (float(w.get("base_budget", 4.0)) + float(opts.get("budget_add", 0.0))) * float(profile.get("wave_budget_mult", 1.0))
 	var spawns: Array = def.get("player_spawns", [[100, 100]])
 	var i := 0
+	_members_snapshot = members
 	for m: Dictionary in members:
-		add_player(m, spawns[i % spawns.size()])
+		add_player(m, spawns[i % spawns.size()], members.size())
 		i += 1
 	hazards = def.get("hazards", []).duplicate(true)
 	_setup_objects()
@@ -80,6 +82,14 @@ func _setup_objects() -> void:
 	var hz: Dictionary = room_def.get("hold_zone", {})
 	if not hz.is_empty():
 		_add_object(Protocol.ObKind.HOLD_ZONE, Vector2(float(hz["x"]), float(hz["y"])), float(hz.get("r", 120)), {"required": float(hz.get("required_sec", 20)), "contest_radius": float(hz.get("contest_radius", 140))})
+	var sec: Dictionary = room_def.get("secret", {})
+	if not sec.is_empty() and rng.randf() < float(sec.get("chance", 0.6)):
+		var found := false
+		for m: Dictionary in _members_snapshot:
+			if (m.get("secrets_found", []) as Array).has(String(sec.get("id", ""))):
+				found = true
+		if not found:
+			_add_object(Protocol.ObKind.SECRET, Vector2(float(sec["x"]), float(sec["y"])), 24.0, {"hold_sec": 2.0, "interactable": true, "secret_id": String(sec.get("id", "")), "name_ko": String(sec.get("name_ko", ""))})
 	var esc: Dictionary = room_def.get("escort", {})
 	if not esc.is_empty() and objective == "escort":
 		var path: Array = esc.get("path", [[100, 100], [900, 100]])
@@ -100,10 +110,10 @@ func _add_object(kind: int, pos: Vector2, r: float, extra: Dictionary) -> Dictio
 	return o
 
 
-func add_player(m: Dictionary, spawn: Array) -> Dictionary:
+func add_player(m: Dictionary, spawn: Array, members_count: int = 1) -> Dictionary:
 	var cdef: Dictionary = ContentDB.get_class_def(String(m.get("class_id", "guardian")))
 	var mods: Dictionary = m.get("mods", RunMods.empty())
-	var max_hp := float(cdef.get("base_hp", 100)) + float(mods.get("max_hp_add", 0.0))
+	var max_hp := float(cdef.get("base_hp", 100)) + float(mods.get("max_hp_add", 0.0)) + float(mods.get("hp_per_ally", 0.0)) * clampf(members_count - 1, 0, 3)
 	var p := {
 		"id": m["account_id"], "nick": m.get("nickname", ""), "class_id": cdef.get("id", "guardian"),
 		"pos": Vector2(spawn[0], spawn[1]), "facing": Vector2(1, 0), "speed": float(cdef.get("move_speed", 180)) * (1.0 + float(mods.get("speed_mult", 0.0))),
@@ -119,6 +129,9 @@ func add_player(m: Dictionary, spawn: Array) -> Dictionary:
 		"stats": {"damage_dealt": 0.0, "damage_taken": 0.0, "kills": 0, "downs": 0, "rescues": 0, "deaths": 0, "objective": 0.0, "guards": 0},
 	}
 	p["dodge_charges"] = p["dodge_max"]
+	if float(mods.get("start_shield", 0.0)) > 0.0:
+		p["shield"] = minf(float(mods["start_shield"]), float(rules.get("caps", {}).get("shield_max", 60)) + float(mods.get("shield_cap_add", 0.0)))
+		p["shield_t"] = 20.0
 	players[p["id"]] = p
 	return p
 
@@ -205,7 +218,7 @@ func _step_player(p: Dictionary, dt: float) -> void:
 		p["cd"][k] = maxf(float(p["cd"][k]) - dt, 0.0)
 	if int(p["dodge_charges"]) < int(p["dodge_max"]):
 		p["dodge_recharge_t"] = float(p["dodge_recharge_t"]) + dt
-		if float(p["dodge_recharge_t"]) >= float(rules.get("dodge_recharge_sec", 4.0)):
+		if float(p["dodge_recharge_t"]) >= maxf(float(rules.get("dodge_recharge_sec", 4.0)) + float(p["mods"].get("dodge_recharge_add", 0.0)), 1.0):
 			p["dodge_recharge_t"] = 0.0
 			p["dodge_charges"] = int(p["dodge_charges"]) + 1
 	p["invuln_t"] = maxf(float(p["invuln_t"]) - dt, 0.0)
@@ -215,6 +228,8 @@ func _step_player(p: Dictionary, dt: float) -> void:
 	p["haste_t"] = maxf(float(p["haste_t"]) - dt, 0.0)
 	p["slow_t"] = maxf(float(p["slow_t"]) - dt, 0.0)
 	p["root_t"] = maxf(float(p["root_t"]) - dt, 0.0)
+	if float(p["mods"].get("low_hp_regen", 0.0)) > 0.0 and p["state"] == Protocol.EntState.ALIVE and float(p["hp"]) <= float(p["max_hp"]) * 0.3:
+		p["hp"] = minf(float(p["hp"]) + float(p["mods"]["low_hp_regen"]) * dt, float(p["max_hp"]))
 	if float(p["bleed_t"]) > 0.0 and p["state"] == Protocol.EntState.ALIVE:
 		p["bleed_t"] = float(p["bleed_t"]) - dt
 		_damage_player(p, float(p["bleed_dps"]) * dt, p["pos"], "bleed")
@@ -282,7 +297,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		p["action_kind"] = "dodge"
 		p["action_total"] = float(rules.get("dodge_duration_sec", 0.22))
 		p["action_t"] = p["action_total"]
-		p["invuln_t"] = float(rules.get("dodge_invuln_sec", 0.2))
+		p["invuln_t"] = float(rules.get("dodge_invuln_sec", 0.2)) + float(p["mods"].get("dodge_invuln_add", 0.0))
 		p["dodge_dir"] = mv.normalized() if mv.length_squared() > 0.01 else p["facing"]
 		p["rescue_t"] = 0.0
 		p["interact_target"] = 0
@@ -322,7 +337,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		var in_range: bool = not t.is_empty() and t["state"] == Protocol.EntState.DOWNED and (t["pos"] as Vector2).distance_to(p["pos"]) <= float(rules.get("rescue_range", 70.0))
 		if btn & Protocol.BTN_INTERACT and in_range:
 			p["rescue_t"] = float(p["rescue_t"]) + dt
-			if float(p["rescue_t"]) >= float(rules.get("rescue_hold_sec", 3.0)):
+			if float(p["rescue_t"]) >= maxf(float(rules.get("rescue_hold_sec", 3.0)) + float(p["mods"].get("rescue_hold_add", 0.0)), 0.5):
 				_rescue(p, t)
 				p["action"] = Protocol.Action.IDLE
 				p["action_kind"] = ""
@@ -337,7 +352,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		var o: Dictionary = objects.get(p["interact_target"], {})
 		var ok := (btn & Protocol.BTN_INTERACT) != 0 and not o.is_empty() and (o["pos"] as Vector2).distance_to(p["pos"]) <= float(rules.get("interact_range", 70.0)) + float(o["r"]) and bool(o.get("interactable", int(o["state"]) == 0))
 		if ok:
-			o["progress"] = minf(float(o["progress"]) + dt / maxf(float(o.get("hold_sec", 1.0)), 0.05), 1.0)
+			o["progress"] = minf(float(o["progress"]) + dt * (1.0 + float(p["mods"].get("interact_speed", 0.0))) / maxf(float(o.get("hold_sec", 1.0)), 0.05), 1.0)
 			o["last_holder"] = p["id"]
 			if float(o["progress"]) >= 1.0:
 				_complete_object(o, p)
@@ -427,8 +442,10 @@ func _apply_basic_attack(p: Dictionary, atk: Dictionary) -> void:
 	if shape == "projectile":
 		var pr: Dictionary = atk.get("projectile", {})
 		var dir: Vector2 = p["facing"]
-		_spawn_projectile(p["pos"] + dir * 20.0, dir * float(pr.get("speed", 500)), float(pr.get("radius", 9)), _player_damage(p, float(atk.get("damage", 7))), 1, p["id"], float(pr.get("ttl_sec", 0.8)), int(p["mods"].get("pierce_add", 0)), float(atk.get("knockback", 0)), float(atk.get("stagger_sec", 0)))
+		_spawn_projectile(p["pos"] + dir * 20.0, dir * float(pr.get("speed", 500)) * (1.0 + float(p["mods"].get("proj_speed_mult", 0.0))), float(pr.get("radius", 9)), _player_damage(p, float(atk.get("damage", 7)) + float(p["mods"].get("basic_damage_add", 0.0)) + float(p["mods"].get("proj_damage_add", 0.0))), 1, p["id"], float(pr.get("ttl_sec", 0.8)), int(p["mods"].get("pierce_add", 0)), float(atk.get("knockback", 0)), float(atk.get("stagger_sec", 0)))
 		projectiles[projectiles.size() - 1]["basic"] = true
+		if float(p["mods"].get("proj_bleed", 0.0)) > 0.0:
+			projectiles[projectiles.size() - 1]["bleed"] = float(p["mods"]["proj_bleed"])
 		events.append({"k": "shoot", "id": p["id"], "x": p["pos"].x, "y": p["pos"].y, "fx": dir.x, "fy": dir.y})
 		return
 	var hits := 0
@@ -438,7 +455,7 @@ func _apply_basic_attack(p: Dictionary, atk: Dictionary) -> void:
 		if e["ai"] == Protocol.EnemyAI.DEAD:
 			continue
 		if SimRules.arc_hit(p["pos"], p["facing"], float(atk.get("range", 80)), float(atk.get("angle_deg", 120)), e["pos"], float(e["radius"])):
-			_damage_enemy(e, _player_damage(p, float(atk.get("damage", 10))), p, kb, st)
+			_damage_enemy(e, _player_damage(p, float(atk.get("damage", 10)) + float(p["mods"].get("basic_damage_add", 0.0))), p, kb, st)
 			_on_basic_hit(p, e)
 			hits += 1
 	if boss != null:
@@ -474,11 +491,11 @@ func _apply_cast(p: Dictionary, cdef: Dictionary, kind: String) -> void:
 			if float(m.get("e_double", 0.0)) > 0.0:
 				p["delayed"].append({"t": 0.4, "kind": "circle", "radius": radius * 2.0, "damage": _player_damage(p, float(eff.get("damage", 8)) * 0.6 + dmg_add * 0.5), "knockback": 60.0, "stagger": 0.3})
 		"party_shield":
-			var cap := minf(float(eff.get("max_shield_per_target", 45)) + float(m.get("r_shield_add", 0.0)), float(rules.get("caps", {}).get("shield_max", 60)))
+			var cap := minf(float(eff.get("max_shield_per_target", 45)) + float(m.get("r_shield_add", 0.0)), float(rules.get("caps", {}).get("shield_max", 60)) + float(m.get("shield_cap_add", 0.0)))
 			for o: Dictionary in players.values():
 				if o["state"] == Protocol.EntState.ALIVE and (o["pos"] as Vector2).distance_to(p["pos"]) <= float(eff.get("radius", 200)):
 					o["shield"] = minf(maxf(float(o["shield"]), float(eff.get("shield", 30)) + float(m.get("r_shield_add", 0.0))), cap)
-					o["shield_t"] = maxf(float(o["shield_t"]), float(eff.get("duration_sec", 6)) + float(m.get("r_duration_add", 0.0)))
+					o["shield_t"] = maxf(float(o["shield_t"]), float(eff.get("duration_sec", 6)) + float(m.get("r_duration_add", 0.0)) + float(m.get("shield_duration_add", 0.0)))
 			if float(m.get("r_heal_tick", 0.0)) > 0.0:
 				_add_zone(Protocol.ObKind.FLOOD_ZONE, p["pos"], float(eff.get("radius", 200)), {"owner": p["id"], "life": float(eff.get("duration_sec", 6)) + float(m.get("r_duration_add", 0.0)), "total": float(eff.get("duration_sec", 6)) + float(m.get("r_duration_add", 0.0)), "tick_sec": 1.0, "tick_t": 0.0, "heal": float(m.get("r_heal_tick", 0.0)), "damage": 0.0, "slow_mult": 0.0, "style": 1})
 			var root_sec := float(m.get("r_root_sec", 0.0))
@@ -633,6 +650,7 @@ func _apply_cast(p: Dictionary, cdef: Dictionary, kind: String) -> void:
 				_burst_dam(dam)
 			stats["builds"] += 1
 	events.append({"k": "skill", "id": p["id"], "skill": skill.get("id", kind), "slot": kind, "x": p["pos"].x, "y": p["pos"].y})
+	_fire_procs(p, "on_skill", {})
 
 
 ## 직선 판정: origin 에서 dir 방향 length, 폭 width 인 사각형에 원이 걸치는가
@@ -698,6 +716,7 @@ func _heal_player(target: Dictionary, amount: float, source: Dictionary) -> floa
 		else:
 			used += float(log[i][1])
 		i -= 1
+	amount *= 1.0 + float(source.get("mods", {}).get("heal_mult", 0.0))
 	var allowed := minf(amount, maxf(cap - used, 0.0))
 	var applied := minf(allowed, float(target["max_hp"]) - float(target["hp"]))
 	if applied <= 0.0:
@@ -833,7 +852,7 @@ func set_build_kind(id: String, kind: String) -> void:
 func _try_build(p: Dictionary) -> void:
 	var kinds: Dictionary = rules.get("build_kinds", {})
 	var bk: Dictionary = kinds.get(String(p.get("build_kind", "log_cover")), {"cost_wood": rules.get("build_cost_wood", 3), "hp": rules.get("build_hp", 60), "lifetime_sec": rules.get("build_lifetime_sec", 30.0), "radius": 26})
-	var cost := int(bk.get("cost_wood", 3))
+	var cost := maxi(int(bk.get("cost_wood", 3)) + int(p["mods"].get("build_cost_add", 0)), 1)
 	var count := 0
 	for o: Dictionary in objects.values():
 		if o["kind"] == Protocol.ObKind.STRUCTURE:
@@ -849,7 +868,8 @@ func _try_build(p: Dictionary) -> void:
 			return
 	team_wood -= cost   # 서버가 한 번만 처리한다. 음수 목재 없음.
 	var kind_id := String(p.get("build_kind", "log_cover"))
-	_add_object(Protocol.ObKind.STRUCTURE, at, r, {"hp": float(bk.get("hp", 60)), "max_hp": float(bk.get("hp", 60)), "life": float(bk.get("lifetime_sec", 30.0)), "owner": p["id"], "bkind": kind_id, "state": int(BUILD_KIND_INDEX.get(kind_id, 0)), "contact_damage": float(bk.get("contact_damage", 0)), "contact_slow": float(bk.get("contact_slow", 0)), "heal_radius": float(bk.get("heal_radius", 0)), "heal_per_sec": float(bk.get("heal_per_sec", 0)), "tick_t": 0.0})
+	var shp := float(bk.get("hp", 60)) * (1.0 + float(p["mods"].get("structure_hp_mult", 0.0)))
+	_add_object(Protocol.ObKind.STRUCTURE, at, r, {"hp": shp, "max_hp": shp, "life": float(bk.get("lifetime_sec", 30.0)), "owner": p["id"], "bkind": kind_id, "state": int(BUILD_KIND_INDEX.get(kind_id, 0)), "contact_damage": float(bk.get("contact_damage", 0)), "contact_slow": float(bk.get("contact_slow", 0)), "heal_radius": float(bk.get("heal_radius", 0)), "heal_per_sec": float(bk.get("heal_per_sec", 0)), "tick_t": 0.0})
 	stats["builds"] += 1
 	events.append({"k": "build", "id": p["id"], "x": at.x, "y": at.y, "wood": team_wood, "kind": kind_id})
 
@@ -858,7 +878,7 @@ func _find_interactable(p: Dictionary) -> int:
 	var best := 0
 	var best_d := 1e9
 	for o: Dictionary in objects.values():
-		if not o["kind"] in [Protocol.ObKind.GNAW_TREE, Protocol.ObKind.DEVICE, Protocol.ObKind.SLUICE_LEVER]:
+		if not o["kind"] in [Protocol.ObKind.GNAW_TREE, Protocol.ObKind.DEVICE, Protocol.ObKind.SLUICE_LEVER, Protocol.ObKind.SECRET]:
 			continue
 		if not bool(o.get("interactable", int(o["state"]) == 0)):
 			continue
@@ -891,9 +911,15 @@ func _complete_object(o: Dictionary, p: Dictionary) -> void:
 		Protocol.ObKind.SLUICE_LEVER:
 			o["progress"] = 0.0
 			_toggle_sluice(p)
+		Protocol.ObKind.SECRET:
+			objects.erase(o["id"])
+			(stats["secrets"] as Array).append(String(o.get("secret_id", "")))
+			p["stats"]["secrets"] = int(p["stats"].get("secrets", 0)) + 1
+			events.append({"k": "secret_found", "id": p["id"], "secret": o.get("secret_id", ""), "name": o.get("name_ko", ""), "x": o["pos"].x, "y": o["pos"].y})
 		_:
 			if boss != null:
 				boss.on_object_complete(o, p)
+	_fire_procs(p, "on_interact", {})
 
 
 func _toggle_sluice(p: Dictionary) -> void:
@@ -934,11 +960,12 @@ func _aura_slow_at(pos: Vector2) -> float:
 func _apply_hit_status(p: Dictionary, on_hit: Dictionary) -> void:
 	if on_hit.is_empty() or p["state"] != Protocol.EntState.ALIVE or float(p["invuln_t"]) > 0.0 or float(p["protect_t"]) > 0.0:
 		return
+	var resist := 1.0 - clampf(float(p["mods"].get("status_resist", 0.0)), 0.0, 0.8)
 	if float(on_hit.get("slow_sec", 0.0)) > 0.0:
-		p["slow_t"] = maxf(float(p["slow_t"]), float(on_hit["slow_sec"]))
+		p["slow_t"] = maxf(float(p["slow_t"]), float(on_hit["slow_sec"]) * resist)
 		p["slow_mult"] = maxf(float(p["slow_mult"]), float(on_hit.get("slow_mult", 0.3)))
 	if float(on_hit.get("root_sec", 0.0)) > 0.0:
-		p["root_t"] = maxf(float(p["root_t"]), float(on_hit["root_sec"]))
+		p["root_t"] = maxf(float(p["root_t"]), float(on_hit["root_sec"]) * resist)
 		events.append({"k": "player_rooted", "id": p["id"], "sec": on_hit["root_sec"]})
 	if float(on_hit.get("bleed_sec", 0.0)) > 0.0:
 		p["bleed_t"] = maxf(float(p["bleed_t"]), float(on_hit["bleed_sec"]))
@@ -1018,7 +1045,7 @@ func _find_rescue_target(p: Dictionary) -> String:
 func _rescue(rescuer: Dictionary, target: Dictionary) -> void:
 	target["state"] = Protocol.EntState.ALIVE
 	target["hp"] = maxf(float(target["max_hp"]) * float(rules.get("rescue_hp_fraction", 0.35)), 1.0)
-	target["protect_t"] = float(rules.get("rescue_protect_sec", 2.0))
+	target["protect_t"] = float(rules.get("rescue_protect_sec", 2.0)) + float(rescuer["mods"].get("rescue_protect_add", 0.0))
 	target["rescued_count"] = int(target["rescued_count"]) + 1
 	target["action"] = Protocol.Action.IDLE
 	target["action_kind"] = ""
@@ -1034,8 +1061,25 @@ func _fire_procs(p: Dictionary, trigger: String, ctx: Dictionary) -> void:
 			continue
 		if elapsed - float(proc.get("_last", -1000.0)) < float(proc.get("icd_sec", 0.0)):
 			continue
+		if proc.has("chance") and rng.randf() > float(proc["chance"]):
+			continue
+		if proc.has("max_per_run") and int(proc.get("_count", 0)) >= int(proc["max_per_run"]):
+			continue
 		proc["_last"] = elapsed
+		proc["_count"] = int(proc.get("_count", 0)) + 1
 		match String(proc.get("effect", "")):
+			"heal_charge":
+				p["heal_uses"] = int(p["heal_uses"]) + int(proc.get("value", 1))
+			"ally_haste":
+				for o: Dictionary in players.values():
+					if o["state"] == Protocol.EntState.ALIVE and (o["pos"] as Vector2).distance_to(p["pos"]) <= float(proc.get("radius", 160)):
+						o["haste_t"] = maxf(float(o["haste_t"]), 2.0)
+						o["haste_mult"] = maxf(float(o["haste_mult"]), float(proc.get("value", 0.2)))
+			"party_shield":
+				for o: Dictionary in players.values():
+					if o["state"] == Protocol.EntState.ALIVE:
+						o["shield"] = minf(maxf(float(o["shield"]), float(proc.get("value", 10))), float(rules.get("caps", {}).get("shield_max", 60)))
+						o["shield_t"] = maxf(float(o["shield_t"]), 6.0)
 			"heal":
 				_heal_player(p, float(proc.get("value", 0)), p)
 			"shield_both":
@@ -1066,6 +1110,7 @@ func _damage_player(p: Dictionary, amount: float, source_pos: Vector2, source_id
 		p["stats"]["guards"] = int(p["stats"]["guards"]) + 1
 		p["guard_bonus"] = float(p["mods"].get("guard_bonus_add", 0.0))
 		_fire_procs(p, "on_guard", {"enemy": source_enemy})
+	reduction = minf(reduction + float(p["mods"].get("damage_reduction", 0.0)), float(rules.get("caps", {}).get("damage_reduction_max", 0.6)))
 	var dmg := SimRules.damage(amount, 1.0, 0.0, 1.0, reduction, 0.0, rules.get("caps", {})) * hit_damage_mult
 	if float(p["mods"].get("low_hp_taken", 0.0)) > 0.0 and float(p["hp"]) <= float(p["max_hp"]) * 0.5:
 		dmg *= 1.0 + float(p["mods"].get("low_hp_taken", 0.0))
@@ -1079,6 +1124,8 @@ func _damage_player(p: Dictionary, amount: float, source_pos: Vector2, source_id
 	if p["class_id"] == "sawtooth" and dmg > 0.0:
 		p["resource"] = maxf(float(p["resource"]) - float(ContentDB.get_class_def("sawtooth").get("passive", {}).get("lose_on_hit", 1)), 0.0)
 	events.append({"k": "hit", "id": p["id"], "by": source_id, "dmg": dmg, "absorbed": absorbed, "guarded": reduction > 0.0})
+	if dmg > 0.0 and source_id != "bleed":
+		_fire_procs(p, "on_hurt", {"enemy": source_enemy})
 	if float(p["hp"]) <= 0.0:
 		p["state"] = Protocol.EntState.DOWNED
 		p["down_t"] = float(rules.get("down_duration_sec", 25.0))
@@ -1098,6 +1145,10 @@ func _damage_enemy(e: Dictionary, dmg: float, attacker: Dictionary, knockback: f
 		return
 	if float(e.get("vuln_t", 0.0)) > 0.0:
 		dmg *= 1.0 + float(e.get("vuln_mult", 0.0))
+	if bool(e.get("elite", false)):
+		dmg *= 1.0 + float(attacker.get("mods", {}).get("boss_damage_mult", 0.0))
+	if knockback > 0.0 and float(attacker.get("mods", {}).get("knockback_slow", 0.0)) > 0.0:
+		_slow_enemy(e, float(attacker["mods"]["knockback_slow"]), 2.0)
 	var armor: Dictionary = e["def"].get("armor_front", {})
 	if not armor.is_empty() and attacker.has("pos") and SimRules.in_front_arc(e["pos"], e["facing"], attacker["pos"], float(armor.get("arc_deg", 150))):
 		dmg *= 1.0 - float(armor.get("reduction", 0.5))
@@ -1218,6 +1269,10 @@ func _step_projectiles(dt: float) -> void:
 							_damage_enemy(e, float(pr["dmg"]), attacker, float(pr["kb"]), float(pr["st"]))
 							if float(pr.get("slow", 0.0)) > 0.0:
 								_slow_enemy(e, float(pr["slow"]), 1.5)
+							if float(pr.get("bleed", 0.0)) > 0.0:
+								e["bleed_t"] = 2.0
+								e["bleed_dps"] = float(pr["bleed"])
+								e["bleed_by"] = attacker["id"]
 							if bool(pr.get("basic", false)):
 								_on_basic_hit(attacker, e)
 							(pr["hit"] as Array).append(e["id"])
@@ -1904,4 +1959,11 @@ func result_summary() -> Dictionary:
 		per[p["id"]]["max_hp"] = p["max_hp"]
 		per[p["id"]]["heal_uses"] = p["heal_uses"]
 		per[p["id"]]["state"] = p["state"]
-	return {"outcome": outcome, "elapsed": elapsed, "ticks": tick, "seed": seed_value, "n": n_players, "objective": objective, "stats": stats.duplicate(true), "players": per, "team_wood": team_wood}
+	var mech_ok: Array = []
+	var boss_id := ""
+	if boss != null:
+		boss_id = String(boss.def.get("id", ""))
+		for entry: Dictionary in boss.log:
+			if String(entry.get("event", "")) == "success":
+				mech_ok.append(String(entry.get("mechanic", "")))
+	return {"outcome": outcome, "elapsed": elapsed, "ticks": tick, "seed": seed_value, "n": n_players, "objective": objective, "stats": stats.duplicate(true), "players": per, "team_wood": team_wood, "boss_id": boss_id, "mechanics_succeeded": mech_ok, "room_id": String(room_def.get("id", "")), "elite": room_def.has("elite")}

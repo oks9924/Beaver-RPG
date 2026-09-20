@@ -41,6 +41,9 @@ func show_result(r: Dictionary, party: Array, my_id: String) -> void:
 	var rs: Dictionary = r.get("run_stats", {})
 	if not rs.is_empty():
 		title.text += "  (클리어 방 %d · 처치 %d · 전투 %s)" % [int(rs.get("rooms_cleared", 0)), int(rs.get("enemies_killed", 0)), UIKit.fmt_time(float(rs.get("combat_sec", 0)))]
+	if r.has("ending"):
+		var en: Dictionary = r["ending"]
+		title.text += "\n%s — %s" % [en.get("name_ko", ""), en.get("text_ko", "")]
 	var lines: PackedStringArray = []
 	lines.append("소요 %s · 기준 인원 %d · 시드 %d · 처치 %d · 다운 %d · 구조 %d" % [UIKit.fmt_time(float(r.get("elapsed", 0))), int(r.get("n", 0)), int(r.get("seed", 0)), int(r.get("stats", {}).get("enemies_killed", 0)), int(r.get("stats", {}).get("downs", 0)), int(r.get("stats", {}).get("rescues", 0))])
 	var players: Dictionary = r.get("players", {})

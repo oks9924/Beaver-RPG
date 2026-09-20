@@ -28,6 +28,7 @@ var _my_ready: bool = false
 var _board: Array = []
 var village_box: VBoxContainer
 var codex_label: Label
+var quest_label: Label
 
 
 func _ready() -> void:
@@ -51,9 +52,13 @@ func _ready() -> void:
 	village_box = UIKit.vbox(3)
 	lv.add_child(village_box)
 	codex_label = UIKit.label("", 12, Color(0.8, 0.78, 0.7))
+	quest_label = UIKit.label("", 12, Color(0.85, 0.95, 0.8))
+	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
 	codex_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	codex_label.custom_minimum_size = Vector2(270, 0)
 	lv.add_child(codex_label)
+	lv.add_child(quest_label)
 	lv.add_child(UIKit.button("로그아웃", func() -> void: logout_requested.emit()))
 	add_child(left)
 	# 우측: 원정 모집판 + 파티
@@ -217,6 +222,17 @@ func show_progression(info: Dictionary, account: Dictionary) -> void:
 	var ename: PackedStringArray = []
 	for eid: String in enemies.keys():
 		ename.append("%s %d" % [ContentDB.get_enemy_def(eid).get("name_ko", eid), int(enemies[eid])])
+	var bonds: Dictionary = prog.get("npc_bonds", {})
+	var bond_parts: PackedStringArray = []
+	for nid: String in bonds.keys():
+		bond_parts.append("%s %d" % [ContentDB.npcs.get(nid, {}).get("name_ko", nid), int(bonds[nid])])
+	var recs: Array = prog.get("build_records", [])
+	var rec_txt := ""
+	if not recs.is_empty():
+		var r0: Dictionary = recs[0]
+		rec_txt = "최근 빌드: %s · 유물 %d · 강화 %d · %s" % [ContentDB.get_class_def(String(r0.get("class_id", ""))).get("name_ko", ""), (r0.get("relics", []) as Array).size(), (r0.get("upgrades", []) as Array).size(), "완주" if int(r0.get("outcome", 0)) == Protocol.Outcome.VICTORY else "미완"]
+	quest_label.text = "비밀 %d/9 · 결말 %s · 인연: %s
+%s" % [(prog.get("secrets_found", []) as Array).size(), ", ".join(PackedStringArray(prog.get("endings_seen", []))) if not (prog.get("endings_seen", []) as Array).is_empty() else "없음", ", ".join(bond_parts) if not bond_parts.is_empty() else "없음", rec_txt]
 	var stats: Dictionary = account.get("stats", {})
 	codex_label.text = "%s\n도감: 적 %d종 (%s) · 유물 %d/%d · 보스 %d\n기록: 원정 %d회, 완주 %d, 클리어 방 %d, 전멸 %d" % [
 		", ".join(parts) if not parts.is_empty() else "직업 숙련 없음", enemies.size(), ", ".join(ename), (codex.get("relics", []) as Array).size(), ContentDB.relics.size(), (codex.get("bosses", []) as Array).size(),
@@ -227,3 +243,12 @@ func set_selected_class(cid: String) -> void:
 	var i := _class_ids.find(cid)
 	if i >= 0 and class_pick != null:
 		class_pick.select(i)
+
+
+func show_quests(summary: Dictionary) -> void:
+	var parts: PackedStringArray = []
+	for q: Dictionary in summary.get("active", []):
+		parts.append("%s %d/%d" % [q.get("name_ko", ""), int(q.get("progress", 0)), int(q.get("count", 1))])
+	for q: Dictionary in summary.get("complete", []):
+		parts.append("%s (보상 수령 가능)" % q.get("name_ko", ""))
+	add_chat("퀘스트", ("진행: " + ", ".join(parts)) if not parts.is_empty() else "진행 중인 퀘스트 없음 (NPC 에게 F)", "hub")

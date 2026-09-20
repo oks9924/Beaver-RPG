@@ -14602,6 +14602,1042 @@
 				0.5,
 				0.6
 			]
+		},
+		{
+			"id": "portrait.npc.elder_zelkova",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/portrait_npc_elder_zelkova.png",
+			"final_path": "",
+			"source_size": [
+				256,
+				256
+			],
+			"frame_size": [
+				256,
+				256
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "portrait",
+				"color": "#8a6a3a"
+			}
+		},
+		{
+			"id": "npc.elder_zelkova",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/npc_elder_zelkova.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#8a6a3a",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.85
+			]
+		},
+		{
+			"id": "portrait.npc.smith_resin",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/portrait_npc_smith_resin.png",
+			"final_path": "",
+			"source_size": [
+				256,
+				256
+			],
+			"frame_size": [
+				256,
+				256
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "portrait",
+				"color": "#a0522d"
+			}
+		},
+		{
+			"id": "npc.smith_resin",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/npc_smith_resin.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#a0522d",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.85
+			]
+		},
+		{
+			"id": "portrait.npc.merchant_doto",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/portrait_npc_merchant_doto.png",
+			"final_path": "",
+			"source_size": [
+				256,
+				256
+			],
+			"frame_size": [
+				256,
+				256
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "portrait",
+				"color": "#c9a227"
+			}
+		},
+		{
+			"id": "npc.merchant_doto",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/npc_merchant_doto.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#c9a227",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.85
+			]
+		},
+		{
+			"id": "portrait.npc.herbalist_moss",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/portrait_npc_herbalist_moss.png",
+			"final_path": "",
+			"source_size": [
+				256,
+				256
+			],
+			"frame_size": [
+				256,
+				256
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "portrait",
+				"color": "#4f8a3a"
+			}
+		},
+		{
+			"id": "npc.herbalist_moss",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/npc_herbalist_moss.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#4f8a3a",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.85
+			]
+		},
+		{
+			"id": "portrait.npc.archivist_willow",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/portrait_npc_archivist_willow.png",
+			"final_path": "",
+			"source_size": [
+				256,
+				256
+			],
+			"frame_size": [
+				256,
+				256
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "portrait",
+				"color": "#6b7fb5"
+			}
+		},
+		{
+			"id": "npc.archivist_willow",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/npc_archivist_willow.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#6b7fb5",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.85
+			]
+		},
+		{
+			"id": "portrait.npc.engineer_ripple",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/portrait_npc_engineer_ripple.png",
+			"final_path": "",
+			"source_size": [
+				256,
+				256
+			],
+			"frame_size": [
+				256,
+				256
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "portrait",
+				"color": "#3b8fd9"
+			}
+		},
+		{
+			"id": "npc.engineer_ripple",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/npc_engineer_ripple.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#3b8fd9",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.85
+			]
+		},
+		{
+			"id": "prop.secret",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_secret.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "rock",
+				"color": "#7a6a9a",
+				"accent": "#d9c8ff"
+			},
+			"anchor": [
+				0.5,
+				0.7
+			]
+		},
+		{
+			"id": "icon.relic.willow_bark",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_willow_bark.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "shield"
+			}
+		},
+		{
+			"id": "icon.relic.beaver_grease",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_beaver_grease.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "tooth"
+			}
+		},
+		{
+			"id": "icon.relic.amber_tooth",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_amber_tooth.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "paw"
+			}
+		},
+		{
+			"id": "icon.relic.river_pebbles",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_river_pebbles.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "scatter"
+			}
+		},
+		{
+			"id": "icon.relic.moss_blanket",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_moss_blanket.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "trap"
+			}
+		},
+		{
+			"id": "icon.relic.firefly_jar",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_firefly_jar.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "volley"
+			}
+		},
+		{
+			"id": "icon.relic.thorn_crown",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_thorn_crown.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "hammer"
+			}
+		},
+		{
+			"id": "icon.relic.dam_keeper_badge",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_dam_keeper_badge.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "dash"
+			}
+		},
+		{
+			"id": "icon.relic.otter_whistle",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_otter_whistle.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "axe"
+			}
+		},
+		{
+			"id": "icon.relic.sap_lantern",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_sap_lantern.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "whirl"
+			}
+		},
+		{
+			"id": "icon.relic.lucky_acorn",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_lucky_acorn.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "drop"
+			}
+		},
+		{
+			"id": "icon.relic.hunters_eye",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_hunters_eye.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "root"
+			}
+		},
+		{
+			"id": "icon.relic.stone_shell",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_stone_shell.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "flood"
+			}
+		},
+		{
+			"id": "icon.relic.quick_gnaw",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_quick_gnaw.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "turret"
+			}
+		},
+		{
+			"id": "icon.relic.storm_tail",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_storm_tail.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "jet"
+			}
+		},
+		{
+			"id": "icon.relic.kin_totem",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_kin_totem.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "dam"
+			}
+		},
+		{
+			"id": "icon.relic.acorn_cache",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_acorn_cache.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "beaver"
+			}
+		},
+		{
+			"id": "icon.relic.bitter_sap",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_bitter_sap.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "shield"
+			}
+		},
+		{
+			"id": "icon.relic.hollow_log",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_hollow_log.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "tooth"
+			}
+		},
+		{
+			"id": "icon.relic.thorn_bolt",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_thorn_bolt.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "paw"
+			}
+		},
+		{
+			"id": "icon.relic.river_heart",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_river_heart.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#a06a2a",
+				"glyph": "scatter"
+			}
+		},
+		{
+			"id": "icon.relic.ancient_incisor",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_ancient_incisor.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#a06a2a",
+				"glyph": "trap"
+			}
+		},
+		{
+			"id": "icon.relic.memory_bloom",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_memory_bloom.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#a06a2a",
+				"glyph": "volley"
+			}
+		},
+		{
+			"id": "icon.relic.tail_drum",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_tail_drum.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "hammer"
+			}
+		},
+		{
+			"id": "icon.relic.dam_bell",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_dam_bell.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#4a6fa0",
+				"glyph": "dash"
+			}
+		},
+		{
+			"id": "icon.relic.gnawed_charm",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_relic_gnawed_charm.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#7a6a4a",
+				"glyph": "axe"
+			}
 		}
 	],
 	"packs": {

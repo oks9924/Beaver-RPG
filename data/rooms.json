@@ -229,7 +229,14 @@
     700
    ]
   ],
-  "sluice": null
+  "sluice": null,
+  "secret": {
+   "id": "wr_01",
+   "name_ko": "강가의 발자국",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
+  }
  },
  "hold_point": {
   "id": "hold_point",
@@ -362,6 +369,13 @@
     "h": 140
    },
    "hold_sec": 1.5
+  },
+  "secret": {
+   "id": "wr_02",
+   "name_ko": "무너진 둑의 기록",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
   }
  },
  "device": {
@@ -819,6 +833,13 @@
    "radius": 140,
    "contest_radius": 170,
    "hp": 200
+  },
+  "secret": {
+   "id": "wr_03",
+   "name_ko": "뗏목 아래 상자",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
   }
  },
  "willow_elite": {
@@ -1101,7 +1122,14 @@
     "kind": "sap",
     "slow": 0.4
    }
-  ]
+  ],
+  "secret": {
+   "id": "bs_01",
+   "name_ko": "보랏빛 버섯 무리",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
+  }
  },
  "swamp_hold": {
   "id": "swamp_hold",
@@ -1262,6 +1290,13 @@
    "r": 120,
    "required_sec": 26.0,
    "contest_radius": 150
+  },
+  "secret": {
+   "id": "bs_02",
+   "name_ko": "뿌리 다리의 조각",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
   }
  },
  "swamp_device": {
@@ -1433,7 +1468,14 @@
     "y": 200,
     "hold_sec": 4.5
    }
-  ]
+  ],
+  "secret": {
+   "id": "bs_03",
+   "name_ko": "포자 결정",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
+  }
  },
  "swamp_escort": {
   "id": "swamp_escort",
@@ -1918,6 +1960,13 @@
     "h": 140
    },
    "hold_sec": 1.5
+  },
+  "secret": {
+   "id": "rd_01",
+   "name_ko": "녹슨 톱니",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
   }
  },
  "dam_hold": {
@@ -2078,6 +2127,13 @@
    "r": 110,
    "required_sec": 28.0,
    "contest_radius": 150
+  },
+  "secret": {
+   "id": "rd_02",
+   "name_ko": "급류 아래 기록",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
   }
  },
  "dam_device": {
@@ -2249,7 +2305,14 @@
     "y": 760,
     "hold_sec": 5.0
    }
-  ]
+  ],
+  "secret": {
+   "id": "rd_03",
+   "name_ko": "댐지기의 일지",
+   "x": 1260,
+   "y": 780,
+   "chance": 0.6
+  }
  },
  "dam_escort": {
   "id": "dam_escort",

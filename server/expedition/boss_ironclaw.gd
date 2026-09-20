@@ -96,7 +96,7 @@ func take_damage(dmg: float, attacker: Dictionary, stagger: float = 0.0) -> void
 		return
 	if state == BS.MOLT:
 		return  # 탈피 중 본체는 껍질 사이에 숨어 있다 (기믹으로 노출)
-	var final := dmg * damage_taken_mult()
+	var final := dmg * damage_taken_mult() * (1.0 + float(attacker.get("mods", {}).get("boss_damage_mult", 0.0)))
 	hp = maxf(hp - final, 0.0)
 	attacker["stats"]["damage_dealt"] = float(attacker["stats"].get("damage_dealt", 0.0)) + final
 	if stagger > 0.0 and stagger_resist_t <= 0.0 and state != BS.STAGGER:
