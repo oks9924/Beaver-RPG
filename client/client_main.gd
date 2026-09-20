@@ -489,7 +489,8 @@ func _apply_hub_snapshot(p: Dictionary) -> void:
 		ev.entity_id = id
 		ev.is_local = id == my_id
 		ev.display_name = _roster_nick(id)
-		ev.facing = Vector2(float(e[3]), float(e[4]))
+		if not ev.is_local:
+			ev.facing = Vector2(float(e[3]), float(e[4]))   # 내 캐릭터의 방향은 로컬 입력이 결정한다 (15Hz 스냅샷과 섞이면 깜빡임)
 		ev.hp = 1.0
 		ev.max_hp = 1.0
 		ev.party_color = world.party_color(idx)
@@ -532,7 +533,8 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		ev.entity_id = id
 		ev.is_local = id == my_id
 		ev.display_name = _nick_of(id)
-		ev.facing = Vector2(e[Protocol.SNAP_P.FX], e[Protocol.SNAP_P.FY])
+		if not ev.is_local:
+			ev.facing = Vector2(e[Protocol.SNAP_P.FX], e[Protocol.SNAP_P.FY])
 		ev.hp = e[Protocol.SNAP_P.HP]
 		ev.max_hp = float(ContentDB.get_class_def(class_id).get("base_hp", 100))
 		ev.state = int(e[Protocol.SNAP_P.STATE])
@@ -689,10 +691,8 @@ func _physics_process(dt: float) -> void:
 	var mine: EntityView = world.entities.get("p:" + my_id, null)
 	if mine != null:
 		mine.position = _pred_pos
-		if aim.length_squared() > 1.0 and mv.length_squared() < 0.01:
-			mine.facing = aim.normalized()
-		elif mv.length_squared() > 0.01:
-			mine.facing = mv.normalized()
+		# 서버와 같은 규칙: 조준(마우스)이 있으면 조준 방향, 없으면 이동 방향. 이동 방향과 섞지 않는다.
+		mine.facing = SimRules.facing_from(aim, mv.normalized() if mv.length_squared() > 0.01 else mine.facing)
 
 
 func _screenshot(name: String) -> void:
