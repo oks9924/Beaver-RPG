@@ -30,8 +30,8 @@ func s_msg(type: int, payload: Dictionary) -> void:
 
 
 @rpc("authority", "call_remote", "unreliable_ordered")
-func s_snapshot(payload: Dictionary) -> void:
-	server_snapshot.emit(payload)
+func s_snapshot(bytes: PackedByteArray) -> void:
+	server_snapshot.emit(SnapshotCodec.decode(bytes))
 
 
 # --- 편의 함수 ---
@@ -62,6 +62,10 @@ func send_to_peer(peer_id: int, type: int, payload: Dictionary = {}) -> void:
 
 
 func send_snapshot(peer_id: int, payload: Dictionary) -> void:
+	send_snapshot_bytes(peer_id, SnapshotCodec.encode(payload))
+
+
+func send_snapshot_bytes(peer_id: int, bytes: PackedByteArray) -> void:
 	if not peer_ready(peer_id):
 		return
-	s_snapshot.rpc_id(peer_id, payload)
+	s_snapshot.rpc_id(peer_id, bytes)

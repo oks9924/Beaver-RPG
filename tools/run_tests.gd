@@ -58,6 +58,8 @@ func _ready() -> void:
 	test_secrets_and_relics()
 	print("-- test_difficulty_tutorial_pause")
 	test_difficulty_tutorial_pause()
+	print("-- test_snapshot_codec")
+	test_snapshot_codec()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -1371,3 +1373,60 @@ func test_difficulty_tutorial_pause() -> void:
 	s0.expedition_id = ""   # 중단 후 마을로 돌아간 상태
 	var rj2 := mgr.join(s0, restored.id)
 	check(bool(rj2["ok"]) and bool(rj2.get("resumed", false)) and not restored.paused, "member resumes through join")
+
+
+func test_snapshot_codec() -> void:
+	check(Protocol.SNAP_P.size() == SnapshotCodec.PLAYER_FIELDS and Protocol.SNAP_E.size() == SnapshotCodec.ENEMY_FIELDS, "codec field counts match Protocol enums")
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(4), ContentDB.rules, 7, _members(4))
+	for i in 30:
+		room.queue_input("p0", 1 + i, Vector2.RIGHT, Vector2.RIGHT, Protocol.BTN_ATTACK if i % 9 == 0 else 0)
+		room.step(1.0 / 30.0)
+	var snap := room.snapshot()
+	snap["ack"] = 77
+	snap["boss"] = {"id": "ironclaw", "x": 512.3, "y": 300.7, "fx": 0.6, "fy": -0.8, "hp": 1234.5, "max_hp": 4000.0, "state": 3, "phase": 1, "shell_broken": 2, "shell_total": 3, "f": 9, "grabbed": "p1", "stagger_gauge": 40.0, "m": "IC-02", "mt": 12.3, "pattern": "claw_sweep"}
+	snap["future_key"] = {"a": 1}
+	var bytes := SnapshotCodec.encode(snap)
+	var back := SnapshotCodec.decode(bytes)
+	check(bytes.size() * 2 < var_to_bytes(snap).size(), "codec at least halves the 4-player snapshot (%d -> %d bytes)" % [var_to_bytes(snap).size(), bytes.size()])
+	check(int(back["t"]) == int(snap["t"]) and int(back["ack"]) == 77 and back["wave"] == snap["wave"] and int(back["wood"]) == int(snap["wood"]), "codec keeps tick/ack/wave/wood")
+	check(String(back["obj"][0]) == String(snap["obj"][0]) and absf(float(back["obj"][1]) - float(snap["obj"][1])) < 0.001 and int(back["obj"][2]) == int(snap["obj"][2]), "codec keeps objective")
+	var ps: Array = snap["p"]
+	var qs: Array = back["p"]
+	var perr := 0.0
+	var pid_ok := ps.size() == qs.size()
+	for i in ps.size():
+		pid_ok = pid_ok and String(ps[i][0]) == String(qs[i][0])
+		var a: PackedFloat32Array = ps[i][1]
+		var b: PackedFloat32Array = qs[i][1]
+		for k in a.size():
+			perr = maxf(perr, absf(a[k] - b[k]))
+	check(pid_ok and qs.size() == 4, "codec keeps 4 player ids in order")
+	check(perr <= 0.13, "player fields within quantization error (%.3f)" % perr)
+	var es: Array = snap["e"]
+	var fs: Array = back["e"]
+	var eerr := 0.0
+	var eid_ok := es.size() == fs.size() and es.size() > 0
+	for i in es.size():
+		eid_ok = eid_ok and int(es[i][0]) == int(fs[i][0]) and int(es[i][1]) == int(fs[i][1])
+		var a: PackedFloat32Array = es[i][2]
+		var b: PackedFloat32Array = fs[i][2]
+		for k in a.size():
+			eerr = maxf(eerr, absf(a[k] - b[k]))
+	check(eid_ok, "codec keeps enemy ids and type indices")
+	check(eerr <= 0.13, "enemy fields within quantization error (%.3f)" % eerr)
+	var os: Array = snap["ob"]
+	var qo: Array = back["ob"]
+	var ob_ok := os.size() == qo.size()
+	for i in os.size():
+		var a: PackedFloat32Array = os[i]
+		var b: PackedFloat32Array = qo[i]
+		ob_ok = ob_ok and int(a[0]) == int(b[0]) and int(a[1]) == int(b[1]) and int(a[6]) == int(b[6]) and absf(a[2] - b[2]) <= 0.13 and absf(a[5] - b[5]) < 0.001
+	check(ob_ok, "codec keeps objects (id/kind/state exact, progress float)")
+	check((back["tg"] as Array).size() == (snap["tg"] as Array).size() and (back["pr"] as Array).size() == (snap["pr"] as Array).size(), "codec keeps telegraph/projectile counts")
+	var bb: Dictionary = back["boss"]
+	check(String(bb["id"]) == "ironclaw" and int(bb["f"]) == 9 and String(bb["m"]) == "IC-02" and String(bb["pattern"]) == "claw_sweep" and String(bb["grabbed"]) == "p1" and int(bb["state"]) == 3 and int(bb["phase"]) == 1, "codec keeps boss discrete fields")
+	check(absf(float(bb["x"]) - 512.3) <= 0.13 and absf(float(bb["hp"]) - 1234.5) < 0.001 and absf(float(bb["mt"]) - 12.3) <= 0.03 and absf(float(bb["stagger_gauge"]) - 40.0) < 0.001, "codec keeps boss numeric fields")
+	check(back.has("future_key") and back["future_key"] == snap["future_key"], "codec carries unknown keys verbatim")
+	var hub := {"hub": 1, "p": [["acc1", 10.5, 20.5, 0.5, 0.5, "guardian", 1]]}
+	check(SnapshotCodec.decode(SnapshotCodec.encode(hub)) == hub, "codec round-trips a generic (hub) snapshot")
+	check(SnapshotCodec.decode(PackedByteArray()).is_empty(), "codec tolerates an empty packet")

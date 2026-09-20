@@ -1017,12 +1017,13 @@ func _physics_process(dt: float) -> void:
 					continue
 				var own := snap.duplicate()
 				own["ack"] = int(inst.room.players.get(aid, {}).get("last_seq", 0))
-				var nbytes := var_to_bytes(own).size()
+				var bytes := SnapshotCodec.encode(own)
+				var nbytes := bytes.size()
 				if nbytes > _snap_max_bytes:
 					_snap_max_bytes = nbytes
 					if nbytes > 1392:
 						_log(2, "snapshot %d bytes exceeds ENet MTU 1392 (room %s, n=%d)" % [nbytes, inst.id, inst.members.size()])
-				Net.send_snapshot(ms.peer_id, own)
+				Net.send_snapshot_bytes(ms.peer_id, bytes)
 		if r["finished"]:
 			_on_room_finished(inst)
 		if not inst.outbox.is_empty() or inst.checkpoint_dirty:
