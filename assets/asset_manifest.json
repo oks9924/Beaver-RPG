@@ -13527,6 +13527,780 @@
 			"linked": false,
 			"verified": "check",
 			"placeholder_kept": false
+		},
+		{
+			"id": "icon.skill.sawtooth.q",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_sawtooth_q.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#b5502e",
+				"glyph": "dash"
+			}
+		},
+		{
+			"id": "icon.skill.sawtooth.e",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_sawtooth_e.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#b5502e",
+				"glyph": "axe"
+			}
+		},
+		{
+			"id": "icon.skill.sawtooth.r",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_sawtooth_r.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#b5502e",
+				"glyph": "whirl"
+			}
+		},
+		{
+			"id": "icon.skill.sapshaman.q",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_sapshaman_q.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#5f9e52",
+				"glyph": "drop"
+			}
+		},
+		{
+			"id": "icon.skill.sapshaman.e",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_sapshaman_e.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#5f9e52",
+				"glyph": "root"
+			}
+		},
+		{
+			"id": "icon.skill.sapshaman.r",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_sapshaman_r.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#5f9e52",
+				"glyph": "flood"
+			}
+		},
+		{
+			"id": "icon.skill.hydro.q",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_hydro_q.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#3b8fd9",
+				"glyph": "turret"
+			}
+		},
+		{
+			"id": "icon.skill.hydro.e",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_hydro_e.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#3b8fd9",
+				"glyph": "jet"
+			}
+		},
+		{
+			"id": "icon.skill.hydro.r",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/icon_skill_hydro_r.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "icon",
+				"color": "#3b8fd9",
+				"glyph": "dam"
+			}
+		},
+		{
+			"id": "vfx.gnaw_dash",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_gnaw_dash.png",
+			"final_path": "",
+			"frame_size": [
+				128,
+				128
+			],
+			"source_size": [
+				512,
+				128
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "gnaw_dash",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				128,
+				128
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "arc",
+				"color": "#e0a060"
+			}
+		},
+		{
+			"id": "vfx.wood_split",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_wood_split.png",
+			"final_path": "",
+			"frame_size": [
+				128,
+				128
+			],
+			"source_size": [
+				512,
+				128
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "wood_split",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				128,
+				128
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "spark",
+				"color": "#e8c080"
+			}
+		},
+		{
+			"id": "vfx.log_whirl",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_log_whirl.png",
+			"final_path": "",
+			"frame_size": [
+				256,
+				256
+			],
+			"source_size": [
+				1024,
+				256
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "log_whirl",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": true,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				256,
+				256
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "shockwave",
+				"color": "#d9a066"
+			}
+		},
+		{
+			"id": "vfx.sap_bloom",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_sap_bloom.png",
+			"final_path": "",
+			"frame_size": [
+				256,
+				256
+			],
+			"source_size": [
+				1024,
+				256
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "sap_bloom",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				256,
+				256
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "shockwave",
+				"color": "#7ac36e"
+			}
+		},
+		{
+			"id": "vfx.root_bind",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_root_bind.png",
+			"final_path": "",
+			"frame_size": [
+				128,
+				128
+			],
+			"source_size": [
+				512,
+				128
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "root_bind",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				128,
+				128
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "thorns",
+				"color": "#6b4a2a"
+			}
+		},
+		{
+			"id": "vfx.spring_flood",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_spring_flood.png",
+			"final_path": "",
+			"frame_size": [
+				512,
+				512
+			],
+			"source_size": [
+				2048,
+				512
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "spring_flood",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 8,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				512,
+				512
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "shockwave",
+				"color": "#6fd6a0"
+			}
+		},
+		{
+			"id": "vfx.water_turret",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_water_turret.png",
+			"final_path": "",
+			"frame_size": [
+				128,
+				128
+			],
+			"source_size": [
+				512,
+				128
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "water_turret",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				128,
+				128
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "spark",
+				"color": "#6fb8ff"
+			}
+		},
+		{
+			"id": "vfx.torrent_valve",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_torrent_valve.png",
+			"final_path": "",
+			"frame_size": [
+				256,
+				256
+			],
+			"source_size": [
+				1024,
+				256
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "torrent_valve",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 16,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				256,
+				256
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "arc",
+				"color": "#5aa8ff"
+			}
+		},
+		{
+			"id": "vfx.great_dam",
+			"type": "sprite_sheet",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_great_dam.png",
+			"final_path": "",
+			"frame_size": [
+				512,
+				512
+			],
+			"source_size": [
+				2048,
+				512
+			],
+			"columns": 4,
+			"rows": 1,
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "great_dam",
+				"frames": [
+					0,
+					1,
+					2,
+					3
+				],
+				"fps": 10,
+				"loop": false,
+				"event_frames": {}
+			},
+			"anchor": [
+				0.5,
+				0.5
+			],
+			"render_size": [
+				512,
+				512
+			],
+			"hitbox_ref": "",
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal",
+				"note": "임시 도형"
+			},
+			"placeholder": {
+				"shape": "shockwave",
+				"color": "#4d8fd6"
+			}
+		},
+		{
+			"id": "prop.turret",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_turret.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "device",
+				"color": "#4f6f8a",
+				"accent": "#6fb8ff"
+			},
+			"anchor": [
+				0.5,
+				0.75
+			]
+		},
+		{
+			"id": "prop.dam",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_dam.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "log",
+				"color": "#6b4a2a",
+				"accent": "#4d8fd6"
+			},
+			"anchor": [
+				0.5,
+				0.7
+			]
+		},
+		{
+			"id": "vfx.projectile_water",
+			"type": "vfx",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/vfx_projectile_water.png",
+			"final_path": "",
+			"source_size": [
+				32,
+				32
+			],
+			"frame_size": [
+				32,
+				32
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "dot",
+				"color": "#3b8fd9",
+				"glow": "#a0d8ff"
+			},
+			"anchor": [
+				0.5,
+				0.5
+			]
 		}
 	],
 	"packs": {

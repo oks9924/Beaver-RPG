@@ -101,7 +101,9 @@
  "sawtooth": {
   "id": "sawtooth",
   "name_ko": "톱니전사",
-  "implemented": false,
+  "implemented": true,
+  "role_ko": "근접 지속 공격·위험 감수",
+  "weakness_ko": "적에게 붙어야 함",
   "base_hp": 115,
   "move_speed": 205,
   "radius": 18,
@@ -109,6 +111,95 @@
    "sprite": "char.sawtooth",
    "icon": "icon.class.sawtooth",
    "portrait": "portrait.sawtooth"
+  },
+  "basic_attack": {
+   "id": "sawtooth_axe",
+   "name_ko": "앞니와 손도끼 연타",
+   "damage": 9,
+   "windup_sec": 0.14,
+   "active_sec": 0.08,
+   "recovery_sec": 0.2,
+   "shape": "arc",
+   "range": 72,
+   "angle_deg": 100,
+   "knockback": 25,
+   "stagger_sec": 0.08,
+   "hitbox": "hit.sawtooth_axe",
+   "assets": {
+    "vfx": "vfx.hammer_swing",
+    "sfx": "sfx.hammer_hit"
+   }
+  },
+  "passive": {
+   "id": "sawtooth_heat",
+   "name_ko": "열의",
+   "desc_ko": "기본 공격 명중마다 열의 1 (최대 5), 열의당 피해 +4%. 피격 시 1 감소, 3초 공격 없으면 모두 소멸",
+   "implemented": true,
+   "max_stacks": 5,
+   "damage_per_stack": 0.04,
+   "decay_sec": 3.0,
+   "lose_on_hit": 1
+  },
+  "skills": {
+   "q": {
+    "id": "gnaw_dash",
+    "name_ko": "갉아 돌진",
+    "cooldown_sec": 6,
+    "cast_sec": 0.1,
+    "effect": {
+     "type": "dash",
+     "distance": 220,
+     "width": 44,
+     "damage": 14,
+     "stagger_sec": 0.2,
+     "invuln_sec": 0.15
+    },
+    "assets": {
+     "icon": "icon.skill.sawtooth.q",
+     "vfx": "vfx.gnaw_dash",
+     "sfx": "sfx.dodge"
+    }
+   },
+   "e": {
+    "id": "wood_split",
+    "name_ko": "나무쪼개기",
+    "cooldown_sec": 10,
+    "cast_sec": 0.35,
+    "effect": {
+     "type": "heavy_strike",
+     "range": 96,
+     "angle_deg": 80,
+     "damage": 22,
+     "knockback": 60,
+     "stagger_sec": 0.4,
+     "vuln_mult": 0.25,
+     "vuln_sec": 6.0
+    },
+    "assets": {
+     "icon": "icon.skill.sawtooth.e",
+     "vfx": "vfx.wood_split",
+     "sfx": "sfx.tail_slam"
+    }
+   },
+   "r": {
+    "id": "logging_whirl",
+    "name_ko": "벌목 열풍",
+    "cooldown_sec": 55,
+    "cast_sec": 0.3,
+    "effect": {
+     "type": "whirl",
+     "duration_sec": 4.0,
+     "tick_sec": 0.3,
+     "damage": 7,
+     "radius": 90,
+     "move_speed_mult": 0.7
+    },
+    "assets": {
+     "icon": "icon.skill.sawtooth.r",
+     "vfx": "vfx.log_whirl",
+     "sfx": "sfx.great_tree"
+    }
+   }
   },
   "build_paths": [
    "combo",
@@ -231,7 +322,9 @@
  "sapshaman": {
   "id": "sapshaman",
   "name_ko": "수액주술사",
-  "implemented": false,
+  "implemented": true,
+  "role_ko": "회복·보조·지속 피해",
+  "weakness_ko": "순간 폭발 피해가 낮음",
   "base_hp": 100,
   "move_speed": 195,
   "radius": 17,
@@ -240,16 +333,110 @@
    "icon": "icon.class.sapshaman",
    "portrait": "portrait.sapshaman"
   },
+  "basic_attack": {
+   "id": "sap_orb",
+   "name_ko": "수액 구체",
+   "damage": 6,
+   "windup_sec": 0.14,
+   "active_sec": 0.05,
+   "recovery_sec": 0.26,
+   "shape": "projectile",
+   "projectile": {
+    "speed": 460,
+    "radius": 10,
+    "ttl_sec": 0.9,
+    "asset": "vfx.projectile_sap"
+   },
+   "knockback": 8,
+   "stagger_sec": 0.0,
+   "hitbox": "hit.sap_orb",
+   "assets": {
+    "vfx": "vfx.sling_shot",
+    "sfx": "sfx.sling"
+   }
+  },
+  "passive": {
+   "id": "sap_seeds",
+   "name_ko": "씨앗 축적",
+   "desc_ko": "피해·회복 시 씨앗 1 (0.5초에 1개, 최대 5). 생명의 수액이 씨앗당 회복 +3 을 더하고 씨앗을 소모",
+   "implemented": true,
+   "max_stacks": 5,
+   "min_interval_sec": 0.5,
+   "heal_per_seed": 3
+  },
+  "skills": {
+   "q": {
+    "id": "life_sap",
+    "name_ko": "생명의 수액",
+    "cooldown_sec": 10,
+    "cast_sec": 0.25,
+    "effect": {
+     "type": "heal_zone",
+     "place_range": 220,
+     "radius": 90,
+     "heal": 18,
+     "slow_mult": 0.35,
+     "slow_sec": 3.0
+    },
+    "assets": {
+     "icon": "icon.skill.sapshaman.q",
+     "vfx": "vfx.sap_bloom",
+     "sfx": "sfx.rescue"
+    }
+   },
+   "e": {
+    "id": "root_bind",
+    "name_ko": "뿌리 결속",
+    "cooldown_sec": 12,
+    "cast_sec": 0.3,
+    "effect": {
+     "type": "root_zone",
+     "place_range": 240,
+     "radius": 70,
+     "root_sec": 1.5,
+     "duration_sec": 3.0,
+     "tick_sec": 0.5,
+     "damage": 4
+    },
+    "assets": {
+     "icon": "icon.skill.sapshaman.e",
+     "vfx": "vfx.root_bind",
+     "sfx": "sfx.wood_block"
+    }
+   },
+   "r": {
+    "id": "spring_flood",
+    "name_ko": "봄의 범람",
+    "cooldown_sec": 65,
+    "cast_sec": 0.4,
+    "effect": {
+     "type": "flood_zone",
+     "radius": 160,
+     "duration_sec": 6.0,
+     "tick_sec": 0.5,
+     "heal": 4,
+     "damage": 3,
+     "slow_mult": 0.3
+    },
+    "assets": {
+     "icon": "icon.skill.sapshaman.r",
+     "vfx": "vfx.spring_flood",
+     "sfx": "sfx.great_tree"
+    }
+   }
+  },
   "build_paths": [
    "heal",
-   "toxin",
+   "toxic",
    "root"
   ]
  },
  "hydro": {
   "id": "hydro",
   "name_ko": "물길공학자",
-  "implemented": false,
+  "implemented": true,
+  "role_ko": "설치·지형 활용·범위 제어",
+  "weakness_ko": "준비 시간과 이동전이 약점",
   "base_hp": 105,
   "move_speed": 190,
   "radius": 18,
@@ -257,6 +444,105 @@
    "sprite": "char.hydro",
    "icon": "icon.class.hydro",
    "portrait": "portrait.hydro"
+  },
+  "basic_attack": {
+   "id": "water_shot",
+   "name_ko": "물총 압력탄",
+   "damage": 6,
+   "windup_sec": 0.12,
+   "active_sec": 0.05,
+   "recovery_sec": 0.24,
+   "shape": "projectile",
+   "projectile": {
+    "speed": 500,
+    "radius": 9,
+    "ttl_sec": 0.8,
+    "asset": "vfx.projectile_water"
+   },
+   "knockback": 25,
+   "stagger_sec": 0.0,
+   "hitbox": "hit.water_shot",
+   "assets": {
+    "vfx": "vfx.sling_shot",
+    "sfx": "sfx.sling"
+   }
+  },
+  "passive": {
+   "id": "hydro_charge",
+   "name_ko": "수압 충전",
+   "desc_ko": "기본 공격 명중마다 수압 +8 (최대 100). 수압 포탑은 수압 30 을 소모한다",
+   "implemented": true,
+   "max": 100,
+   "per_hit": 8,
+   "regen_per_sec": 2.0
+  },
+  "skills": {
+   "q": {
+    "id": "water_turret",
+    "name_ko": "수압 포탑",
+    "cooldown_sec": 10,
+    "cast_sec": 0.3,
+    "effect": {
+     "type": "turret",
+     "cost": 30,
+     "max_turrets": 2,
+     "place_range": 120,
+     "lifetime_sec": 12.0,
+     "hp": 50,
+     "range": 260,
+     "fire_sec": 0.7,
+     "damage": 5,
+     "proj_speed": 520
+    },
+    "assets": {
+     "icon": "icon.skill.hydro.q",
+     "vfx": "vfx.water_turret",
+     "sfx": "sfx.wood_block"
+    }
+   },
+   "e": {
+    "id": "torrent_valve",
+    "name_ko": "급류 밸브",
+    "cooldown_sec": 12,
+    "cast_sec": 0.25,
+    "effect": {
+     "type": "jet",
+     "length": 260,
+     "width": 70,
+     "damage": 6,
+     "knockback": 120,
+     "slow_mult": 0.3,
+     "slow_sec": 2.0,
+     "ally_speed_mult": 0.4,
+     "ally_sec": 2.0
+    },
+    "assets": {
+     "icon": "icon.skill.hydro.e",
+     "vfx": "vfx.torrent_valve",
+     "sfx": "sfx.sling"
+    }
+   },
+   "r": {
+    "id": "great_dam",
+    "name_ko": "이동식 거대 댐",
+    "cooldown_sec": 65,
+    "cast_sec": 0.45,
+    "effect": {
+     "type": "dam",
+     "place_range": 120,
+     "radius": 40,
+     "hp": 150,
+     "lifetime_sec": 12.0,
+     "burst_damage": 25,
+     "burst_radius": 150,
+     "burst_knockback": 160
+    },
+    "assets": {
+     "icon": "icon.skill.hydro.r",
+     "vfx": "vfx.great_dam",
+     "sfx": "sfx.tail_slam"
+    }
+   }
   },
   "build_paths": [
    "turret",

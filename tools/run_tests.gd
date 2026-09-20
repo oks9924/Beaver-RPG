@@ -38,6 +38,12 @@ func _ready() -> void:
 	test_village_bonus()
 	print("-- test_entity_anim_sheets")
 	test_entity_anim_sheets()
+	print("-- test_class_sawtooth")
+	test_class_sawtooth()
+	print("-- test_class_sapshaman")
+	test_class_sapshaman()
+	print("-- test_class_hydro")
+	test_class_hydro()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -299,7 +305,7 @@ func test_expedition_capacity() -> void:
 
 func test_content_data() -> void:
 	check(ContentDB.load_errors.is_empty(), "content data loads without errors: " + ", ".join(ContentDB.load_errors))
-	check(ContentDB.is_class_playable("guardian") and not ContentDB.is_class_playable("sawtooth"), "class implemented flags")
+	check(ContentDB.is_class_playable("guardian") and ContentDB.is_class_playable("sawtooth") and not ContentDB.is_class_playable("nope"), "class implemented flags")
 	var rep := AssetRegistry.report()
 	check((rep["file_missing"] as Array).is_empty(), "manifest files exist: %s" % [rep["file_missing"]])
 	for cid in ["guardian"]:
@@ -704,3 +710,234 @@ func test_entity_anim_sheets() -> void:
 			check(AssetRegistry.status("enemy.%s.%s" % [e, a]) in ["final", "derived"], "enemy sheet linked: %s.%s" % [e, a])
 	ev.free()
 	bv.free()
+
+
+func _solo_room(cls: String, seed_: int = 11) -> CombatRoom:
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, seed_, [{"account_id": "p0", "nickname": "P0", "class_id": cls}])
+	for e: Dictionary in room.enemies.values():
+		e["ai"] = Protocol.EnemyAI.ROOTED
+		e["root_t"] = 1000.0
+		e["hp"] = 1000.0
+		e["max_hp"] = 1000.0
+	return room
+
+
+func _press(room: CombatRoom, id: String, seq: int, aim: Vector2, btn: int, ticks: int = 1, mv: Vector2 = Vector2.ZERO) -> Array:
+	var out: Array = []
+	for i in ticks:
+		room.queue_input(id, seq + i, mv, aim, btn if i == 0 else 0)
+		out.append_array(room.step(1.0 / 30.0))
+	return out
+
+
+func test_class_sawtooth() -> void:
+	var room := _solo_room("sawtooth")
+	var p: Dictionary = room.players["p0"]
+	var e0: Dictionary = room.enemies.values()[0]
+	e0["pos"] = p["pos"] + Vector2(50, 0)
+	var seq := 1
+	# 연타로 열의가 쌓이고 피해가 커진다
+	var first_dmg := -1.0
+	var last_dmg := -1.0
+	for i in 6:
+		e0["pos"] = p["pos"] + Vector2(50, 0)   # 넉백으로 밀려난 적을 다시 사거리 안에 둔다
+		for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_ATTACK, 18):
+			if ev["k"] == "enemy_hit" and ev["eid"] == e0["id"]:
+				if first_dmg < 0.0:
+					first_dmg = float(ev["dmg"])
+				last_dmg = float(ev["dmg"])
+		seq += 18
+	check(int(p["resource"]) == 5, "heat stacks reach max 5 (got %d)" % int(p["resource"]))
+	check(last_dmg > first_dmg * 1.15, "heat increases basic damage (%.1f -> %.1f)" % [first_dmg, last_dmg])
+	room._damage_player(p, 5.0, p["pos"] + Vector2(10, 0), "test")
+	check(int(p["resource"]) == 4, "taking a hit removes one heat stack")
+	for i in 100:
+		room.step(1.0 / 30.0)
+	check(int(p["resource"]) == 0, "heat decays after 3s without attacking")
+	# Q 갉아 돌진: 경로 위의 적을 치고 이동한다
+	var x0: float = p["pos"].x
+	e0["pos"] = p["pos"] + Vector2(120, 0)
+	var hp0: float = e0["hp"]
+	var dashed := false
+	for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_Q, 8):
+		if ev["k"] == "dash":
+			dashed = true
+	seq += 8
+	check(dashed and p["pos"].x > x0 + 150 and e0["hp"] < hp0, "gnaw dash moves the player and damages enemies on the path")
+	# E 나무쪼개기: 방어 약화 후 받는 피해 증가
+	e0["pos"] = p["pos"] + Vector2(60, 0)
+	var before: float = e0["hp"]
+	for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_E, 14):
+		pass
+	seq += 14
+	check(e0["vuln_t"] > 0.0 and e0["hp"] < before, "wood split damages and applies vulnerability")
+	var base := 10.0
+	var h1: float = e0["hp"]
+	room._damage_enemy(e0, base, p, 0.0, 0.0)
+	check(is_equal_approx(h1 - float(e0["hp"]), base * 1.25), "vulnerable enemy takes +25%% damage (%.1f)" % (h1 - float(e0["hp"])))
+	# R 벌목 열풍: 회전 중 이동 가능, 주기 피해, 기본 공격 불가
+	var hp_r: float = e0["hp"]
+	var x1: float = p["pos"].x
+	for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_R, 12):
+		pass
+	seq += 12
+	check(p["whirl_t"] > 0.0, "whirl active after R")
+	var ticks_hit := 0
+	for i in 30:
+		room.queue_input("p0", seq, Vector2.RIGHT, Vector2.RIGHT, Protocol.BTN_ATTACK)
+		seq += 1
+		for ev: Dictionary in room.step(1.0 / 30.0):
+			if ev["k"] == "enemy_hit":
+				ticks_hit += 1
+			if ev["k"] == "action" and ev.get("kind", "") == "basic":
+				check(false, "basic attack must not start while whirling")
+	check(ticks_hit >= 2 and p["pos"].x > x1, "whirl ticks damage while moving")
+	var snap := room.snapshot()
+	var me: PackedFloat32Array = snap["p"][0][1]
+	check(int(me[Protocol.SNAP_P.STATUS]) & Protocol.ST_WHIRL != 0 and int(me[Protocol.SNAP_P.ACTION_KIND]) == Protocol.ACTION_KIND_CODES["whirl"], "snapshot flags whirl")
+	for i in 150:
+		room.step(1.0 / 30.0)
+	check(p["whirl_t"] == 0.0 and p["action_kind"] == "", "whirl ends and action kind clears")
+
+
+func test_class_sapshaman() -> void:
+	var room := _solo_room("sapshaman")
+	var p: Dictionary = room.players["p0"]
+	var e0: Dictionary = room.enemies.values()[0]
+	e0["pos"] = p["pos"] + Vector2(150, 0)
+	var seq := 1
+	for i in 4:
+		_press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_ATTACK, 20)
+		seq += 20
+	check(int(p["resource"]) >= 2, "sap orb hits accumulate seeds (got %d)" % int(p["resource"]))
+	# Q 생명의 수액: 회복 + 둔화 + 씨앗 소모, 회복 상한
+	p["hp"] = 40.0
+	var seeds := int(p["resource"])
+	var healed_amount := 0.0
+	for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT * 80, Protocol.BTN_Q, 12):
+		if ev["k"] == "healed" and ev["id"] == "p0":
+			healed_amount += float(ev["amount"])
+	seq += 12
+	check(healed_amount >= 18.0 + seeds * 3 - 0.01 and int(p["resource"]) == 0, "life sap heals base + seeds and consumes seeds (%.0f)" % healed_amount)
+	check(e0["slow_t"] > 0.0, "enemy inside life sap is slowed")
+	var sp0: Vector2 = e0["pos"]
+	e0["ai"] = Protocol.EnemyAI.CHASE
+	e0["root_t"] = 0.0
+	e0["target"] = "p0"
+	room.step(1.0 / 30.0)
+	var moved_slow := (e0["pos"] as Vector2).distance_to(sp0)
+	e0["slow_t"] = 0.0
+	sp0 = e0["pos"]
+	room.step(1.0 / 30.0)
+	var moved_norm := (e0["pos"] as Vector2).distance_to(sp0)
+	check(moved_slow < moved_norm * 0.8, "slow reduces enemy movement (%.2f vs %.2f)" % [moved_slow, moved_norm])
+	e0["ai"] = Protocol.EnemyAI.ROOTED
+	e0["root_t"] = 1000.0
+	# 회복 상한: 10초 창 안에서 70 을 넘지 않는다
+	p["hp"] = 1.0
+	p["cd"]["q"] = 0.0
+	var total := 0.0
+	for i in 5:
+		p["cd"]["q"] = 0.0
+		for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT * 30, Protocol.BTN_Q, 12):
+			if ev["k"] == "healed" and ev["id"] == "p0":
+				total += float(ev["amount"])
+		seq += 12
+	check(total <= float(ContentDB.rules["caps"]["heal_received_per_10s"]) + 0.01, "healing capped per 10s window (%.0f)" % total)
+	# E 뿌리 결속: 속박 + 지속 피해 장판
+	e0["ai"] = Protocol.EnemyAI.CHASE
+	e0["root_t"] = 0.0
+	e0["pos"] = p["pos"] + Vector2(120, 0)
+	var hp_e: float = e0["hp"]
+	_press(room, "p0", seq, Vector2.RIGHT * 120, Protocol.BTN_E, 12)
+	seq += 12
+	check(e0["ai"] == Protocol.EnemyAI.ROOTED, "root bind roots enemies")
+	var zones := 0
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.ROOT_ZONE:
+			zones += 1
+	check(zones == 1, "root zone object created")
+	for i in 60:
+		room.step(1.0 / 30.0)
+	check(e0["hp"] < hp_e - 8.0, "root zone deals damage over time (%.1f)" % (hp_e - float(e0["hp"])))
+	# R 봄의 범람: 아군 회복·적 피해 장판
+	p["hp"] = 30.0
+	p["heal_log"] = []
+	e0["pos"] = p["pos"] + Vector2(60, 0)
+	var hp_r: float = e0["hp"]
+	_press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_R, 14)
+	seq += 14
+	for i in 90:
+		room.step(1.0 / 30.0)
+	check(p["hp"] > 30.0 and e0["hp"] < hp_r, "spring flood heals the caster and damages enemies")
+
+
+func test_class_hydro() -> void:
+	var room := _solo_room("hydro")
+	var p: Dictionary = room.players["p0"]
+	var e0: Dictionary = room.enemies.values()[0]
+	e0["pos"] = p["pos"] + Vector2(150, 0)
+	var seq := 1
+	p["resource"] = 0.0
+	# 수압이 없으면 포탑 설치 실패
+	var failed := false
+	for ev: Dictionary in _press(room, "p0", seq, Vector2.RIGHT * 40, Protocol.BTN_Q, 12):
+		if ev["k"] == "skill_failed":
+			failed = true
+	seq += 12
+	check(failed, "turret needs charge")
+	for i in 5:
+		_press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_ATTACK, 18)
+		seq += 18
+	check(p["resource"] >= 30.0, "basic hits charge pressure (%.0f)" % p["resource"])
+	var charge := float(p["resource"])
+	_press(room, "p0", seq, Vector2.RIGHT * 40, Protocol.BTN_Q, 12)
+	seq += 12
+	var turrets := 0
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.TURRET:
+			turrets += 1
+	check(turrets == 1 and p["resource"] < charge, "turret placed and charge consumed")
+	var shots := 0
+	var hp0: float = e0["hp"]
+	for i in 60:
+		for ev: Dictionary in room.step(1.0 / 30.0):
+			if ev["k"] == "turret_shot":
+				shots += 1
+	check(shots >= 2 and e0["hp"] < hp0, "turret fires at enemies in range")
+	var charge_after: float = p["resource"]
+	check(charge_after <= charge - 30.0 + 2.0 * 2.5 + 0.5, "turret hits do not charge pressure (no recursion): %.1f" % charge_after)
+	# 최대 2개: 3번째는 가장 오래된 것을 대체
+	for k in 3:
+		p["resource"] = 100.0
+		p["cd"]["q"] = 0.0
+		_press(room, "p0", seq, Vector2.RIGHT * 40, Protocol.BTN_Q, 12)
+		seq += 12
+	turrets = 0
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.TURRET:
+			turrets += 1
+	check(turrets == 2, "at most 2 turrets per owner (got %d)" % turrets)
+	# E 급류 밸브: 적을 밀어내고 둔화, 아군 가속
+	e0["pos"] = p["pos"] + Vector2(100, 0)
+	var ex0: float = e0["pos"].x
+	_press(room, "p0", seq, Vector2.RIGHT, Protocol.BTN_E, 12)
+	seq += 12
+	check(e0["pos"].x > ex0 + 60 and e0["slow_t"] > 0.0 and p["haste_t"] > 0.0, "torrent valve pushes, slows enemies and hastes allies in the line")
+	# R 이동식 거대 댐: 장애물로 작동, 만료 시 폭발
+	_press(room, "p0", seq, Vector2.RIGHT * 100, Protocol.BTN_R, 16)
+	seq += 16
+	var dam: Dictionary = {}
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.DAM:
+			dam = o
+	check(not dam.is_empty() and room.all_obstacles().size() > room.obstacles.size(), "dam placed and blocks movement")
+	e0["pos"] = dam["pos"] + Vector2(70, 0)
+	var hp_b: float = e0["hp"]
+	dam["life"] = 0.01
+	var burst := false
+	for ev: Dictionary in room.step(1.0 / 30.0):
+		if ev["k"] == "dam_burst":
+			burst = true
+	check(burst and e0["hp"] < hp_b and e0["pos"].x > dam["pos"].x + 100, "dam burst damages and knocks enemies away")
+	check(int(room.snapshot()["e"][0][2][Protocol.SNAP_E.STATUS]) & Protocol.ST_SLOW != 0, "enemy status flags in snapshot")

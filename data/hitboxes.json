@@ -34,5 +34,18 @@
   "type": "circle",
   "radius": 46,
   "note": "공격 부위(집게)와 본체 판정을 구분: 집게는 부채꼴 판정, 본체는 원"
+ },
+ "hit.sawtooth_axe": {
+  "type": "arc",
+  "range": 72,
+  "angle_deg": 100
+ },
+ "hit.sap_orb": {
+  "type": "circle",
+  "radius": 10
+ },
+ "hit.water_shot": {
+  "type": "circle",
+  "radius": 9
  }
 }

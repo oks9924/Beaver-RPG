@@ -103,6 +103,10 @@ func take_damage(dmg: float, attacker: Dictionary, stagger: float = 0.0) -> void
 		_die(attacker)
 
 
+func alive() -> bool:
+	return state != BS.DEAD
+
+
 func on_arc_attack(p: Dictionary, atk: Dictionary) -> int:
 	if state == BS.DEAD:
 		return 0

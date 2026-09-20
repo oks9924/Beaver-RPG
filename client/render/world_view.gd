@@ -45,7 +45,7 @@ func _ready() -> void:
 		_audio_players.append(ap)
 	_tg_tex = AssetRegistry.get_texture("vfx.telegraph_circle")
 	for kind_asset in [["gnaw_tree", "prop.gnaw_tree"], ["device", "prop.device"], ["lever", "prop.lever"], ["structure", "prop.log_cover"], ["trap", "vfx.thorn_trap"], ["proj_enemy", "vfx.projectile_sap"], ["proj_player", "vfx.projectile_pinecone"],
-			["pillar", "prop.boss.pillar"], ["gate", "prop.boss.gate"], ["husk", "prop.boss.husk"], ["corridor", "prop.boss.corridor"], ["rope", "prop.boss.rope"], ["debris", "prop.boss.debris"], ["anchor", "prop.boss.anchor"], ["platform", "prop.boss.platform"], ["claw_link", "prop.boss.claw_link"]]:
+			["pillar", "prop.boss.pillar"], ["gate", "prop.boss.gate"], ["husk", "prop.boss.husk"], ["corridor", "prop.boss.corridor"], ["rope", "prop.boss.rope"], ["debris", "prop.boss.debris"], ["anchor", "prop.boss.anchor"], ["platform", "prop.boss.platform"], ["claw_link", "prop.boss.claw_link"], ["turret", "prop.turret"], ["dam", "prop.dam"], ["proj_water", "vfx.projectile_water"]]:
 		_object_tex[kind_asset[0]] = AssetRegistry.get_texture(kind_asset[1])
 
 
@@ -180,6 +180,23 @@ func _draw_telegraphs() -> void:
 				L.draw_arc(c, r, 0, TAU, 40, Color(0.6, 1.0, 0.5, 0.9), 2.0)
 			Protocol.ObKind.TRAP:
 				_draw_tex(L, _object_tex["trap"], c, r * 2.0, Color(1, 1, 1, 0.9 if st == 1 else 0.5))
+			Protocol.ObKind.TURRET:
+				_draw_tex(L, _object_tex["turret"], c + Vector2(0, -10), 64, Color.WHITE if st == 1 else Color(0.85, 0.9, 1.0))
+				L.draw_arc(c, 18, -PI / 2, -PI / 2 + TAU * prog, 24, Color(0.4, 0.8, 1.0, 0.9), 3.0)
+			Protocol.ObKind.DAM:
+				_draw_tex(L, _object_tex["dam"], c + Vector2(0, -16), r * 2.6, Color.WHITE)
+				L.draw_rect(Rect2(c.x - 26, c.y - 60, 52, 5), Color(0, 0, 0, 0.6))
+				L.draw_rect(Rect2(c.x - 26, c.y - 60, 52 * prog, 5), Color(0.4, 0.75, 1.0))
+			Protocol.ObKind.ROOT_ZONE:
+				L.draw_circle(c, r, Color(0.45, 0.3, 0.15, 0.25))
+				L.draw_arc(c, r, 0, TAU, 32, Color(0.6, 0.85, 0.35, 0.9), 2.0)
+				for i in 6:
+					var a := i * TAU / 6.0 + prog * 2.0
+					L.draw_line(c, c + Vector2(cos(a), sin(a)) * r * 0.9, Color(0.5, 0.35, 0.2, 0.7), 2.0)
+			Protocol.ObKind.FLOOD_ZONE:
+				L.draw_circle(c, r, Color(0.35, 0.8, 0.45, 0.16))
+				L.draw_arc(c, r * (0.6 + 0.4 * fmod(prog * 3.0, 1.0)), 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.5), 2.0)
+				L.draw_arc(c, r, 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.9), 2.0)
 			Protocol.ObKind.STRUCTURE:
 				_draw_tex(L, _object_tex["structure"], c + Vector2(0, -8), 72, Color.WHITE)
 				L.draw_rect(Rect2(c.x - 20, c.y - 44, 40, 5), Color(0, 0, 0, 0.6))

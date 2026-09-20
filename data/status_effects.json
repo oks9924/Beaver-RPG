@@ -1,14 +1,105 @@
 {
-  "_comment": "5절 상태 효과 정의. 단계 1에서는 stagger/protect/shield/front_guard 만 실제 적용된다.",
-  "stagger": {"id": "stagger", "name_ko": "경직", "stackable": false, "refresh": "max", "immune_after_sec": 0.0, "implemented": true},
-  "protect": {"id": "protect", "name_ko": "보호", "stackable": false, "refresh": "max", "implemented": true},
-  "shield": {"id": "shield", "name_ko": "보호막", "stackable": false, "refresh": "strongest", "implemented": true},
-  "front_guard": {"id": "front_guard", "name_ko": "전방 방어", "stackable": false, "refresh": "max", "implemented": true},
-  "slow": {"id": "slow", "name_ko": "둔화", "stackable": false, "refresh": "max", "implemented": false},
-  "root": {"id": "root", "name_ko": "속박", "stackable": false, "refresh": "none", "implemented": false},
-  "knockback": {"id": "knockback", "name_ko": "밀침", "stackable": false, "refresh": "none", "implemented": true},
-  "stun": {"id": "stun", "name_ko": "기절", "stackable": false, "refresh": "none", "boss_converts_to_stagger_gauge": true, "implemented": false},
-  "bleed": {"id": "bleed", "name_ko": "출혈", "stackable": true, "max_stacks": 5, "refresh": "max", "implemented": false},
-  "wet": {"id": "wet", "name_ko": "젖음", "stackable": false, "refresh": "max", "implemented": false},
-  "sap": {"id": "sap", "name_ko": "수액 부착", "stackable": true, "max_stacks": 3, "refresh": "max", "implemented": false}
+ "_comment": "5절 상태 효과 정의. 단계 1에서는 stagger/protect/shield/front_guard 만 실제 적용된다.",
+ "stagger": {
+  "id": "stagger",
+  "name_ko": "경직",
+  "stackable": false,
+  "refresh": "max",
+  "immune_after_sec": 0.0,
+  "implemented": true
+ },
+ "protect": {
+  "id": "protect",
+  "name_ko": "보호",
+  "stackable": false,
+  "refresh": "max",
+  "implemented": true
+ },
+ "shield": {
+  "id": "shield",
+  "name_ko": "보호막",
+  "stackable": false,
+  "refresh": "strongest",
+  "implemented": true
+ },
+ "front_guard": {
+  "id": "front_guard",
+  "name_ko": "전방 방어",
+  "stackable": false,
+  "refresh": "max",
+  "implemented": true
+ },
+ "slow": {
+  "id": "slow",
+  "name_ko": "둔화",
+  "stackable": false,
+  "refresh": "max",
+  "implemented": true
+ },
+ "root": {
+  "id": "root",
+  "name_ko": "속박",
+  "stackable": false,
+  "refresh": "none",
+  "implemented": true
+ },
+ "knockback": {
+  "id": "knockback",
+  "name_ko": "밀침",
+  "stackable": false,
+  "refresh": "none",
+  "implemented": true
+ },
+ "stun": {
+  "id": "stun",
+  "name_ko": "기절",
+  "stackable": false,
+  "refresh": "none",
+  "boss_converts_to_stagger_gauge": true,
+  "implemented": false
+ },
+ "bleed": {
+  "id": "bleed",
+  "name_ko": "출혈",
+  "stackable": true,
+  "max_stacks": 5,
+  "refresh": "max",
+  "implemented": false
+ },
+ "wet": {
+  "id": "wet",
+  "name_ko": "젖음",
+  "stackable": false,
+  "refresh": "max",
+  "implemented": false
+ },
+ "sap": {
+  "id": "sap",
+  "name_ko": "수액 부착",
+  "stackable": true,
+  "max_stacks": 3,
+  "refresh": "max",
+  "implemented": false
+ },
+ "vulnerable": {
+  "id": "vulnerable",
+  "name_ko": "방어 약화",
+  "stackable": false,
+  "refresh": "max",
+  "implemented": true
+ },
+ "speed_boost": {
+  "id": "speed_boost",
+  "name_ko": "급류 가속",
+  "stackable": false,
+  "refresh": "max",
+  "implemented": true
+ },
+ "heat": {
+  "id": "heat",
+  "name_ko": "열의",
+  "stackable": true,
+  "max_stacks": 5,
+  "implemented": true
+ }
 }

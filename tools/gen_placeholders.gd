@@ -371,6 +371,40 @@ func _draw_icon(img: Image, ph: Dictionary) -> void:
 				_fill_circle(img, c - 17 + i * 10, c + 4 + (i % 2) * 6, 3, light)
 		"tooth":
 			_triangle(img, Vector2(c - 12, c - 16), Vector2(c + 12, c - 16), Vector2(c, c + 18), light)
+		"dash":
+			_triangle(img, Vector2(c - 18, c - 10), Vector2(c - 18, c + 10), Vector2(c + 16, c), light)
+			for i in 3:
+				_fill_rect(img, int(c) - 26 + i * 4, int(c) - 2, 2, 4, light)
+		"axe":
+			_fill_rect(img, int(c) - 3, int(c) - 8, 6, 26, col.lightened(0.2))
+			_fill_ellipse(img, c + 8, c - 8, 12, 9, light)
+		"whirl":
+			_ring(img, c, c, 20, 15, light, -160, 60)
+			_ring(img, c, c, 12, 8, light, 20, 240)
+		"drop":
+			_fill_circle(img, c, c + 6, 12, light)
+			_triangle(img, Vector2(c - 11, c + 2), Vector2(c + 11, c + 2), Vector2(c, c - 18), light)
+		"root":
+			for i in 5:
+				var a := -PI / 2 + (i - 2) * 0.5
+				_fill_rect(img, int(c + cos(a) * 14) - 2, int(c + sin(a) * 14) - 2, 4, 4, light)
+				_fill_rect(img, int(c) - 2, int(c) - 2, 4, 4, light)
+			_fill_rect(img, int(c) - 2, int(c) - 4, 4, 24, light)
+		"flood":
+			for i in 3:
+				_ring(img, c, c + 8 - i * 8, 18, 15, light, -180, 0)
+		"turret":
+			_fill_rect(img, int(c) - 12, int(c) + 2, 24, 14, light)
+			_fill_rect(img, int(c) - 3, int(c) - 16, 6, 20, light)
+			_fill_circle(img, c, c - 18, 5, col.lightened(0.7))
+		"jet":
+			for i in 4:
+				_fill_rect(img, int(c) - 20, int(c) - 12 + i * 8, 40 - i * 6, 3, light)
+		"dam":
+			_fill_rect(img, int(c) - 22, int(c) - 4, 44, 20, col.lightened(0.2))
+			for i in 4:
+				_fill_rect(img, int(c) - 20 + i * 11, int(c) - 4, 9, 20, light)
+			_fill_rect(img, int(c) - 22, int(c) - 12, 44, 6, col.lightened(0.7))
 		"paw":
 			_fill_ellipse(img, c, c + 6, 12, 9, light)
 			for i in 4:

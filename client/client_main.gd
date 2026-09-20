@@ -26,6 +26,7 @@ var last_result: Dictionary = {}
 var _seq: int = 0
 var _pending: Array = []            # [{seq, mv, dt}]
 var _pred_pos: Vector2 = Vector2.ZERO
+var selected_class: String = "guardian"
 var _me_snapshot: PackedFloat32Array = PackedFloat32Array()
 var _room_players: Array = []
 var _enemies_alive: int = 0
@@ -45,6 +46,10 @@ var _route_offer: Dictionary = {}
 
 func _ready() -> void:
 	settings.load()
+	if ContentDB.is_class_playable(String(settings.data.get("last_class", ""))):
+		selected_class = String(settings.data.get("last_class", "guardian"))
+	if launch_args.has("class") and ContentDB.is_class_playable(String(launch_args["class"])):
+		selected_class = String(launch_args["class"])
 	_setup_input_map()
 	net = NetClient.new()
 	net.name = "NetClient"
@@ -85,10 +90,16 @@ func _ready() -> void:
 	login_screen.login_requested.connect(func(n: String, p: String) -> void: _auth(Protocol.C.LOGIN, {"nick": n, "password": p}))
 	login_screen.register_requested.connect(func(n: String, p: String) -> void: _auth(Protocol.C.REGISTER, {"nick": n, "password": p}))
 	login_screen.back_requested.connect(func() -> void: net.disconnect_from_server(""); _set_mode("connect"))
-	hub_screen.create_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": "guardian"}))
-	hub_screen.join_requested.connect(func(id: String) -> void: net.send(Protocol.C.BOARD_JOIN, {"expedition_id": id, "class_id": "guardian"}))
+	hub_screen.create_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class}))
+	hub_screen.join_requested.connect(func(id: String) -> void: net.send(Protocol.C.BOARD_JOIN, {"expedition_id": id, "class_id": selected_class}))
+	hub_screen.class_changed.connect(func(cid: String) -> void:
+		selected_class = cid
+		settings.data["last_class"] = cid
+		settings.save()
+		if not party.is_empty():
+			net.send(Protocol.C.READY, {"ready": false, "class_id": selected_class}))
 	hub_screen.leave_requested.connect(func() -> void: net.send(Protocol.C.BOARD_LEAVE))
-	hub_screen.ready_toggled.connect(func(r: bool) -> void: net.send(Protocol.C.READY, {"ready": r, "class_id": "guardian"}))
+	hub_screen.ready_toggled.connect(func(r: bool) -> void: net.send(Protocol.C.READY, {"ready": r, "class_id": selected_class}))
 	hub_screen.start_requested.connect(func() -> void: net.send(Protocol.C.BOARD_START))
 	hub_screen.logout_requested.connect(func() -> void: settings.clear_token(net.host, net.port); net.send(Protocol.C.LOGOUT))
 	hub_screen.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
@@ -146,6 +157,8 @@ func _set_mode(m: String) -> void:
 	connect_screen.visible = m == "connect"
 	login_screen.visible = m == "login"
 	hub_screen.visible = m == "hub"
+	if m == "hub":
+		hub_screen.set_selected_class(selected_class)
 	hud.visible = m in ["room", "result", "phase"]
 	result_panel.visible = m == "result"
 	run_panels.visible = m == "phase"
@@ -415,6 +428,28 @@ func _on_room_event(ev: Dictionary) -> void:
 			world.play_sound("sfx.wood_block", 0.1)
 		"mark_burst":
 			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30))
+		"dash":
+			world.spawn_effect("vfx.gnaw_dash", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))), Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))).angle())
+			world.play_sound("sfx.dodge", 0.1)
+		"heavy_strike":
+			world.play_sound("sfx.tail_slam", 0.1)
+		"heal_zone":
+			world.spawn_effect("vfx.sap_bloom", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
+			world.play_sound("sfx.rescue", 0.1)
+		"healed":
+			if String(ev.get("id", "")) == my_id:
+				hud.toast("회복 +%d" % int(ev.get("amount", 0)), 0.8)
+		"jet":
+			world.spawn_effect("vfx.torrent_valve", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))) * float(ev.get("len", 260)) * 0.5, Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))).angle())
+			world.play_sound("sfx.sling", 0.1)
+		"turret_shot":
+			world.play_sound("sfx.sling", 0.15)
+		"dam_burst":
+			world.spawn_effect("vfx.great_dam", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
+			world.play_sound("sfx.tail_slam", 0.1)
+		"skill_failed":
+			if String(ev.get("id", "")) == my_id:
+				hud.toast({"charge": "수압이 부족합니다 (기본 공격으로 충전)", "limit": "포탑 상한"}.get(String(ev.get("reason", "")), "사용 불가"), 1.2)
 		"proc":
 			pass
 		"boss_spawn":
@@ -540,6 +575,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		ev.state = int(e[Protocol.SNAP_P.STATE])
 		ev.action = int(e[Protocol.SNAP_P.ACTION])
 		ev.action_kind = int(e[Protocol.SNAP_P.ACTION_KIND]) if e.size() > Protocol.SNAP_P.ACTION_KIND else 0
+		ev.status_bits = int(e[Protocol.SNAP_P.STATUS]) if e.size() > Protocol.SNAP_P.STATUS else 0
 		ev.shield = e[Protocol.SNAP_P.SHIELD]
 		ev.down_t = e[Protocol.SNAP_P.DOWN_T]
 		ev.invuln = e[Protocol.SNAP_P.INVULN] > 0.5
@@ -567,6 +603,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		ev.hp = e[Protocol.SNAP_E.HP]
 		ev.max_hp = e[Protocol.SNAP_E.MAX_HP]
 		ev.ai_state = int(e[Protocol.SNAP_E.AI])
+		ev.status_bits = int(e[Protocol.SNAP_E.STATUS]) if e.size() > Protocol.SNAP_E.STATUS else 0
 		ev.target_pos = pos
 		if ev.ai_state != Protocol.EnemyAI.DEAD:
 			_enemies_alive += 1
@@ -713,10 +750,10 @@ func _demo_tick(dt: float) -> void:
 				_screenshot("02_hub.png")
 			elif _demo_step == 1 and _demo_t > 1.6 and party.is_empty():
 				_demo_step = 2
-				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": "guardian"})
+				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class})
 			elif _demo_step == 2 and not party.is_empty() and _demo_t > 2.2:
 				_demo_step = 3
-				net.send(Protocol.C.READY, {"ready": true, "class_id": "guardian"})
+				net.send(Protocol.C.READY, {"ready": true, "class_id": selected_class})
 			elif _demo_step == 3 and _demo_t > 2.8:
 				_demo_step = 4
 				_screenshot("03_party.png")

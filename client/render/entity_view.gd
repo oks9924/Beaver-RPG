@@ -25,6 +25,7 @@ var party_color: Color = Color.WHITE
 var boss_state: int = -1
 var molting: bool = false
 var action_kind: int = 0
+var status_bits: int = 0
 var boss_pattern: String = ""
 var _sprite := Sprite2D.new()
 var _guard := Sprite2D.new()
@@ -89,6 +90,9 @@ func _pick_anim() -> String:
 				return "attack"
 			Protocol.Action.CAST:
 				return {2: "cast_q", 3: "cast_e", 4: "cast_r"}.get(action_kind, "cast")
+			Protocol.Action.IDLE:
+				if action_kind == Protocol.ACTION_KIND_CODES["whirl"]:
+					return "cast_r"
 			Protocol.Action.RESCUING, Protocol.Action.INTERACTING:
 				return "cast"
 			Protocol.Action.GRABBED:
@@ -132,7 +136,7 @@ func _process(dt: float) -> void:
 				_frame_t -= 1.0 / fps
 				if _frame_i + 1 < frames.size():
 					_frame_i += 1
-				elif bool(_sheet["loop"]):
+				elif bool(_sheet["loop"]) or action_kind == Protocol.ACTION_KIND_CODES["whirl"]:
 					_frame_i = 0
 		var row := SimRules.dir_row(facing) if int(_sheet["vframes"]) == 4 else 0
 		_sprite.frame = row * int(_sheet["hframes"]) + int(frames[_frame_i])
@@ -140,6 +144,12 @@ func _process(dt: float) -> void:
 	var mod := Color.WHITE
 	if _flash_t > 0.0:
 		mod = Color(1.6, 0.6, 0.6)
+	elif status_bits & Protocol.ST_VULN:
+		mod = Color(1.3, 0.85, 0.6)
+	elif status_bits & Protocol.ST_SLOW or status_bits & Protocol.ST_ROOT:
+		mod = Color(0.7, 0.85, 1.3)
+	elif status_bits & Protocol.ST_HASTE:
+		mod = Color(0.85, 1.1, 1.3)
 	elif invuln:
 		mod = Color(0.8, 0.9, 1.4, 0.7)
 	elif not connected:

@@ -10,6 +10,9 @@ signal start_requested()
 signal logout_requested()
 signal chat_sent(text: String)
 signal upgrade_requested(structure: String)
+signal class_changed(class_id: String)
+var class_pick: OptionButton
+var _class_ids: Array = []
 
 var info_label: Label
 var roster_label: Label
@@ -75,8 +78,19 @@ func _ready() -> void:
 	ph.add_child(start_btn)
 	ph.add_child(UIKit.button("파티 나가기", func() -> void: leave_requested.emit()))
 	party_box.add_child(ph)
-	party_box.add_child(UIKit.label("직업: 수호목수 (단계 1 에서는 1개 직업만 선택 가능)", 12, Color(0.7, 0.7, 0.65)))
 	rv.add_child(party_box)
+	var ch := UIKit.hbox()
+	ch.add_child(UIKit.label("직업", 13))
+	class_pick = OptionButton.new()
+	for cid: String in ContentDB.classes.keys():
+		if ContentDB.is_class_playable(cid):
+			_class_ids.append(cid)
+			var cdef: Dictionary = ContentDB.get_class_def(cid)
+			class_pick.add_item("%s — %s" % [cdef.get("name_ko", cid), cdef.get("role_ko", "")])
+	class_pick.item_selected.connect(func(i: int) -> void: class_changed.emit(String(_class_ids[i])))
+	ch.add_child(class_pick)
+	rv.add_child(ch)
+	rv.add_child(UIKit.label("같은 직업 중복 선택 가능 · 출정 전에 바꿀 수 있습니다", 11, Color(0.7, 0.7, 0.65)))
 	add_child(right)
 	# 하단: 채팅
 	var bottom := UIKit.panel(Vector2(420, 150))
@@ -191,3 +205,9 @@ func show_progression(info: Dictionary, account: Dictionary) -> void:
 	codex_label.text = "%s\n도감: 적 %d종 (%s) · 유물 %d/%d · 보스 %d\n기록: 원정 %d회, 완주 %d, 클리어 방 %d, 전멸 %d" % [
 		", ".join(parts) if not parts.is_empty() else "직업 숙련 없음", enemies.size(), ", ".join(ename), (codex.get("relics", []) as Array).size(), ContentDB.relics.size(), (codex.get("bosses", []) as Array).size(),
 		int(stats.get("expeditions_started", 0)), int(stats.get("runs_completed", 0)), int(stats.get("rooms_cleared", 0)), int(stats.get("wipes", 0))]
+
+
+func set_selected_class(cid: String) -> void:
+	var i := _class_ids.find(cid)
+	if i >= 0 and class_pick != null:
+		class_pick.select(i)

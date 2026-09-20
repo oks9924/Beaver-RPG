@@ -6,6 +6,8 @@ var hp_bar: ProgressBar
 var hp_label: Label
 var shield_label: Label
 var dodge_label: Label
+var resource_label: Label
+var _icon_class: String = ""
 var skill_boxes: Dictionary = {}
 var heal_label: Label
 var party_label: Label
@@ -64,6 +66,8 @@ func _ready() -> void:
 		box.add_child(lbl)
 		sh.add_child(box)
 		skill_boxes[k] = {"icon": icon, "label": lbl}
+	resource_label = UIKit.label("", 13, Color(1.0, 0.85, 0.5))
+	sh.add_child(resource_label)
 	dodge_label = UIKit.label("회피 ◆◆", 13, Color(0.6, 0.85, 1.0))
 	heal_label = UIKit.label("회복(1) x2", 13, Color(0.6, 1.0, 0.6))
 	sh.add_child(dodge_label)
@@ -171,6 +175,16 @@ func update_me(me: PackedFloat32Array, cdef: Dictionary) -> void:
 	var charges := int(me[Protocol.SNAP_P.DODGE])
 	dodge_label.text = "회피 " + "◆".repeat(charges) + "◇".repeat(maxi(int(ContentDB.rule("dodge_charges", 2)) - charges, 0))
 	heal_label.text = "회복(1) x%d" % int(me[Protocol.SNAP_P.HEAL])
+	if _icon_class != String(cdef.get("id", "")):
+		_icon_class = String(cdef.get("id", ""))
+		for k in ["q", "e", "r"]:
+			(skill_boxes[k]["icon"] as TextureRect).texture = AssetRegistry.get_texture(String(cdef.get("skills", {}).get(k, {}).get("assets", {}).get("icon", "icon.skill.guardian." + k)))
+	var res := float(me[Protocol.SNAP_P.RESOURCE]) if me.size() > Protocol.SNAP_P.RESOURCE else 0.0
+	match String(cdef.get("id", "")):
+		"sawtooth": resource_label.text = "열의 " + "▮".repeat(int(res)) + "▯".repeat(maxi(5 - int(res), 0))
+		"sapshaman": resource_label.text = "씨앗 " + "●".repeat(int(res)) + "○".repeat(maxi(5 - int(res), 0))
+		"hydro": resource_label.text = "수압 %d" % int(res)
+		_: resource_label.text = ""
 	for k in ["q", "e", "r"]:
 		var cd := float(me[{"q": Protocol.SNAP_P.CD_Q, "e": Protocol.SNAP_P.CD_E, "r": Protocol.SNAP_P.CD_R}[k]])
 		var box: Dictionary = skill_boxes[k]
