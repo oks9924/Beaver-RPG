@@ -58,7 +58,7 @@ GitHub Actions(`.github/workflows/build.yml`)가 push 마다 린트·에셋 검�
 xvfb-run -a godot --path . --rendering-driver opengl3 --rendering-method gl_compatibility -- --connect=127.0.0.1:7777 --demo=demo1 --shots=./shots
 godot --headless --path . -- --tool=lint_all
 godot --headless --path . -- --tool=check_assets
-godot --headless --path . -- --tool=run_tests        # 단위 474개
+godot --headless --path . -- --tool=run_tests        # 단위 489개
 godot --headless --path . -- --tool=test_boss        # 보스 3종 × 기믹 5개 × 인원 1~4 (420개)
 godot --headless --path . -- --tool=check_routes     # 시드 100개 경로 점검 (GEN-01)
 tests/integration/run_integration.sh /path/to/godot  # 서버 + 다중 클라이언트 (42개)

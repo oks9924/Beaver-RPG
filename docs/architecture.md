@@ -12,6 +12,7 @@
 |---|---|---|
 | 프로토콜 | `shared/protocol.gd` | 버전, 메시지 종류, 오류 코드, 스냅샷 인덱스, 상태 enum |
 | RPC 창구 | `shared/net.gd` | `/root/Net` 에서 `c_msg/c_input`(클→서), `s_msg/s_snapshot`(서→클) 만 정의 |
+| 스냅샷 코덱 | `shared/snapshot_codec.gd` | 방 스냅샷을 고정 폭 정수(위치 0.25px·시간 0.05s·체력 0.25)로 인코딩. 4인 방 최대 약 530B 로 ENet MTU(1392B) 안. 허브 스냅샷·모르는 키는 `var_to_bytes` 로 그대로. `decode()` 가 같은 모양의 Dictionary 를 복원하므로 소비자는 인코딩을 모른다 |
 | 콘텐츠 데이터 | `shared/content_db.gd`, `data/*.json` | 직업·적·방·인원 프로필·규칙. 숫자는 코드에 넣지 않는다 |
 | 판정 수학 | `shared/sim/sim_rules.gd` | 이동·충돌·부채꼴/원 판정·피해 계산 순서. 서버 판정과 클라이언트 예측이 공유 |
 | 에셋 | `assets/asset_registry.gd`, `assets/asset_manifest.json` | ID → 파일 해석, 임시/최종 분리 (docs/asset_plan.md) |

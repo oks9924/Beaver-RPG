@@ -35,7 +35,7 @@ sudo systemctl restart tail-expedition-server
 - `server_data/accounts.json`, `world.json` — 변경 시마다 임시 파일에 쓰고 rename 으로 교체, 이전본은 `.bak`.
 - 손상 시 자동으로 `.bak` 을 읽는다. 별도 백업은 위 스크립트로.
 - `expeditions.json` — 안전 지점 체크포인트와 중단(이어하기) 원정. 재시작 시 유예 안의 체크포인트를 복구하고 전투 중이던 방은 마지막 안전 지점부터 다시 한다. 콘텐츠 버전이 바뀌면 이전 체크포인트는 버린다.
-- 메트릭 로그의 `snapshot_max` 는 4인 전투 스냅샷의 최대 바이트다. ENet MTU(1392B)를 넘으면 WARN 이 남는다.
+- 메트릭 로그의 `snapshot_max` 는 4인 전투 스냅샷의 최대 바이트(바이너리 코덱 적용 후, 4인 약 470~530B)다. ENet MTU(1392B)를 넘으면 WARN 이 남는다.
 
 ## 인터넷 공개 전 확인
 - DTLS 미적용: 현재 로그인 정보가 평문 UDP 로 전달된다. 친구끼리 LAN/VPN(예: Tailscale) 사용을 권장하며, 공개 운영 전 DTLS 또는 HTTPS 인증 경로를 추가해야 한다.
