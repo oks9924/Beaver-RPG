@@ -1,0 +1,6 @@
+Noto Sans KR (Regular 400)
+Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
+Licensed under the SIL Open Font License, Version 1.1.
+https://openfontlicense.org
+Source: Google Fonts (https://fonts.google.com/noto/specimen/Noto+Sans+KR), retrieved via fonts.gstatic.com.
+Asset ID: font.ui.main (see assets/asset_manifest.json). Status: final (third-party, OFL).

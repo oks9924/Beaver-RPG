@@ -1,0 +1,32 @@
+{
+  "sap_snail": {
+    "id": "sap_snail",
+    "name_ko": "수액 달팽이",
+    "role": "approach",
+    "implemented": true,
+    "hp": 40,
+    "move_speed": 62,
+    "radius": 20,
+    "threat_cost": 1.0,
+    "aggro_range": 520,
+    "leash_range": 2000,
+    "xp": 5,
+    "wood_drop": 1,
+    "assets": {"sprite": "enemy.sap_snail", "icon": "icon.enemy.sap_snail", "sfx_hit": "sfx.snail_hit", "sfx_death": "sfx.snail_death"},
+    "attack": {
+      "id": "snail_bite",
+      "windup_sec": 0.75,
+      "active_sec": 0.15,
+      "recovery_sec": 0.6,
+      "cooldown_sec": 1.6,
+      "shape": "circle",
+      "radius": 46,
+      "forward_offset": 28,
+      "damage": 10,
+      "heavy": false,
+      "telegraph_asset": "vfx.telegraph_circle"
+    },
+    "stagger_sec_on_hit": 0.1,
+    "stagger_resist_after_sec": 1.5
+  }
+}

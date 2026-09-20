@@ -1,0 +1,7 @@
+{
+  "_comment": "판정 데이터는 시각 에셋과 분리한다 (17절). 서버 export 에서도 유지된다.",
+  "hit.player_default": {"type": "circle", "radius": 18},
+  "hit.guardian_hammer": {"type": "arc", "range": 82, "angle_deg": 120},
+  "hit.sap_snail_body": {"type": "circle", "radius": 20},
+  "hit.sap_snail_bite": {"type": "circle", "radius": 46, "forward_offset": 28}
+}

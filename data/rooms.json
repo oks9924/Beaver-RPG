@@ -1,0 +1,19 @@
+{
+  "test_arena": {
+    "id": "test_arena",
+    "name_ko": "버들강 하류 시험장",
+    "region": "willow_river",
+    "objective": "annihilate",
+    "bounds": {"x": 0, "y": 0, "w": 1400, "h": 900},
+    "player_spawns": [[300, 450], [340, 410], [340, 490], [380, 450]],
+    "enemy_spawns": [[1150, 200], [1200, 450], [1150, 700], [900, 150], [900, 760], [1250, 320], [1250, 580]],
+    "obstacles": [
+      {"shape": "circle", "x": 700, "y": 300, "r": 48, "asset": "prop.willow.log"},
+      {"shape": "circle", "x": 760, "y": 640, "r": 56, "asset": "prop.willow.rock"}
+    ],
+    "water": [{"x": 0, "y": 820, "w": 1400, "h": 80, "damage_fraction": 0.1}],
+    "waves": {"base_budget": 6.0, "wave_count": 2, "next_wave_when_alive_at_most": 1, "wave_gap_sec": 2.5},
+    "enemy_pool": [{"id": "sap_snail", "weight": 1.0}],
+    "assets": {"ground": "tile.willow.ground", "wall": "tile.willow.wall", "water": "tile.willow.water", "bgm": "bgm.combat_normal"}
+  }
+}

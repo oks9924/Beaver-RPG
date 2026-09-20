@@ -1,0 +1,22 @@
+# systemd 유닛 예시. /etc/systemd/system/tail-expedition-server.service 로 복사한다.
+# 설치 경로와 사용자는 환경에 맞게 바꾼다. 게임 포트(UDP 7777)를 방화벽에서 열어야 한다.
+[Unit]
+Description=Tail Expedition dedicated server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=beaver
+WorkingDirectory=/opt/tail-expedition/current
+ExecStart=/opt/tail-expedition/current/tail-expedition-server.x86_64 --headless -- --config=/opt/tail-expedition/server_config.json --data-dir=/opt/tail-expedition/server_data
+Restart=on-failure
+RestartSec=5
+# SIGINT 로 정상 종료(저장 플러시) 후 종료 대기
+ExecStop=/bin/sh -c "touch /opt/tail-expedition/server_data/STOP; for i in 1 2 3 4 5 6 7 8 9 10; do [ -f /opt/tail-expedition/server_data/STOP ] || exit 0; sleep 1; done"
+KillSignal=SIGINT
+TimeoutStopSec=20
+Nice=0
+
+[Install]
+WantedBy=multi-user.target

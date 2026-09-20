@@ -1,0 +1,42 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; but it is also possible to edit it by hand.
+
+config_version=5
+
+[application]
+
+config/name="Tail Expedition: Black Tide"
+config/description="꼬리원정대: 검은 물결 — 비버 4인 협동 로그라이크 RPG (전용 서버 + 설치형 클라이언트)"
+config/version="0.1.0"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.4")
+run/low_processor_mode=false
+config/icon="res://assets/placeholders/app_icon.png"
+
+[autoload]
+
+Protocol="*res://shared/protocol.gd"
+ContentDB="*res://shared/content_db.gd"
+AssetRegistry="*res://assets/asset_registry.gd"
+Net="*res://shared/net.gd"
+
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[physics]
+
+common/physics_ticks_per_second=30
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=1
+environment/defaults/default_clear_color=Color(0.1, 0.13, 0.1, 1)

@@ -1,0 +1,10 @@
+# Godot
+.godot/
+build/
+*.tmp
+# 서버 로컬 데이터 (운영 데이터는 저장소에 넣지 않는다)
+server_data/
+server_config.json
+asset_overrides/
+# 테스트 산출물
+tests/out/

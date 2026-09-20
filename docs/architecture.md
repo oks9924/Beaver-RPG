@@ -1,0 +1,59 @@
+# 기술 구조 (단계 0·1)
+
+## 핵심 가정
+- 엔진: **Godot 4.4.1 stable**, 타입 지정 GDScript. 서버와 클라이언트는 같은 프로젝트를 공유하되 다른 프로세스로 실행된다.
+- 서버는 `dedicated_server` feature(export preset) 또는 `-- --server` 인자로 기동하며, 클라이언트 노드·렌더링에 의존하지 않는다.
+- 통신: ENet 고수준 멀티플레이. 입력은 `unreliable_ordered`, 상태 전이·보상·오류는 `reliable`. 채널 분리는 후속 작업.
+- 서버 시뮬레이션 30Hz, 전투 스냅샷 15Hz, 허브 스냅샷 10Hz (`data/rules.json` 에서 조절).
+- 클라이언트는 입력 의도(이동 벡터·조준·버튼 비트)만 보낸다. 피해·체력·재화·위치·난수는 서버가 확정한다.
+
+## 모듈 경계
+| 모듈 | 경로 | 역할 |
+|---|---|---|
+| 프로토콜 | `shared/protocol.gd` | 버전, 메시지 종류, 오류 코드, 스냅샷 인덱스, 상태 enum |
+| RPC 창구 | `shared/net.gd` | `/root/Net` 에서 `c_msg/c_input`(클→서), `s_msg/s_snapshot`(서→클) 만 정의 |
+| 콘텐츠 데이터 | `shared/content_db.gd`, `data/*.json` | 직업·적·방·인원 프로필·규칙. 숫자는 코드에 넣지 않는다 |
+| 판정 수학 | `shared/sim/sim_rules.gd` | 이동·충돌·부채꼴/원 판정·피해 계산 순서. 서버 판정과 클라이언트 예측이 공유 |
+| 에셋 | `assets/asset_registry.gd`, `assets/asset_manifest.json` | ID → 파일 해석, 임시/최종 분리 (docs/asset_plan.md) |
+| 서버 진입 | `server/server_main.gd` | ENet 서버, 세션, 메시지 분배, 틱, 메트릭, 정상 종료 |
+| 인증 | `server/auth_service.gd` | 서버 내부 계정, PBKDF2-HMAC-SHA256, 재접속 토큰(SHA-256 해시 저장) |
+| 저장 | `server/store/*.gd` | `StoreBase` 인터페이스 + `JsonFileStore`(원자적 rename, .bak) |
+| 공용 월드 | `server/world/hub_world.gd` | 서버 소유 마을, 접속자 0명이어도 유지, 통계·구조물 단계 |
+| 원정 | `server/expedition/*.gd` | 모집판·인스턴스·전투방 시뮬레이션 |
+| 클라이언트 | `client/*.gd` | 접속/로그인/마을/원정 준비/전투 HUD/결과, 예측·보간, 봇 모드 |
+
+## 상태 흐름
+- 연결: `DISCONNECTED → CONNECTING → AUTHENTICATING(hello·로그인) → SYNCING → ONLINE`
+- 위치: `HUB → PREPARING_EXPEDITION → IN_ROOM → RESULT → (IN_ROOM | HUB)`. `REWARD/ROUTE_VOTE/JOIN_PENDING/SUSPENDED` 는 enum 만 예약.
+- 원정 인스턴스: `PREPARING → IN_ROOM → RESULT → (IN_ROOM | CLOSED)`. 전원 연결 끊김이면 `suspended` 로 틱을 멈춘다.
+
+## 식별자와 저장 경계
+| 데이터 | 소유 | 저장 | ID |
+|---|---|---|---|
+| 계정 | 서버 | `accounts.json` | 불변 `id`(16바이트 hex). 닉네임은 표시용, 대소문자 무시 유일 |
+| 접속 세션 | 서버 메모리 | 없음 | ENet peer id(임시). 영구 식별자로 저장하지 않는다 |
+| 공용 월드 | 서버 | `world.json` | `world_id`(최초 기동 시 생성, 설정으로 고정 가능) |
+| 원정 인스턴스 | 서버 메모리 | 없음(단계 2에서 완료 방 체크포인트 저장 예정) | `exp_<seq>_<rand>` + 독립 시드 |
+| 클라이언트 설정 | 클라이언트 | `user://client_settings.json` | 서버 목록·최근 접속·재접속 토큰·그래픽/조작 |
+
+`schema_version` 을 계정·월드에 기록한다. 마이그레이션 코드는 아직 없다(스키마 1).
+
+## 버전
+- `PROTOCOL_VERSION=1`, `CONTENT_VERSION="0.1.0"`, `BUILD_VERSION="0.1.0-stage1"` (`shared/protocol.gd`).
+- hello 에서 프로토콜·콘텐츠 버전이 다르면 게임 상태를 보내기 전에 `VERSION_MISMATCH` 와 요구 버전, 업데이트 URL 을 보내고 끊는다.
+
+## 인원별 프로필
+`data/party_scaling.json` 의 `PartyScalingProfile` 을 방 시작 시 연결된 인원 N(1~4)으로 고정한다. 다운·이탈로 즉시 낮추지 않고, 이미 생성된 적의 체력을 바꾸지 않는다. `A`(행동 가능한 연결 인원)는 전투방이 별도로 추적한다.
+
+## 정원 정책
+- `max_online_players`: 인증된 세션 수. 초과 시 로그인 단계에서 `SERVER_FULL`. 유예 중인 원정 슬롯을 가진 계정(재접속)은 정원과 무관하게 입장한다.
+- `max_active_expeditions`: 준비 중·진행 중 인스턴스 합. 초과 시 `EXPEDITION_LIMIT`.
+- `max_party_size=4` 고정. 5번째 참가는 `PARTY_FULL`. 유예 시간(120초) 동안 끊긴 멤버의 슬롯도 정원에 포함한다.
+- 같은 계정 동시 로그인은 `ALREADY_ONLINE` 으로 거절한다(기존 세션 유지).
+
+## 알려진 제한 (단계 1)
+- ENet 전송에 DTLS 가 켜져 있지 않다. 비밀번호·토큰은 현재 평문 UDP 로 전송된다. **인터넷 공개 운영 전에** DTLS(ENetConnection.dtls_client/server + 인증서) 또는 별도 HTTPS 인증 경로가 필요하다.
+- 저장소는 JSON 파일이다. 트랜잭션은 "단일 프로세스 + 원자적 파일 교체" 수준이며, SQLite(GDExtension) 어댑터는 `StoreBase` 인터페이스로 교체 예정.
+- 원정 진행 중 저장(완료 방 체크포인트·이어하기)은 미구현. 서버 재시작 시 진행 중 원정은 사라지고, 계정·월드·완료된 방의 기록은 유지된다.
+- 채팅 뮤트·운영자 차단, 운영 권한 인증은 미구현(속도 제한만 있음).
+- Godot 는 SIGTERM 에 종료 훅을 부르지 않는다. 정상 종료는 `STOP` 파일(`scripts/stop_server.sh`) 을 쓴다. 강제 종료돼도 계정·월드 파일은 변경 시마다 즉시 원자적으로 저장되어 손실이 없다.

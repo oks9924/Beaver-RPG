@@ -1,0 +1,33 @@
+{
+  "_comment": "공통 전투 규칙 출발값 (5절, 14절). 미검증 초기값이며 플레이 테스트 후 조정한다.",
+  "content_version": "0.1.0",
+  "dodge_charges": 2,
+  "dodge_recharge_sec": 4.0,
+  "dodge_invuln_sec": 0.2,
+  "dodge_duration_sec": 0.22,
+  "dodge_speed_mult": 3.2,
+  "heal_uses_per_expedition": 2,
+  "heal_fraction": 0.30,
+  "heal_cast_sec": 0.8,
+  "down_duration_sec": 25.0,
+  "rescue_hold_sec": 3.0,
+  "rescue_range": 70.0,
+  "rescue_hp_fraction": 0.35,
+  "rescue_protect_sec": 2.0,
+  "rescue_protect_can_attack": true,
+  "max_rescues_per_room_per_player": 3,
+  "telegraph_min_sec": 0.7,
+  "disconnect_grace_sec": 120.0,
+  "disconnect_combat_vulnerable_after_sec": 5.0,
+  "return_from_death_hp_fraction": 0.5,
+  "server_sim_hz": 30,
+  "server_snapshot_hz": 15,
+  "hub_snapshot_hz": 10,
+  "input_max_per_tick": 2,
+  "input_queue_max": 8,
+  "caps": {
+    "damage_reduction_max": 0.60,
+    "cooldown_reduction_max": 0.40,
+    "crit_chance_max": 0.50
+  }
+}

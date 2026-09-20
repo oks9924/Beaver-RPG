@@ -1,0 +1,99 @@
+extends Node
+## 클라이언트와 서버가 공유하는 프로토콜 상수. 버전이 맞지 않으면 게임 상태를 보내기 전에 접속을 끊는다.
+
+const PROTOCOL_VERSION: int = 1
+const CONTENT_VERSION: String = "0.1.0"
+const BUILD_VERSION: String = "0.1.0-stage1"
+const DEFAULT_PORT: int = 7777
+const MAX_PARTY_SIZE: int = 4
+
+## 연결 상태 (15절)
+enum ConnState { DISCONNECTED, CONNECTING, AUTHENTICATING, SYNCING, ONLINE }
+
+## 로그인 후 게임 위치 (15절)
+enum Location {
+	NONE, HUB, PREPARING_EXPEDITION, LOADING, IN_ROOM, REWARD, ROUTE_VOTE, RESULT,
+	JOIN_PENDING, RECONNECTING, SUSPENDED,
+}
+
+## 클라이언트 → 서버 신뢰 메시지
+enum C {
+	HELLO, REGISTER, LOGIN, LOGIN_TOKEN, LOGOUT,
+	BOARD_LIST, BOARD_CREATE, BOARD_JOIN, BOARD_LEAVE, READY, BOARD_START,
+	ROOM_CHOICE, PING, CHAT,
+}
+
+## 서버 → 클라이언트 신뢰 메시지
+enum S {
+	HELLO_RESULT, AUTH_RESULT, ERROR, KICKED,
+	ENTER_HUB, HUB_ROSTER, BOARD_STATE, PARTY_STATE,
+	ENTER_EXPEDITION, ROOM_EVENTS, ROOM_RESULT, LEAVE_EXPEDITION,
+	PONG, CHAT, ACCOUNT_UPDATE,
+}
+
+## 입력 버튼 비트
+const BTN_ATTACK: int = 1
+const BTN_DODGE: int = 2
+const BTN_Q: int = 4
+const BTN_E: int = 8
+const BTN_R: int = 16
+const BTN_INTERACT: int = 32
+const BTN_HEAL: int = 64
+
+## 오류 코드. 클라이언트는 코드별로 다른 안내를 표시한다 (18절).
+const ERR_VERSION_MISMATCH := "VERSION_MISMATCH"
+const ERR_SERVER_FULL := "SERVER_FULL"
+const ERR_ALREADY_ONLINE := "ALREADY_ONLINE"
+const ERR_BAD_CREDENTIALS := "BAD_CREDENTIALS"
+const ERR_NICK_TAKEN := "NICK_TAKEN"
+const ERR_INVALID_NICK := "INVALID_NICK"
+const ERR_INVALID_PASSWORD := "INVALID_PASSWORD"
+const ERR_REGISTRATION_DISABLED := "REGISTRATION_DISABLED"
+const ERR_RATE_LIMITED := "RATE_LIMITED"
+const ERR_NOT_AUTHED := "NOT_AUTHED"
+const ERR_PARTY_FULL := "PARTY_FULL"
+const ERR_EXPEDITION_LIMIT := "EXPEDITION_LIMIT"
+const ERR_NO_EXPEDITION := "NO_EXPEDITION"
+const ERR_ALREADY_IN_EXPEDITION := "ALREADY_IN_EXPEDITION"
+const ERR_NOT_READY := "NOT_READY"
+const ERR_BAD_STATE := "BAD_STATE"
+const ERR_BAD_CONTENT_ID := "BAD_CONTENT_ID"
+const ERR_SAVE_FAILED := "SAVE_FAILED"
+const ERR_HELLO_TIMEOUT := "HELLO_TIMEOUT"
+const ERR_TOKEN_EXPIRED := "TOKEN_EXPIRED"
+
+## 전투 스냅샷 배열 인덱스 (CombatRoom.snapshot 과 일치해야 한다)
+enum SNAP_P { X, Y, FX, FY, HP, STATE, ACTION, DODGE, SHIELD, DOWN_T, CD_Q, CD_E, CD_R, INVULN, RESCUE_T, HEAL, CONNECTED, FRONT_GUARD }
+enum SNAP_E { X, Y, FX, FY, HP, MAX_HP, AI }
+enum SNAP_TG { X, Y, R, REMAINING, TOTAL }
+
+## 플레이어/적 상태
+enum EntState { ALIVE, DOWNED, DEAD }
+enum Action { IDLE, WINDUP, ACTIVE, RECOVERY, CAST, DODGE, RESCUING }
+enum EnemyAI { IDLE, SEEK, CHASE, WINDUP, ATTACK, RECOVER, STAGGER, DEAD }
+
+## 원정 상태
+enum ExpState { PREPARING, LOADING, IN_ROOM, RESULT, SUSPENDED, CLOSED }
+enum Outcome { NONE, VICTORY, WIPE, ABORTED, SERVER_ERROR }
+
+
+## `--` 뒤의 사용자 인자를 {key: value} 로 파싱한다. `--server`, `--port=7777`, `--bot=join` 등.
+static func parse_user_args() -> Dictionary:
+	var out: Dictionary = {}
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--"):
+			var body := a.substr(2)
+			var eq := body.find("=")
+			if eq >= 0:
+				out[body.substr(0, eq)] = body.substr(eq + 1)
+			else:
+				out[body] = true
+	return out
+
+
+static func version_info() -> Dictionary:
+	return {
+		"protocol": PROTOCOL_VERSION,
+		"content": CONTENT_VERSION,
+		"build": BUILD_VERSION,
+	}

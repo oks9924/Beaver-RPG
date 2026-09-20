@@ -1,0 +1,20 @@
+{
+  "_comment": "전용 서버 설정 예시. 실행 파일 옆 server_config.json 으로 복사해 수정한다. 비밀 값은 넣지 않는다.",
+  "bind_address": "*",
+  "port": 7777,
+  "world_id": "",
+  "world_name": "버들둑 마을",
+  "max_online_players": 8,
+  "max_active_expeditions": 2,
+  "allow_registration": true,
+  "reconnect_reserved_slots": 1,
+  "data_dir": "",
+  "log_level": "info",
+  "metrics_interval_sec": 30,
+  "hello_timeout_sec": 10,
+  "maintenance": false,
+  "login_fail_lockout_sec": 30,
+  "login_fail_max": 5,
+  "password_iterations": 60000,
+  "token_ttl_days": 7
+}

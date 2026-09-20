@@ -1,0 +1,3177 @@
+{
+ "manifest_version": 1,
+ "content_version": "0.1.0",
+ "_readme": [
+  "모든 코드·데이터는 파일 경로가 아닌 에셋 ID 로 에셋을 참조한다.",
+  "교체 절차: (1) 같은 규격의 최종 파일을 원하는 경로에 넣고 final_path 를 채운다, 또는 asset_overrides/<id>.<ext> 로 둔다. (2) status 를 final 로 바꾼다. (3) godot --headless -s tools/check_assets.gd 로 검수한다.",
+  "해석 순서: asset_overrides 디렉터리 > final_path > path(placeholder) > 런타임 대체 도형(경고 로그).",
+  "status: placeholder(임시 생성물) | final(확정) | planned(ID만 예약, 파일 없음)"
+ ],
+ "spec": {
+  "anchor_default": [
+   0.5,
+   0.82
+  ],
+  "player_frame": 128,
+  "boss_frame": 256,
+  "tile": 64,
+  "icon": 64,
+  "portrait": 256,
+  "light_direction": "top-left",
+  "camera": "3/4 top-down fixed"
+ },
+ "override_dir_relative_to_executable": "asset_overrides",
+ "assets": [
+  {
+   "id": "char.guardian.idle",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_guardian_idle.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a",
+    "weapon": "hammer",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "char.guardian.walk",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_guardian_walk.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a",
+    "weapon": "hammer",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "char.guardian.attack",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_guardian_attack.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a",
+    "weapon": "hammer",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "char.guardian.cast",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_guardian_cast.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "cast",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "release": 3
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a",
+    "weapon": "hammer",
+    "anim": "cast"
+   }
+  },
+  {
+   "id": "char.guardian.hit",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_guardian_hit.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a",
+    "weapon": "hammer",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "char.guardian.down",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_guardian_down.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "down",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a",
+    "weapon": "hammer",
+    "anim": "down"
+   }
+  },
+  {
+   "id": "icon.class.guardian",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_class_guardian.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#e2b04a",
+    "glyph": "beaver"
+   }
+  },
+  {
+   "id": "portrait.guardian",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/portrait_guardian.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a"
+   }
+  },
+  {
+   "id": "char.sawtooth.idle",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7a4a25",
+    "accent": "#c0392b",
+    "weapon": "axe",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "char.sawtooth.walk",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7a4a25",
+    "accent": "#c0392b",
+    "weapon": "axe",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "char.sawtooth.attack",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7a4a25",
+    "accent": "#c0392b",
+    "weapon": "axe",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "char.sawtooth.cast",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "cast",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "release": 3
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7a4a25",
+    "accent": "#c0392b",
+    "weapon": "axe",
+    "anim": "cast"
+   }
+  },
+  {
+   "id": "char.sawtooth.hit",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7a4a25",
+    "accent": "#c0392b",
+    "weapon": "axe",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "char.sawtooth.down",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "down",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7a4a25",
+    "accent": "#c0392b",
+    "weapon": "axe",
+    "anim": "down"
+   }
+  },
+  {
+   "id": "icon.class.sawtooth",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c0392b",
+    "glyph": "beaver"
+   }
+  },
+  {
+   "id": "portrait.sawtooth",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#7a4a25",
+    "accent": "#c0392b"
+   }
+  },
+  {
+   "id": "char.pinecone.idle",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#946538",
+    "accent": "#5b8c3a",
+    "weapon": "sling",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "char.pinecone.walk",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#946538",
+    "accent": "#5b8c3a",
+    "weapon": "sling",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "char.pinecone.attack",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#946538",
+    "accent": "#5b8c3a",
+    "weapon": "sling",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "char.pinecone.cast",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "cast",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "release": 3
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#946538",
+    "accent": "#5b8c3a",
+    "weapon": "sling",
+    "anim": "cast"
+   }
+  },
+  {
+   "id": "char.pinecone.hit",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#946538",
+    "accent": "#5b8c3a",
+    "weapon": "sling",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "char.pinecone.down",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "down",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#946538",
+    "accent": "#5b8c3a",
+    "weapon": "sling",
+    "anim": "down"
+   }
+  },
+  {
+   "id": "icon.class.pinecone",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#5b8c3a",
+    "glyph": "beaver"
+   }
+  },
+  {
+   "id": "portrait.pinecone",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#946538",
+    "accent": "#5b8c3a"
+   }
+  },
+  {
+   "id": "char.sapshaman.idle",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e",
+    "weapon": "staff",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "char.sapshaman.walk",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e",
+    "weapon": "staff",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "char.sapshaman.attack",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e",
+    "weapon": "staff",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "char.sapshaman.cast",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "cast",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "release": 3
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e",
+    "weapon": "staff",
+    "anim": "cast"
+   }
+  },
+  {
+   "id": "char.sapshaman.hit",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e",
+    "weapon": "staff",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "char.sapshaman.down",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "down",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e",
+    "weapon": "staff",
+    "anim": "down"
+   }
+  },
+  {
+   "id": "icon.class.sapshaman",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#7ac36e",
+    "glyph": "beaver"
+   }
+  },
+  {
+   "id": "portrait.sapshaman",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#6f4a2d",
+    "accent": "#7ac36e"
+   }
+  },
+  {
+   "id": "char.hydro.idle",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9",
+    "weapon": "nozzle",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "char.hydro.walk",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9",
+    "weapon": "nozzle",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "char.hydro.attack",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9",
+    "weapon": "nozzle",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "char.hydro.cast",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "cast",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "release": 3
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9",
+    "weapon": "nozzle",
+    "anim": "cast"
+   }
+  },
+  {
+   "id": "char.hydro.hit",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9",
+    "weapon": "nozzle",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "char.hydro.down",
+   "type": "sprite_sheet",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "down",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.player_default",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "beaver",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9",
+    "weapon": "nozzle",
+    "anim": "down"
+   }
+  },
+  {
+   "id": "icon.class.hydro",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#3b8fd9",
+    "glyph": "beaver"
+   }
+  },
+  {
+   "id": "portrait.hydro",
+   "type": "texture",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#7d5a3a",
+    "accent": "#3b8fd9"
+   }
+  },
+  {
+   "id": "icon.skill.guardian.q",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_skill_guardian_q.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#e2b04a",
+    "glyph": "shield"
+   }
+  },
+  {
+   "id": "icon.skill.guardian.e",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_skill_guardian_e.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#e2b04a",
+    "glyph": "wave"
+   }
+  },
+  {
+   "id": "icon.skill.guardian.r",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_skill_guardian_r.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#e2b04a",
+    "glyph": "tree"
+   }
+  },
+  {
+   "id": "icon.heal",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_heal.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#7ac36e",
+    "glyph": "plus"
+   }
+  },
+  {
+   "id": "icon.dodge",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_dodge.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#3b8fd9",
+    "glyph": "dash"
+   }
+  },
+  {
+   "id": "icon.enemy.sap_snail",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_enemy_sap_snail.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#7b4fa0",
+    "glyph": "snail"
+   }
+  },
+  {
+   "id": "enemy.sap_snail.idle",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_sap_snail_idle.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 3,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    88,
+    88
+   ],
+   "hitbox_ref": "hit.sap_snail_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "snail",
+    "body": "#c9a26b",
+    "shell": "#7b4fa0",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "enemy.sap_snail.walk",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_sap_snail_walk.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 6,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    88,
+    88
+   ],
+   "hitbox_ref": "hit.sap_snail_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "snail",
+    "body": "#c9a26b",
+    "shell": "#7b4fa0",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "enemy.sap_snail.attack",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_sap_snail_attack.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    88,
+    88
+   ],
+   "hitbox_ref": "hit.sap_snail_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "snail",
+    "body": "#c9a26b",
+    "shell": "#7b4fa0",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "enemy.sap_snail.hit",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_sap_snail_hit.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    88,
+    88
+   ],
+   "hitbox_ref": "hit.sap_snail_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "snail",
+    "body": "#c9a26b",
+    "shell": "#7b4fa0",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "enemy.sap_snail.death",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_sap_snail_death.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "death",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    88,
+    88
+   ],
+   "hitbox_ref": "hit.sap_snail_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "snail",
+    "body": "#c9a26b",
+    "shell": "#7b4fa0",
+    "anim": "death"
+   }
+  },
+  {
+   "id": "tile.willow.ground",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/tile_willow_ground.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "tile_ground",
+    "color": "#6f8f4a",
+    "dot": "#8aa860"
+   },
+   "layer": "ground"
+  },
+  {
+   "id": "tile.willow.wall",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/tile_willow_wall.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "tile_wall",
+    "color": "#4a3a2a",
+    "edge": "#7a6248"
+   },
+   "layer": "collision"
+  },
+  {
+   "id": "tile.willow.water",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/tile_willow_water.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "tile_water",
+    "color": "#3b7fd9",
+    "wave": "#7fb6ef"
+   },
+   "layer": "hazard"
+  },
+  {
+   "id": "prop.willow.log",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_willow_log.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "log",
+    "color": "#7a5230"
+   },
+   "anchor": [
+    0.5,
+    0.7
+   ],
+   "hitbox_ref": "obstacle"
+  },
+  {
+   "id": "prop.willow.rock",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_willow_rock.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "rock",
+    "color": "#7d7d7d"
+   },
+   "anchor": [
+    0.5,
+    0.7
+   ],
+   "hitbox_ref": "obstacle"
+  },
+  {
+   "id": "vfx.telegraph_circle",
+   "type": "vfx",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_telegraph_circle.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "ring",
+    "color": "#ff7a3d",
+    "fill": "#ff7a3d40"
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "note": "적 강공격 예고. 게임 내에서 반경에 맞게 스케일"
+  },
+  {
+   "id": "vfx.hit_spark",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_hit_spark.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    128
+   ],
+   "columns": 4,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "hit_spark",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    64,
+    64
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "spark",
+    "color": "#fff1a8"
+   }
+  },
+  {
+   "id": "vfx.hammer_swing",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_hammer_swing.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    128
+   ],
+   "columns": 4,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "hammer_swing",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 16,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    180,
+    180
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "arc",
+    "color": "#e2b04a"
+   }
+  },
+  {
+   "id": "vfx.tail_shockwave",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_tail_shockwave.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    1024,
+    256
+   ],
+   "columns": 4,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "tail_shockwave",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 12,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    220,
+    220
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "shockwave",
+    "color": "#c9a26b"
+   }
+  },
+  {
+   "id": "vfx.log_shield",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_log_shield.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "log_shield",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    110,
+    110
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "halfring",
+    "color": "#8a5a2b"
+   }
+  },
+  {
+   "id": "vfx.great_tree",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_great_tree.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    1024,
+    256
+   ],
+   "columns": 4,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "great_tree",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    460,
+    460
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형. 최종 캐릭터 에셋이 아님"
+   },
+   "placeholder": {
+    "shape": "shockwave",
+    "color": "#7ac36e"
+   }
+  },
+  {
+   "id": "vfx.rescue_ring",
+   "type": "vfx",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_rescue_ring.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "ring",
+    "color": "#7ac36e",
+    "fill": "#7ac36e30"
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "id": "ui.panel.default",
+   "type": "nine_slice",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/ui_panel_default.png",
+   "final_path": "",
+   "source_size": [
+    48,
+    48
+   ],
+   "frame_size": [
+    48,
+    48
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "panel",
+    "color": "#2c2419",
+    "border": "#8a6a45"
+   },
+   "nine_slice_margin": 12
+  },
+  {
+   "id": "ui.button.default",
+   "type": "nine_slice",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/ui_button_default.png",
+   "final_path": "",
+   "source_size": [
+    48,
+    48
+   ],
+   "frame_size": [
+    48,
+    48
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "panel",
+    "color": "#4a3a2a",
+    "border": "#c9a26b"
+   },
+   "nine_slice_margin": 12
+  },
+  {
+   "id": "ui.app_icon",
+   "type": "icon",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/app_icon.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#8a5a2b",
+    "accent": "#e2b04a"
+   }
+  },
+  {
+   "id": "font.ui.main",
+   "type": "font",
+   "status": "final",
+   "path": "res://assets/fonts/NotoSansKR-Regular.ttf",
+   "final_path": "res://assets/fonts/NotoSansKR-Regular.ttf",
+   "source": {
+    "method": "external",
+    "origin": "Google Fonts / Noto Sans KR",
+    "license": "SIL OFL 1.1",
+    "license_file": "res://assets/fonts/LICENSE-NotoSansKR.txt"
+   }
+  },
+  {
+   "id": "sfx.hammer_hit",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_hammer_hit.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "thud",
+    "freq": 160,
+    "len": 0.12
+   }
+  },
+  {
+   "id": "sfx.snail_hit",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_snail_hit.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "squish",
+    "freq": 220,
+    "len": 0.1
+   }
+  },
+  {
+   "id": "sfx.snail_death",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_snail_death.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "squish",
+    "freq": 140,
+    "len": 0.25
+   }
+  },
+  {
+   "id": "sfx.dodge",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_dodge.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "whoosh",
+    "freq": 600,
+    "len": 0.15
+   }
+  },
+  {
+   "id": "sfx.down",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_down.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "thud",
+    "freq": 90,
+    "len": 0.4
+   }
+  },
+  {
+   "id": "sfx.rescue",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_rescue.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "chime",
+    "freq": 660,
+    "len": 0.3
+   }
+  },
+  {
+   "id": "sfx.wood_block",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_wood_block.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "thud",
+    "freq": 240,
+    "len": 0.15
+   }
+  },
+  {
+   "id": "sfx.tail_slam",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_tail_slam.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "thud",
+    "freq": 110,
+    "len": 0.25
+   }
+  },
+  {
+   "id": "sfx.great_tree",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_great_tree.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "chime",
+    "freq": 440,
+    "len": 0.5
+   }
+  },
+  {
+   "id": "sfx.player_hit",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_player_hit.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "thud",
+    "freq": 200,
+    "len": 0.08
+   }
+  },
+  {
+   "id": "sfx.ui_click",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_ui_click.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "chime",
+    "freq": 880,
+    "len": 0.05
+   }
+  },
+  {
+   "id": "bgm.hub",
+   "type": "audio",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source": {
+    "method": "none",
+    "note": "미확보. 음악 생성 도구 없음"
+   }
+  },
+  {
+   "id": "bgm.combat_normal",
+   "type": "audio",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source": {
+    "method": "none",
+    "note": "미확보. 음악 생성 도구 없음"
+   }
+  },
+  {
+   "id": "bgm.boss",
+   "type": "audio",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source": {
+    "method": "none",
+    "note": "미확보. 음악 생성 도구 없음"
+   }
+  },
+  {
+   "id": "amb.water",
+   "type": "audio",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source": {
+    "method": "none",
+    "note": "미확보. 음악 생성 도구 없음"
+   }
+  },
+  {
+   "id": "amb.wind",
+   "type": "audio",
+   "status": "planned",
+   "path": "",
+   "final_path": "",
+   "source": {
+    "method": "none",
+    "note": "미확보. 음악 생성 도구 없음"
+   }
+  },
+  {
+   "id": "prop.hub.memory_tree",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_hub_memory_tree.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "anchor": [
+    0.5,
+    0.85
+   ],
+   "hitbox_ref": "obstacle",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "tree",
+    "color": "#5a3d22",
+    "leaf": "#6fae5a",
+    "glow": "#e8d27a"
+   }
+  }
+ ]
+}
