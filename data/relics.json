@@ -1,13 +1,238 @@
 {
-  "_comment": "유물 10개 (12절). 효과는 mods(수치)와 procs(발동)로 데이터화한다. 발동형은 원인 ID와 내부 재사용 대기시간을 둔다. 검증 전 출발값.",
-  "oak_heart": {"id": "oak_heart", "name_ko": "참나무 심장", "desc_ko": "최대 체력 +20", "rarity": "common", "mods": {"max_hp_add": 20}, "assets": {"icon": "icon.relic.oak_heart"}},
-  "sharp_incisors": {"id": "sharp_incisors", "name_ko": "날카로운 앞니", "desc_ko": "모든 피해 +12%", "rarity": "common", "mods": {"damage_mult": 0.12}, "assets": {"icon": "icon.relic.sharp_incisors"}},
-  "river_stone": {"id": "river_stone", "name_ko": "강돌 부적", "desc_ko": "회피 충전 +1", "rarity": "rare", "mods": {"dodge_charges_add": 1}, "assets": {"icon": "icon.relic.river_stone"}},
-  "quick_paws": {"id": "quick_paws", "name_ko": "재빠른 발", "desc_ko": "이동 속도 +10%", "rarity": "common", "mods": {"speed_mult": 0.10}, "assets": {"icon": "icon.relic.quick_paws"}},
-  "sap_amber": {"id": "sap_amber", "name_ko": "호박 수액", "desc_ko": "스킬 재사용 대기시간 -15% (상한 40%)", "rarity": "rare", "mods": {"cdr": 0.15}, "assets": {"icon": "icon.relic.sap_amber"}},
-  "hunters_tooth": {"id": "hunters_tooth", "name_ko": "사냥꾼의 이빨", "desc_ko": "적 처치 시 체력 4 회복 (내부 대기 0.5초)", "rarity": "common", "procs": [{"trigger": "on_kill", "effect": "heal", "value": 4, "icd_sec": 0.5}], "assets": {"icon": "icon.relic.hunters_tooth"}},
-  "kin_bond": {"id": "kin_bond", "name_ko": "동료의 끈", "desc_ko": "아군을 구조하면 둘 다 보호막 25", "rarity": "rare", "procs": [{"trigger": "on_rescue", "effect": "shield_both", "value": 25, "icd_sec": 5.0}], "assets": {"icon": "icon.relic.kin_bond"}},
-  "thorn_tail": {"id": "thorn_tail", "name_ko": "가시 꼬리", "desc_ko": "회피 시 주변 적에게 6 피해", "rarity": "common", "procs": [{"trigger": "on_dodge", "effect": "aoe_damage", "value": 6, "radius": 70, "icd_sec": 1.0}], "assets": {"icon": "icon.relic.thorn_tail"}},
-  "heavy_paddle": {"id": "heavy_paddle", "name_ko": "묵직한 노", "desc_ko": "공격 밀침 +60%, 경직 +0.1초", "rarity": "common", "mods": {"knockback_mult": 0.6, "stagger_add": 0.1}, "assets": {"icon": "icon.relic.heavy_paddle"}},
-  "acorn_pouch": {"id": "acorn_pouch", "name_ko": "도토리 주머니", "desc_ko": "도토리 획득 +50%, 투사체 관통 +1", "rarity": "rare", "mods": {"acorn_mult": 0.5, "pierce_add": 1}, "assets": {"icon": "icon.relic.acorn_pouch"}}
+ "_comment": "유물 10개 (12절). 효과는 mods(수치)와 procs(발동)로 데이터화한다. 발동형은 원인 ID와 내부 재사용 대기시간을 둔다. 검증 전 출발값.",
+ "oak_heart": {
+  "id": "oak_heart",
+  "name_ko": "참나무 심장",
+  "desc_ko": "최대 체력 +20",
+  "rarity": "common",
+  "mods": {
+   "max_hp_add": 20
+  },
+  "assets": {
+   "icon": "icon.relic.oak_heart"
+  },
+  "tags": [
+   "oak",
+   "body"
+  ]
+ },
+ "sharp_incisors": {
+  "id": "sharp_incisors",
+  "name_ko": "날카로운 앞니",
+  "desc_ko": "모든 피해 +12%",
+  "rarity": "common",
+  "mods": {
+   "damage_mult": 0.12
+  },
+  "assets": {
+   "icon": "icon.relic.sharp_incisors"
+  },
+  "tags": [
+   "tooth",
+   "body"
+  ]
+ },
+ "river_stone": {
+  "id": "river_stone",
+  "name_ko": "강돌 부적",
+  "desc_ko": "회피 충전 +1",
+  "rarity": "rare",
+  "mods": {
+   "dodge_charges_add": 1
+  },
+  "assets": {
+   "icon": "icon.relic.river_stone"
+  },
+  "tags": [
+   "river",
+   "paw"
+  ]
+ },
+ "quick_paws": {
+  "id": "quick_paws",
+  "name_ko": "재빠른 발",
+  "desc_ko": "이동 속도 +10%",
+  "rarity": "common",
+  "mods": {
+   "speed_mult": 0.1
+  },
+  "assets": {
+   "icon": "icon.relic.quick_paws"
+  },
+  "tags": [
+   "paw"
+  ]
+ },
+ "sap_amber": {
+  "id": "sap_amber",
+  "name_ko": "호박 수액",
+  "desc_ko": "스킬 재사용 대기시간 -15% (상한 40%)",
+  "rarity": "rare",
+  "mods": {
+   "cdr": 0.15
+  },
+  "assets": {
+   "icon": "icon.relic.sap_amber"
+  },
+  "tags": [
+   "sap"
+  ]
+ },
+ "hunters_tooth": {
+  "id": "hunters_tooth",
+  "name_ko": "사냥꾼의 이빨",
+  "desc_ko": "적 처치 시 체력 4 회복 (내부 대기 0.5초)",
+  "rarity": "common",
+  "procs": [
+   {
+    "trigger": "on_kill",
+    "effect": "heal",
+    "value": 4,
+    "icd_sec": 0.5
+   }
+  ],
+  "assets": {
+   "icon": "icon.relic.hunters_tooth"
+  },
+  "tags": [
+   "tooth",
+   "hunt"
+  ]
+ },
+ "kin_bond": {
+  "id": "kin_bond",
+  "name_ko": "동료의 끈",
+  "desc_ko": "아군을 구조하면 둘 다 보호막 25",
+  "rarity": "rare",
+  "procs": [
+   {
+    "trigger": "on_rescue",
+    "effect": "shield_both",
+    "value": 25,
+    "icd_sec": 5.0
+   }
+  ],
+  "assets": {
+   "icon": "icon.relic.kin_bond"
+  },
+  "tags": [
+   "kin"
+  ]
+ },
+ "thorn_tail": {
+  "id": "thorn_tail",
+  "name_ko": "가시 꼬리",
+  "desc_ko": "회피 시 주변 적에게 6 피해",
+  "rarity": "common",
+  "procs": [
+   {
+    "trigger": "on_dodge",
+    "effect": "aoe_damage",
+    "value": 6,
+    "radius": 70,
+    "icd_sec": 1.0
+   }
+  ],
+  "assets": {
+   "icon": "icon.relic.thorn_tail"
+  },
+  "tags": [
+   "thorn",
+   "tail"
+  ]
+ },
+ "heavy_paddle": {
+  "id": "heavy_paddle",
+  "name_ko": "묵직한 노",
+  "desc_ko": "공격 밀침 +60%, 경직 +0.1초",
+  "rarity": "common",
+  "mods": {
+   "knockback_mult": 0.6,
+   "stagger_add": 0.1
+  },
+  "assets": {
+   "icon": "icon.relic.heavy_paddle"
+  },
+  "tags": [
+   "tail",
+   "oak"
+  ]
+ },
+ "acorn_pouch": {
+  "id": "acorn_pouch",
+  "name_ko": "도토리 주머니",
+  "desc_ko": "도토리 획득 +50%, 투사체 관통 +1",
+  "rarity": "rare",
+  "mods": {
+   "acorn_mult": 0.5,
+   "pierce_add": 1
+  },
+  "assets": {
+   "icon": "icon.relic.acorn_pouch"
+  },
+  "tags": [
+   "acorn",
+   "hunt"
+  ]
+ },
+ "_synergies": {
+  "_comment": "같은 태그의 유물을 count 개 이상 가지면 보너스 (12절 유물 시너지). 태그 조합은 보상 화면에 표시된다.",
+  "tooth": {
+   "count": 2,
+   "name_ko": "앞니 세트",
+   "desc_ko": "처치 시 4 회복이 8 이 되고 피해 +5%",
+   "mods": {
+    "damage_mult": 0.05
+   },
+   "procs": [
+    {
+     "trigger": "on_kill",
+     "effect": "heal",
+     "value": 4,
+     "icd_sec": 0.5
+    }
+   ]
+  },
+  "tail": {
+   "count": 2,
+   "name_ko": "꼬리 세트",
+   "desc_ko": "회피 시 주변 피해가 두 배",
+   "procs": [
+    {
+     "trigger": "on_dodge",
+     "effect": "aoe_damage",
+     "value": 6,
+     "radius": 70,
+     "icd_sec": 1.0
+    }
+   ]
+  },
+  "oak": {
+   "count": 2,
+   "name_ko": "참나무 세트",
+   "desc_ko": "최대 체력 +15, 넉백 +20%",
+   "mods": {
+    "max_hp_add": 15,
+    "knockback_mult": 0.2
+   }
+  },
+  "hunt": {
+   "count": 2,
+   "name_ko": "사냥 세트",
+   "desc_ko": "관통 +1, 피해 +6%",
+   "mods": {
+    "pierce_add": 1,
+    "damage_mult": 0.06
+   }
+  },
+  "paw": {
+   "count": 2,
+   "name_ko": "발 세트",
+   "desc_ko": "이동 속도 +8%, 회피 충전 +1",
+   "mods": {
+    "speed_mult": 0.08,
+    "dodge_charges_add": 1
+   }
+  }
+ }
 }

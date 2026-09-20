@@ -1,0 +1,190 @@
+{
+ "_comment": "직업 숙련 (13-1절, 3단계). 숙련도 1~10, 단계별 경험치는 누적값. 특성은 해당 단계 이상에서 하나를 선택하는 대체 패시브이며 원정 시작 시 영구 보정으로 합쳐진다. 신규 플레이어와의 격차는 mods 합계가 permanent_caps 안에 들도록 작게 잡는다.",
+ "level_xp": [
+  0,
+  100,
+  250,
+  450,
+  700,
+  1000,
+  1400,
+  1900,
+  2500,
+  3200
+ ],
+ "xp": {
+  "per_kill": 5,
+  "room_clear": 10,
+  "room_wipe": 2,
+  "run_complete": 60,
+  "boss_kill": 40
+ },
+ "traits": {
+  "guardian": [
+   {
+    "id": "g_steadfast",
+    "unlock_level": 2,
+    "name_ko": "굳센 발",
+    "desc_ko": "최대 체력 +8",
+    "mods": {
+     "max_hp_add": 8
+    }
+   },
+   {
+    "id": "g_riposte",
+    "unlock_level": 4,
+    "name_ko": "되받아치기",
+    "desc_ko": "막을 때마다 공격자에게 6 피해 (반격 방패와 중첩)",
+    "procs": [
+     {
+      "trigger": "on_guard",
+      "effect": "reflect",
+      "value": 6,
+      "icd_sec": 0.5
+     }
+    ]
+   },
+   {
+    "id": "g_warden",
+    "unlock_level": 7,
+    "name_ko": "숲의 파수꾼",
+    "desc_ko": "구조 완료 시 둘 다 보호막 15",
+    "procs": [
+     {
+      "trigger": "on_rescue",
+      "effect": "shield_both",
+      "value": 15,
+      "icd_sec": 3.0
+     }
+    ]
+   }
+  ],
+  "pinecone": [
+   {
+    "id": "p_keen",
+    "unlock_level": 2,
+    "name_ko": "날카로운 눈",
+    "desc_ko": "모든 피해 +4%",
+    "mods": {
+     "damage_mult": 0.04
+    }
+   },
+   {
+    "id": "p_hunter",
+    "unlock_level": 4,
+    "name_ko": "사냥꾼의 걸음",
+    "desc_ko": "이동 속도 +8%",
+    "mods": {
+     "speed_mult": 0.08
+    }
+   },
+   {
+    "id": "p_barbs",
+    "unlock_level": 7,
+    "name_ko": "가시 화살",
+    "desc_ko": "표식 피해 +4",
+    "mods": {
+     "mark_damage_add": 4
+    }
+   }
+  ],
+  "sawtooth": [
+   {
+    "id": "s_thick",
+    "unlock_level": 2,
+    "name_ko": "두꺼운 가죽",
+    "desc_ko": "최대 체력 +8",
+    "mods": {
+     "max_hp_add": 8
+    }
+   },
+   {
+    "id": "s_frenzy",
+    "unlock_level": 4,
+    "name_ko": "광란",
+    "desc_ko": "처치 시 4 회복",
+    "procs": [
+     {
+      "trigger": "on_kill",
+      "effect": "heal",
+      "value": 4,
+      "icd_sec": 0.5
+     }
+    ]
+   },
+   {
+    "id": "s_ember",
+    "unlock_level": 7,
+    "name_ko": "꺼지지 않는 열의",
+    "desc_ko": "열의 소멸까지 3초→5초",
+    "mods": {
+     "heat_decay_add": 2.0
+    }
+   }
+  ],
+  "sapshaman": [
+   {
+    "id": "h_bloom",
+    "unlock_level": 2,
+    "name_ko": "싹틈",
+    "desc_ko": "생명의 수액 회복 +3",
+    "mods": {
+     "q_heal_add": 3
+    }
+   },
+   {
+    "id": "h_deep_root",
+    "unlock_level": 4,
+    "name_ko": "깊은 뿌리",
+    "desc_ko": "뿌리 결속 속박 +0.5초",
+    "mods": {
+     "e_root_add": 0.5
+    }
+   },
+   {
+    "id": "h_kin",
+    "unlock_level": 7,
+    "name_ko": "혈족의 수액",
+    "desc_ko": "구조 완료 시 둘 다 보호막 15",
+    "procs": [
+     {
+      "trigger": "on_rescue",
+      "effect": "shield_both",
+      "value": 15,
+      "icd_sec": 3.0
+     }
+    ]
+   }
+  ],
+  "hydro": [
+   {
+    "id": "w_valves",
+    "unlock_level": 2,
+    "name_ko": "여분 밸브",
+    "desc_ko": "기본 공격 수압 충전 +2",
+    "mods": {
+     "pressure_per_hit_add": 2
+    }
+   },
+   {
+    "id": "w_sturdy",
+    "unlock_level": 4,
+    "name_ko": "튼튼한 설계",
+    "desc_ko": "포탑 내구도 +25, 댐 내구도 +40",
+    "mods": {
+     "q_hp_add": 25,
+     "r_hp_add": 40
+    }
+   },
+   {
+    "id": "w_current",
+    "unlock_level": 7,
+    "name_ko": "물살 타기",
+    "desc_ko": "회피 충전 +1",
+    "mods": {
+     "dodge_charges_add": 1
+    }
+   }
+  ]
+ }
+}

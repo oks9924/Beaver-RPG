@@ -1,15 +1,550 @@
 {
-  "_comment": "런 중 스킬 강화 (6절 변형). 같은 스킬의 exclusive 강화는 하나만 고를 수 있다. 눈에 보이는 행동 변화가 있어야 한다.",
-  "guardian": {
-    "tail_slam_wide": {"id": "tail_slam_wide", "skill": "e", "name_ko": "넓은 꼬리", "desc_ko": "꼬리 내려치기 반경 +45%, 경직 +0.3초", "exclusive_group": "tail_slam", "mods": {"e_radius_mult": 0.45, "e_stagger_add": 0.3}},
-    "log_shield_counter": {"id": "log_shield_counter", "skill": "q", "name_ko": "반격 방패", "desc_ko": "통나무 방패로 막을 때마다 공격자에게 10 피해", "exclusive_group": "log_shield", "procs": [{"trigger": "on_guard", "effect": "reflect", "value": 10, "icd_sec": 0.3}]},
-    "log_shield_long": {"id": "log_shield_long", "skill": "q", "name_ko": "튼튼한 방패", "desc_ko": "통나무 방패 지속 +2초, 피해 감소 60%", "exclusive_group": "log_shield", "mods": {"q_duration_add": 2.0, "q_value_set": 0.6}},
-    "great_tree_roots": {"id": "great_tree_roots", "skill": "r", "name_ko": "뿌리 내린 거목", "desc_ko": "거목의 품 범위 안 적 속박 1.5초", "exclusive_group": "great_tree", "mods": {"r_root_sec": 1.5}}
+ "_comment": "런 중 스킬 강화와 진화 (6절 변형, 3단계). 같은 exclusive_group 은 하나만. stackable 강화는 다른 강화와 함께 고를 수 있다. evolution 은 런 레벨 requires_level 이상이고 같은 스킬 강화를 하나 이상 가진 뒤에만 제안되며, 눈에 보이는 행동 변화가 있어야 한다.",
+ "guardian": {
+  "log_shield_counter": {
+   "id": "log_shield_counter",
+   "skill": "q",
+   "name_ko": "반격 방패",
+   "desc_ko": "통나무 방패로 막을 때마다 공격자에게 10 피해",
+   "exclusive_group": "log_shield",
+   "procs": [
+    {
+     "trigger": "on_guard",
+     "effect": "reflect",
+     "value": 10,
+     "icd_sec": 0.3
+    }
+   ]
   },
-  "pinecone": {
-    "scatter_seven": {"id": "scatter_seven", "skill": "q", "name_ko": "일곱 알 산탄", "desc_ko": "도토리 산탄 탄 수 5→7, 부채꼴 확대", "exclusive_group": "scatter", "mods": {"q_pellets_add": 2, "q_spread_add": 15}},
-    "trap_double": {"id": "trap_double", "skill": "e", "name_ko": "이중 가시 덫", "desc_ko": "가시 덫 2개 유지, 속박 +0.5초", "exclusive_group": "trap", "mods": {"e_max_traps_add": 1, "e_root_add": 0.5}},
-    "mark_burst": {"id": "mark_burst", "skill": "passive", "name_ko": "표식 폭발", "desc_ko": "표식 발동 피해 +8, 주변 적에게도 절반", "exclusive_group": "mark", "mods": {"mark_damage_add": 8, "mark_splash": 0.5}},
-    "volley_long": {"id": "volley_long", "skill": "r", "name_ko": "긴 일제사격", "desc_ko": "숲의 일제사격 지속 +2초", "exclusive_group": "volley", "mods": {"r_duration_add": 2.0}}
+  "log_shield_long": {
+   "id": "log_shield_long",
+   "skill": "q",
+   "name_ko": "튼튼한 방패",
+   "desc_ko": "통나무 방패 지속 +2초, 피해 감소 60%",
+   "exclusive_group": "log_shield",
+   "mods": {
+    "q_duration_add": 2.0,
+    "q_value_set": 0.6
+   }
+  },
+  "tail_slam_wide": {
+   "id": "tail_slam_wide",
+   "skill": "e",
+   "name_ko": "넓은 꼬리",
+   "desc_ko": "꼬리 내려치기 반경 +45%, 경직 +0.3초",
+   "exclusive_group": "tail_slam",
+   "mods": {
+    "e_radius_mult": 0.45,
+    "e_stagger_add": 0.3
+   }
+  },
+  "tail_slam_heavy": {
+   "id": "tail_slam_heavy",
+   "skill": "e",
+   "name_ko": "무거운 꼬리",
+   "desc_ko": "꼬리 내려치기 피해 +10, 넉백 +50%",
+   "exclusive_group": "tail_slam",
+   "mods": {
+    "e_damage_add": 10,
+    "knockback_mult": 0.5
+   }
+  },
+  "great_tree_roots": {
+   "id": "great_tree_roots",
+   "skill": "r",
+   "name_ko": "뿌리 내린 거목",
+   "desc_ko": "거목의 품 범위 안 적 속박 1.5초",
+   "exclusive_group": "great_tree",
+   "mods": {
+    "r_root_sec": 1.5
+   }
+  },
+  "great_tree_thick": {
+   "id": "great_tree_thick",
+   "skill": "r",
+   "name_ko": "두꺼운 껍질",
+   "desc_ko": "거목의 품 보호막 +15 (상한 60)",
+   "exclusive_group": "great_tree",
+   "mods": {
+    "r_shield_add": 15
+   }
+  },
+  "bulwark_stack": {
+   "id": "bulwark_stack",
+   "skill": "passive",
+   "name_ko": "든든한 등 강화",
+   "desc_ko": "방어 성공 시 다음 공격 피해 +6 (중첩 가능 강화)",
+   "stackable": true,
+   "mods": {
+    "guard_bonus_add": 6
+   }
+  },
+  "evo_quake_tail": {
+   "id": "evo_quake_tail",
+   "skill": "e",
+   "name_ko": "진화: 지진 꼬리",
+   "desc_ko": "꼬리 내려치기가 반경 2배의 두 번째 충격파를 0.4초 뒤에 낸다",
+   "mods": {
+    "e_double": 1,
+    "e_radius_mult": 0.2
+   },
+   "evolution": true,
+   "requires_level": 4
+  },
+  "evo_living_fort": {
+   "id": "evo_living_fort",
+   "skill": "r",
+   "name_ko": "진화: 살아있는 요새",
+   "desc_ko": "거목의 품이 12초 지속되고 안의 아군을 초당 2 회복",
+   "mods": {
+    "r_duration_add": 6.0,
+    "r_heal_tick": 2.0
+   },
+   "evolution": true,
+   "requires_level": 4
   }
+ },
+ "pinecone": {
+  "scatter_seven": {
+   "id": "scatter_seven",
+   "skill": "q",
+   "name_ko": "일곱 알 산탄",
+   "desc_ko": "도토리 산탄 탄 수 5→7, 부채꼴 확대",
+   "exclusive_group": "scatter",
+   "mods": {
+    "q_pellets_add": 2,
+    "q_spread_add": 15
+   }
+  },
+  "scatter_heavy": {
+   "id": "scatter_heavy",
+   "skill": "q",
+   "name_ko": "굵은 도토리",
+   "desc_ko": "도토리 산탄 피해 +4, 관통 +1",
+   "exclusive_group": "scatter",
+   "mods": {
+    "q_damage_add": 4,
+    "pierce_add": 1
+   }
+  },
+  "trap_double": {
+   "id": "trap_double",
+   "skill": "e",
+   "name_ko": "이중 가시 덫",
+   "desc_ko": "가시 덫 2개 유지, 속박 +0.5초",
+   "exclusive_group": "trap",
+   "mods": {
+    "e_max_traps_add": 1,
+    "e_root_add": 0.5
+   }
+  },
+  "trap_venom": {
+   "id": "trap_venom",
+   "skill": "e",
+   "name_ko": "독가시 덫",
+   "desc_ko": "가시 덫 피해 +12, 밟은 적 방어 약화 4초",
+   "exclusive_group": "trap",
+   "mods": {
+    "e_damage_add": 12,
+    "e_vuln_sec_add": 4.0,
+    "e_vuln_add": 0.2
+   }
+  },
+  "mark_burst": {
+   "id": "mark_burst",
+   "skill": "passive",
+   "name_ko": "표식 폭발",
+   "desc_ko": "표식 발동 피해 +8, 주변 적에게도 절반",
+   "exclusive_group": "mark",
+   "mods": {
+    "mark_damage_add": 8,
+    "mark_splash": 0.5
+   }
+  },
+  "mark_quick": {
+   "id": "mark_quick",
+   "skill": "passive",
+   "name_ko": "빠른 표식",
+   "desc_ko": "표식이 2회 명중에 터진다 (피해 -2)",
+   "exclusive_group": "mark",
+   "mods": {
+    "mark_hits_add": -1,
+    "mark_damage_add": -2
+   }
+  },
+  "volley_long": {
+   "id": "volley_long",
+   "skill": "r",
+   "name_ko": "긴 일제사격",
+   "desc_ko": "숲의 일제사격 지속 +2초",
+   "exclusive_group": "volley",
+   "mods": {
+    "r_duration_add": 2.0
+   }
+  },
+  "volley_wide": {
+   "id": "volley_wide",
+   "skill": "r",
+   "name_ko": "넓은 일제사격",
+   "desc_ko": "숲의 일제사격 반경 +40%",
+   "exclusive_group": "volley",
+   "mods": {
+    "r_radius_mult": 0.4
+   }
+  },
+  "sling_speed": {
+   "id": "sling_speed",
+   "skill": "passive",
+   "name_ko": "빠른 새총",
+   "desc_ko": "기본 공격 후딜레이 -30% (중첩 가능 강화)",
+   "stackable": true,
+   "mods": {
+    "basic_recovery_mult": -0.3
+   }
+  },
+  "evo_storm_volley": {
+   "id": "evo_storm_volley",
+   "skill": "r",
+   "name_ko": "진화: 폭풍 일제사격",
+   "desc_ko": "일제사격이 적을 둔화시키고 마지막에 큰 폭발을 낸다",
+   "mods": {
+    "r_slow": 0.4,
+    "r_final_burst": 20
+   },
+   "evolution": true,
+   "requires_level": 4
+  },
+  "evo_seed_trap": {
+   "id": "evo_seed_trap",
+   "skill": "e",
+   "name_ko": "진화: 씨앗 덫",
+   "desc_ko": "덫이 터지면 산탄 5발을 사방으로 쏜다",
+   "mods": {
+    "e_trap_scatter": 5
+   },
+   "evolution": true,
+   "requires_level": 4
+  }
+ },
+ "sawtooth": {
+  "dash_long": {
+   "id": "dash_long",
+   "skill": "q",
+   "name_ko": "긴 돌진",
+   "desc_ko": "갉아 돌진 거리 +120, 피해 +6",
+   "exclusive_group": "dash",
+   "mods": {
+    "q_distance_add": 120,
+    "q_damage_add": 6
+   }
+  },
+  "dash_double": {
+   "id": "dash_double",
+   "skill": "q",
+   "name_ko": "연속 돌진",
+   "desc_ko": "갉아 돌진 재사용 대기시간 -50%, 무적 +0.1초",
+   "exclusive_group": "dash",
+   "mods": {
+    "q_cdr": 0.5,
+    "q_invuln_add": 0.1
+   }
+  },
+  "split_deep": {
+   "id": "split_deep",
+   "skill": "e",
+   "name_ko": "깊은 쪼개기",
+   "desc_ko": "나무쪼개기 방어 약화 +15%, 지속 +4초",
+   "exclusive_group": "split",
+   "mods": {
+    "e_vuln_add": 0.15,
+    "e_vuln_sec_add": 4.0
+   }
+  },
+  "split_wide": {
+   "id": "split_wide",
+   "skill": "e",
+   "name_ko": "넓은 쪼개기",
+   "desc_ko": "나무쪼개기 각도 80→140, 피해 +8",
+   "exclusive_group": "split",
+   "mods": {
+    "e_angle_add": 60,
+    "e_damage_add": 8
+   }
+  },
+  "whirl_long": {
+   "id": "whirl_long",
+   "skill": "r",
+   "name_ko": "긴 열풍",
+   "desc_ko": "벌목 열풍 지속 +3초",
+   "exclusive_group": "whirl",
+   "mods": {
+    "r_duration_add": 3.0
+   }
+  },
+  "whirl_fast": {
+   "id": "whirl_fast",
+   "skill": "r",
+   "name_ko": "빠른 열풍",
+   "desc_ko": "벌목 열풍 중 이동 속도 100%, 피해 +3",
+   "exclusive_group": "whirl",
+   "mods": {
+    "r_move_set": 1.0,
+    "r_damage_add": 3
+   }
+  },
+  "heat_more": {
+   "id": "heat_more",
+   "skill": "passive",
+   "name_ko": "뜨거운 열의",
+   "desc_ko": "열의 최대 5→7 (중첩 가능 강화)",
+   "stackable": true,
+   "mods": {
+    "heat_max_add": 2
+   }
+  },
+  "heat_bleed": {
+   "id": "heat_bleed",
+   "skill": "passive",
+   "name_ko": "출혈 앞니",
+   "desc_ko": "열의 3 이상일 때 기본 공격이 3초간 초당 2 출혈",
+   "exclusive_group": "heat",
+   "mods": {
+    "heat_bleed": 2
+   }
+  },
+  "heat_risk": {
+   "id": "heat_risk",
+   "skill": "passive",
+   "name_ko": "위험 감수",
+   "desc_ko": "체력 50% 이하일 때 피해 +20%, 받는 피해 +10%",
+   "exclusive_group": "heat",
+   "mods": {
+    "low_hp_damage": 0.2,
+    "low_hp_taken": 0.1
+   }
+  },
+  "evo_lumber_storm": {
+   "id": "evo_lumber_storm",
+   "skill": "r",
+   "name_ko": "진화: 벌목 폭풍",
+   "desc_ko": "열풍 반경 +60%, 끝날 때 주변 적을 멀리 밀어낸다",
+   "mods": {
+    "r_radius_mult": 0.6,
+    "r_end_knockback": 200
+   },
+   "evolution": true,
+   "requires_level": 4
+  },
+  "evo_ram_dash": {
+   "id": "evo_ram_dash",
+   "skill": "q",
+   "name_ko": "진화: 들이받기",
+   "desc_ko": "돌진이 첫 적을 끌고 가 벽에 부딪히면 경직 1초와 피해 20",
+   "mods": {
+    "q_ram": 20
+   },
+   "evolution": true,
+   "requires_level": 4
+  }
+ },
+ "sapshaman": {
+  "sap_wide": {
+   "id": "sap_wide",
+   "skill": "q",
+   "name_ko": "넓은 수액",
+   "desc_ko": "생명의 수액 반경 +40%",
+   "exclusive_group": "sap",
+   "mods": {
+    "q_radius_mult": 0.4
+   }
+  },
+  "sap_toxic": {
+   "id": "sap_toxic",
+   "skill": "q",
+   "name_ko": "독성 수액",
+   "desc_ko": "생명의 수액이 적에게 12 피해 (회복 -4)",
+   "exclusive_group": "sap",
+   "mods": {
+    "q_damage": 12,
+    "q_heal_add": -4
+   }
+  },
+  "root_long": {
+   "id": "root_long",
+   "skill": "e",
+   "name_ko": "질긴 뿌리",
+   "desc_ko": "뿌리 결속 속박 +1초, 반경 +30%",
+   "exclusive_group": "root",
+   "mods": {
+    "e_root_add": 1.0,
+    "e_radius_mult": 0.3
+   }
+  },
+  "root_thorn": {
+   "id": "root_thorn",
+   "skill": "e",
+   "name_ko": "가시 뿌리",
+   "desc_ko": "뿌리 결속 지속 피해 2배",
+   "exclusive_group": "root",
+   "mods": {
+    "e_damage_add": 4
+   }
+  },
+  "flood_long": {
+   "id": "flood_long",
+   "skill": "r",
+   "name_ko": "긴 범람",
+   "desc_ko": "봄의 범람 지속 +4초",
+   "exclusive_group": "flood",
+   "mods": {
+    "r_duration_add": 4.0
+   }
+  },
+  "flood_rich": {
+   "id": "flood_rich",
+   "skill": "r",
+   "name_ko": "풍요의 범람",
+   "desc_ko": "봄의 범람 회복 +3/틱, 피해 +2/틱",
+   "exclusive_group": "flood",
+   "mods": {
+    "r_heal_add": 3,
+    "r_damage_add": 2
+   }
+  },
+  "seed_fast": {
+   "id": "seed_fast",
+   "skill": "passive",
+   "name_ko": "빠른 씨앗",
+   "desc_ko": "씨앗이 0.25초마다 쌓인다 (중첩 가능 강화)",
+   "stackable": true,
+   "mods": {
+    "seed_interval_mult": -0.5
+   }
+  },
+  "evo_bloom_burst": {
+   "id": "evo_bloom_burst",
+   "skill": "q",
+   "name_ko": "진화: 만개",
+   "desc_ko": "생명의 수액이 씨앗 5개일 때 두 배로 회복하고 적을 속박 1초",
+   "mods": {
+    "q_full_seed_bonus": 1.0,
+    "q_root_sec": 1.0
+   },
+   "evolution": true,
+   "requires_level": 4
+  },
+  "evo_swamp": {
+   "id": "evo_swamp",
+   "skill": "r",
+   "name_ko": "진화: 늪지대",
+   "desc_ko": "봄의 범람이 적을 50% 둔화시키고 캐스터를 따라다닌다",
+   "mods": {
+    "r_slow_set": 0.5,
+    "r_follow": 1
+   },
+   "evolution": true,
+   "requires_level": 4
+  }
+ },
+ "hydro": {
+  "turret_triple": {
+   "id": "turret_triple",
+   "skill": "q",
+   "name_ko": "세 번째 포탑",
+   "desc_ko": "수압 포탑 최대 2→3",
+   "exclusive_group": "turret",
+   "mods": {
+    "q_max_turrets_add": 1
+   }
+  },
+  "turret_rapid": {
+   "id": "turret_rapid",
+   "skill": "q",
+   "name_ko": "속사 포탑",
+   "desc_ko": "포탑 발사 간격 -35%, 지속 +4초",
+   "exclusive_group": "turret",
+   "mods": {
+    "q_fire_rate": 0.35,
+    "q_duration_add": 4.0
+   }
+  },
+  "valve_long": {
+   "id": "valve_long",
+   "skill": "e",
+   "name_ko": "긴 급류",
+   "desc_ko": "급류 밸브 길이 +120, 넉백 +60",
+   "exclusive_group": "valve",
+   "mods": {
+    "e_length_add": 120,
+    "e_knockback_add": 60
+   }
+  },
+  "valve_ride": {
+   "id": "valve_ride",
+   "skill": "e",
+   "name_ko": "물길 타기",
+   "desc_ko": "급류 밸브 아군 가속 지속 +3초, 시전자도 앞으로 80 미끄러짐",
+   "exclusive_group": "valve",
+   "mods": {
+    "e_ally_sec_add": 3.0,
+    "e_self_slide": 80
+   }
+  },
+  "dam_sturdy": {
+   "id": "dam_sturdy",
+   "skill": "r",
+   "name_ko": "튼튼한 댐",
+   "desc_ko": "거대 댐 내구도 +100, 지속 +6초",
+   "exclusive_group": "dam",
+   "mods": {
+    "r_hp_add": 100,
+    "r_duration_add": 6.0
+   }
+  },
+  "dam_blast": {
+   "id": "dam_blast",
+   "skill": "r",
+   "name_ko": "터지는 댐",
+   "desc_ko": "거대 댐 폭발 피해 +20, 반경 +60",
+   "exclusive_group": "dam",
+   "mods": {
+    "r_damage_add": 20,
+    "r_burst_radius_add": 60
+   }
+  },
+  "pressure_gain": {
+   "id": "pressure_gain",
+   "skill": "passive",
+   "name_ko": "고압 충전",
+   "desc_ko": "기본 공격 수압 충전 +4 (중첩 가능 강화)",
+   "stackable": true,
+   "mods": {
+    "pressure_per_hit_add": 4
+   }
+  },
+  "evo_gatling": {
+   "id": "evo_gatling",
+   "skill": "q",
+   "name_ko": "진화: 물줄기 기관포",
+   "desc_ko": "포탑이 두 발씩 쏘고 맞은 적을 둔화시킨다",
+   "mods": {
+    "q_double_shot": 1,
+    "q_shot_slow": 0.3
+   },
+   "evolution": true,
+   "requires_level": 4
+  },
+  "evo_tidal_wall": {
+   "id": "evo_tidal_wall",
+   "skill": "r",
+   "name_ko": "진화: 해일 벽",
+   "desc_ko": "댐이 설치될 때도 폭발하고, 폭발이 아군 보호막 20 을 준다",
+   "mods": {
+    "r_burst_on_place": 1,
+    "r_burst_shield": 20
+   },
+   "evolution": true,
+   "requires_level": 4
+  }
+ }
 }

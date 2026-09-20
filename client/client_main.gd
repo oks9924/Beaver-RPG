@@ -27,6 +27,7 @@ var _seq: int = 0
 var _pending: Array = []            # [{seq, mv, dt}]
 var _pred_pos: Vector2 = Vector2.ZERO
 var selected_class: String = "guardian"
+var build_kind: String = "log_cover"
 var _me_snapshot: PackedFloat32Array = PackedFloat32Array()
 var _room_players: Array = []
 var _enemies_alive: int = 0
@@ -104,6 +105,7 @@ func _ready() -> void:
 	hub_screen.logout_requested.connect(func() -> void: settings.clear_token(net.host, net.port); net.send(Protocol.C.LOGOUT))
 	hub_screen.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	hub_screen.upgrade_requested.connect(func(sid: String) -> void: net.send(Protocol.C.HUB_UPGRADE, {"structure": sid}))
+	hub_screen.trait_requested.connect(func(cid: String, tid: String) -> void: net.send(Protocol.C.MASTERY_TRAIT, {"class_id": cid, "trait_id": tid}))
 	hud.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	result_panel.choice_made.connect(func(c: String) -> void: net.send(Protocol.C.ROOM_CHOICE, {"choice": c}))
 	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))
@@ -134,7 +136,7 @@ func _setup_input_map() -> void:
 	var binds := {
 		"move_up": [KEY_W, KEY_UP], "move_down": [KEY_S, KEY_DOWN], "move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 		"dodge": [KEY_SPACE], "skill_q": [KEY_Q], "skill_e": [KEY_E], "skill_r": [KEY_R], "interact": [KEY_F], "heal": [KEY_1], "build_place": [KEY_B],
-		"build": [KEY_B], "map": [KEY_TAB], "dev_overlay": [KEY_F3], "chat": [KEY_ENTER], "fullscreen": [KEY_F11],
+		"build": [KEY_B], "build_cycle": [KEY_G], "map": [KEY_TAB], "dev_overlay": [KEY_F3], "chat": [KEY_ENTER], "fullscreen": [KEY_F11],
 	}
 	for action: String in binds.keys():
 		if not InputMap.has_action(action):
@@ -415,7 +417,7 @@ func _on_room_event(ev: Dictionary) -> void:
 		"build":
 			world.play_sound("sfx.wood_block")
 		"build_failed":
-			hud.toast({"wood": "목재가 부족합니다 (B: 통나무 엄폐 %d)" % int(ContentDB.rule("build_cost_wood", 3)), "limit": "구조물 상한", "blocked": "여기에는 설치할 수 없습니다"}.get(String(ev.get("reason", "")), "설치 실패"), 1.5)
+			hud.toast({"wood": "목재가 부족합니다 (필요 %d)" % int(ev.get("cost", ContentDB.rule("build_cost_wood", 3))), "limit": "구조물 상한", "blocked": "여기에는 설치할 수 없습니다"}.get(String(ev.get("reason", "")), "설치 실패"), 1.5)
 		"sluice":
 			hud.toast({0: "수문 닫힘 — 물길이 낮아집니다", 1: "수문 개방 준비 — 곧 급류!", 2: "급류! 물길 안의 적은 느려지고 피해를 입습니다"}.get(int(ev.get("state", 0)), ""), 2.0)
 			world.play_sound("sfx.great_tree", 0.3)
@@ -710,6 +712,8 @@ func _physics_process(dt: float) -> void:
 		if Input.is_action_pressed("interact"): btn |= Protocol.BTN_INTERACT
 		if Input.is_action_pressed("heal"): btn |= Protocol.BTN_HEAL
 		if Input.is_action_just_pressed("build_place"): btn |= Protocol.BTN_BUILD
+		if Input.is_action_just_pressed("build_cycle") and mode == "room":
+			_cycle_build_kind()
 	var aim: Vector2 = demo_in["aim"] if demo else (world.get_global_mouse_position() - _pred_pos + Vector2(0, 24))
 	_seq += 1
 	net.send_input(_seq, mv, aim, btn)
@@ -854,3 +858,14 @@ func _process(dt: float) -> void:
 	world.camera.offset = world.camera.offset.lerp(Vector2.ZERO, 0.2)
 	if overlay.visible:
 		overlay.update_info(net, world, room, _seq, _pending.size())
+
+
+func _cycle_build_kind() -> void:
+	var kinds: Array = (ContentDB.rules.get("build_kinds", {}) as Dictionary).keys()
+	if kinds.is_empty():
+		return
+	build_kind = String(kinds[(kinds.find(build_kind) + 1) % kinds.size()])
+	var bk: Dictionary = ContentDB.rules["build_kinds"][build_kind]
+	net.send(Protocol.C.BUILD_SELECT, {"kind": build_kind})
+	hud.toast("건설 (B): %s — %s, 목재 %d" % [bk.get("name_ko", build_kind), bk.get("desc_ko", ""), int(bk.get("cost_wood", 3))], 2.0)
+	hud.set_build_hint(build_kind)

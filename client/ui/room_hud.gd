@@ -7,6 +7,7 @@ var hp_label: Label
 var shield_label: Label
 var dodge_label: Label
 var resource_label: Label
+var build_label: Label
 var _icon_class: String = ""
 var skill_boxes: Dictionary = {}
 var heal_label: Label
@@ -68,6 +69,8 @@ func _ready() -> void:
 		skill_boxes[k] = {"icon": icon, "label": lbl}
 	resource_label = UIKit.label("", 13, Color(1.0, 0.85, 0.5))
 	sh.add_child(resource_label)
+	build_label = UIKit.label("B 통나무 엄폐 · G 바꾸기", 11, Color(0.75, 0.7, 0.6))
+	sh.add_child(build_label)
 	dodge_label = UIKit.label("회피 ◆◆", 13, Color(0.6, 0.85, 1.0))
 	heal_label = UIKit.label("회복(1) x2", 13, Color(0.6, 1.0, 0.6))
 	sh.add_child(dodge_label)
@@ -282,3 +285,8 @@ func update_conn(state: int, ping: int) -> void:
 
 func add_chat(from: String, text: String) -> void:
 	chat_log.append_text("[b]%s[/b]: %s\n" % [from, text.xml_escape()])
+
+
+func set_build_hint(kind: String) -> void:
+	var bk: Dictionary = ContentDB.rules.get("build_kinds", {}).get(kind, {})
+	build_label.text = "B %s(%d) · G 바꾸기" % [bk.get("name_ko", kind), int(bk.get("cost_wood", 3))]

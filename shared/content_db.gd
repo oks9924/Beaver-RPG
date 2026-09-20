@@ -5,6 +5,7 @@ extends Node
 const DATA_DIR := "res://data/"
 
 var classes: Dictionary = {}
+var mastery: Dictionary = {}
 var enemies: Dictionary = {}
 var party_scaling: Dictionary = {}
 var rules: Dictionary = {}
@@ -41,7 +42,8 @@ func reload() -> void:
 	regions = _load_json("regions.json")
 	bosses = _load_json("bosses.json") if FileAccess.file_exists(DATA_DIR + "bosses.json") else {}
 	village = _load_json("village.json")
-	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village]:
+	mastery = _load_json("mastery.json") if FileAccess.file_exists(DATA_DIR + "mastery.json") else {}
+	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village, mastery]:
 		d.erase("_comment")
 	_validate()
 
@@ -125,3 +127,20 @@ func village_bonus(structures: Dictionary) -> Dictionary:
 		if out.has(bk):
 			out[bk] = minf(float(out[bk]), float(caps[bk]))
 	return out
+
+
+## 숙련 경험치 → 단계 (1~10). mastery.json level_xp 는 누적 임계값.
+func mastery_level(xp: int) -> int:
+	var table: Array = mastery.get("level_xp", [0, 100])
+	var lv := 1
+	for i in table.size():
+		if xp >= int(table[i]):
+			lv = i + 1
+	return lv
+
+
+func mastery_trait(class_id: String, trait_id: String) -> Dictionary:
+	for t: Dictionary in mastery.get("traits", {}).get(class_id, []):
+		if String(t.get("id", "")) == trait_id:
+			return t
+	return {}

@@ -73,5 +73,35 @@
  "interact_range": 70.0,
  "boss_stagger_gauge_max": 100.0,
  "boss_stagger_resist_sec": 8.0,
- "heal_window_sec": 10.0
+ "heal_window_sec": 10.0,
+ "build_kinds": {
+  "log_cover": {
+   "name_ko": "통나무 엄폐",
+   "cost_wood": 3,
+   "hp": 60,
+   "lifetime_sec": 30,
+   "radius": 26,
+   "desc_ko": "적과 투사체를 막는다"
+  },
+  "spike_fence": {
+   "name_ko": "가시 울타리",
+   "cost_wood": 4,
+   "hp": 40,
+   "lifetime_sec": 25,
+   "radius": 24,
+   "contact_damage": 6,
+   "contact_slow": 0.3,
+   "desc_ko": "닿은 적에게 피해와 둔화"
+  },
+  "sap_lantern": {
+   "name_ko": "수액 등불",
+   "cost_wood": 5,
+   "hp": 30,
+   "lifetime_sec": 20,
+   "radius": 20,
+   "heal_radius": 120,
+   "heal_per_sec": 2,
+   "desc_ko": "주변 아군을 초당 2 회복 (회복 상한 적용)"
+  }
+ }
 }

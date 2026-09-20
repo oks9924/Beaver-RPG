@@ -198,7 +198,13 @@ func _draw_telegraphs() -> void:
 				L.draw_arc(c, r * (0.6 + 0.4 * fmod(prog * 3.0, 1.0)), 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.5), 2.0)
 				L.draw_arc(c, r, 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.9), 2.0)
 			Protocol.ObKind.STRUCTURE:
-				_draw_tex(L, _object_tex["structure"], c + Vector2(0, -8), 72, Color.WHITE)
+				_draw_tex(L, _object_tex["structure"], c + Vector2(0, -8), 72, [Color.WHITE, Color(1.0, 0.75, 0.6), Color(0.75, 1.0, 0.8)][clampi(st, 0, 2)])
+				if st == 1:
+					for i in 6:
+						var a := i * TAU / 6.0
+						L.draw_line(c + Vector2(cos(a), sin(a)) * (r + 2), c + Vector2(cos(a), sin(a)) * (r + 12), Color(0.9, 0.6, 0.4, 0.9), 2.0)
+				elif st == 2:
+					L.draw_arc(c, 120, 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.35), 1.5)
 				L.draw_rect(Rect2(c.x - 20, c.y - 44, 40, 5), Color(0, 0, 0, 0.6))
 				L.draw_rect(Rect2(c.x - 20, c.y - 44, 40 * prog, 5), Color(0.8, 0.6, 0.3))
 			Protocol.ObKind.GNAW_TREE:

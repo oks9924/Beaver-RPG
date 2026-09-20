@@ -74,11 +74,11 @@ func can_join(account_id: String) -> String:
 	return ""
 
 
-func add_member(s: Session, permanent: Dictionary = {}) -> void:
+func add_member(s: Session, permanent: Dictionary = {}, trait_id: String = "") -> void:
 	members[s.account_id] = {
 		"nickname": s.nickname, "class_id": s.class_id, "ready": false, "connected": true, "peer_id": s.peer_id,
 		"disconnect_at": 0.0, "joined_at": Time.get_unix_time_from_system(), "heal_uses": int(ContentDB.rule("heal_uses_per_expedition", 2)), "hp": -1.0,
-		"permanent": permanent,
+		"permanent": permanent, "trait": trait_id,
 	}
 	s.expedition_id = id
 	choices.erase(s.account_id)
@@ -272,11 +272,24 @@ func _upgrade_pool(aid: String) -> Array:
 	var groups: Array = []
 	for uid: String in taken:
 		groups.append(String(ContentDB.upgrades.get(cls, {}).get(uid, {}).get("exclusive_group", uid)))
+	var taken_slots: Array = []
+	for uid: String in taken:
+		taken_slots.append(String(ContentDB.upgrades.get(cls, {}).get(uid, {}).get("skill", "")))
 	var out: Array = []
 	for uid: String in ContentDB.upgrades.get(cls, {}).keys():
 		var u: Dictionary = ContentDB.upgrades[cls][uid]
 		if taken.has(uid) or groups.has(String(u.get("exclusive_group", uid))):
 			continue
+		if bool(u.get("evolution", false)):
+			# 진화: 런 레벨 조건 + 같은 스킬의 강화를 하나 이상 가진 뒤에만 (눈에 보이는 행동 변화)
+			if int(run.get("level", 1)) < int(u.get("requires_level", 4)) or not taken_slots.has(String(u.get("skill", ""))):
+				continue
+			var evolved := false
+			for tid: String in taken:
+				if bool(ContentDB.upgrades.get(cls, {}).get(tid, {}).get("evolution", false)) and String(ContentDB.upgrades[cls][tid].get("skill", "")) == String(u.get("skill", "")):
+					evolved = true
+			if evolved:
+				continue
 		out.append(uid)
 	out.sort()
 	return out
@@ -289,7 +302,7 @@ func member_mods(aid: String) -> Dictionary:
 	for k: String in perm.keys():
 		if k in RunMods.MOD_KEYS:
 			extra[k] = float(extra.get(k, 0.0)) + float(perm[k])
-	return RunMods.build(rp["relics"], rp["upgrades"], String(members[aid]["class_id"]), int(run.get("level", 1)), extra, ContentDB.rules)
+	return RunMods.build(rp["relics"], rp["upgrades"], String(members[aid]["class_id"]), int(run.get("level", 1)), extra, ContentDB.rules, String(members[aid].get("trait", "")))
 
 
 func current_node() -> Dictionary:
@@ -361,7 +374,7 @@ func start_room() -> Dictionary:
 		if not m["connected"]:
 			continue
 		var mm := member_mods(aid)
-		var entry := {"account_id": aid, "nickname": m["nickname"], "class_id": m["class_id"], "connected": true, "heal_uses": m["heal_uses"], "mods": mm["mods"], "procs": mm["procs"]}
+		var entry := {"account_id": aid, "nickname": m["nickname"], "class_id": m["class_id"], "connected": true, "heal_uses": m["heal_uses"], "mods": mm["mods"], "procs": mm["procs"], "build_kind": m.get("build_kind", "log_cover")}
 		if float(m.get("hp", -1.0)) >= 0.0:
 			entry["hp"] = float(m["hp"])
 		member_list.append(entry)
@@ -418,7 +431,7 @@ func run_payload() -> Dictionary:
 	var players: Dictionary = {}
 	for aid: String in run["players"].keys():
 		var rp: Dictionary = run["players"][aid]
-		players[aid] = {"relics": rp["relics"], "upgrades": rp["upgrades"], "acorns": rp["acorns"], "max_hp_add": rp["max_hp_add"], "heal_uses": members.get(aid, {}).get("heal_uses", 0), "hp": members.get(aid, {}).get("hp", -1)}
+		players[aid] = {"relics": rp["relics"], "upgrades": rp["upgrades"], "acorns": rp["acorns"], "max_hp_add": rp["max_hp_add"], "heal_uses": members.get(aid, {}).get("heal_uses", 0), "hp": members.get(aid, {}).get("hp", -1), "build_kind": members.get(aid, {}).get("build_kind", "log_cover"), "synergies": member_mods(aid).get("synergies", [])}
 	return {"expedition_id": id, "state": state, "region": run["region"], "region_name": run["region_name"], "layers": run["layers"], "layer": run["layer"], "current": run["current"], "path": run["path"],
 		"xp": run["xp"], "level": run["level"], "xp_table": ContentDB.rule("xp_per_level", []), "team_wood": run["team_wood"], "players": players, "stats": run["stats"], "deadline_in": maxf(phase_deadline - Time.get_unix_time_from_system(), 0.0) if phase_deadline > 0.0 else 0.0}
 

@@ -278,6 +278,8 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.NODE_ACTION: _handle_node_action(s, payload)
 				Protocol.C.CHAT: _handle_chat(s, payload)
 				Protocol.C.HUB_UPGRADE: _handle_hub_upgrade(s, payload)
+				Protocol.C.MASTERY_TRAIT: _handle_mastery_trait(s, payload)
+				Protocol.C.BUILD_SELECT: _handle_build_select(s, payload)
 				_: _err(s, Protocol.ERR_BAD_STATE, {"message": "unknown message %d" % type})
 
 
@@ -432,6 +434,7 @@ func _handle_board_create(s: Session, payload: Dictionary) -> void:
 		_err(s, r["error"], {"active": expeditions.active_count(), "max": expeditions.max_active})
 		return
 	var inst: ExpeditionInstance = r["expedition"]
+	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
 	_log(1, "%s created expedition %s" % [s.nickname, inst.id])
 	_broadcast_party(inst)
 	_broadcast_board()
@@ -449,6 +452,7 @@ func _handle_board_join(s: Session, payload: Dictionary) -> void:
 		_err(s, r["error"], {"expedition_id": payload.get("expedition_id", "")})
 		return
 	var inst: ExpeditionInstance = r["expedition"]
+	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
 	_log(1, "%s joined expedition %s (%d/%d, state %d)" % [s.nickname, inst.id, inst.member_count(), Protocol.MAX_PARTY_SIZE, inst.state])
 	if inst.is_safe_point():
 		if hub.has(s.account_id):
@@ -488,6 +492,7 @@ func _handle_ready(s: Session, payload: Dictionary) -> void:
 	if ContentDB.is_class_playable(class_id):
 		s.class_id = class_id
 	inst.set_ready(s.account_id, bool(payload.get("ready", true)), s.class_id)
+	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
 	_broadcast_party(inst)
 
 
@@ -594,6 +599,62 @@ func _on_run_finished(inst: ExpeditionInstance) -> void:
 	_send_to_members(inst, Protocol.S.ROOM_RESULT, inst.result_payload())
 	_broadcast_party(inst)
 	_broadcast_board()
+
+
+## 계정이 그 직업에 고른 숙련 특성 (해금 단계 검증 포함)
+func _trait_for(account_id: String, class_id: String) -> String:
+	var acc := store.get_account(account_id)
+	var prog: Dictionary = acc.get("progression", {})
+	var tid := String(prog.get("mastery_traits", {}).get(class_id, ""))
+	if tid == "":
+		return ""
+	var tdef := ContentDB.mastery_trait(class_id, tid)
+	var lv := ContentDB.mastery_level(int(prog.get("class_mastery", {}).get(class_id, {}).get("xp", 0)))
+	return tid if not tdef.is_empty() and lv >= int(tdef.get("unlock_level", 1)) else ""
+
+
+func _handle_mastery_trait(s: Session, payload: Dictionary) -> void:
+	if s.location != Protocol.Location.HUB:
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	var class_id := String(payload.get("class_id", ""))
+	var tid := String(payload.get("trait_id", ""))
+	var acc := store.get_account(s.account_id)
+	var prog: Dictionary = acc["progression"]
+	if tid != "":
+		var tdef := ContentDB.mastery_trait(class_id, tid)
+		if tdef.is_empty():
+			_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": tid})
+			return
+		var lv := ContentDB.mastery_level(int(prog.get("class_mastery", {}).get(class_id, {}).get("xp", 0)))
+		if lv < int(tdef.get("unlock_level", 1)):
+			_err(s, "TRAIT_LOCKED", {"need_level": tdef.get("unlock_level", 1), "level": lv})
+			return
+	var traits: Dictionary = prog.get("mastery_traits", {})
+	if tid == "":
+		traits.erase(class_id)
+	else:
+		traits[class_id] = tid
+	prog["mastery_traits"] = traits
+	if store.put_account(acc) != OK:
+		metrics["save_failures"] += 1
+		_err(s, Protocol.ERR_SAVE_FAILED)
+		return
+	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+
+
+func _handle_build_select(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if inst == null:
+		_err(s, Protocol.ERR_NO_EXPEDITION)
+		return
+	var kind := String(payload.get("kind", "log_cover"))
+	if not (ContentDB.rules.get("build_kinds", {}) as Dictionary).has(kind):
+		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": kind})
+		return
+	inst.members[s.account_id]["build_kind"] = kind
+	if inst.room != null:
+		inst.room.set_build_kind(s.account_id, kind)
 
 
 func _permanent_bonus(account_id: String) -> Dictionary:
@@ -875,9 +936,12 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		var cls: String = inst.members[aid]["class_id"]
 		var mastery: Dictionary = prog.get("class_mastery", {})
 		var entry: Dictionary = mastery.get(cls, {"xp": 0, "level": 1})
-		var xp_gain := int(ps.get("kills", 0)) * 5 + (10 if victory else 2)
+		var xpr: Dictionary = ContentDB.mastery.get("xp", {})
+		var xp_gain := int(ps.get("kills", 0)) * int(xpr.get("per_kill", 5)) + (int(xpr.get("room_clear", 10)) if victory else int(xpr.get("room_wipe", 2)))
+		if victory and String(res.get("objective", "")) == "boss":
+			xp_gain += int(xpr.get("boss_kill", 40))
 		entry["xp"] = int(entry.get("xp", 0)) + xp_gain
-		entry["level"] = 1 + int(entry["xp"]) / 100
+		entry["level"] = ContentDB.mastery_level(int(entry["xp"]))
 		mastery[cls] = entry
 		prog["class_mastery"] = mastery
 		var codex: Dictionary = prog.get("codex", {"enemies": {}, "relics": [], "bosses": []})

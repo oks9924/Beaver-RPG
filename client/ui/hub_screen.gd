@@ -11,6 +11,7 @@ signal logout_requested()
 signal chat_sent(text: String)
 signal upgrade_requested(structure: String)
 signal class_changed(class_id: String)
+signal trait_requested(class_id: String, trait_id: String)
 var class_pick: OptionButton
 var _class_ids: Array = []
 
@@ -193,9 +194,24 @@ func show_progression(info: Dictionary, account: Dictionary) -> void:
 			h.add_child(b)
 		village_box.add_child(h)
 	var mastery: Dictionary = prog.get("class_mastery", {})
+	var chosen: Dictionary = prog.get("mastery_traits", {})
 	var parts: PackedStringArray = []
+	var table: Array = ContentDB.mastery.get("level_xp", [0])
 	for cid: String in mastery.keys():
-		parts.append("%s 숙련 %d (경험치 %d)" % [ContentDB.get_class_def(cid).get("name_ko", cid), int(mastery[cid].get("level", 1)), int(mastery[cid].get("xp", 0))])
+		var xp := int(mastery[cid].get("xp", 0))
+		var lv := ContentDB.mastery_level(xp)
+		var next_xp: String = str(table[lv]) if lv < table.size() else "최대"
+		parts.append("%s 숙련 %d/10 (경험치 %d / 다음 %s)" % [ContentDB.get_class_def(cid).get("name_ko", cid), lv, xp, next_xp])
+		var th := UIKit.hbox(4)
+		th.add_child(UIKit.label("%s 특성:" % ContentDB.get_class_def(cid).get("name_ko", cid), 12))
+		for t: Dictionary in ContentDB.mastery.get("traits", {}).get(cid, []):
+			var tid := String(t.get("id", ""))
+			var unlocked := lv >= int(t.get("unlock_level", 1))
+			var b := UIKit.button(("● " if String(chosen.get(cid, "")) == tid else "○ ") + String(t.get("name_ko", tid)) + ("" if unlocked else " (숙련 %d)" % int(t.get("unlock_level", 1))), func() -> void: trait_requested.emit(cid, "" if String(chosen.get(cid, "")) == tid else tid))
+			b.disabled = not unlocked
+			b.tooltip_text = String(t.get("desc_ko", ""))
+			th.add_child(b)
+		village_box.add_child(th)
 	var codex: Dictionary = prog.get("codex", {})
 	var enemies: Dictionary = codex.get("enemies", {})
 	var ename: PackedStringArray = []

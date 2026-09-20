@@ -44,6 +44,10 @@ func _ready() -> void:
 	test_class_sapshaman()
 	print("-- test_class_hydro")
 	test_class_hydro()
+	print("-- test_variants_and_synergies")
+	test_variants_and_synergies()
+	print("-- test_build_kinds")
+	test_build_kinds()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -941,3 +945,115 @@ func test_class_hydro() -> void:
 			burst = true
 	check(burst and e0["hp"] < hp_b and e0["pos"].x > dam["pos"].x + 100, "dam burst damages and knocks enemies away")
 	check(int(room.snapshot()["e"][0][2][Protocol.SNAP_E.STATUS]) & Protocol.ST_SLOW != 0, "enemy status flags in snapshot")
+
+
+func test_variants_and_synergies() -> void:
+	# 유물 시너지: 같은 태그 2개 → 보너스 mods/procs
+	var b := RunMods.build(["sharp_incisors", "hunters_tooth"], [], "guardian", 1, {}, ContentDB.rules)
+	check((b["synergies"] as Array).has("tooth") and float(b["mods"]["damage_mult"]) > 0.12, "tooth synergy adds damage and is reported")
+	var b0 := RunMods.build(["sharp_incisors"], [], "guardian", 1, {}, ContentDB.rules)
+	check((b0["synergies"] as Array).is_empty(), "single tag: no synergy")
+	# 숙련 특성: mods 와 procs 가 합쳐진다
+	var bt := RunMods.build([], [], "guardian", 1, {}, ContentDB.rules, "g_riposte")
+	var has_proc := false
+	for pr: Dictionary in bt["procs"]:
+		if String(pr.get("source", "")) == "trait:g_riposte":
+			has_proc = true
+	check(has_proc, "mastery trait procs merged")
+	check(ContentDB.mastery_level(0) == 1 and ContentDB.mastery_level(100) == 2 and ContentDB.mastery_level(99999) == 10, "mastery level table 1..10")
+	# 모든 강화의 mods 키가 RunMods 가 아는 키인지 (오타 방지)
+	for cls: String in ContentDB.upgrades.keys():
+		for uid: String in ContentDB.upgrades[cls].keys():
+			for k: String in ContentDB.upgrades[cls][uid].get("mods", {}).keys():
+				check(RunMods.MOD_KEYS.has(k), "upgrade mod key known: %s.%s.%s" % [cls, uid, k])
+	for cls: String in ContentDB.mastery.get("traits", {}).keys():
+		for t: Dictionary in ContentDB.mastery["traits"][cls]:
+			for k: String in t.get("mods", {}).keys():
+				check(RunMods.MOD_KEYS.has(k), "trait mod key known: %s" % k)
+	# 각 직업 스킬마다 변형 2개 이상, 진화 1개 이상
+	for cls: String in ["guardian", "pinecone", "sawtooth", "sapshaman", "hydro"]:
+		var per_slot := {"q": 0, "e": 0, "r": 0}
+		var evos := 0
+		for uid: String in ContentDB.upgrades[cls].keys():
+			var u: Dictionary = ContentDB.upgrades[cls][uid]
+			if bool(u.get("evolution", false)):
+				evos += 1
+			elif per_slot.has(String(u.get("skill", ""))):
+				per_slot[String(u["skill"])] += 1
+		check(per_slot["q"] >= 2 and per_slot["e"] >= 2 and per_slot["r"] >= 2 and evos >= 1, "%s: 2 variants per skill + evolution (%s, evo %d)" % [cls, per_slot, evos])
+	# 진화 제안 조건: 런 레벨과 같은 스킬 강화 보유
+	var inst := ExpeditionInstance.new("exp_evo", 3)
+	inst.add_member(_make_session(90))
+	inst.start_run()
+	var pool: Array = inst._upgrade_pool("run90")
+	var has_evo := false
+	for uid: String in pool:
+		if bool(ContentDB.upgrades["guardian"][uid].get("evolution", false)):
+			has_evo = true
+	check(not has_evo, "evolutions hidden at level 1 without skill upgrades")
+	inst._run_player("run90")["upgrades"].append("tail_slam_wide")
+	inst.run["level"] = 4
+	pool = inst._upgrade_pool("run90")
+	check(pool.has("evo_quake_tail") and not pool.has("evo_living_fort") and not pool.has("tail_slam_heavy"), "quake tail offered after tail slam upgrade at level 4; exclusive group and other evolution hidden: %s" % [pool])
+	# 변형 효과 실측: 지진 꼬리(지연 2차 충격), 세 번째 포탑, 반격 특성
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 21, [{"account_id": "p0", "nickname": "P0", "class_id": "guardian", "mods": RunMods.build([], ["evo_quake_tail", "bulwark_stack"], "guardian", 4, {}, ContentDB.rules)["mods"]}])
+	for e: Dictionary in room.enemies.values():
+		e["ai"] = Protocol.EnemyAI.ROOTED
+		e["root_t"] = 1000.0
+		e["hp"] = 1000.0
+	var p: Dictionary = room.players["p0"]
+	var e0: Dictionary = room.enemies.values()[0]
+	e0["pos"] = p["pos"] + Vector2(170, 0)   # 1차(반경 120)는 빗나가고 2차(반경 240)만 맞는다
+	var hp0: float = e0["hp"]
+	var circles := 0
+	for ev: Dictionary in _press(room, "p0", 1, Vector2.RIGHT, Protocol.BTN_E, 30):
+		if ev["k"] == "circle_hit":
+			circles += 1
+	check(circles == 2 and e0["hp"] < hp0, "quake tail: delayed second shockwave hits farther enemies")
+	room._damage_player(p, 5.0, p["pos"] + Vector2(10, 0), "test")
+	p["front_guard_t"] = 2.0
+	room._damage_player(p, 5.0, p["pos"] + Vector2(10, 0), "test")
+	check(float(p["guard_bonus"]) == 6.0, "guard success arms bonus damage for next attack")
+	var hroom := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 22, [{"account_id": "p0", "nickname": "P0", "class_id": "hydro", "mods": RunMods.build([], ["turret_triple"], "hydro", 1, {}, ContentDB.rules)["mods"]}])
+	var hp_: Dictionary = hroom.players["p0"]
+	var seq := 1
+	for k in 4:
+		hp_["resource"] = 100.0
+		hp_["cd"]["q"] = 0.0
+		_press(hroom, "p0", seq, Vector2.RIGHT * 40, Protocol.BTN_Q, 12)
+		seq += 12
+	var turrets := 0
+	for o: Dictionary in hroom.objects.values():
+		if o["kind"] == Protocol.ObKind.TURRET:
+			turrets += 1
+	check(turrets == 3, "turret_triple allows 3 turrets (got %d)" % turrets)
+
+
+func test_build_kinds() -> void:
+	var room := _solo_room("guardian", 31)
+	var p: Dictionary = room.players["p0"]
+	room.team_wood = 20
+	var e0: Dictionary = room.enemies.values()[0]
+	e0["pos"] = p["pos"] + Vector2(60, 0)
+	room.set_build_kind("p0", "spike_fence")
+	var wood0 := room.team_wood
+	_press(room, "p0", 1, Vector2.RIGHT, Protocol.BTN_BUILD, 2)
+	var fence: Dictionary = {}
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.STRUCTURE:
+			fence = o
+	check(not fence.is_empty() and String(fence.get("bkind", "")) == "spike_fence" and room.team_wood == wood0 - 4 and int(fence["state"]) == 1, "spike fence built for 4 wood with kind index in state")
+	var hp0: float = e0["hp"]
+	e0["pos"] = fence["pos"] + Vector2(30, 0)
+	for i in 30:
+		room.step(1.0 / 30.0)
+	check(e0["hp"] < hp0 and e0["slow_t"] > 0.0, "spike fence damages and slows touching enemies")
+	room.set_build_kind("p0", "sap_lantern")
+	p["hp"] = 50.0
+	p["facing"] = Vector2.LEFT
+	_press(room, "p0", 10, Vector2.LEFT, Protocol.BTN_BUILD, 2)
+	for i in 70:
+		room.step(1.0 / 30.0)
+	check(p["hp"] > 50.0, "sap lantern heals nearby allies over time (%.1f)" % p["hp"])
+	room.set_build_kind("p0", "nope")
+	check(p["build_kind"] == "sap_lantern", "unknown build kind ignored")

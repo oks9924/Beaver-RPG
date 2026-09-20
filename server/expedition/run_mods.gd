@@ -5,7 +5,12 @@ extends RefCounted
 
 const MOD_KEYS := ["damage_mult", "max_hp_add", "dodge_charges_add", "speed_mult", "cdr", "knockback_mult", "stagger_add", "acorn_mult", "pierce_add",
 	"e_radius_mult", "e_stagger_add", "q_duration_add", "q_value_set", "r_root_sec", "q_pellets_add", "q_spread_add", "e_max_traps_add", "e_root_add",
-	"mark_damage_add", "mark_splash", "r_duration_add"]
+	"mark_damage_add", "mark_splash", "r_duration_add",
+	"q_damage_add", "e_damage_add", "r_damage_add", "q_cdr", "e_cdr", "r_cdr", "r_shield_add", "guard_bonus_add", "e_double", "r_heal_tick",
+	"e_vuln_sec_add", "e_vuln_add", "mark_hits_add", "r_radius_mult", "basic_recovery_mult", "r_slow", "r_final_burst", "e_trap_scatter",
+	"q_distance_add", "q_invuln_add", "e_angle_add", "r_move_set", "heat_max_add", "heat_bleed", "heat_decay_add", "low_hp_damage", "low_hp_taken", "r_end_knockback", "q_ram",
+	"q_radius_mult", "q_damage", "q_heal_add", "r_heal_add", "seed_interval_mult", "q_full_seed_bonus", "q_root_sec", "r_slow_set", "r_follow",
+	"q_max_turrets_add", "q_fire_rate", "q_hp_add", "e_length_add", "e_knockback_add", "e_ally_sec_add", "e_self_slide", "r_hp_add", "r_burst_radius_add", "pressure_per_hit_add", "q_double_shot", "q_shot_slow", "r_burst_on_place", "r_burst_shield"]
 
 
 static func empty() -> Dictionary:
@@ -15,9 +20,36 @@ static func empty() -> Dictionary:
 	return m
 
 
-static func build(relic_ids: Array, upgrade_ids: Array, class_id: String, level: int, extra: Dictionary, rules: Dictionary) -> Dictionary:
+## trait_id: 직업 숙련 대체 특성 (mastery.json). 유물 시너지는 relics.json 의 _synergies 를 태그 개수로 판정한다.
+static func build(relic_ids: Array, upgrade_ids: Array, class_id: String, level: int, extra: Dictionary, rules: Dictionary, trait_id: String = "") -> Dictionary:
 	var mods := empty()
 	var procs: Array = []
+	var synergies: Array = []
+	var tag_count := {}
+	for rid: String in relic_ids:
+		for tg: String in ContentDB.relics.get(rid, {}).get("tags", []):
+			tag_count[tg] = int(tag_count.get(tg, 0)) + 1
+	var syn_defs: Dictionary = ContentDB.relics.get("_synergies", {})
+	for tg: String in syn_defs.keys():
+		if tg.begins_with("_"):
+			continue
+		var sd: Dictionary = syn_defs[tg]
+		if int(tag_count.get(tg, 0)) >= int(sd.get("count", 2)):
+			synergies.append(tg)
+			_merge(mods, sd.get("mods", {}))
+			for p: Dictionary in sd.get("procs", []):
+				var pp := p.duplicate()
+				pp["source"] = "synergy:" + tg
+				pp["_last"] = -1000.0
+				procs.append(pp)
+	if trait_id != "":
+		var tdef := ContentDB.mastery_trait(class_id, trait_id)
+		_merge(mods, tdef.get("mods", {}))
+		for p: Dictionary in tdef.get("procs", []):
+			var pp := p.duplicate()
+			pp["source"] = "trait:" + trait_id
+			pp["_last"] = -1000.0
+			procs.append(pp)
 	for rid: String in relic_ids:
 		var r: Dictionary = ContentDB.relics.get(rid, {})
 		_merge(mods, r.get("mods", {}))
@@ -39,7 +71,7 @@ static func build(relic_ids: Array, upgrade_ids: Array, class_id: String, level:
 	_merge(mods, extra)
 	var caps: Dictionary = rules.get("caps", {})
 	mods["cdr"] = minf(mods["cdr"], float(caps.get("cooldown_reduction_max", 0.4)))
-	return {"mods": mods, "procs": procs}
+	return {"mods": mods, "procs": procs, "synergies": synergies}
 
 
 static func _merge(into: Dictionary, add: Dictionary) -> void:
