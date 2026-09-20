@@ -9,6 +9,7 @@ var telegraphs: Array = []        # PackedFloat32Array (Protocol.SNAP_TG)
 var projectiles: Array = []       # PackedFloat32Array (Protocol.SNAP_PR)
 var objects: Array = []           # PackedFloat32Array (Protocol.SNAP_OB)
 var water_zone: PackedFloat32Array = PackedFloat32Array()
+var hazards: Array = []           # PackedFloat32Array [x,y,w,h,slow]
 var boss_state: Dictionary = {}
 var _object_tex: Dictionary = {}
 var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
@@ -45,7 +46,7 @@ func _ready() -> void:
 		_audio_players.append(ap)
 	_tg_tex = AssetRegistry.get_texture("vfx.telegraph_circle")
 	for kind_asset in [["gnaw_tree", "prop.gnaw_tree"], ["device", "prop.device"], ["lever", "prop.lever"], ["structure", "prop.log_cover"], ["trap", "vfx.thorn_trap"], ["proj_enemy", "vfx.projectile_sap"], ["proj_player", "vfx.projectile_pinecone"],
-			["pillar", "prop.boss.pillar"], ["gate", "prop.boss.gate"], ["husk", "prop.boss.husk"], ["corridor", "prop.boss.corridor"], ["rope", "prop.boss.rope"], ["debris", "prop.boss.debris"], ["anchor", "prop.boss.anchor"], ["platform", "prop.boss.platform"], ["claw_link", "prop.boss.claw_link"], ["turret", "prop.turret"], ["dam", "prop.dam"], ["proj_water", "vfx.projectile_water"]]:
+			["pillar", "prop.boss.pillar"], ["gate", "prop.boss.gate"], ["husk", "prop.boss.husk"], ["corridor", "prop.boss.corridor"], ["rope", "prop.boss.rope"], ["debris", "prop.boss.debris"], ["anchor", "prop.boss.anchor"], ["platform", "prop.boss.platform"], ["claw_link", "prop.boss.claw_link"], ["turret", "prop.turret"], ["dam", "prop.dam"], ["proj_water", "vfx.projectile_water"], ["raft", "prop.raft"]]:
 		_object_tex[kind_asset[0]] = AssetRegistry.get_texture(kind_asset[1])
 
 
@@ -161,6 +162,14 @@ func _draw_telegraphs() -> void:
 			for i in 6:
 				var y := rect.position.y + rect.size.y * (i + 0.5) / 6.0
 				L.draw_line(Vector2(rect.position.x, y), Vector2(rect.end.x, y), Color(0.7, 0.9, 1.0, 0.35), 2.0)
+	# 지역 위험 구역 (수액 웅덩이: 둔화)
+	for h: PackedFloat32Array in hazards:
+		var hr := Rect2(h[0], h[1], h[2], h[3])
+		L.draw_rect(hr, Color(0.45, 0.2, 0.6, 0.28))
+		L.draw_rect(hr, Color(0.7, 0.4, 0.9, 0.7), false, 2.0)
+		for i in 4:
+			var bx := hr.position.x + hr.size.x * (0.2 + 0.2 * i) + sin(Time.get_ticks_msec() / 400.0 + i) * 6.0
+			L.draw_circle(Vector2(bx, hr.position.y + hr.size.y * (0.3 + 0.15 * (i % 3))), 4.0, Color(0.8, 0.5, 1.0, 0.5))
 	# 상호작용물
 	for o: PackedFloat32Array in objects:
 		var kind := int(o[Protocol.SNAP_OB.KIND])
@@ -180,6 +189,11 @@ func _draw_telegraphs() -> void:
 				L.draw_arc(c, r, 0, TAU, 40, Color(0.6, 1.0, 0.5, 0.9), 2.0)
 			Protocol.ObKind.TRAP:
 				_draw_tex(L, _object_tex["trap"], c, r * 2.0, Color(1, 1, 1, 0.9 if st == 1 else 0.5))
+			Protocol.ObKind.RAFT:
+				L.draw_circle(c, r + 100, Color(0.9, 0.85, 0.4, 0.06))
+				L.draw_arc(c, r + 100, 0, TAU, 48, Color(0.4, 0.9, 0.5, 0.6) if st == 1 else (Color(0.95, 0.4, 0.3, 0.7) if st == 2 else Color(0.9, 0.85, 0.4, 0.5)), 2.0)
+				_draw_tex(L, _object_tex["raft"], c, 96, Color.WHITE)
+				_draw_progress(L, c, prog, "호위 %d%%" % int(prog * 100) + (" · 적 접근!" if st == 2 else (" · 이동 중" if st == 1 else " · 가까이 가세요")))
 			Protocol.ObKind.TURRET:
 				_draw_tex(L, _object_tex["turret"], c + Vector2(0, -10), 64, Color.WHITE if st == 1 else Color(0.85, 0.9, 1.0))
 				L.draw_arc(c, 18, -PI / 2, -PI / 2 + TAU * prog, 24, Color(0.4, 0.8, 1.0, 0.9), 3.0)

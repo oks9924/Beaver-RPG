@@ -19,6 +19,7 @@ var _flush_accum: float = 0.0
 var _tick_ms_accum: float = 0.0
 var _tick_count: int = 0
 var _tick_ms_max: float = 0.0
+var _snap_max_bytes: int = 0
 var metrics := {"connections": 0, "logins": 0, "rejected_full": 0, "rejected_version": 0, "save_failures": 0, "expeditions_started": 0, "rooms_cleared": 0, "wipes": 0}
 var shutting_down: bool = false
 var status_file: String = ""
@@ -863,6 +864,11 @@ func _physics_process(dt: float) -> void:
 					continue
 				var own := snap.duplicate()
 				own["ack"] = int(inst.room.players.get(aid, {}).get("last_seq", 0))
+				var nbytes := var_to_bytes(own).size()
+				if nbytes > _snap_max_bytes:
+					_snap_max_bytes = nbytes
+					if nbytes > 1392:
+						_log(2, "snapshot %d bytes exceeds ENet MTU 1392 (room %s, n=%d)" % [nbytes, inst.id, inst.members.size()])
 				Net.send_snapshot(ms.peer_id, own)
 		if r["finished"]:
 			_on_room_finished(inst)
@@ -884,7 +890,8 @@ func _physics_process(dt: float) -> void:
 	_metrics_accum += dt
 	if _metrics_accum >= float(config.get_value("metrics_interval_sec")):
 		_metrics_accum = 0.0
-		_log(1, "metrics online=%d/%d expeditions=%d(running %d) tick_avg=%.2fms tick_max=%.2fms save_failures=%d" % [_online_count(), int(config.get_value("max_online_players")), expeditions.active_count(), expeditions.running_count(), _tick_ms_accum / maxf(_tick_count, 1), _tick_ms_max, metrics["save_failures"]])
+		_log(1, "metrics online=%d/%d expeditions=%d(running %d) tick_avg=%.2fms tick_max=%.2fms snapshot_max=%dB save_failures=%d" % [_online_count(), int(config.get_value("max_online_players")), expeditions.active_count(), expeditions.running_count(), _tick_ms_accum / maxf(_tick_count, 1), _tick_ms_max, _snap_max_bytes, metrics["save_failures"]])
+		metrics["snapshot_max_bytes"] = _snap_max_bytes
 		_tick_ms_accum = 0.0
 		_tick_count = 0
 		_tick_ms_max = 0.0

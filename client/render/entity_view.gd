@@ -75,7 +75,7 @@ func _set_anim(name: String) -> void:
 		_sprite.scale = Vector2(0.75, 0.75)
 		_sprite.offset = Vector2(0, -32)
 		return
-	_sprite.scale = rs / fs
+	_sprite.scale = rs / fs * (1.35 if status_bits & Protocol.ST_ELITE else 1.0)
 	var anchor: Vector2 = _sheet["anchor"]
 	_sprite.offset = Vector2(fs.x * (0.5 - anchor.x), fs.y * (0.5 - anchor.y))
 
@@ -150,6 +150,8 @@ func _process(dt: float) -> void:
 		mod = Color(0.7, 0.85, 1.3)
 	elif status_bits & Protocol.ST_HASTE:
 		mod = Color(0.85, 1.1, 1.3)
+	elif status_bits & Protocol.ST_BLEED:
+		mod = Color(1.2, 0.8, 0.8)
 	elif invuln:
 		mod = Color(0.8, 0.9, 1.4, 0.7)
 	elif not connected:
@@ -169,6 +171,9 @@ func _process(dt: float) -> void:
 func _draw() -> void:
 	# 그림자 겸 파티 색 링, 체력 바, 이름표. 실제 문구는 UI(폰트)로 렌더링한다.
 	draw_arc(Vector2.ZERO, 20, 0, TAU, 24, Color(party_color, 0.55) if is_player else Color(0.2, 0.1, 0.3, 0.5), 2.0)
+	if status_bits & Protocol.ST_ELITE:
+		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1.0, 0.8, 0.3, 0.9), 3.0)
+		draw_string(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 13, Color(1.0, 0.85, 0.4))
 	if is_player and state == Protocol.EntState.DOWNED:
 		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1, 0.35, 0.2, 0.8), 3.0)
 		var t := "%.0f" % down_t

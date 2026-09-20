@@ -110,5 +110,380 @@
   },
   "stagger_sec_on_hit": 0.15,
   "stagger_resist_after_sec": 1.0
+ },
+ "shell_soldier": {
+  "id": "shell_soldier",
+  "name_ko": "껍질 병정",
+  "role": "approach",
+  "implemented": true,
+  "hp": 90,
+  "move_speed": 58,
+  "radius": 24,
+  "threat_cost": 2.2,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 14,
+  "wood_drop": 2,
+  "assets": {
+   "sprite": "enemy.shell_soldier",
+   "icon": "icon.enemy.shell_soldier",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "shell_bash",
+   "windup_sec": 0.9,
+   "active_sec": 0.15,
+   "recovery_sec": 0.8,
+   "cooldown_sec": 2.0,
+   "shape": "circle",
+   "radius": 56,
+   "forward_offset": 34,
+   "damage": 16,
+   "heavy": true,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "armor_front": {
+   "arc_deg": 150,
+   "reduction": 0.5
+  },
+  "region_hint": "black_sap_swamp"
+ },
+ "spore_mushroom": {
+  "id": "spore_mushroom",
+  "name_ko": "포자 버섯",
+  "role": "stationary",
+  "implemented": true,
+  "hp": 70,
+  "move_speed": 0,
+  "radius": 22,
+  "threat_cost": 1.5,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 10,
+  "wood_drop": 1,
+  "assets": {
+   "sprite": "enemy.spore_mushroom",
+   "icon": "icon.enemy.spore_mushroom",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "spore_burst",
+   "windup_sec": 1.0,
+   "active_sec": 0.2,
+   "recovery_sec": 1.0,
+   "cooldown_sec": 4.0,
+   "shape": "circle",
+   "radius": 110,
+   "forward_offset": 0,
+   "damage": 8,
+   "heavy": false,
+   "telegraph_asset": "vfx.telegraph_circle",
+   "on_hit": {
+    "slow_mult": 0.4,
+    "slow_sec": 2.5
+   }
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "aura": {
+   "radius": 150,
+   "player_slow": 0.25
+  },
+  "region_hint": "black_sap_swamp"
+ },
+ "root_puppet": {
+  "id": "root_puppet",
+  "name_ko": "뿌리 꼭두각시",
+  "role": "ranged",
+  "implemented": true,
+  "hp": 50,
+  "move_speed": 52,
+  "radius": 20,
+  "threat_cost": 1.5,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 11,
+  "wood_drop": 1,
+  "assets": {
+   "sprite": "enemy.root_puppet",
+   "icon": "icon.enemy.root_puppet",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "root_lash",
+   "windup_sec": 0.7,
+   "active_sec": 0.1,
+   "recovery_sec": 0.6,
+   "cooldown_sec": 2.6,
+   "shape": "projectile",
+   "projectile": {
+    "speed": 380,
+    "radius": 10,
+    "damage": 8,
+    "ttl_sec": 1.5,
+    "asset": "vfx.projectile_sap",
+    "on_hit": {
+     "root_sec": 1.0
+    }
+   },
+   "heavy": false,
+   "preferred_min": 180,
+   "preferred_max": 300,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "region_hint": "black_sap_swamp"
+ },
+ "reed_frog": {
+  "id": "reed_frog",
+  "name_ko": "갈대 개구리",
+  "role": "leaper",
+  "implemented": true,
+  "hp": 45,
+  "move_speed": 70,
+  "radius": 19,
+  "threat_cost": 1.3,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 9,
+  "wood_drop": 1,
+  "assets": {
+   "sprite": "enemy.reed_frog",
+   "icon": "icon.enemy.reed_frog",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "frog_leap",
+   "windup_sec": 0.8,
+   "active_sec": 0.15,
+   "recovery_sec": 0.7,
+   "cooldown_sec": 2.8,
+   "shape": "leap",
+   "radius": 60,
+   "leap_range": 320,
+   "damage": 12,
+   "heavy": true,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "region_hint": "black_sap_swamp"
+ },
+ "river_leech": {
+  "id": "river_leech",
+  "name_ko": "강 거머리",
+  "role": "approach",
+  "implemented": true,
+  "hp": 35,
+  "move_speed": 80,
+  "radius": 16,
+  "threat_cost": 0.9,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 6,
+  "wood_drop": 0,
+  "assets": {
+   "sprite": "enemy.river_leech",
+   "icon": "icon.enemy.river_leech",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "leech_bite",
+   "windup_sec": 0.5,
+   "active_sec": 0.1,
+   "recovery_sec": 0.5,
+   "cooldown_sec": 1.4,
+   "shape": "circle",
+   "radius": 40,
+   "forward_offset": 22,
+   "damage": 6,
+   "heavy": false,
+   "telegraph_asset": "vfx.telegraph_circle",
+   "on_hit": {
+    "bleed_dps": 2.0,
+    "bleed_sec": 3.0
+   }
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "region_hint": "black_sap_swamp"
+ },
+ "lantern_moth": {
+  "id": "lantern_moth",
+  "name_ko": "등불 나방",
+  "role": "ranged",
+  "implemented": true,
+  "hp": 40,
+  "move_speed": 110,
+  "radius": 18,
+  "threat_cost": 1.4,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 10,
+  "wood_drop": 1,
+  "assets": {
+   "sprite": "enemy.lantern_moth",
+   "icon": "icon.enemy.lantern_moth",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "moth_dust",
+   "windup_sec": 0.6,
+   "active_sec": 0.1,
+   "recovery_sec": 0.4,
+   "cooldown_sec": 2.0,
+   "shape": "projectile",
+   "projectile": {
+    "speed": 300,
+    "radius": 12,
+    "damage": 7,
+    "ttl_sec": 1.6,
+    "asset": "vfx.projectile_sap",
+    "on_hit": {
+     "slow_mult": 0.3,
+     "slow_sec": 2.0
+    }
+   },
+   "heavy": false,
+   "preferred_min": 220,
+   "preferred_max": 340,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "region_hint": "black_sap_swamp"
+ },
+ "woodjaw_beetle": {
+  "id": "woodjaw_beetle",
+  "name_ko": "나무턱 딱정벌레",
+  "role": "charger",
+  "implemented": true,
+  "hp": 75,
+  "move_speed": 66,
+  "radius": 22,
+  "threat_cost": 1.9,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 12,
+  "wood_drop": 2,
+  "assets": {
+   "sprite": "enemy.woodjaw_beetle",
+   "icon": "icon.enemy.woodjaw_beetle",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "beetle_ram",
+   "windup_sec": 0.9,
+   "active_sec": 0.6,
+   "recovery_sec": 1.0,
+   "cooldown_sec": 2.6,
+   "shape": "line",
+   "length": 340,
+   "width": 60,
+   "charge_speed": 480,
+   "damage": 13,
+   "knockback": 100,
+   "heavy": true,
+   "trigger_range": 300,
+   "telegraph_asset": "vfx.telegraph_line"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "structure_dps_mult": 4.0,
+  "region_hint": "ancient_root_dam"
+ },
+ "gear_crab": {
+  "id": "gear_crab",
+  "name_ko": "톱니 게",
+  "role": "approach",
+  "implemented": true,
+  "hp": 85,
+  "move_speed": 60,
+  "radius": 23,
+  "threat_cost": 2.0,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 13,
+  "wood_drop": 2,
+  "assets": {
+   "sprite": "enemy.gear_crab",
+   "icon": "icon.enemy.gear_crab",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "crab_double_snip",
+   "windup_sec": 0.7,
+   "active_sec": 0.12,
+   "recovery_sec": 0.7,
+   "cooldown_sec": 2.2,
+   "shape": "circle",
+   "radius": 50,
+   "forward_offset": 30,
+   "damage": 10,
+   "heavy": false,
+   "combo": 2,
+   "combo_windup_sec": 0.35,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "region_hint": "ancient_root_dam"
+ },
+ "sap_totem": {
+  "id": "sap_totem",
+  "name_ko": "수액 토템",
+  "role": "stationary",
+  "implemented": true,
+  "hp": 110,
+  "move_speed": 0,
+  "radius": 24,
+  "threat_cost": 2.4,
+  "aggro_range": 520,
+  "leash_range": 2000,
+  "xp": 16,
+  "wood_drop": 2,
+  "assets": {
+   "sprite": "enemy.sap_totem",
+   "icon": "icon.enemy.sap_totem",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "totem_pulse",
+   "windup_sec": 1.2,
+   "active_sec": 0.2,
+   "recovery_sec": 1.5,
+   "cooldown_sec": 6.0,
+   "shape": "circle",
+   "radius": 90,
+   "forward_offset": 0,
+   "damage": 6,
+   "heavy": false,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.5,
+  "summon": {
+   "id": "sap_snail",
+   "every_sec": 7.0,
+   "max_alive": 3,
+   "cap_total": 6
+  },
+  "aura": {
+   "radius": 160,
+   "enemy_heal_per_sec": 2.0
+  },
+  "region_hint": "ancient_root_dam"
  }
 }

@@ -449,6 +449,18 @@ func _on_room_event(ev: Dictionary) -> void:
 		"dam_burst":
 			world.spawn_effect("vfx.great_dam", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
 			world.play_sound("sfx.tail_slam", 0.1)
+		"elite_spawn":
+			hud.toast("정예: %s 등장!" % String(ev.get("name", "")), 3.0)
+			world.play_sound("sfx.tail_slam", 0.2)
+		"escort_lost":
+			hud.toast("뗏목이 부서졌다 — 호위 실패", 3.0)
+		"armor_block":
+			pass
+		"player_rooted":
+			if String(ev.get("id", "")) == my_id:
+				hud.toast("뿌리에 묶였다! (%.1f초)" % float(ev.get("sec", 1.0)), 1.0)
+		"summon":
+			world.play_sound("sfx.snail_hit", 0.2)
 		"skill_failed":
 			if String(ev.get("id", "")) == my_id:
 				hud.toast({"charge": "수압이 부족합니다 (기본 공격으로 충전)", "limit": "포탑 상한"}.get(String(ev.get("reason", "")), "사용 불가"), 1.2)
@@ -592,6 +604,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		else:
 			ev.target_pos = pos
 	world.remove_missing(keys, "p:")
+	world.hazards = p.get("hz", [])
 	var ekeys: Array = []
 	_enemies_alive = 0
 	for entry: Array in p.get("e", []):

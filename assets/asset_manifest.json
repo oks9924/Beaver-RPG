@@ -14301,6 +14301,307 @@
 				0.5,
 				0.5
 			]
+		},
+		{
+			"id": "tile.swamp.ground",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/tile_swamp_ground.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tile_ground",
+				"color": "#4a3d5c",
+				"accent": "#5e4a78"
+			}
+		},
+		{
+			"id": "tile.swamp.wall",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/tile_swamp_wall.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tile_wall",
+				"color": "#2f2440"
+			}
+		},
+		{
+			"id": "tile.swamp.water",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/tile_swamp_water.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tile_water",
+				"color": "#6b3fa0"
+			}
+		},
+		{
+			"id": "tile.rootdam.ground",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/tile_rootdam_ground.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tile_ground",
+				"color": "#6b5a3e",
+				"accent": "#8a744d"
+			}
+		},
+		{
+			"id": "tile.rootdam.wall",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/tile_rootdam_wall.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tile_wall",
+				"color": "#3f3323"
+			}
+		},
+		{
+			"id": "tile.rootdam.water",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/tile_rootdam_water.png",
+			"final_path": "",
+			"source_size": [
+				64,
+				64
+			],
+			"frame_size": [
+				64,
+				64
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tile_water",
+				"color": "#2f7fb8"
+			}
+		},
+		{
+			"id": "prop.swamp.stump",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_swamp_stump.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "tree",
+				"color": "#3d2f4f",
+				"accent": "#7a5aa8"
+			},
+			"anchor": [
+				0.5,
+				0.8
+			]
+		},
+		{
+			"id": "prop.swamp.mushroom",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_swamp_mushroom.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "rock",
+				"color": "#7a4fa8",
+				"accent": "#c9a0ff"
+			},
+			"anchor": [
+				0.5,
+				0.8
+			]
+		},
+		{
+			"id": "prop.dam.gear",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_dam_gear.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "device",
+				"color": "#6b6b6b",
+				"accent": "#b08a3a"
+			},
+			"anchor": [
+				0.5,
+				0.8
+			]
+		},
+		{
+			"id": "prop.dam.timber",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_dam_timber.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "log",
+				"color": "#7a5a30"
+			},
+			"anchor": [
+				0.5,
+				0.8
+			]
+		},
+		{
+			"id": "prop.raft",
+			"type": "texture",
+			"status": "placeholder",
+			"path": "res://assets/placeholders/prop_raft.png",
+			"final_path": "",
+			"source_size": [
+				128,
+				128
+			],
+			"frame_size": [
+				128,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"source": {
+				"method": "generated:tools/gen_placeholders.gd",
+				"license": "project-internal"
+			},
+			"placeholder": {
+				"shape": "log",
+				"color": "#a07a40",
+				"accent": "#e2c07a"
+			},
+			"anchor": [
+				0.5,
+				0.6
+			]
 		}
 	],
 	"packs": {

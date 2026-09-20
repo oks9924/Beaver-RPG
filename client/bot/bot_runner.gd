@@ -475,6 +475,8 @@ func _phase_room() -> void:
 					target_obj = o
 			elif objective == "hold_point" and kind == Protocol.ObKind.HOLD_ZONE:
 				target_obj = o
+			elif objective == "escort" and kind == Protocol.ObKind.RAFT:
+				target_obj = o
 		if not boss_obj.is_empty() and randf() < 0.7:
 			var op := Vector2(boss_obj[Protocol.SNAP_OB.X], boss_obj[Protocol.SNAP_OB.Y])
 			if op.distance_to(my_pos) > boss_obj[Protocol.SNAP_OB.R] + 40.0:
@@ -492,11 +494,11 @@ func _phase_room() -> void:
 		elif in_danger and int(me[Protocol.SNAP_P.DODGE]) > 0:
 			mv = aim.normalized() if aim.length() > 0.1 else Vector2.RIGHT
 			btn |= Protocol.BTN_DODGE
-		elif not target_obj.is_empty() and (nearest.is_empty() or best > 90.0 or objective == "hold_point"):
+		elif not target_obj.is_empty() and (nearest.is_empty() or best > 90.0 or objective in ["hold_point", "escort"]):
 			var op := Vector2(target_obj[Protocol.SNAP_OB.X], target_obj[Protocol.SNAP_OB.Y])
 			var r := target_obj[Protocol.SNAP_OB.R]
-			if objective == "hold_point":
-				if op.distance_to(my_pos) > r * 0.5:
+			if objective == "hold_point" or objective == "escort":
+				if op.distance_to(my_pos) > (r * 0.5 if objective == "hold_point" else 70.0):
 					mv = (op - my_pos).normalized()
 				elif not nearest.is_empty() and best < 140.0:
 					aim = Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y]) - my_pos

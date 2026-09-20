@@ -179,24 +179,40 @@ func prune_disconnected(grace_sec: float) -> Array:
 
 # ------------------------------------------------------------------ 런
 
+## 원정 경로: 시작 지역부터 next 를 따라 이어지는 지역들의 층을 모두 붙인다 (정식 1차: 3지역, 지역마다 보스).
+static func build_route(seed_: int, start_region: String = "willow_river", max_regions: int = 3) -> Array:
+	var map_rng := RandomNumberGenerator.new()
+	map_rng.seed = seed_
+	var layers: Array = []
+	var li := 0
+	var rid := start_region
+	var guard := 0
+	while rid != "" and guard < max_regions:
+		guard += 1
+		var region: Dictionary = ContentDB.regions.get(rid, {})
+		if region.is_empty():
+			break
+		for layer_tpl: Array in region.get("layers", []):
+			var nodes: Array = []
+			var ni := 0
+			for tpl: Dictionary in layer_tpl:
+				var pool: Array = tpl.get("pool", [])
+				var variant := String(pool[map_rng.randi() % pool.size()]) if not pool.is_empty() else ""
+				nodes.append({"id": "L%dN%d" % [li, ni], "layer": li, "index": ni, "type": tpl["type"], "variant": variant, "hint": region.get("danger_hints", {}).get(tpl["type"], ""), "region": rid, "region_name": region.get("name_ko", rid)})
+				ni += 1
+			layers.append(nodes)
+			li += 1
+		rid = String(region.get("next", ""))
+	return layers
+
+
 func _new_run() -> void:
 	var region: Dictionary = ContentDB.regions.get("willow_river", {})
 	var map_rng := RandomNumberGenerator.new()
 	map_rng.seed = seed_value
 	var reward_rng := RandomNumberGenerator.new()
 	reward_rng.seed = seed_value + 7919
-	var layers: Array = []
-	var li := 0
-	for layer_tpl: Array in region.get("layers", []):
-		var nodes: Array = []
-		var ni := 0
-		for tpl: Dictionary in layer_tpl:
-			var pool: Array = tpl.get("pool", [])
-			var variant := String(pool[map_rng.randi() % pool.size()]) if not pool.is_empty() else ""
-			nodes.append({"id": "L%dN%d" % [li, ni], "layer": li, "index": ni, "type": tpl["type"], "variant": variant, "hint": region.get("danger_hints", {}).get(tpl["type"], "")})
-			ni += 1
-		layers.append(nodes)
-		li += 1
+	var layers: Array = build_route(seed_value, "willow_river", int(ContentDB.rule("run_regions", 3)))
 	if debug_route_layers > 0 and layers.size() > debug_route_layers:
 		layers = layers.slice(0, debug_route_layers)
 	elif debug_route_layers < 0:
@@ -345,6 +361,12 @@ func _enter_layer(layer_index: int) -> void:
 
 func _enter_node(node: Dictionary) -> void:
 	run["current"] = node["id"]
+	var nr := String(node.get("region", run.get("region", "")))
+	if nr != "" and nr != String(run.get("region", "")):
+		run["region"] = nr
+		run["region_name"] = String(node.get("region_name", nr))
+		run["enemy_pool"] = ContentDB.regions.get(nr, {}).get("enemy_pool", run.get("enemy_pool", []))
+		outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": "%s 에 들어섰다. %s" % [run["region_name"], ContentDB.regions.get(nr, {}).get("description_ko", "")]}})
 	match String(node["type"]):
 		"combat", "boss", "elite":
 			_start_room_for_node(node)
@@ -386,9 +408,13 @@ func start_room() -> Dictionary:
 	run["next_room_budget_add"] = 0.0
 	room = CombatRoom.new(ContentDB.get_room_def(room_id), profile, ContentDB.rules, room_seed, member_list, opts)
 	if room_id.begins_with("boss_"):
-		var boss_script: GDScript = load("res://server/expedition/boss_ironclaw.gd")
+		var boss_id := String(room_id.trim_prefix("boss_"))
+		var path := "res://server/expedition/boss_%s.gd" % boss_id
+		if not ResourceLoader.exists(path):
+			path = "res://server/expedition/boss_ironclaw.gd"
+		var boss_script: GDScript = load(path)
 		if boss_script != null:
-			room.boss = boss_script.new(room, profile, ContentDB.bosses.get(String(room_id.trim_prefix("boss_")), {}))
+			room.boss = boss_script.new(room, profile, ContentDB.bosses.get(boss_id, {}))
 	room_index += 1
 	state = Protocol.ExpState.IN_ROOM
 	choices.clear()

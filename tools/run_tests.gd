@@ -48,6 +48,10 @@ func _ready() -> void:
 	test_variants_and_synergies()
 	print("-- test_build_kinds")
 	test_build_kinds()
+	print("-- test_regions_and_enemies")
+	test_regions_and_enemies()
+	print("-- test_escort_and_elite")
+	test_escort_and_elite()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -538,7 +542,7 @@ func test_run_structure() -> void:
 		b.add_member(_make_session(10 + i))
 	a.start_run()
 	b.start_run()
-	check(a.run["layers"].size() == 5 and a.state == Protocol.ExpState.IN_ROOM, "run starts in the first combat node")
+	check(a.run["layers"].size() >= 5 and a.state == Protocol.ExpState.IN_ROOM and String(a.run["layers"][0][0].get("region", "")) == "willow_river", "run starts in the first combat node")
 	var va: Array = []
 	var vb: Array = []
 	for layer: Array in a.run["layers"]:
@@ -551,7 +555,7 @@ func test_run_structure() -> void:
 	var c := ExpeditionInstance.new("exp_t3", 99)
 	c.add_member(_make_session(20))
 	c.start_run()
-	check(c.run_payload()["layers"].size() == 5, "run payload has layers")
+	check(c.run_payload()["layers"].size() >= 5, "run payload has layers")
 	# 방 완료 → 보상 3지선다 → 전원 선택 → 다음 층(2노드) 경로 투표
 	a.room._all_spawned = true
 	for e: Dictionary in a.room.enemies.values():
@@ -1057,3 +1061,116 @@ func test_build_kinds() -> void:
 	check(p["hp"] > 50.0, "sap lantern heals nearby allies over time (%.1f)" % p["hp"])
 	room.set_build_kind("p0", "nope")
 	check(p["build_kind"] == "sap_lantern", "unknown build kind ignored")
+
+
+func test_regions_and_enemies() -> void:
+	# 3지역 경로: 층이 이어지고 지역 보스 3개, 재현 가능
+	var layers: Array = ExpeditionInstance.build_route(4242, "willow_river", 3)
+	var bosses := 0
+	var regions := {}
+	for layer: Array in layers:
+		for node: Dictionary in layer:
+			regions[String(node.get("region", ""))] = true
+			if String(node["type"]) == "boss":
+				bosses += 1
+	check(bosses == 3 and regions.size() == 3, "route spans 3 regions with 3 bosses (bosses %d, regions %d)" % [bosses, regions.size()])
+	check(JSON.stringify(layers) == JSON.stringify(ExpeditionInstance.build_route(4242, "willow_river", 3)), "route reproducible for the same seed")
+	# 9종 적: 정의·자산·역할
+	for eid in ["shell_soldier", "spore_mushroom", "root_puppet", "reed_frog", "river_leech", "lantern_moth", "woodjaw_beetle", "gear_crab", "sap_totem"]:
+		var d := ContentDB.get_enemy_def(eid)
+		check(bool(d.get("implemented", false)) and AssetRegistry.has("enemy.%s.idle" % eid) and AssetRegistry.has("enemy.%s.attack" % eid), "enemy defined with pack sheets: " + eid)
+	# 개구리 도약: 예고가 대상 위치에 뜨고 착지 시 이동·피해
+	var room := CombatRoom.new(ContentDB.get_room_def("swamp_annihilate"), ContentDB.get_party_profile(1), ContentDB.rules, 3, [{"account_id": "p0", "nickname": "P0", "class_id": "guardian"}])
+	for e: Dictionary in room.enemies.values():
+		e["ai"] = Protocol.EnemyAI.DEAD
+		e["death_t"] = 0.0
+	var p: Dictionary = room.players["p0"]
+	var frog := room._spawn_enemy("reed_frog", p["pos"] + Vector2(220, 0))
+	var frog_hit := false
+	for i in 60:
+		for ev: Dictionary in room.step(1.0 / 30.0):
+			if ev["k"] == "enemy_attack" and bool(ev.get("leap", false)):
+				frog_hit = true
+	check(frog_hit and (frog["pos"] as Vector2).distance_to(p["pos"]) < 120.0, "reed frog leaps onto the player")
+	# 껍질 병정: 정면 피해 50% 감소, 후면은 정상
+	var sold := room._spawn_enemy("shell_soldier", p["pos"] + Vector2(80, 0))
+	sold["facing"] = Vector2.LEFT
+	var h0: float = sold["hp"]
+	room._damage_enemy(sold, 20.0, p, 0.0, 0.0)
+	var front := h0 - float(sold["hp"])
+	sold["facing"] = Vector2.RIGHT
+	h0 = sold["hp"]
+	room._damage_enemy(sold, 20.0, p, 0.0, 0.0)
+	var back := h0 - float(sold["hp"])
+	check(is_equal_approx(front, 10.0) and is_equal_approx(back, 20.0), "shell soldier front armor halves damage (%.0f/%.0f)" % [front, back])
+	# 수액 토템: 소환 (최대 3), 톱니 게: 2연속 공격, 거머리: 출혈, 수액 웅덩이: 둔화
+	var totem := room._spawn_enemy("sap_totem", p["pos"] + Vector2(300, 200))
+	var summons := 0
+	for i in 30 * 16:
+		for ev: Dictionary in room.step(1.0 / 30.0):
+			if ev["k"] == "summon" and ev["eid"] == totem["id"]:
+				summons += 1
+	check(summons >= 2 and summons <= 3, "sap totem summons snails up to its cap (%d)" % summons)
+	p["pos"] = Vector2(400, 450)   # 수액 웅덩이 안 (300..620, 380..560)
+	check(room._hazard_slow_at(p["pos"]) > 0.3, "sap hazard slows inside the rect")
+	room._apply_hit_status(p, {"bleed_dps": 2.0, "bleed_sec": 3.0})
+	var hp0: float = p["hp"]
+	for i in 30:
+		room.step(1.0 / 30.0)
+	check(p["hp"] < hp0 and p["bleed_t"] > 0.0, "bleed ticks player hp")
+	room._apply_hit_status(p, {"root_sec": 1.0})
+	var x0: float = p["pos"].x
+	room.queue_input("p0", 999, Vector2.RIGHT, Vector2.ZERO, 0)
+	room.step(1.0 / 30.0)
+	check(is_equal_approx(p["pos"].x, x0), "rooted player cannot move")
+	check(int(room.snapshot()["p"][0][1][Protocol.SNAP_P.STATUS]) & Protocol.ST_ROOT != 0, "player root status in snapshot")
+
+
+func test_escort_and_elite() -> void:
+	var room := CombatRoom.new(ContentDB.get_room_def("willow_escort"), ContentDB.get_party_profile(2), ContentDB.rules, 9, _members(2))
+	var raft: Dictionary = {}
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.RAFT:
+			raft = o
+	check(not raft.is_empty() and room.objective == "escort", "escort room spawns a raft")
+	for e: Dictionary in room.enemies.values():
+		e["ai"] = Protocol.EnemyAI.DEAD
+		e["death_t"] = 0.0
+	var p0: Dictionary = room.players["p0"]
+	var far: Vector2 = raft["pos"] + Vector2(600, 0)
+	p0["pos"] = far
+	room.players["p1"]["pos"] = far
+	var start: Vector2 = raft["pos"]
+	for i in 30:
+		room.step(1.0 / 30.0)
+	check((raft["pos"] as Vector2).distance_to(start) < 1.0, "raft waits while no player is near")
+	p0["pos"] = raft["pos"]
+	for i in 60:
+		p0["pos"] = raft["pos"]
+		room.step(1.0 / 30.0)
+	check((raft["pos"] as Vector2).distance_to(start) > 60.0 and room.objective_progress > 0.05, "raft moves with an escort nearby (progress %.2f)" % room.objective_progress)
+	var e := room._spawn_enemy("sap_snail", raft["pos"] + Vector2(60, 0))
+	e["ai"] = Protocol.EnemyAI.ROOTED
+	e["root_t"] = 100.0
+	var before: Vector2 = raft["pos"]
+	var hp_before: float = raft["hp"]
+	for i in 30:
+		p0["pos"] = raft["pos"]
+		room.step(1.0 / 30.0)
+	check((raft["pos"] as Vector2).distance_to(before) < 1.0 and raft["hp"] < hp_before and int(raft["state"]) == 2, "enemies near the raft stop it and chip its hp")
+	# 정예방: 첫 웨이브에 정예가 나오고 표시·드롭이 다르다
+	var er := CombatRoom.new(ContentDB.get_room_def("willow_elite"), ContentDB.get_party_profile(1), ContentDB.rules, 5, _members(1))
+	var elite: Dictionary = {}
+	for en: Dictionary in er.enemies.values():
+		if bool(en.get("elite", false)):
+			elite = en
+	check(not elite.is_empty() and elite["max_hp"] > ContentDB.get_enemy_def("thorn_boar")["hp"] * 3.0 and elite["damage_mult"] > 1.0, "elite spawned with scaled hp and damage")
+	var snap := er.snapshot()
+	var found := false
+	for entry: Array in snap["e"]:
+		if int(entry[0]) == elite["id"] and int(entry[2][Protocol.SNAP_E.STATUS]) & Protocol.ST_ELITE:
+			found = true
+	check(found, "elite flag in snapshot")
+	var wood0 := er.team_wood
+	er._damage_enemy(elite, 100000.0, er.players["p0"], 0.0, 0.0)
+	check(er.team_wood - wood0 == 3, "elite drops triple wood")

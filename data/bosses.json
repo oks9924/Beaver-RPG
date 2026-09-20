@@ -1,64 +1,477 @@
 {
-  "_comment": "보스 데이터 (11절). 기본 공격 패턴(attack_patterns)과 독립 기믹(mechanics)을 분리한다. 기믹은 mechanicId 별로 목적·진입·예고·해결·성공·실패·종료·인원별 프로필·반복 제한을 갖는다. 검증 전 출발값.",
-  "ironclaw": {
-    "id": "ironclaw", "name_ko": "철턱 가재", "region": "willow_river",
-    "hp": 520, "radius": 46, "move_speed": 78, "shell_segments": 3, "shell_damage_taken_mult_per_broken": 0.18,
-    "assets": {"sprite": "boss.ironclaw", "portrait": "portrait.ironclaw", "bgm": "bgm.boss"},
-    "phases": [{"hp_below": 1.0, "name_ko": "도입"}, {"hp_below": 0.65, "name_ko": "전개"}, {"hp_below": 0.3, "name_ko": "결말"}],
-    "attack_patterns": {
-      "claw_sweep": {"id": "claw_sweep", "name_ko": "집게 부채꼴", "windup_sec": 0.8, "damage": 18, "shape": "arc", "range": 150, "angle_deg": 110, "cooldown_sec": 3.0, "weight": 1.0, "heavy": true},
-      "line_charge": {"id": "line_charge", "name_ko": "직선 돌진", "windup_sec": 1.0, "damage": 22, "shape": "line", "length": 520, "width": 90, "charge_speed": 560, "knockback": 140, "cooldown_sec": 6.0, "weight": 0.8, "heavy": true},
-      "rock_toss": {"id": "rock_toss", "name_ko": "바위 투척", "windup_sec": 0.9, "damage": 15, "shape": "circle_at_target", "radius": 80, "cooldown_sec": 4.0, "weight": 0.9, "heavy": false},
-      "ground_slam": {"id": "ground_slam", "name_ko": "지면 찍기", "windup_sec": 1.0, "damage": 20, "shape": "circle", "radius": 170, "cooldown_sec": 7.0, "weight": 0.6, "heavy": true}
+ "_comment": "보스 데이터 (11절). 기본 공격 패턴(attack_patterns)과 독립 기믹(mechanics)을 분리한다. 기믹은 mechanicId 별로 목적·진입·예고·해결·성공·실패·종료·인원별 프로필·반복 제한을 갖는다. 검증 전 출발값.",
+ "ironclaw": {
+  "id": "ironclaw",
+  "name_ko": "철턱 가재",
+  "region": "willow_river",
+  "hp": 520,
+  "radius": 46,
+  "move_speed": 78,
+  "shell_segments": 3,
+  "shell_damage_taken_mult_per_broken": 0.18,
+  "assets": {
+   "sprite": "boss.ironclaw",
+   "portrait": "portrait.ironclaw",
+   "bgm": "bgm.boss"
+  },
+  "phases": [
+   {
+    "hp_below": 1.0,
+    "name_ko": "도입"
+   },
+   {
+    "hp_below": 0.65,
+    "name_ko": "전개"
+   },
+   {
+    "hp_below": 0.3,
+    "name_ko": "결말"
+   }
+  ],
+  "attack_patterns": {
+   "claw_sweep": {
+    "id": "claw_sweep",
+    "name_ko": "집게 부채꼴",
+    "windup_sec": 0.8,
+    "damage": 18,
+    "shape": "arc",
+    "range": 150,
+    "angle_deg": 110,
+    "cooldown_sec": 3.0,
+    "weight": 1.0,
+    "heavy": true
+   },
+   "line_charge": {
+    "id": "line_charge",
+    "name_ko": "직선 돌진",
+    "windup_sec": 1.0,
+    "damage": 22,
+    "shape": "line",
+    "length": 520,
+    "width": 90,
+    "charge_speed": 560,
+    "knockback": 140,
+    "cooldown_sec": 6.0,
+    "weight": 0.8,
+    "heavy": true
+   },
+   "rock_toss": {
+    "id": "rock_toss",
+    "name_ko": "바위 투척",
+    "windup_sec": 0.9,
+    "damage": 15,
+    "shape": "circle_at_target",
+    "radius": 80,
+    "cooldown_sec": 4.0,
+    "weight": 0.9,
+    "heavy": false
+   },
+   "ground_slam": {
+    "id": "ground_slam",
+    "name_ko": "지면 찍기",
+    "windup_sec": 1.0,
+    "damage": 20,
+    "shape": "circle",
+    "radius": 170,
+    "cooldown_sec": 7.0,
+    "weight": 0.6,
+    "heavy": true
+   }
+  },
+  "mechanics": {
+   "IC-01": {
+    "id": "IC-01",
+    "name_ko": "붕괴 유도",
+    "purpose_ko": "표식이 있는 지지목을 갉아 약화한 뒤 보스의 돌진을 그 지지목으로 유도한다",
+    "entry": {
+     "phase_min": 0,
+     "cooldown_sec": 45
     },
-    "mechanics": {
-      "IC-01": {"id": "IC-01", "name_ko": "붕괴 유도", "purpose_ko": "표식이 있는 지지목을 갉아 약화한 뒤 보스의 돌진을 그 지지목으로 유도한다",
-        "entry": {"phase_min": 0, "cooldown_sec": 45}, "telegraph_ko": "지지목에 표식이 뜬다. 갉아서 약화한 뒤 돌진을 유도하세요",
-        "success_ko": "갑각 한 부위 영구 파괴 + 경직 4초", "fail_ko": "지지목만 부서지고 보스는 유지", "max_repeats": 2, "duration_sec": 40,
-        "profiles": {
-          "1": {"pillars": 1, "gnaw_sec": 2.0, "adds": 0, "grace_sec": 8},
-          "2": {"pillars": 2, "gnaw_sec": 2.0, "adds": 0, "grace_sec": 6},
-          "3": {"pillars": 2, "gnaw_sec": 2.4, "adds": 1, "grace_sec": 6},
-          "4": {"pillars": 2, "gnaw_sec": 2.4, "adds": 2, "grace_sec": 5}
-        }},
-      "IC-02": {"id": "IC-02", "name_ko": "역류 수문", "purpose_ko": "연결된 수문 상태를 목표 배열과 맞춰 급류를 노출된 관절에 보낸다",
-        "entry": {"phase_min": 0, "cooldown_sec": 50}, "telegraph_ko": "수문 표식이 뜬다. 표식대로 수문을 맞추세요",
-        "success_ko": "수로 잠김·관절 방어 약화 20초·경직", "fail_ko": "경고 후 일부 지역 침수 5초", "max_repeats": 2, "duration_sec": 35,
-        "profiles": {
-          "1": {"channels": 1, "gates_per_channel": 2, "hold_sec": 1.2, "adds": 0, "grace_sec": 8},
-          "2": {"channels": 2, "gates_per_channel": 2, "hold_sec": 1.2, "adds": 0, "grace_sec": 6},
-          "3": {"channels": 2, "gates_per_channel": 2, "hold_sec": 1.4, "adds": 1, "grace_sec": 6},
-          "4": {"channels": 2, "gates_per_channel": 3, "hold_sec": 1.4, "adds": 2, "grace_sec": 5}
-        }},
-      "IC-03": {"id": "IC-03", "name_ko": "집게 결박 구조", "purpose_ko": "잡힌 대상을 때리는 대신 집게의 약한 고리를 드러내고 쐐기로 벌린다",
-        "entry": {"phase_min": 1, "cooldown_sec": 40}, "telegraph_ko": "보스가 한 명을 붙잡는다. 고리(1단계)→쐐기(2단계) 순서로 상호작용",
-        "success_ko": "구조 + 집게 약화(부채꼴 피해 -30%)", "fail_ko": "붙잡힌 대상에게 제한 피해(최대 체력 25%) 후 방출", "max_repeats": 2, "duration_sec": 14,
-        "profiles": {
-          "1": {"self_rescue": true, "link_sec": 2.5, "wedge_sec": 2.5, "dps_fraction": 0.02},
-          "2": {"self_rescue": true, "link_sec": 1.5, "wedge_sec": 1.5, "dps_fraction": 0.02},
-          "3": {"self_rescue": true, "link_sec": 1.5, "wedge_sec": 1.5, "dps_fraction": 0.025},
-          "4": {"self_rescue": true, "link_sec": 1.5, "wedge_sec": 1.5, "dps_fraction": 0.025}
-        }},
-      "IC-04": {"id": "IC-04", "name_ko": "탈피 추적", "purpose_ko": "껍질과 본체를 흔들리는 물·움직이는 더듬이로 식별하고 본체의 이동 통로를 차단한다",
-        "entry": {"phase_min": 1, "cooldown_sec": 55}, "telegraph_ko": "보스가 탈피한다. 더듬이가 움직이는 본체를 찾아 그 통로를 막으세요",
-        "success_ko": "탈피 회복 방지 + 노출 6초", "fail_ko": "껍질 붕괴로 국지 위험 3초, 보스 15% 회복", "max_repeats": 1, "duration_sec": 12,
-        "profiles": {
-          "1": {"corridors": 2, "husks": 2, "block_sec": 1.5},
-          "2": {"corridors": 3, "husks": 3, "block_sec": 1.5},
-          "3": {"corridors": 3, "husks": 3, "block_sec": 1.8},
-          "4": {"corridors": 3, "husks": 4, "block_sec": 1.8}
-        }},
-      "IC-05": {"id": "IC-05", "name_ko": "소용돌이 닻", "purpose_ko": "끌려가는 발판의 닻줄을 중앙 고정점에 연결하고 줄 경로의 잔해를 제거해 발판을 고정한다",
-        "entry": {"phase_min": 2, "cooldown_sec": 60}, "telegraph_ko": "소용돌이가 발판을 끌어당긴다. 닻줄(1)→잔해(2)→고정점(3) 순서",
-        "success_ko": "안전한 공격 발판(피해 +25% 구역)", "fail_ko": "발판 유실(그 구역만 위험), 전장 유지", "max_repeats": 1, "duration_sec": 24,
-        "profiles": {
-          "1": {"ropes": 1, "debris": 1, "hold_sec": 1.5},
-          "2": {"ropes": 2, "debris": 1, "hold_sec": 1.5},
-          "3": {"ropes": 2, "debris": 2, "hold_sec": 1.5},
-          "4": {"ropes": 2, "debris": 2, "hold_sec": 1.8}
-        }}
+    "telegraph_ko": "지지목에 표식이 뜬다. 갉아서 약화한 뒤 돌진을 유도하세요",
+    "success_ko": "갑각 한 부위 영구 파괴 + 경직 4초",
+    "fail_ko": "지지목만 부서지고 보스는 유지",
+    "max_repeats": 2,
+    "duration_sec": 40,
+    "profiles": {
+     "1": {
+      "pillars": 1,
+      "gnaw_sec": 2.0,
+      "adds": 0,
+      "grace_sec": 8
+     },
+     "2": {
+      "pillars": 2,
+      "gnaw_sec": 2.0,
+      "adds": 0,
+      "grace_sec": 6
+     },
+     "3": {
+      "pillars": 2,
+      "gnaw_sec": 2.4,
+      "adds": 1,
+      "grace_sec": 6
+     },
+     "4": {
+      "pillars": 2,
+      "gnaw_sec": 2.4,
+      "adds": 2,
+      "grace_sec": 5
+     }
+    }
+   },
+   "IC-02": {
+    "id": "IC-02",
+    "name_ko": "역류 수문",
+    "purpose_ko": "연결된 수문 상태를 목표 배열과 맞춰 급류를 노출된 관절에 보낸다",
+    "entry": {
+     "phase_min": 0,
+     "cooldown_sec": 50
     },
-    "incompatible_pairs": [["IC-03", "IC-04"], ["IC-01", "IC-05"]],
-    "mechanic_gap_sec": 12
-  }
+    "telegraph_ko": "수문 표식이 뜬다. 표식대로 수문을 맞추세요",
+    "success_ko": "수로 잠김·관절 방어 약화 20초·경직",
+    "fail_ko": "경고 후 일부 지역 침수 5초",
+    "max_repeats": 2,
+    "duration_sec": 35,
+    "profiles": {
+     "1": {
+      "channels": 1,
+      "gates_per_channel": 2,
+      "hold_sec": 1.2,
+      "adds": 0,
+      "grace_sec": 8
+     },
+     "2": {
+      "channels": 2,
+      "gates_per_channel": 2,
+      "hold_sec": 1.2,
+      "adds": 0,
+      "grace_sec": 6
+     },
+     "3": {
+      "channels": 2,
+      "gates_per_channel": 2,
+      "hold_sec": 1.4,
+      "adds": 1,
+      "grace_sec": 6
+     },
+     "4": {
+      "channels": 2,
+      "gates_per_channel": 3,
+      "hold_sec": 1.4,
+      "adds": 2,
+      "grace_sec": 5
+     }
+    }
+   },
+   "IC-03": {
+    "id": "IC-03",
+    "name_ko": "집게 결박 구조",
+    "purpose_ko": "잡힌 대상을 때리는 대신 집게의 약한 고리를 드러내고 쐐기로 벌린다",
+    "entry": {
+     "phase_min": 1,
+     "cooldown_sec": 40
+    },
+    "telegraph_ko": "보스가 한 명을 붙잡는다. 고리(1단계)→쐐기(2단계) 순서로 상호작용",
+    "success_ko": "구조 + 집게 약화(부채꼴 피해 -30%)",
+    "fail_ko": "붙잡힌 대상에게 제한 피해(최대 체력 25%) 후 방출",
+    "max_repeats": 2,
+    "duration_sec": 14,
+    "profiles": {
+     "1": {
+      "self_rescue": true,
+      "link_sec": 2.5,
+      "wedge_sec": 2.5,
+      "dps_fraction": 0.02
+     },
+     "2": {
+      "self_rescue": true,
+      "link_sec": 1.5,
+      "wedge_sec": 1.5,
+      "dps_fraction": 0.02
+     },
+     "3": {
+      "self_rescue": true,
+      "link_sec": 1.5,
+      "wedge_sec": 1.5,
+      "dps_fraction": 0.025
+     },
+     "4": {
+      "self_rescue": true,
+      "link_sec": 1.5,
+      "wedge_sec": 1.5,
+      "dps_fraction": 0.025
+     }
+    }
+   },
+   "IC-04": {
+    "id": "IC-04",
+    "name_ko": "탈피 추적",
+    "purpose_ko": "껍질과 본체를 흔들리는 물·움직이는 더듬이로 식별하고 본체의 이동 통로를 차단한다",
+    "entry": {
+     "phase_min": 1,
+     "cooldown_sec": 55
+    },
+    "telegraph_ko": "보스가 탈피한다. 더듬이가 움직이는 본체를 찾아 그 통로를 막으세요",
+    "success_ko": "탈피 회복 방지 + 노출 6초",
+    "fail_ko": "껍질 붕괴로 국지 위험 3초, 보스 15% 회복",
+    "max_repeats": 1,
+    "duration_sec": 12,
+    "profiles": {
+     "1": {
+      "corridors": 2,
+      "husks": 2,
+      "block_sec": 1.5
+     },
+     "2": {
+      "corridors": 3,
+      "husks": 3,
+      "block_sec": 1.5
+     },
+     "3": {
+      "corridors": 3,
+      "husks": 3,
+      "block_sec": 1.8
+     },
+     "4": {
+      "corridors": 3,
+      "husks": 4,
+      "block_sec": 1.8
+     }
+    }
+   },
+   "IC-05": {
+    "id": "IC-05",
+    "name_ko": "소용돌이 닻",
+    "purpose_ko": "끌려가는 발판의 닻줄을 중앙 고정점에 연결하고 줄 경로의 잔해를 제거해 발판을 고정한다",
+    "entry": {
+     "phase_min": 2,
+     "cooldown_sec": 60
+    },
+    "telegraph_ko": "소용돌이가 발판을 끌어당긴다. 닻줄(1)→잔해(2)→고정점(3) 순서",
+    "success_ko": "안전한 공격 발판(피해 +25% 구역)",
+    "fail_ko": "발판 유실(그 구역만 위험), 전장 유지",
+    "max_repeats": 1,
+    "duration_sec": 24,
+    "profiles": {
+     "1": {
+      "ropes": 1,
+      "debris": 1,
+      "hold_sec": 1.5
+     },
+     "2": {
+      "ropes": 2,
+      "debris": 1,
+      "hold_sec": 1.5
+     },
+     "3": {
+      "ropes": 2,
+      "debris": 2,
+      "hold_sec": 1.5
+     },
+     "4": {
+      "ropes": 2,
+      "debris": 2,
+      "hold_sec": 1.8
+     }
+    }
+   }
+  },
+  "incompatible_pairs": [
+   [
+    "IC-03",
+    "IC-04"
+   ],
+   [
+    "IC-01",
+    "IC-05"
+   ]
+  ],
+  "mechanic_gap_sec": 12
+ },
+ "lantern_toad": {
+  "id": "lantern_toad",
+  "name_ko": "늪등불 두꺼비",
+  "region": "black_sap_swamp",
+  "hp": 700,
+  "radius": 50,
+  "move_speed": 70,
+  "shell_segments": 0,
+  "assets": {
+   "sprite": "boss.lantern_toad",
+   "portrait": "portrait.lantern_toad",
+   "bgm": "bgm.boss"
+  },
+  "phases": [
+   {
+    "hp_below": 1.0,
+    "name_ko": "도입"
+   },
+   {
+    "hp_below": 0.65,
+    "name_ko": "전개"
+   },
+   {
+    "hp_below": 0.3,
+    "name_ko": "결말"
+   }
+  ],
+  "attack_patterns": {
+   "jump_slam": {
+    "id": "jump_slam",
+    "name_ko": "점프 강타",
+    "windup_sec": 1.1,
+    "damage": 20,
+    "shape": "leap",
+    "radius": 150,
+    "cooldown_sec": 6.0,
+    "weight": 0.8,
+    "heavy": true
+   },
+   "tongue_lance": {
+    "id": "tongue_lance",
+    "name_ko": "혀 창",
+    "windup_sec": 0.8,
+    "damage": 16,
+    "shape": "line",
+    "length": 420,
+    "width": 60,
+    "charge_speed": 0,
+    "knockback": 0,
+    "pull": 180,
+    "cooldown_sec": 4.0,
+    "weight": 1.0,
+    "heavy": true
+   },
+   "sap_throw": {
+    "id": "sap_throw",
+    "name_ko": "수액 투척",
+    "windup_sec": 0.9,
+    "damage": 12,
+    "shape": "circle_at_target",
+    "radius": 90,
+    "cooldown_sec": 3.5,
+    "weight": 0.9,
+    "heavy": false,
+    "leaves_hazard_sec": 6.0
+   },
+   "body_bash": {
+    "id": "body_bash",
+    "name_ko": "몸통 박치기",
+    "windup_sec": 0.8,
+    "damage": 18,
+    "shape": "arc",
+    "range": 140,
+    "angle_deg": 120,
+    "cooldown_sec": 3.0,
+    "weight": 1.0,
+    "heavy": true
+   }
+  },
+  "incompatible_pairs": [
+   [
+    "TF-01",
+    "TF-04"
+   ],
+   [
+    "TF-02",
+    "TF-05"
+   ]
+  ],
+  "mechanic_gap_sec": 10,
+  "mechanics": {}
+ },
+ "root_king": {
+  "id": "root_king",
+  "name_ko": "뿌리왕",
+  "region": "ancient_root_dam",
+  "hp": 950,
+  "radius": 54,
+  "move_speed": 60,
+  "shell_segments": 0,
+  "assets": {
+   "sprite": "boss.root_king",
+   "portrait": "portrait.root_king",
+   "bgm": "bgm.boss"
+  },
+  "phases": [
+   {
+    "hp_below": 1.0,
+    "name_ko": "도입"
+   },
+   {
+    "hp_below": 0.65,
+    "name_ko": "전개"
+   },
+   {
+    "hp_below": 0.3,
+    "name_ko": "결말"
+   }
+  ],
+  "attack_patterns": {
+   "root_sweep": {
+    "id": "root_sweep",
+    "name_ko": "뿌리 휩쓸기",
+    "windup_sec": 0.9,
+    "damage": 18,
+    "shape": "arc",
+    "range": 170,
+    "angle_deg": 140,
+    "cooldown_sec": 3.5,
+    "weight": 1.0,
+    "heavy": true
+   },
+   "pressure_jet": {
+    "id": "pressure_jet",
+    "name_ko": "수압 분사",
+    "windup_sec": 1.0,
+    "damage": 16,
+    "shape": "line",
+    "length": 520,
+    "width": 80,
+    "charge_speed": 0,
+    "knockback": 160,
+    "cooldown_sec": 5.0,
+    "weight": 0.9,
+    "heavy": true
+   },
+   "root_eruption": {
+    "id": "root_eruption",
+    "name_ko": "뿌리 분출",
+    "windup_sec": 1.0,
+    "damage": 14,
+    "shape": "circle_at_target",
+    "radius": 85,
+    "count": 3,
+    "cooldown_sec": 4.5,
+    "weight": 0.9,
+    "heavy": false,
+    "root_sec": 0.8
+   },
+   "splinter_fan": {
+    "id": "splinter_fan",
+    "name_ko": "파편 부채꼴",
+    "windup_sec": 0.8,
+    "damage": 9,
+    "shape": "projectile_fan",
+    "count": 5,
+    "spread_deg": 60,
+    "speed": 380,
+    "cooldown_sec": 4.0,
+    "weight": 0.8,
+    "heavy": false
+   }
+  },
+  "incompatible_pairs": [
+   [
+    "RK-01",
+    "RK-03"
+   ],
+   [
+    "RK-02",
+    "RK-05"
+   ]
+  ],
+  "mechanic_gap_sec": 10,
+  "mechanics": {}
+ }
 }

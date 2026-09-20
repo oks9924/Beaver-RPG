@@ -259,6 +259,7 @@ func update_objective(obj: Array, wood: int, boss_state: Dictionary) -> void:
 	match kind:
 		"hold_point": objective_label.text = "목표: 거점 유지 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
 		"device": objective_label.text = "목표: 장치 가동 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
+		"escort": objective_label.text = "목표: 뗏목 호위 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
 		"boss": objective_label.text = "보스 체력 %d%%" % int(prog * 100)
 		_: objective_label.text = "목표: 섬멸 (처치 %d%%)" % int(prog * 100)
 	objective_label.text += "   팀 목재 %d (B: 엄폐 %d)" % [wood, int(ContentDB.rule("build_cost_wood", 3))]

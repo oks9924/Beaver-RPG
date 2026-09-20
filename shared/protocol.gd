@@ -74,12 +74,14 @@ const ST_ROOT := 2
 const ST_VULN := 4
 const ST_HASTE := 8
 const ST_WHIRL := 16
+const ST_ELITE := 32
+const ST_BLEED := 64
 const ACTION_KIND_CODES := {"": 0, "basic": 1, "q": 2, "e": 3, "r": 4, "heal": 5, "dodge": 6, "rescue": 7, "interact": 8, "grabbed": 9, "whirl": 10}
 enum SNAP_E { X, Y, FX, FY, HP, MAX_HP, AI, STATUS }
 enum SNAP_TG { TYPE, X, Y, R, REMAINING, TOTAL, DX, DY, W }   # TYPE 0=원 1=직선(길이 R, 폭 W)
 enum SNAP_PR { X, Y, VX, VY, R, KIND }                      # KIND 0=적 투사체 1=아군 투사체
 enum SNAP_OB { ID, KIND, X, Y, R, PROGRESS, STATE }          # 상호작용물. KIND 는 ObKind
-enum ObKind { GNAW_TREE, DEVICE, SLUICE_LEVER, HOLD_ZONE, STRUCTURE, TRAP, VOLLEY, WATER_ZONE, PILLAR, GATE, CLAW_LINK, HUSK, CORRIDOR, ROPE, DEBRIS, ANCHOR, PLATFORM, HAZARD, TURRET, DAM, ROOT_ZONE, FLOOD_ZONE }
+enum ObKind { GNAW_TREE, DEVICE, SLUICE_LEVER, HOLD_ZONE, STRUCTURE, TRAP, VOLLEY, WATER_ZONE, PILLAR, GATE, CLAW_LINK, HUSK, CORRIDOR, ROPE, DEBRIS, ANCHOR, PLATFORM, HAZARD, TURRET, DAM, ROOT_ZONE, FLOOD_ZONE, RAFT }
 
 ## 플레이어/적 상태
 enum EntState { ALIVE, DOWNED, DEAD }
