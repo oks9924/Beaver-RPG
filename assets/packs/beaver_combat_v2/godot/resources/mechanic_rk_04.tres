@@ -1,0 +1,32 @@
+[gd_resource type="SpriteFrames" load_steps=13 format=3]
+
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/activation/fixed_00.png" id="1"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/activation/fixed_01.png" id="2"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/activation/fixed_02.png" id="3"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/activation/fixed_03.png" id="4"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/success/fixed_00.png" id="5"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/success/fixed_01.png" id="6"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/success/fixed_02.png" id="7"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/success/fixed_03.png" id="8"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/failure/fixed_00.png" id="9"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/failure/fixed_01.png" id="10"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/failure/fixed_02.png" id="11"]
+[ext_resource type="Texture2D" path="res://beaver_combat_v2/assets/mechanic_rk_04/failure/fixed_03.png" id="12"]
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": ExtResource("1")}, {"duration": 1.0, "texture": ExtResource("2")}, {"duration": 1.0, "texture": ExtResource("3")}, {"duration": 1.0, "texture": ExtResource("4")}],
+"loop": false,
+"name": &"activation_fixed",
+"speed": 6.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("5")}, {"duration": 1.0, "texture": ExtResource("6")}, {"duration": 1.0, "texture": ExtResource("7")}, {"duration": 1.0, "texture": ExtResource("8")}],
+"loop": false,
+"name": &"success_fixed",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("9")}, {"duration": 1.0, "texture": ExtResource("10")}, {"duration": 1.0, "texture": ExtResource("11")}, {"duration": 1.0, "texture": ExtResource("12")}],
+"loop": false,
+"name": &"failure_fixed",
+"speed": 8.0
+}]

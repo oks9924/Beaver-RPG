@@ -12,7 +12,7 @@ func _ready() -> void:
 		_check_entry(id, AssetRegistry.entry(id))
 	_check_data_refs()
 	var rep := AssetRegistry.report()
-	print("asset check: %d entries checked, placeholder=%d final=%d planned=%d problems=%d" % [checked, rep["placeholder"], rep["final"], rep["planned"], problems.size()])
+	print("asset check: %d entries checked, placeholder=%d final=%d derived=%d planned=%d problems=%d" % [checked, rep["placeholder"], rep["final"], rep.get("derived", 0), rep["planned"], problems.size()])
 	for p in problems:
 		printerr("  " + p)
 	get_tree().quit(1 if problems.size() > 0 else 0)
@@ -27,7 +27,7 @@ func _check_entry(id: String, e: Dictionary) -> void:
 	if path == "":
 		problems.append("%s: file missing (%s)" % [id, e.get("path", "")])
 		return
-	if status == "final" and String(e.get("final_path", "")) == "" and not path.begins_with(AssetRegistry.override_dir):
+	if status in ["final", "derived"] and String(e.get("final_path", "")) == "" and not path.begins_with(AssetRegistry.override_dir):
 		problems.append("%s: status final but final_path empty" % id)
 	match String(e.get("type", "texture")):
 		"font", "audio":

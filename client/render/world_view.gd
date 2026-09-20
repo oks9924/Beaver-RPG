@@ -11,6 +11,8 @@ var objects: Array = []           # PackedFloat32Array (Protocol.SNAP_OB)
 var water_zone: PackedFloat32Array = PackedFloat32Array()
 var boss_state: Dictionary = {}
 var _object_tex: Dictionary = {}
+var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
+const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE: "ic_02", Protocol.ObKind.CLAW_LINK: "ic_03", Protocol.ObKind.CORRIDOR: "ic_04", Protocol.ObKind.ANCHOR: "ic_05"}
 var camera := Camera2D.new()
 var _ground := Sprite2D.new()
 var _water_rects: Array = []
@@ -123,6 +125,9 @@ func _draw() -> void:
 
 func _process(dt: float) -> void:
 	_telegraph_layer.queue_redraw()
+	for mid: String in _mechanic_fx.keys():
+		if not bool(_mechanic_fx[mid].get("active", false)):
+			_mechanic_fx[mid]["t"] = float(_mechanic_fx[mid]["t"]) + dt
 	var i := _effects.get_child_count() - 1
 	while i >= 0:
 		var fx: Node2D = _effects.get_child(i)
@@ -189,7 +194,8 @@ func _draw_telegraphs() -> void:
 				_draw_tex(L, _object_tex["lever"], c + Vector2(0, -10), 60, Color.WHITE)
 				_draw_progress(L, c, prog, "F 수문")
 			Protocol.ObKind.PILLAR:
-				_draw_tex(L, _object_tex["pillar"], c + Vector2(0, -30), 100, Color.WHITE if st == 0 else Color(1.0, 0.75, 0.4))
+				if not _draw_device(L, kind, c, prog, st, 150):
+					_draw_tex(L, _object_tex["pillar"], c + Vector2(0, -30), 100, Color.WHITE if st == 0 else Color(1.0, 0.75, 0.4))
 				_draw_progress(L, c, prog, "F 갉기 (약화)" if st == 0 else "약화됨 — 돌진 유도!")
 				if st == 1:
 					L.draw_arc(c, 40, 0, TAU, 32, Color(1.0, 0.8, 0.3, 0.9), 3.0)
@@ -197,12 +203,14 @@ func _draw_telegraphs() -> void:
 				var cur := st & 1
 				var tgt := (st >> 1) & 1
 				var locked := st == 4
-				_draw_tex(L, _object_tex["gate"], c + Vector2(0, -20), 80, Color(0.6, 1.0, 0.7) if locked else Color.WHITE)
+				if not _draw_device(L, kind, c, prog, st, 140):
+					_draw_tex(L, _object_tex["gate"], c + Vector2(0, -20), 80, Color(0.6, 1.0, 0.7) if locked else Color.WHITE)
 				L.draw_rect(Rect2(c.x - 26, c.y + 28, 24, 10), Color(0.3, 0.6, 1.0) if cur == 1 else Color(0.5, 0.4, 0.3))
 				L.draw_rect(Rect2(c.x + 2, c.y + 28, 24, 10), Color(0.3, 0.6, 1.0) if tgt == 1 else Color(0.5, 0.4, 0.3), false, 2.0)
 				_draw_progress(L, c + Vector2(0, 10), prog, "잠김" if locked else ("F 수문 (현재→목표)"))
 			Protocol.ObKind.CLAW_LINK:
-				_draw_tex(L, _object_tex["claw_link"], c, 64, Color.WHITE if st < 2 else Color(0.6, 1.0, 0.7))
+				if not _draw_device(L, kind, c, prog * 0.5 + (0.5 if st >= 1 else 0.0), 0 if st < 2 else 1, 120):
+					_draw_tex(L, _object_tex["claw_link"], c, 64, Color.WHITE if st < 2 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog, ["F 고리 노출", "F 쐐기 박기", "풀려남"][clampi(st, 0, 2)])
 			Protocol.ObKind.HUSK:
 				var wig := sin(Time.get_ticks_msec() / 90.0) * 6.0 if st == 1 else 0.0
@@ -213,7 +221,8 @@ func _draw_telegraphs() -> void:
 						var rr := 60.0 + k * 18.0 + fmod(Time.get_ticks_msec() / 40.0, 18.0)
 						L.draw_arc(c, rr, 0, TAU, 40, Color(0.6, 0.85, 1.0, 0.35), 2.0)
 			Protocol.ObKind.CORRIDOR:
-				_draw_tex(L, _object_tex["corridor"], c, 90, Color.WHITE if st == 0 else Color(0.5, 0.5, 0.5))
+				if not _draw_device(L, kind, c, prog, st, 140):
+					_draw_tex(L, _object_tex["corridor"], c, 90, Color.WHITE if st == 0 else Color(0.5, 0.5, 0.5))
 				_draw_progress(L, c, prog, "F 통로 차단" if st == 0 else "차단됨")
 			Protocol.ObKind.ROPE:
 				_draw_tex(L, _object_tex["rope"], c, 44, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
@@ -222,7 +231,8 @@ func _draw_telegraphs() -> void:
 				_draw_tex(L, _object_tex["debris"], c, 80, Color.WHITE)
 				_draw_progress(L, c, prog, "F 잔해 제거")
 			Protocol.ObKind.ANCHOR:
-				_draw_tex(L, _object_tex["anchor"], c + Vector2(0, -20), 80, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
+				if not _draw_device(L, kind, c, prog, st, 150):
+					_draw_tex(L, _object_tex["anchor"], c + Vector2(0, -20), 80, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog, "F 고정 (줄·잔해 먼저)" if st == 0 else "고정됨")
 			Protocol.ObKind.PLATFORM:
 				var pc := Color(0.9, 0.8, 0.4, 0.25) if st == 2 else Color(0.6, 0.5, 0.3, 0.2)
@@ -270,6 +280,49 @@ func _draw_telegraphs() -> void:
 		var c := Vector2(pr[Protocol.SNAP_PR.X], pr[Protocol.SNAP_PR.Y])
 		var tex: Texture2D = _object_tex["proj_player"] if int(pr[Protocol.SNAP_PR.KIND]) == 1 else _object_tex["proj_enemy"]
 		_draw_tex(L, tex, c, pr[Protocol.SNAP_PR.R] * 3.0, Color.WHITE)
+
+
+## 서버 기믹 이벤트를 기억해 장치 시트의 성공/실패 연출을 고른다 (자동 순환하지 않는다)
+func mechanic_result(mid: String, success: bool, started: bool = false) -> void:
+	if started:
+		_mechanic_fx[mid] = {"active": true, "success": false, "t": -1.0}
+	else:
+		_mechanic_fx[mid] = {"active": false, "success": success, "t": 0.0}
+
+
+## 장치 시트 프레임을 그린다. 진행 중이면 activation 을 진행률로, 끝났으면 success/failure 를 1회 재생 후 마지막 프레임 유지.
+## 시트가 없으면 false 를 돌려 기존 도형 표시로 넘어간다.
+func _draw_device(L: Node2D, kind: int, c: Vector2, progress: float, state: int, size: float) -> bool:
+	var key: String = MECHANIC_OF_KIND.get(kind, "")
+	if key == "":
+		return false
+	var mid := "IC-" + key.substr(3)
+	var fx: Dictionary = _mechanic_fx.get(mid, {})
+	var sheet_id := "prop.mechanic.%s.activation" % key
+	var frame_t := 0.0
+	if not fx.is_empty() and not bool(fx.get("active", true)):
+		sheet_id = "prop.mechanic.%s.%s" % [key, "success" if bool(fx["success"]) else "failure"]
+		frame_t = clampf(float(fx["t"]) / 0.6, 0.0, 1.0)
+	else:
+		# 진행률 또는 상태로 activation 프레임 선택 (state 1 = 약화/노출 등 완료 대기 상태 → 마지막 프레임)
+		frame_t = 1.0 if state >= 1 and kind != Protocol.ObKind.GATE else clampf(progress, 0.0, 0.999)
+		if kind == Protocol.ObKind.GATE:
+			frame_t = 1.0 if state == 4 else clampf(progress, 0.0, 0.999)
+	if not AssetRegistry.has(sheet_id):
+		return false
+	var sheet := AssetRegistry.get_sheet(sheet_id)
+	if bool(sheet.get("is_fallback", false)):
+		return false
+	var tex: Texture2D = sheet["texture"]
+	var cols := int(sheet["hframes"])
+	var fi := mini(int(frame_t * cols), cols - 1)
+	var fs: Vector2 = sheet["frame_size"]
+	var sc := size / fs.x
+	var anchor: Vector2 = sheet["anchor"]
+	L.draw_set_transform(c - Vector2(fs.x * anchor.x, fs.y * anchor.y) * sc, 0.0, Vector2(sc, sc))
+	L.draw_texture_rect_region(tex, Rect2(Vector2.ZERO, fs), Rect2(Vector2(fi * fs.x, 0), fs))
+	L.draw_set_transform(Vector2.ZERO)
+	return true
 
 
 func _draw_tex(L: Node2D, tex: Texture2D, c: Vector2, size: float, col: Color) -> void:

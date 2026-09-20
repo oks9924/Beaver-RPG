@@ -1,0 +1,4613 @@
+{
+  "format_version": 1,
+  "pack_id": "beaver_assets_v1",
+  "status": "integration_draft",
+  "coordinates": "top-left origin; x right, y down",
+  "directions": [
+    "down",
+    "right",
+    "up",
+    "left"
+  ],
+  "root_in_godot": "res://beaver_assets/",
+  "actors": {
+    "player_guardian": {
+      "id": "player_guardian",
+      "name_ko": "수호목수",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/idle/left_00.png"
+          ]
+        },
+        "walk_down": {
+          "state": "walk",
+          "direction": "down",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/walk/down_00.png",
+            "assets/characters/guardian/walk/down_01.png",
+            "assets/characters/guardian/walk/down_02.png",
+            "assets/characters/guardian/walk/down_03.png"
+          ]
+        },
+        "walk_right": {
+          "state": "walk",
+          "direction": "right",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/walk/right_00.png",
+            "assets/characters/guardian/walk/right_01.png",
+            "assets/characters/guardian/walk/right_02.png",
+            "assets/characters/guardian/walk/right_03.png"
+          ]
+        },
+        "walk_up": {
+          "state": "walk",
+          "direction": "up",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/walk/up_00.png",
+            "assets/characters/guardian/walk/up_01.png",
+            "assets/characters/guardian/walk/up_02.png",
+            "assets/characters/guardian/walk/up_03.png"
+          ]
+        },
+        "walk_left": {
+          "state": "walk",
+          "direction": "left",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/characters/guardian/walk/left_00.png",
+            "assets/characters/guardian/walk/left_01.png",
+            "assets/characters/guardian/walk/left_02.png",
+            "assets/characters/guardian/walk/left_03.png"
+          ]
+        },
+        "attack_down": {
+          "state": "attack",
+          "direction": "down",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/attack/down_00.png",
+            "assets/characters/guardian/attack/down_01.png",
+            "assets/characters/guardian/attack/down_02.png",
+            "assets/characters/guardian/attack/down_03.png"
+          ]
+        },
+        "attack_right": {
+          "state": "attack",
+          "direction": "right",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/attack/right_00.png",
+            "assets/characters/guardian/attack/right_01.png",
+            "assets/characters/guardian/attack/right_02.png",
+            "assets/characters/guardian/attack/right_03.png"
+          ]
+        },
+        "attack_up": {
+          "state": "attack",
+          "direction": "up",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/attack/up_00.png",
+            "assets/characters/guardian/attack/up_01.png",
+            "assets/characters/guardian/attack/up_02.png",
+            "assets/characters/guardian/attack/up_03.png"
+          ]
+        },
+        "attack_left": {
+          "state": "attack",
+          "direction": "left",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/attack/left_00.png",
+            "assets/characters/guardian/attack/left_01.png",
+            "assets/characters/guardian/attack/left_02.png",
+            "assets/characters/guardian/attack/left_03.png"
+          ]
+        },
+        "skill_q_down": {
+          "state": "skill_q",
+          "direction": "down",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_q/down_00.png",
+            "assets/characters/guardian/skill_q/down_01.png",
+            "assets/characters/guardian/skill_q/down_02.png",
+            "assets/characters/guardian/skill_q/down_03.png"
+          ]
+        },
+        "skill_q_right": {
+          "state": "skill_q",
+          "direction": "right",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_q/right_00.png",
+            "assets/characters/guardian/skill_q/right_01.png",
+            "assets/characters/guardian/skill_q/right_02.png",
+            "assets/characters/guardian/skill_q/right_03.png"
+          ]
+        },
+        "skill_q_up": {
+          "state": "skill_q",
+          "direction": "up",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_q/up_00.png",
+            "assets/characters/guardian/skill_q/up_01.png",
+            "assets/characters/guardian/skill_q/up_02.png",
+            "assets/characters/guardian/skill_q/up_03.png"
+          ]
+        },
+        "skill_q_left": {
+          "state": "skill_q",
+          "direction": "left",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_q/left_00.png",
+            "assets/characters/guardian/skill_q/left_01.png",
+            "assets/characters/guardian/skill_q/left_02.png",
+            "assets/characters/guardian/skill_q/left_03.png"
+          ]
+        },
+        "skill_e_down": {
+          "state": "skill_e",
+          "direction": "down",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_e/down_00.png",
+            "assets/characters/guardian/skill_e/down_01.png",
+            "assets/characters/guardian/skill_e/down_02.png",
+            "assets/characters/guardian/skill_e/down_03.png"
+          ]
+        },
+        "skill_e_right": {
+          "state": "skill_e",
+          "direction": "right",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_e/right_00.png",
+            "assets/characters/guardian/skill_e/right_01.png",
+            "assets/characters/guardian/skill_e/right_02.png",
+            "assets/characters/guardian/skill_e/right_03.png"
+          ]
+        },
+        "skill_e_up": {
+          "state": "skill_e",
+          "direction": "up",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_e/up_00.png",
+            "assets/characters/guardian/skill_e/up_01.png",
+            "assets/characters/guardian/skill_e/up_02.png",
+            "assets/characters/guardian/skill_e/up_03.png"
+          ]
+        },
+        "skill_e_left": {
+          "state": "skill_e",
+          "direction": "left",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_e/left_00.png",
+            "assets/characters/guardian/skill_e/left_01.png",
+            "assets/characters/guardian/skill_e/left_02.png",
+            "assets/characters/guardian/skill_e/left_03.png"
+          ]
+        },
+        "skill_r_down": {
+          "state": "skill_r",
+          "direction": "down",
+          "fps": 6,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_r/down_00.png",
+            "assets/characters/guardian/skill_r/down_01.png",
+            "assets/characters/guardian/skill_r/down_02.png",
+            "assets/characters/guardian/skill_r/down_03.png"
+          ]
+        },
+        "skill_r_right": {
+          "state": "skill_r",
+          "direction": "right",
+          "fps": 6,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_r/right_00.png",
+            "assets/characters/guardian/skill_r/right_01.png",
+            "assets/characters/guardian/skill_r/right_02.png",
+            "assets/characters/guardian/skill_r/right_03.png"
+          ]
+        },
+        "skill_r_up": {
+          "state": "skill_r",
+          "direction": "up",
+          "fps": 6,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_r/up_00.png",
+            "assets/characters/guardian/skill_r/up_01.png",
+            "assets/characters/guardian/skill_r/up_02.png",
+            "assets/characters/guardian/skill_r/up_03.png"
+          ]
+        },
+        "skill_r_left": {
+          "state": "skill_r",
+          "direction": "left",
+          "fps": 6,
+          "loop": false,
+          "frames": [
+            "assets/characters/guardian/skill_r/left_00.png",
+            "assets/characters/guardian/skill_r/left_01.png",
+            "assets/characters/guardian/skill_r/left_02.png",
+            "assets/characters/guardian/skill_r/left_03.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/player_guardian.tres"
+    },
+    "player_berserker": {
+      "id": "player_berserker",
+      "name_ko": "톱니전사",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/berserker/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/berserker/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/berserker/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/berserker/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/player_berserker.tres"
+    },
+    "player_ranger": {
+      "id": "player_ranger",
+      "name_ko": "솔방울사수",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/ranger/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/ranger/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/ranger/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/ranger/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/player_ranger.tres"
+    },
+    "player_shaman": {
+      "id": "player_shaman",
+      "name_ko": "수액주술사",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/shaman/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/shaman/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/shaman/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/shaman/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/player_shaman.tres"
+    },
+    "player_engineer": {
+      "id": "player_engineer",
+      "name_ko": "물길공학자",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/engineer/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/engineer/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/engineer/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/characters/engineer/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/player_engineer.tres"
+    },
+    "enemy_sap_slug": {
+      "id": "enemy_sap_slug",
+      "name_ko": "일반 몬스터 · 수액달팽이",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_slug/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_slug/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_slug/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_slug/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_sap_slug.tres"
+    },
+    "enemy_thorn_boar": {
+      "id": "enemy_thorn_boar",
+      "name_ko": "일반 몬스터 · 가시멧돼지",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/thorn_boar/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/thorn_boar/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/thorn_boar/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/thorn_boar/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_thorn_boar.tres"
+    },
+    "enemy_shell_soldier": {
+      "id": "enemy_shell_soldier",
+      "name_ko": "일반 몬스터 · 갑각병정",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/shell_soldier/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/shell_soldier/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/shell_soldier/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/shell_soldier/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_shell_soldier.tres"
+    },
+    "enemy_black_crow": {
+      "id": "enemy_black_crow",
+      "name_ko": "먹그늘까마귀",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/black_crow/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/black_crow/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/black_crow/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/black_crow/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_black_crow.tres"
+    },
+    "enemy_spore_mushroom": {
+      "id": "enemy_spore_mushroom",
+      "name_ko": "포자버섯",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/spore_mushroom/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/spore_mushroom/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/spore_mushroom/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/spore_mushroom/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_spore_mushroom.tres"
+    },
+    "enemy_root_puppet": {
+      "id": "enemy_root_puppet",
+      "name_ko": "뿌리인형",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/root_puppet/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/root_puppet/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/root_puppet/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/root_puppet/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_root_puppet.tres"
+    },
+    "enemy_reed_frog": {
+      "id": "enemy_reed_frog",
+      "name_ko": "갈대창개구리",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/reed_frog/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/reed_frog/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/reed_frog/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/reed_frog/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_reed_frog.tres"
+    },
+    "enemy_river_leech": {
+      "id": "enemy_river_leech",
+      "name_ko": "물길거머리",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/river_leech/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/river_leech/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/river_leech/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/river_leech/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_river_leech.tres"
+    },
+    "enemy_lantern_moth": {
+      "id": "enemy_lantern_moth",
+      "name_ko": "늪등불나방",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/lantern_moth/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/lantern_moth/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/lantern_moth/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/lantern_moth/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_lantern_moth.tres"
+    },
+    "enemy_woodjaw_beetle": {
+      "id": "enemy_woodjaw_beetle",
+      "name_ko": "톱턱장수풍뎅이",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/woodjaw_beetle/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/woodjaw_beetle/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/woodjaw_beetle/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/woodjaw_beetle/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_woodjaw_beetle.tres"
+    },
+    "enemy_gear_crab": {
+      "id": "enemy_gear_crab",
+      "name_ko": "톱니집게게",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/gear_crab/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/gear_crab/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/gear_crab/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/gear_crab/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_gear_crab.tres"
+    },
+    "enemy_sap_totem": {
+      "id": "enemy_sap_totem",
+      "name_ko": "수액토템",
+      "category": "enemies",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        106
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_totem/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_totem/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_totem/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/enemies/sap_totem/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/enemy_sap_totem.tres"
+    },
+    "boss_ironclaw": {
+      "id": "boss_ironclaw",
+      "name_ko": "철턱 가재",
+      "category": "bosses",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        424
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/ironclaw/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/ironclaw/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/ironclaw/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/ironclaw/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/boss_ironclaw.tres"
+    },
+    "boss_lantern_toad": {
+      "id": "boss_lantern_toad",
+      "name_ko": "늪등불 두꺼비",
+      "category": "bosses",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        424
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/lantern_toad/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/lantern_toad/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/lantern_toad/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/lantern_toad/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/boss_lantern_toad.tres"
+    },
+    "boss_root_king": {
+      "id": "boss_root_king",
+      "name_ko": "뿌리왕",
+      "category": "bosses",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        424
+      ],
+      "status": "integration_draft",
+      "animations": {
+        "idle_down": {
+          "state": "idle",
+          "direction": "down",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/root_king/idle/down_00.png"
+          ]
+        },
+        "idle_right": {
+          "state": "idle",
+          "direction": "right",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/root_king/idle/right_00.png"
+          ]
+        },
+        "idle_up": {
+          "state": "idle",
+          "direction": "up",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/root_king/idle/up_00.png"
+          ]
+        },
+        "idle_left": {
+          "state": "idle",
+          "direction": "left",
+          "fps": 1,
+          "loop": true,
+          "frames": [
+            "assets/bosses/root_king/idle/left_00.png"
+          ]
+        }
+      },
+      "godot_sprite_frames": "godot/resources/boss_root_king.tres"
+    }
+  },
+  "source_sheets": [
+    {
+      "id": "player_guardian",
+      "path": "source_sheets/player_guardian.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/guardian/idle/down_00.png",
+          "source_rect": [
+            43,
+            51,
+            550,
+            499
+          ],
+          "output_rect": [
+            21,
+            29,
+            85,
+            77
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/guardian/idle/right_00.png",
+          "source_rect": [
+            676,
+            48,
+            523,
+            516
+          ],
+          "output_rect": [
+            23,
+            26,
+            81,
+            80
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/guardian/idle/up_00.png",
+          "source_rect": [
+            62,
+            627,
+            535,
+            573
+          ],
+          "output_rect": [
+            23,
+            26,
+            83,
+            89
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/guardian/idle/left_00.png",
+          "source_rect": [
+            663,
+            639,
+            553,
+            540
+          ],
+          "output_rect": [
+            21,
+            23,
+            86,
+            84
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "player_berserker",
+      "path": "source_sheets/player_berserker.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/berserker/idle/down_00.png",
+          "source_rect": [
+            16,
+            53,
+            553,
+            514
+          ],
+          "output_rect": [
+            21,
+            27,
+            86,
+            80
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/berserker/idle/right_00.png",
+          "source_rect": [
+            676,
+            48,
+            547,
+            534
+          ],
+          "output_rect": [
+            22,
+            24,
+            85,
+            83
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/berserker/idle/up_00.png",
+          "source_rect": [
+            93,
+            627,
+            513,
+            593
+          ],
+          "output_rect": [
+            24,
+            24,
+            80,
+            92
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/berserker/idle/left_00.png",
+          "source_rect": [
+            648,
+            641,
+            582,
+            547
+          ],
+          "output_rect": [
+            19,
+            22,
+            90,
+            85
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "player_ranger",
+      "path": "source_sheets/player_ranger.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/ranger/idle/down_00.png",
+          "source_rect": [
+            128,
+            53,
+            464,
+            521
+          ],
+          "output_rect": [
+            28,
+            26,
+            72,
+            81
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/ranger/idle/right_00.png",
+          "source_rect": [
+            669,
+            49,
+            573,
+            544
+          ],
+          "output_rect": [
+            20,
+            22,
+            89,
+            84
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/ranger/idle/up_00.png",
+          "source_rect": [
+            53,
+            628,
+            496,
+            583
+          ],
+          "output_rect": [
+            26,
+            25,
+            77,
+            90
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/ranger/idle/left_00.png",
+          "source_rect": [
+            690,
+            634,
+            539,
+            551
+          ],
+          "output_rect": [
+            22,
+            21,
+            84,
+            85
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "player_shaman",
+      "path": "source_sheets/player_shaman.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/shaman/idle/down_00.png",
+          "source_rect": [
+            55,
+            53,
+            481,
+            519
+          ],
+          "output_rect": [
+            27,
+            26,
+            75,
+            80
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/shaman/idle/right_00.png",
+          "source_rect": [
+            668,
+            57,
+            572,
+            537
+          ],
+          "output_rect": [
+            20,
+            23,
+            89,
+            83
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/shaman/idle/up_00.png",
+          "source_rect": [
+            115,
+            637,
+            458,
+            582
+          ],
+          "output_rect": [
+            29,
+            25,
+            71,
+            90
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/shaman/idle/left_00.png",
+          "source_rect": [
+            632,
+            645,
+            581,
+            544
+          ],
+          "output_rect": [
+            19,
+            22,
+            90,
+            84
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "player_engineer",
+      "path": "source_sheets/player_engineer.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/engineer/idle/down_00.png",
+          "source_rect": [
+            81,
+            54,
+            544,
+            527
+          ],
+          "output_rect": [
+            22,
+            25,
+            84,
+            82
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/engineer/idle/right_00.png",
+          "source_rect": [
+            656,
+            53,
+            574,
+            545
+          ],
+          "output_rect": [
+            20,
+            22,
+            89,
+            84
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/engineer/idle/up_00.png",
+          "source_rect": [
+            67,
+            629,
+            489,
+            588
+          ],
+          "output_rect": [
+            26,
+            24,
+            76,
+            91
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/engineer/idle/left_00.png",
+          "source_rect": [
+            648,
+            638,
+            578,
+            550
+          ],
+          "output_rect": [
+            19,
+            21,
+            90,
+            85
+          ],
+          "scale": 0.155,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "guardian_walk",
+      "path": "source_sheets/guardian_walk.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/guardian/walk/down_00.png",
+          "source_rect": [
+            34,
+            31,
+            274,
+            267
+          ],
+          "output_rect": [
+            22,
+            24,
+            85,
+            83
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 1,
+          "path": "assets/characters/guardian/walk/down_01.png",
+          "source_rect": [
+            341,
+            31,
+            260,
+            269
+          ],
+          "output_rect": [
+            24,
+            23,
+            81,
+            83
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 2,
+          "path": "assets/characters/guardian/walk/down_02.png",
+          "source_rect": [
+            645,
+            31,
+            271,
+            270
+          ],
+          "output_rect": [
+            22,
+            23,
+            84,
+            84
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 3,
+          "path": "assets/characters/guardian/walk/down_03.png",
+          "source_rect": [
+            975,
+            30,
+            241,
+            269
+          ],
+          "output_rect": [
+            27,
+            23,
+            75,
+            83
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/guardian/walk/right_00.png",
+          "source_rect": [
+            23,
+            326,
+            276,
+            277
+          ],
+          "output_rect": [
+            21,
+            21,
+            86,
+            86
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 1,
+          "path": "assets/characters/guardian/walk/right_01.png",
+          "source_rect": [
+            334,
+            327,
+            275,
+            276
+          ],
+          "output_rect": [
+            21,
+            21,
+            85,
+            86
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 2,
+          "path": "assets/characters/guardian/walk/right_02.png",
+          "source_rect": [
+            649,
+            329,
+            267,
+            272
+          ],
+          "output_rect": [
+            23,
+            22,
+            83,
+            84
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 3,
+          "path": "assets/characters/guardian/walk/right_03.png",
+          "source_rect": [
+            952,
+            328,
+            273,
+            275
+          ],
+          "output_rect": [
+            22,
+            21,
+            85,
+            85
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/guardian/walk/up_00.png",
+          "source_rect": [
+            41,
+            627,
+            261,
+            284
+          ],
+          "output_rect": [
+            24,
+            27,
+            81,
+            88
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 1,
+          "path": "assets/characters/guardian/walk/up_01.png",
+          "source_rect": [
+            352,
+            626,
+            252,
+            281
+          ],
+          "output_rect": [
+            25,
+            28,
+            78,
+            87
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 2,
+          "path": "assets/characters/guardian/walk/up_02.png",
+          "source_rect": [
+            662,
+            627,
+            263,
+            283
+          ],
+          "output_rect": [
+            23,
+            28,
+            82,
+            88
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 3,
+          "path": "assets/characters/guardian/walk/up_03.png",
+          "source_rect": [
+            976,
+            627,
+            252,
+            281
+          ],
+          "output_rect": [
+            25,
+            28,
+            78,
+            87
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/guardian/walk/left_00.png",
+          "source_rect": [
+            33,
+            929,
+            284,
+            275
+          ],
+          "output_rect": [
+            20,
+            21,
+            88,
+            85
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 1,
+          "path": "assets/characters/guardian/walk/left_01.png",
+          "source_rect": [
+            349,
+            928,
+            278,
+            283
+          ],
+          "output_rect": [
+            21,
+            19,
+            86,
+            88
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 2,
+          "path": "assets/characters/guardian/walk/left_02.png",
+          "source_rect": [
+            659,
+            930,
+            275,
+            268
+          ],
+          "output_rect": [
+            21,
+            24,
+            85,
+            83
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 3,
+          "path": "assets/characters/guardian/walk/left_03.png",
+          "source_rect": [
+            976,
+            929,
+            266,
+            272
+          ],
+          "output_rect": [
+            23,
+            22,
+            82,
+            84
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "guardian_attack",
+      "path": "source_sheets/guardian_attack.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/guardian/attack/down_00.png",
+          "source_rect": [
+            35,
+            48,
+            273,
+            279
+          ],
+          "output_rect": [
+            22,
+            20,
+            85,
+            86
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 1,
+          "path": "assets/characters/guardian/attack/down_01.png",
+          "source_rect": [
+            348,
+            7,
+            261,
+            320
+          ],
+          "output_rect": [
+            24,
+            7,
+            81,
+            99
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 1
+        },
+        {
+          "direction": "down",
+          "index": 2,
+          "path": "assets/characters/guardian/attack/down_02.png",
+          "source_rect": [
+            646,
+            108,
+            281,
+            251
+          ],
+          "output_rect": [
+            20,
+            33,
+            87,
+            78
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 3,
+          "path": "assets/characters/guardian/attack/down_03.png",
+          "source_rect": [
+            956,
+            85,
+            281,
+            245
+          ],
+          "output_rect": [
+            20,
+            31,
+            87,
+            76
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/guardian/attack/right_00.png",
+          "source_rect": [
+            30,
+            353,
+            279,
+            258
+          ],
+          "output_rect": [
+            21,
+            27,
+            86,
+            80
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 1,
+          "path": "assets/characters/guardian/attack/right_01.png",
+          "source_rect": [
+            339,
+            316,
+            270,
+            295
+          ],
+          "output_rect": [
+            22,
+            15,
+            84,
+            91
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 1
+        },
+        {
+          "direction": "right",
+          "index": 2,
+          "path": "assets/characters/guardian/attack/right_02.png",
+          "source_rect": [
+            625,
+            399,
+            323,
+            235
+          ],
+          "output_rect": [
+            14,
+            38,
+            100,
+            73
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 3,
+          "path": "assets/characters/guardian/attack/right_03.png",
+          "source_rect": [
+            963,
+            384,
+            266,
+            234
+          ],
+          "output_rect": [
+            23,
+            34,
+            82,
+            73
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/guardian/attack/up_00.png",
+          "source_rect": [
+            47,
+            653,
+            266,
+            265
+          ],
+          "output_rect": [
+            23,
+            33,
+            82,
+            82
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 1,
+          "path": "assets/characters/guardian/attack/up_01.png",
+          "source_rect": [
+            351,
+            609,
+            245,
+            306
+          ],
+          "output_rect": [
+            26,
+            21,
+            76,
+            95
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 1
+        },
+        {
+          "direction": "up",
+          "index": 2,
+          "path": "assets/characters/guardian/attack/up_02.png",
+          "source_rect": [
+            670,
+            685,
+            279,
+            233
+          ],
+          "output_rect": [
+            21,
+            45,
+            86,
+            72
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 3,
+          "path": "assets/characters/guardian/attack/up_03.png",
+          "source_rect": [
+            982,
+            666,
+            258,
+            252
+          ],
+          "output_rect": [
+            24,
+            36,
+            80,
+            78
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/guardian/attack/left_00.png",
+          "source_rect": [
+            40,
+            950,
+            274,
+            253
+          ],
+          "output_rect": [
+            22,
+            28,
+            85,
+            78
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 1,
+          "path": "assets/characters/guardian/attack/left_01.png",
+          "source_rect": [
+            347,
+            903,
+            260,
+            303
+          ],
+          "output_rect": [
+            24,
+            13,
+            81,
+            94
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 1
+        },
+        {
+          "direction": "left",
+          "index": 2,
+          "path": "assets/characters/guardian/attack/left_02.png",
+          "source_rect": [
+            626,
+            979,
+            316,
+            230
+          ],
+          "output_rect": [
+            15,
+            39,
+            98,
+            71
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 3,
+          "path": "assets/characters/guardian/attack/left_03.png",
+          "source_rect": [
+            985,
+            964,
+            255,
+            231
+          ],
+          "output_rect": [
+            24,
+            35,
+            79,
+            72
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "guardian_skill_q",
+      "path": "source_sheets/guardian_skill_q.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_q/down_00.png",
+          "source_rect": [
+            26,
+            40,
+            287,
+            259
+          ],
+          "output_rect": [
+            20,
+            26,
+            89,
+            80
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_q/down_01.png",
+          "source_rect": [
+            368,
+            43,
+            233,
+            256
+          ],
+          "output_rect": [
+            28,
+            27,
+            72,
+            79
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_q/down_02.png",
+          "source_rect": [
+            666,
+            39,
+            273,
+            262
+          ],
+          "output_rect": [
+            22,
+            25,
+            85,
+            81
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_q/down_03.png",
+          "source_rect": [
+            973,
+            43,
+            256,
+            256
+          ],
+          "output_rect": [
+            24,
+            27,
+            79,
+            79
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_q/right_00.png",
+          "source_rect": [
+            26,
+            333,
+            277,
+            255
+          ],
+          "output_rect": [
+            21,
+            28,
+            86,
+            79
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_q/right_01.png",
+          "source_rect": [
+            347,
+            338,
+            282,
+            248
+          ],
+          "output_rect": [
+            20,
+            30,
+            87,
+            77
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_q/right_02.png",
+          "source_rect": [
+            657,
+            338,
+            307,
+            248
+          ],
+          "output_rect": [
+            16,
+            30,
+            95,
+            77
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_q/right_03.png",
+          "source_rect": [
+            966,
+            337,
+            264,
+            255
+          ],
+          "output_rect": [
+            23,
+            28,
+            82,
+            79
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_q/up_00.png",
+          "source_rect": [
+            51,
+            624,
+            240,
+            282
+          ],
+          "output_rect": [
+            27,
+            28,
+            74,
+            87
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_q/up_01.png",
+          "source_rect": [
+            369,
+            627,
+            232,
+            279
+          ],
+          "output_rect": [
+            28,
+            29,
+            72,
+            86
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_q/up_02.png",
+          "source_rect": [
+            666,
+            617,
+            241,
+            289
+          ],
+          "output_rect": [
+            27,
+            26,
+            75,
+            90
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_q/up_03.png",
+          "source_rect": [
+            970,
+            628,
+            254,
+            278
+          ],
+          "output_rect": [
+            25,
+            29,
+            79,
+            86
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_q/left_00.png",
+          "source_rect": [
+            32,
+            925,
+            281,
+            267
+          ],
+          "output_rect": [
+            20,
+            24,
+            87,
+            83
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_q/left_01.png",
+          "source_rect": [
+            349,
+            927,
+            279,
+            252
+          ],
+          "output_rect": [
+            21,
+            28,
+            86,
+            78
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_q/left_02.png",
+          "source_rect": [
+            643,
+            925,
+            291,
+            255
+          ],
+          "output_rect": [
+            19,
+            28,
+            90,
+            79
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_q/left_03.png",
+          "source_rect": [
+            991,
+            925,
+            263,
+            273
+          ],
+          "output_rect": [
+            23,
+            22,
+            82,
+            85
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "guardian_skill_e",
+      "path": "source_sheets/guardian_skill_e.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_e/down_00.png",
+          "source_rect": [
+            28,
+            118,
+            286,
+            223
+          ],
+          "output_rect": [
+            20,
+            37,
+            89,
+            69
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_e/down_01.png",
+          "source_rect": [
+            330,
+            91,
+            303,
+            254
+          ],
+          "output_rect": [
+            21,
+            28,
+            94,
+            79
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_e/down_02.png",
+          "source_rect": [
+            645,
+            135,
+            322,
+            206
+          ],
+          "output_rect": [
+            18,
+            43,
+            100,
+            64
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_e/down_03.png",
+          "source_rect": [
+            976,
+            101,
+            242,
+            244
+          ],
+          "output_rect": [
+            26,
+            31,
+            75,
+            76
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_e/right_00.png",
+          "source_rect": [
+            24,
+            404,
+            273,
+            216
+          ],
+          "output_rect": [
+            22,
+            40,
+            85,
+            67
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_e/right_01.png",
+          "source_rect": [
+            319,
+            387,
+            283,
+            231
+          ],
+          "output_rect": [
+            16,
+            35,
+            88,
+            72
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_e/right_02.png",
+          "source_rect": [
+            627,
+            418,
+            307,
+            210
+          ],
+          "output_rect": [
+            12,
+            42,
+            95,
+            65
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_e/right_03.png",
+          "source_rect": [
+            963,
+            396,
+            269,
+            233
+          ],
+          "output_rect": [
+            22,
+            34,
+            83,
+            72
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_e/up_00.png",
+          "source_rect": [
+            42,
+            667,
+            255,
+            257
+          ],
+          "output_rect": [
+            24,
+            35,
+            79,
+            80
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_e/up_01.png",
+          "source_rect": [
+            321,
+            661,
+            298,
+            229
+          ],
+          "output_rect": [
+            15,
+            43,
+            92,
+            71
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_e/up_02.png",
+          "source_rect": [
+            626,
+            683,
+            318,
+            231
+          ],
+          "output_rect": [
+            10,
+            42,
+            99,
+            72
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_e/up_03.png",
+          "source_rect": [
+            986,
+            659,
+            245,
+            267
+          ],
+          "output_rect": [
+            26,
+            32,
+            76,
+            83
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_e/left_00.png",
+          "source_rect": [
+            31,
+            961,
+            267,
+            224
+          ],
+          "output_rect": [
+            23,
+            37,
+            83,
+            69
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_e/left_01.png",
+          "source_rect": [
+            321,
+            944,
+            299,
+            240
+          ],
+          "output_rect": [
+            22,
+            32,
+            93,
+            74
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_e/left_02.png",
+          "source_rect": [
+            643,
+            978,
+            317,
+            213
+          ],
+          "output_rect": [
+            20,
+            41,
+            98,
+            66
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_e/left_03.png",
+          "source_rect": [
+            962,
+            951,
+            273,
+            236
+          ],
+          "output_rect": [
+            22,
+            33,
+            85,
+            73
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "guardian_skill_r",
+      "path": "source_sheets/guardian_skill_r.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_r/down_00.png",
+          "source_rect": [
+            57,
+            110,
+            240,
+            224
+          ],
+          "output_rect": [
+            27,
+            37,
+            74,
+            69
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_r/down_01.png",
+          "source_rect": [
+            330,
+            15,
+            267,
+            301
+          ],
+          "output_rect": [
+            23,
+            13,
+            83,
+            93
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_r/down_02.png",
+          "source_rect": [
+            643,
+            87,
+            285,
+            236
+          ],
+          "output_rect": [
+            20,
+            33,
+            88,
+            73
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "down",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_r/down_03.png",
+          "source_rect": [
+            954,
+            72,
+            281,
+            250
+          ],
+          "output_rect": [
+            20,
+            29,
+            87,
+            78
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_r/right_00.png",
+          "source_rect": [
+            34,
+            412,
+            264,
+            210
+          ],
+          "output_rect": [
+            23,
+            42,
+            82,
+            65
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_r/right_01.png",
+          "source_rect": [
+            351,
+            328,
+            250,
+            283
+          ],
+          "output_rect": [
+            25,
+            19,
+            78,
+            88
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_r/right_02.png",
+          "source_rect": [
+            655,
+            392,
+            288,
+            233
+          ],
+          "output_rect": [
+            19,
+            34,
+            89,
+            72
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_r/right_03.png",
+          "source_rect": [
+            963,
+            382,
+            272,
+            237
+          ],
+          "output_rect": [
+            22,
+            33,
+            84,
+            73
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_r/up_00.png",
+          "source_rect": [
+            47,
+            708,
+            243,
+            223
+          ],
+          "output_rect": [
+            26,
+            44,
+            75,
+            69
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_r/up_01.png",
+          "source_rect": [
+            349,
+            615,
+            222,
+            315
+          ],
+          "output_rect": [
+            30,
+            19,
+            69,
+            98
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 1
+        },
+        {
+          "direction": "up",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_r/up_02.png",
+          "source_rect": [
+            653,
+            689,
+            278,
+            243
+          ],
+          "output_rect": [
+            21,
+            39,
+            86,
+            75
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_r/up_03.png",
+          "source_rect": [
+            966,
+            686,
+            262,
+            257
+          ],
+          "output_rect": [
+            23,
+            35,
+            81,
+            80
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/characters/guardian/skill_r/left_00.png",
+          "source_rect": [
+            48,
+            996,
+            267,
+            206
+          ],
+          "output_rect": [
+            23,
+            43,
+            83,
+            64
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 1,
+          "path": "assets/characters/guardian/skill_r/left_01.png",
+          "source_rect": [
+            364,
+            921,
+            224,
+            299
+          ],
+          "output_rect": [
+            29,
+            14,
+            69,
+            93
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 1
+        },
+        {
+          "direction": "left",
+          "index": 2,
+          "path": "assets/characters/guardian/skill_r/left_02.png",
+          "source_rect": [
+            652,
+            965,
+            274,
+            260
+          ],
+          "output_rect": [
+            25,
+            26,
+            85,
+            81
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 3,
+          "path": "assets/characters/guardian/skill_r/left_03.png",
+          "source_rect": [
+            967,
+            969,
+            260,
+            248
+          ],
+          "output_rect": [
+            24,
+            30,
+            81,
+            77
+          ],
+          "scale": 0.31,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_sap_slug",
+      "path": "source_sheets/enemy_sap_slug.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/sap_slug/idle/down_00.png",
+          "source_rect": [
+            142,
+            59,
+            358,
+            526
+          ],
+          "output_rect": [
+            33,
+            15,
+            62,
+            92
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/sap_slug/idle/right_00.png",
+          "source_rect": [
+            695,
+            110,
+            521,
+            474
+          ],
+          "output_rect": [
+            19,
+            24,
+            91,
+            82
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/sap_slug/idle/up_00.png",
+          "source_rect": [
+            120,
+            671,
+            394,
+            530
+          ],
+          "output_rect": [
+            30,
+            14,
+            69,
+            92
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/sap_slug/idle/left_00.png",
+          "source_rect": [
+            659,
+            712,
+            515,
+            467
+          ],
+          "output_rect": [
+            19,
+            25,
+            90,
+            81
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_thorn_boar",
+      "path": "source_sheets/enemy_thorn_boar.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/thorn_boar/idle/down_00.png",
+          "source_rect": [
+            117,
+            63,
+            416,
+            489
+          ],
+          "output_rect": [
+            28,
+            21,
+            72,
+            85
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/thorn_boar/idle/right_00.png",
+          "source_rect": [
+            657,
+            87,
+            569,
+            475
+          ],
+          "output_rect": [
+            14,
+            24,
+            99,
+            83
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/thorn_boar/idle/up_00.png",
+          "source_rect": [
+            115,
+            636,
+            430,
+            539
+          ],
+          "output_rect": [
+            27,
+            13,
+            75,
+            94
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/thorn_boar/idle/left_00.png",
+          "source_rect": [
+            646,
+            690,
+            577,
+            478
+          ],
+          "output_rect": [
+            14,
+            23,
+            100,
+            83
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_shell_soldier",
+      "path": "source_sheets/enemy_shell_soldier.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/shell_soldier/idle/down_00.png",
+          "source_rect": [
+            37,
+            129,
+            595,
+            402
+          ],
+          "output_rect": [
+            12,
+            36,
+            104,
+            70
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/shell_soldier/idle/right_00.png",
+          "source_rect": [
+            707,
+            131,
+            508,
+            411
+          ],
+          "output_rect": [
+            20,
+            35,
+            88,
+            72
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/shell_soldier/idle/up_00.png",
+          "source_rect": [
+            47,
+            691,
+            582,
+            438
+          ],
+          "output_rect": [
+            13,
+            30,
+            101,
+            76
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/shell_soldier/idle/left_00.png",
+          "source_rect": [
+            678,
+            702,
+            530,
+            422
+          ],
+          "output_rect": [
+            18,
+            33,
+            92,
+            73
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_black_crow",
+      "path": "source_sheets/enemy_black_crow.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/black_crow/idle/down_00.png",
+          "source_rect": [
+            155,
+            71,
+            388,
+            518
+          ],
+          "output_rect": [
+            30,
+            16,
+            68,
+            90
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/black_crow/idle/right_00.png",
+          "source_rect": [
+            660,
+            76,
+            554,
+            522
+          ],
+          "output_rect": [
+            16,
+            16,
+            96,
+            91
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/black_crow/idle/up_00.png",
+          "source_rect": [
+            157,
+            652,
+            373,
+            495
+          ],
+          "output_rect": [
+            32,
+            20,
+            65,
+            86
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/black_crow/idle/left_00.png",
+          "source_rect": [
+            682,
+            656,
+            531,
+            514
+          ],
+          "output_rect": [
+            18,
+            17,
+            92,
+            89
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_spore_mushroom",
+      "path": "source_sheets/enemy_spore_mushroom.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/spore_mushroom/idle/down_00.png",
+          "source_rect": [
+            81,
+            88,
+            527,
+            474
+          ],
+          "output_rect": [
+            18,
+            24,
+            92,
+            82
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/spore_mushroom/idle/right_00.png",
+          "source_rect": [
+            712,
+            107,
+            467,
+            469
+          ],
+          "output_rect": [
+            23,
+            25,
+            81,
+            82
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/spore_mushroom/idle/up_00.png",
+          "source_rect": [
+            84,
+            672,
+            498,
+            458
+          ],
+          "output_rect": [
+            21,
+            27,
+            87,
+            80
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/spore_mushroom/idle/left_00.png",
+          "source_rect": [
+            712,
+            685,
+            466,
+            464
+          ],
+          "output_rect": [
+            23,
+            26,
+            81,
+            81
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_root_puppet",
+      "path": "source_sheets/enemy_root_puppet.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/root_puppet/idle/down_00.png",
+          "source_rect": [
+            130,
+            24,
+            452,
+            554
+          ],
+          "output_rect": [
+            25,
+            10,
+            79,
+            96
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/root_puppet/idle/right_00.png",
+          "source_rect": [
+            842,
+            56,
+            273,
+            538
+          ],
+          "output_rect": [
+            40,
+            13,
+            48,
+            94
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/root_puppet/idle/up_00.png",
+          "source_rect": [
+            127,
+            619,
+            440,
+            536
+          ],
+          "output_rect": [
+            26,
+            13,
+            77,
+            93
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/root_puppet/idle/left_00.png",
+          "source_rect": [
+            810,
+            637,
+            268,
+            550
+          ],
+          "output_rect": [
+            41,
+            11,
+            47,
+            96
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_reed_frog",
+      "path": "source_sheets/enemy_reed_frog.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/reed_frog/idle/down_00.png",
+          "source_rect": [
+            43,
+            89,
+            536,
+            464
+          ],
+          "output_rect": [
+            17,
+            26,
+            93,
+            81
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/reed_frog/idle/right_00.png",
+          "source_rect": [
+            719,
+            117,
+            497,
+            448
+          ],
+          "output_rect": [
+            21,
+            28,
+            86,
+            78
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/reed_frog/idle/up_00.png",
+          "source_rect": [
+            109,
+            639,
+            482,
+            520
+          ],
+          "output_rect": [
+            22,
+            16,
+            84,
+            90
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/reed_frog/idle/left_00.png",
+          "source_rect": [
+            684,
+            716,
+            489,
+            453
+          ],
+          "output_rect": [
+            21,
+            28,
+            85,
+            79
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_river_leech",
+      "path": "source_sheets/enemy_river_leech.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/river_leech/idle/down_00.png",
+          "source_rect": [
+            151,
+            145,
+            303,
+            399
+          ],
+          "output_rect": [
+            38,
+            37,
+            53,
+            69
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/river_leech/idle/right_00.png",
+          "source_rect": [
+            683,
+            184,
+            531,
+            314
+          ],
+          "output_rect": [
+            18,
+            52,
+            92,
+            55
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/river_leech/idle/up_00.png",
+          "source_rect": [
+            193,
+            723,
+            261,
+            413
+          ],
+          "output_rect": [
+            41,
+            34,
+            45,
+            72
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/river_leech/idle/left_00.png",
+          "source_rect": [
+            651,
+            782,
+            550,
+            304
+          ],
+          "output_rect": [
+            16,
+            53,
+            96,
+            53
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_lantern_moth",
+      "path": "source_sheets/enemy_lantern_moth.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/lantern_moth/idle/down_00.png",
+          "source_rect": [
+            57,
+            103,
+            568,
+            455
+          ],
+          "output_rect": [
+            15,
+            27,
+            99,
+            79
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/lantern_moth/idle/right_00.png",
+          "source_rect": [
+            714,
+            95,
+            475,
+            467
+          ],
+          "output_rect": [
+            23,
+            25,
+            83,
+            81
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/lantern_moth/idle/up_00.png",
+          "source_rect": [
+            68,
+            667,
+            544,
+            461
+          ],
+          "output_rect": [
+            17,
+            26,
+            95,
+            80
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/lantern_moth/idle/left_00.png",
+          "source_rect": [
+            707,
+            673,
+            469,
+            466
+          ],
+          "output_rect": [
+            23,
+            25,
+            82,
+            81
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_woodjaw_beetle",
+      "path": "source_sheets/enemy_woodjaw_beetle.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/woodjaw_beetle/idle/down_00.png",
+          "source_rect": [
+            57,
+            103,
+            539,
+            452
+          ],
+          "output_rect": [
+            17,
+            28,
+            94,
+            79
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/woodjaw_beetle/idle/right_00.png",
+          "source_rect": [
+            660,
+            147,
+            574,
+            408
+          ],
+          "output_rect": [
+            14,
+            35,
+            100,
+            71
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/woodjaw_beetle/idle/up_00.png",
+          "source_rect": [
+            47,
+            661,
+            553,
+            501
+          ],
+          "output_rect": [
+            16,
+            19,
+            96,
+            87
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/woodjaw_beetle/idle/left_00.png",
+          "source_rect": [
+            642,
+            733,
+            576,
+            423
+          ],
+          "output_rect": [
+            14,
+            33,
+            100,
+            74
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_gear_crab",
+      "path": "source_sheets/enemy_gear_crab.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/gear_crab/idle/down_00.png",
+          "source_rect": [
+            59,
+            114,
+            553,
+            450
+          ],
+          "output_rect": [
+            16,
+            28,
+            96,
+            78
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/gear_crab/idle/right_00.png",
+          "source_rect": [
+            667,
+            136,
+            537,
+            426
+          ],
+          "output_rect": [
+            17,
+            32,
+            93,
+            74
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/gear_crab/idle/up_00.png",
+          "source_rect": [
+            49,
+            703,
+            565,
+            441
+          ],
+          "output_rect": [
+            15,
+            30,
+            98,
+            77
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/gear_crab/idle/left_00.png",
+          "source_rect": [
+            683,
+            720,
+            532,
+            419
+          ],
+          "output_rect": [
+            18,
+            33,
+            93,
+            73
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy_sap_totem",
+      "path": "source_sheets/enemy_sap_totem.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/enemies/sap_totem/idle/down_00.png",
+          "source_rect": [
+            82,
+            47,
+            529,
+            542
+          ],
+          "output_rect": [
+            18,
+            12,
+            92,
+            94
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/enemies/sap_totem/idle/right_00.png",
+          "source_rect": [
+            784,
+            45,
+            350,
+            543
+          ],
+          "output_rect": [
+            34,
+            12,
+            61,
+            94
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/enemies/sap_totem/idle/up_00.png",
+          "source_rect": [
+            84,
+            639,
+            524,
+            548
+          ],
+          "output_rect": [
+            18,
+            11,
+            91,
+            95
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/enemies/sap_totem/idle/left_00.png",
+          "source_rect": [
+            769,
+            629,
+            380,
+            557
+          ],
+          "output_rect": [
+            31,
+            9,
+            66,
+            97
+          ],
+          "scale": 0.174,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "boss_ironclaw",
+      "path": "source_sheets/boss_ironclaw.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/bosses/ironclaw/idle/down_00.png",
+          "source_rect": [
+            24,
+            20,
+            591,
+            558
+          ],
+          "output_rect": [
+            49,
+            35,
+            414,
+            391
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/bosses/ironclaw/idle/right_00.png",
+          "source_rect": [
+            627,
+            56,
+            627,
+            524
+          ],
+          "output_rect": [
+            36,
+            59,
+            439,
+            367
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/bosses/ironclaw/idle/up_00.png",
+          "source_rect": [
+            27,
+            631,
+            595,
+            585
+          ],
+          "output_rect": [
+            48,
+            16,
+            416,
+            410
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/bosses/ironclaw/idle/left_00.png",
+          "source_rect": [
+            620,
+            654,
+            630,
+            524
+          ],
+          "output_rect": [
+            36,
+            59,
+            441,
+            367
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "boss_lantern_toad",
+      "path": "source_sheets/boss_lantern_toad.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/bosses/lantern_toad/idle/down_00.png",
+          "source_rect": [
+            26,
+            47,
+            601,
+            536
+          ],
+          "output_rect": [
+            46,
+            50,
+            421,
+            375
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/bosses/lantern_toad/idle/right_00.png",
+          "source_rect": [
+            685,
+            66,
+            543,
+            527
+          ],
+          "output_rect": [
+            66,
+            56,
+            380,
+            369
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/bosses/lantern_toad/idle/up_00.png",
+          "source_rect": [
+            32,
+            648,
+            583,
+            528
+          ],
+          "output_rect": [
+            52,
+            56,
+            408,
+            370
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/bosses/lantern_toad/idle/left_00.png",
+          "source_rect": [
+            669,
+            677,
+            553,
+            514
+          ],
+          "output_rect": [
+            62,
+            66,
+            387,
+            360
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    },
+    {
+      "id": "boss_root_king",
+      "path": "source_sheets/boss_root_king.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "frames": [
+        {
+          "direction": "down",
+          "index": 0,
+          "path": "assets/bosses/root_king/idle/down_00.png",
+          "source_rect": [
+            24,
+            8,
+            641,
+            582
+          ],
+          "output_rect": [
+            32,
+            18,
+            449,
+            407
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "right",
+          "index": 0,
+          "path": "assets/bosses/root_king/idle/right_00.png",
+          "source_rect": [
+            726,
+            14,
+            513,
+            597
+          ],
+          "output_rect": [
+            76,
+            8,
+            359,
+            418
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "up",
+          "index": 0,
+          "path": "assets/bosses/root_king/idle/up_00.png",
+          "source_rect": [
+            21,
+            616,
+            644,
+            592
+          ],
+          "output_rect": [
+            31,
+            11,
+            451,
+            414
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        },
+        {
+          "direction": "left",
+          "index": 0,
+          "path": "assets/bosses/root_king/idle/left_00.png",
+          "source_rect": [
+            701,
+            624,
+            533,
+            608
+          ],
+          "output_rect": [
+            69,
+            2,
+            373,
+            426
+          ],
+          "scale": 0.7,
+          "neighbor_fragments_removed": 0
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Animation art is an initial 4-frame draft, not final production animation.",
+    "Body scale and planted-foot alignment need in-engine polish.",
+    "Enemy and boss images are directional idle poses only.",
+    "Godot runtime/export has not been tested in this environment."
+  ]
+}

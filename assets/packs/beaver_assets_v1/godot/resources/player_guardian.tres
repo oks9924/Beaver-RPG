@@ -1,0 +1,209 @@
+[gd_resource type="SpriteFrames" load_steps=85 format=3]
+
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/idle/down_00.png" id="1"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/idle/right_00.png" id="2"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/idle/up_00.png" id="3"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/idle/left_00.png" id="4"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/down_00.png" id="5"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/down_01.png" id="6"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/down_02.png" id="7"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/down_03.png" id="8"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/right_00.png" id="9"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/right_01.png" id="10"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/right_02.png" id="11"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/right_03.png" id="12"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/up_00.png" id="13"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/up_01.png" id="14"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/up_02.png" id="15"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/up_03.png" id="16"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/left_00.png" id="17"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/left_01.png" id="18"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/left_02.png" id="19"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/walk/left_03.png" id="20"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/down_00.png" id="21"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/down_01.png" id="22"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/down_02.png" id="23"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/down_03.png" id="24"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/right_00.png" id="25"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/right_01.png" id="26"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/right_02.png" id="27"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/right_03.png" id="28"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/up_00.png" id="29"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/up_01.png" id="30"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/up_02.png" id="31"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/up_03.png" id="32"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/left_00.png" id="33"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/left_01.png" id="34"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/left_02.png" id="35"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/attack/left_03.png" id="36"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/down_00.png" id="37"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/down_01.png" id="38"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/down_02.png" id="39"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/down_03.png" id="40"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/right_00.png" id="41"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/right_01.png" id="42"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/right_02.png" id="43"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/right_03.png" id="44"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/up_00.png" id="45"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/up_01.png" id="46"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/up_02.png" id="47"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/up_03.png" id="48"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/left_00.png" id="49"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/left_01.png" id="50"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/left_02.png" id="51"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_q/left_03.png" id="52"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/down_00.png" id="53"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/down_01.png" id="54"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/down_02.png" id="55"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/down_03.png" id="56"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/right_00.png" id="57"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/right_01.png" id="58"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/right_02.png" id="59"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/right_03.png" id="60"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/up_00.png" id="61"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/up_01.png" id="62"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/up_02.png" id="63"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/up_03.png" id="64"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/left_00.png" id="65"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/left_01.png" id="66"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/left_02.png" id="67"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_e/left_03.png" id="68"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/down_00.png" id="69"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/down_01.png" id="70"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/down_02.png" id="71"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/down_03.png" id="72"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/right_00.png" id="73"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/right_01.png" id="74"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/right_02.png" id="75"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/right_03.png" id="76"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/up_00.png" id="77"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/up_01.png" id="78"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/up_02.png" id="79"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/up_03.png" id="80"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/left_00.png" id="81"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/left_01.png" id="82"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/left_02.png" id="83"]
+[ext_resource type="Texture2D" path="res://beaver_assets/assets/characters/guardian/skill_r/left_03.png" id="84"]
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": ExtResource("1")}],
+"loop": true,
+"name": &"idle_down",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("2")}],
+"loop": true,
+"name": &"idle_right",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("3")}],
+"loop": true,
+"name": &"idle_up",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("4")}],
+"loop": true,
+"name": &"idle_left",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("5")}, {"duration": 1.0, "texture": ExtResource("6")}, {"duration": 1.0, "texture": ExtResource("7")}, {"duration": 1.0, "texture": ExtResource("8")}],
+"loop": true,
+"name": &"walk_down",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("9")}, {"duration": 1.0, "texture": ExtResource("10")}, {"duration": 1.0, "texture": ExtResource("11")}, {"duration": 1.0, "texture": ExtResource("12")}],
+"loop": true,
+"name": &"walk_right",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("13")}, {"duration": 1.0, "texture": ExtResource("14")}, {"duration": 1.0, "texture": ExtResource("15")}, {"duration": 1.0, "texture": ExtResource("16")}],
+"loop": true,
+"name": &"walk_up",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("17")}, {"duration": 1.0, "texture": ExtResource("18")}, {"duration": 1.0, "texture": ExtResource("19")}, {"duration": 1.0, "texture": ExtResource("20")}],
+"loop": true,
+"name": &"walk_left",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("21")}, {"duration": 1.0, "texture": ExtResource("22")}, {"duration": 1.0, "texture": ExtResource("23")}, {"duration": 1.0, "texture": ExtResource("24")}],
+"loop": false,
+"name": &"attack_down",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("25")}, {"duration": 1.0, "texture": ExtResource("26")}, {"duration": 1.0, "texture": ExtResource("27")}, {"duration": 1.0, "texture": ExtResource("28")}],
+"loop": false,
+"name": &"attack_right",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("29")}, {"duration": 1.0, "texture": ExtResource("30")}, {"duration": 1.0, "texture": ExtResource("31")}, {"duration": 1.0, "texture": ExtResource("32")}],
+"loop": false,
+"name": &"attack_up",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("33")}, {"duration": 1.0, "texture": ExtResource("34")}, {"duration": 1.0, "texture": ExtResource("35")}, {"duration": 1.0, "texture": ExtResource("36")}],
+"loop": false,
+"name": &"attack_left",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("37")}, {"duration": 1.0, "texture": ExtResource("38")}, {"duration": 1.0, "texture": ExtResource("39")}, {"duration": 1.0, "texture": ExtResource("40")}],
+"loop": false,
+"name": &"skill_q_down",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("41")}, {"duration": 1.0, "texture": ExtResource("42")}, {"duration": 1.0, "texture": ExtResource("43")}, {"duration": 1.0, "texture": ExtResource("44")}],
+"loop": false,
+"name": &"skill_q_right",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("45")}, {"duration": 1.0, "texture": ExtResource("46")}, {"duration": 1.0, "texture": ExtResource("47")}, {"duration": 1.0, "texture": ExtResource("48")}],
+"loop": false,
+"name": &"skill_q_up",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("49")}, {"duration": 1.0, "texture": ExtResource("50")}, {"duration": 1.0, "texture": ExtResource("51")}, {"duration": 1.0, "texture": ExtResource("52")}],
+"loop": false,
+"name": &"skill_q_left",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("53")}, {"duration": 1.0, "texture": ExtResource("54")}, {"duration": 1.0, "texture": ExtResource("55")}, {"duration": 1.0, "texture": ExtResource("56")}],
+"loop": false,
+"name": &"skill_e_down",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("57")}, {"duration": 1.0, "texture": ExtResource("58")}, {"duration": 1.0, "texture": ExtResource("59")}, {"duration": 1.0, "texture": ExtResource("60")}],
+"loop": false,
+"name": &"skill_e_right",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("61")}, {"duration": 1.0, "texture": ExtResource("62")}, {"duration": 1.0, "texture": ExtResource("63")}, {"duration": 1.0, "texture": ExtResource("64")}],
+"loop": false,
+"name": &"skill_e_up",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("65")}, {"duration": 1.0, "texture": ExtResource("66")}, {"duration": 1.0, "texture": ExtResource("67")}, {"duration": 1.0, "texture": ExtResource("68")}],
+"loop": false,
+"name": &"skill_e_left",
+"speed": 8.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("69")}, {"duration": 1.0, "texture": ExtResource("70")}, {"duration": 1.0, "texture": ExtResource("71")}, {"duration": 1.0, "texture": ExtResource("72")}],
+"loop": false,
+"name": &"skill_r_down",
+"speed": 6.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("73")}, {"duration": 1.0, "texture": ExtResource("74")}, {"duration": 1.0, "texture": ExtResource("75")}, {"duration": 1.0, "texture": ExtResource("76")}],
+"loop": false,
+"name": &"skill_r_right",
+"speed": 6.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("77")}, {"duration": 1.0, "texture": ExtResource("78")}, {"duration": 1.0, "texture": ExtResource("79")}, {"duration": 1.0, "texture": ExtResource("80")}],
+"loop": false,
+"name": &"skill_r_up",
+"speed": 6.0
+}, {
+"frames": [{"duration": 1.0, "texture": ExtResource("81")}, {"duration": 1.0, "texture": ExtResource("82")}, {"duration": 1.0, "texture": ExtResource("83")}, {"duration": 1.0, "texture": ExtResource("84")}],
+"loop": false,
+"name": &"skill_r_left",
+"speed": 6.0
+}]

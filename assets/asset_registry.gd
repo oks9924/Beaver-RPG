@@ -189,7 +189,7 @@ func _get_fallback_texture() -> Texture2D:
 
 ## 검수 도구와 개발 화면용 요약.
 func report() -> Dictionary:
-	var counts := {"placeholder": 0, "final": 0, "planned": 0, "unknown": 0, "file_missing": []}
+	var counts := {"placeholder": 0, "final": 0, "derived": 0, "planned": 0, "unknown": 0, "file_missing": []}
 	for id: String in entries.keys():
 		var st := status(id)
 		counts[st] = int(counts.get(st, 0)) + 1

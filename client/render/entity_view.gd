@@ -24,6 +24,8 @@ var front_guard: bool = false
 var party_color: Color = Color.WHITE
 var boss_state: int = -1
 var molting: bool = false
+var action_kind: int = 0
+var boss_pattern: String = ""
 var _sprite := Sprite2D.new()
 var _guard := Sprite2D.new()
 var _anim: String = ""
@@ -46,6 +48,14 @@ func _ready() -> void:
 
 
 func _set_anim(name: String) -> void:
+	# 시트가 없는 동작은 가까운 동작으로 대체한다 (cast_q → cast → idle)
+	if not AssetRegistry.has(sprite_prefix + "." + name):
+		if name.begins_with("cast_") and AssetRegistry.has(sprite_prefix + ".cast"):
+			name = "cast"
+		elif name in ["stagger", "exposed", "molt", "hit", "death", "down", "walk"] and not AssetRegistry.has(sprite_prefix + "." + name):
+			name = "attack" if name in ["stagger", "exposed"] and AssetRegistry.has(sprite_prefix + ".attack") else "idle"
+		elif not name in ["idle"] and not AssetRegistry.has(sprite_prefix + "." + name):
+			name = "idle"
 	if _anim == name:
 		return
 	_anim = name
@@ -77,14 +87,21 @@ func _pick_anim() -> String:
 		match action:
 			Protocol.Action.WINDUP, Protocol.Action.ACTIVE, Protocol.Action.RECOVERY:
 				return "attack"
-			Protocol.Action.CAST, Protocol.Action.RESCUING:
+			Protocol.Action.CAST:
+				return {2: "cast_q", 3: "cast_e", 4: "cast_r"}.get(action_kind, "cast")
+			Protocol.Action.RESCUING, Protocol.Action.INTERACTING:
 				return "cast"
+			Protocol.Action.GRABBED:
+				return "hit"
 		return "walk" if moving else "idle"
 	if boss_state >= 0:
 		match boss_state:
 			BossIronclaw.BS.DEAD: return "death"
-			BossIronclaw.BS.WINDUP, BossIronclaw.BS.ATTACK, BossIronclaw.BS.GRAB_APPROACH, BossIronclaw.BS.GRABBING: return "attack"
+			BossIronclaw.BS.WINDUP, BossIronclaw.BS.ATTACK:
+				return {"claw_sweep": "claw_sweep", "line_charge": "straight_charge", "rock_toss": "rock_throw", "ground_slam": "ground_slam"}.get(boss_pattern, "attack")
+			BossIronclaw.BS.GRAB_APPROACH, BossIronclaw.BS.GRABBING: return "cast"
 			BossIronclaw.BS.STAGGER: return "stagger"
+			BossIronclaw.BS.EXPOSED: return "exposed"
 			BossIronclaw.BS.MOLT: return "molt"
 			BossIronclaw.BS.CHASE: return "walk" if moving else "idle"
 		return "idle"

@@ -36,6 +36,8 @@ func _ready() -> void:
 	test_shop_event_checkpoint()
 	print("-- test_village_bonus")
 	test_village_bonus()
+	print("-- test_entity_anim_sheets")
+	test_entity_anim_sheets()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -667,3 +669,38 @@ func test_village_bonus() -> void:
 	var p: Dictionary = inst.room.players["run70"]
 	check(is_equal_approx(p["max_hp"], float(ContentDB.get_class_def("guardian")["base_hp"]) + 10.0), "memory tree hp bonus applied to combat max hp")
 	check(inst.room.team_wood == 3, "combat room starts with the team wood")
+
+
+## 플레이어·보스 상태가 매니페스트에 있는 시트 ID 로 해석되는지 (팩 연결 검증, 서버 판정과 무관)
+func test_entity_anim_sheets() -> void:
+	var ev := EntityView.new()
+	ev.sprite_prefix = "char.guardian"
+	ev.is_player = true
+	ev.state = Protocol.EntState.ALIVE
+	ev.action = Protocol.Action.CAST
+	ev.action_kind = Protocol.ACTION_KIND_CODES["q"]
+	check(ev._pick_anim() == "cast_q", "guardian Q cast picks cast_q sheet")
+	ev.action_kind = Protocol.ACTION_KIND_CODES["r"]
+	check(ev._pick_anim() == "cast_r", "guardian R cast picks cast_r sheet")
+	for a in ["idle", "walk", "attack", "cast", "cast_q", "cast_e", "cast_r", "hit", "down"]:
+		check(AssetRegistry.has("char.guardian." + a) and AssetRegistry.status("char.guardian." + a) in ["final", "derived"], "guardian sheet linked: " + a)
+	var bv := EntityView.new()
+	bv.sprite_prefix = "boss.ironclaw"
+	bv.is_player = false
+	bv.boss_state = BossIronclaw.BS.ATTACK
+	for pat in [["claw_sweep", "claw_sweep"], ["line_charge", "straight_charge"], ["rock_toss", "rock_throw"], ["ground_slam", "ground_slam"]]:
+		bv.boss_pattern = pat[0]
+		check(bv._pick_anim() == pat[1] and AssetRegistry.status("boss.ironclaw." + pat[1]) == "final", "boss pattern %s -> pack sheet %s" % [pat[0], pat[1]])
+	bv.boss_state = BossIronclaw.BS.STAGGER
+	check(bv._pick_anim() == "stagger" and AssetRegistry.status("boss.ironclaw.stagger") == "final", "boss stagger sheet from pack")
+	bv.boss_state = BossIronclaw.BS.EXPOSED
+	check(bv._pick_anim() == "exposed", "boss exposed sheet")
+	for i in range(1, 6):
+		for k in ["activation", "success", "failure"]:
+			var id := "prop.mechanic.ic_0%d.%s" % [i, k]
+			check(AssetRegistry.status(id) == "final" and int(AssetRegistry.entry(id).get("columns", 0)) == 4, "IC-0%d %s sheet linked (4 frames)" % [i, k])
+	for e in ["sap_snail", "thorn_boar", "black_bird"]:
+		for a in ["idle", "walk", "attack", "hit", "death"]:
+			check(AssetRegistry.status("enemy.%s.%s" % [e, a]) in ["final", "derived"], "enemy sheet linked: %s.%s" % [e, a])
+	ev.free()
+	bv.free()

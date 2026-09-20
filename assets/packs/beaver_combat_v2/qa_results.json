@@ -1,0 +1,12 @@
+{
+  "actors": 30,
+  "animations": 225,
+  "frame_pngs": 720,
+  "unique_frame_files": 720,
+  "unique_frame_hashes": 720,
+  "source_sheets": 45,
+  "mechanics": 15,
+  "issues": [],
+  "godot_runtime_tested": false,
+  "browser_runtime_tested": false
+}

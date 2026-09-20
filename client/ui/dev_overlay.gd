@@ -12,6 +12,6 @@ func _ready() -> void:
 
 func update_info(net: NetClient, world: WorldView, room: Dictionary, seq: int, pending: int) -> void:
 	var rep := AssetRegistry.report()
-	text = "FPS %d · ping %dms · 서버 tick %.2fms · 상태 %d\n엔티티 %d · 예고 %d · 시드 %s · N %s · 입력 seq %d (미확인 %d)\n에셋: 임시 %d / 확정 %d / 예정 %d · 런타임 대체 %d" % [
+	text = "FPS %d · ping %dms · 서버 tick %.2fms · 상태 %d\n엔티티 %d · 예고 %d · 시드 %s · N %s · 입력 seq %d (미확인 %d)\n에셋: 임시 %d / 확정 %d / 파생 %d / 예정 %d · 런타임 대체 %d" % [
 		Engine.get_frames_per_second(), net.ping_ms, net.server_tick_ms, net.state, world.entities.size(), world.telegraphs.size(),
-		room.get("seed", "-"), room.get("n", "-"), seq, pending, rep.get("placeholder", 0), rep.get("final", 0), rep.get("planned", 0), rep.get("runtime_fallbacks", []).size()]
+		room.get("seed", "-"), room.get("n", "-"), seq, pending, rep.get("placeholder", 0), rep.get("final", 0), rep.get("derived", 0), rep.get("planned", 0), rep.get("runtime_fallbacks", []).size()]

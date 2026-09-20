@@ -66,7 +66,8 @@ const ERR_HELLO_TIMEOUT := "HELLO_TIMEOUT"
 const ERR_TOKEN_EXPIRED := "TOKEN_EXPIRED"
 
 ## 전투 스냅샷 배열 인덱스 (CombatRoom.snapshot 과 일치해야 한다)
-enum SNAP_P { X, Y, FX, FY, HP, STATE, ACTION, DODGE, SHIELD, DOWN_T, CD_Q, CD_E, CD_R, INVULN, RESCUE_T, HEAL, CONNECTED, FRONT_GUARD }
+enum SNAP_P { X, Y, FX, FY, HP, STATE, ACTION, DODGE, SHIELD, DOWN_T, CD_Q, CD_E, CD_R, INVULN, RESCUE_T, HEAL, CONNECTED, FRONT_GUARD, ACTION_KIND }
+const ACTION_KIND_CODES := {"": 0, "basic": 1, "q": 2, "e": 3, "r": 4, "heal": 5, "dodge": 6, "rescue": 7, "interact": 8, "grabbed": 9}
 enum SNAP_E { X, Y, FX, FY, HP, MAX_HP, AI }
 enum SNAP_TG { TYPE, X, Y, R, REMAINING, TOTAL, DX, DY, W }   # TYPE 0=원 1=직선(길이 R, 폭 W)
 enum SNAP_PR { X, Y, VX, VY, R, KIND }                      # KIND 0=적 투사체 1=아군 투사체

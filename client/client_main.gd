@@ -112,6 +112,8 @@ func _ready() -> void:
 		_shots_dir = String(launch_args.get("shots", "user://shots"))
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_shots_dir) if _shots_dir.begins_with("user://") else _shots_dir)
 		overlay.visible = true
+	if launch_args.has("zoom"):
+		world.camera.zoom = Vector2.ONE * clampf(float(launch_args["zoom"]), 0.25, 4.0)
 	if launch_args.has("connect"):
 		var parts: PackedStringArray = String(launch_args["connect"]).split(":")
 		_on_connect_requested(parts[0], int(parts[1]) if parts.size() > 1 else Protocol.DEFAULT_PORT)
@@ -418,12 +420,15 @@ func _on_room_event(ev: Dictionary) -> void:
 		"boss_spawn":
 			hud.toast("철턱 가재가 나타났다!", 3.0)
 		"mechanic_start":
+			world.mechanic_result(String(ev.get("id", "")), false, true)
 			hud.toast("[%s] %s — %s" % [ev.get("id", ""), ev.get("name", ""), ev.get("hint", "")], 5.0)
 			hud.add_chat("기믹", "%s: %s" % [ev.get("name", ""), ev.get("hint", "")])
 			world.play_sound("sfx.great_tree", 0.3)
 		"mechanic_end":
 			hud.toast("%s %s — %s" % [ev.get("id", ""), "성공!" if bool(ev.get("success", false)) else "실패", ev.get("text", "")], 4.0)
 			world.play_sound("sfx.rescue" if bool(ev.get("success", false)) else "sfx.down")
+			world.mechanic_result(String(ev.get("id", "")), bool(ev.get("success", false)))
+
 		"shell_break":
 			hud.toast("갑각 파괴! (%d/3) 받는 피해 증가" % int(ev.get("segments", 0)), 3.0)
 			world.spawn_effect("vfx.tail_shockwave", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
@@ -532,6 +537,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		ev.max_hp = float(ContentDB.get_class_def(class_id).get("base_hp", 100))
 		ev.state = int(e[Protocol.SNAP_P.STATE])
 		ev.action = int(e[Protocol.SNAP_P.ACTION])
+		ev.action_kind = int(e[Protocol.SNAP_P.ACTION_KIND]) if e.size() > Protocol.SNAP_P.ACTION_KIND else 0
 		ev.shield = e[Protocol.SNAP_P.SHIELD]
 		ev.down_t = e[Protocol.SNAP_P.DOWN_T]
 		ev.invuln = e[Protocol.SNAP_P.INVULN] > 0.5
@@ -573,6 +579,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		bev.hp = float(bs["hp"])
 		bev.max_hp = float(bs["max_hp"])
 		bev.boss_state = int(bs.get("state", 0))
+		bev.boss_pattern = String(bs.get("pattern", ""))
 		bev.molting = bool(bs.get("molting", false))
 		bev.target_pos = bpos
 		bev.visible = not bev.molting

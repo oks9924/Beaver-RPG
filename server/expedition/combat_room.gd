@@ -1233,7 +1233,7 @@ func snapshot() -> Dictionary:
 		var v := PackedFloat32Array([
 			p["pos"].x, p["pos"].y, p["facing"].x, p["facing"].y, p["hp"], p["state"], p["action"], p["dodge_charges"], p["shield"], p["down_t"],
 			p["cd"]["q"], p["cd"]["e"], p["cd"]["r"], 1.0 if (float(p["invuln_t"]) > 0.0 or float(p["protect_t"]) > 0.0) else 0.0, p["rescue_t"], p["heal_uses"],
-			1.0 if p["connected"] else 0.0, 1.0 if float(p["front_guard_t"]) > 0.0 else 0.0])
+			1.0 if p["connected"] else 0.0, 1.0 if float(p["front_guard_t"]) > 0.0 else 0.0, float(Protocol.ACTION_KIND_CODES.get(String(p["action_kind"]), 0))])
 		ps.append([p["id"], v])
 	var es: Array = []
 	var tgs: Array = []
