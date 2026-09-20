@@ -9,7 +9,7 @@
 | `-- --tool=check_assets` | 매니페스트 83항목: 파일 존재·규격·프레임·참조 (AST-01 자동 항목) | 문제 0 |
 | `-- --tool=run_tests` | 단위 83개: PBKDF2 표준 벡터, 계정 생성/로그인/토큰/잠금, 원자적 저장·.bak 복구, 판정 수학, 전투방(입력 중복, 이동, 회피, 공격 판정, 승리, 다운/구조/전멸, 전방 방어, 보호막), 인원 프로필 고정, 원정 정원 | 83/83 |
 | `tests/integration/run_integration.sh` | 서버 1 + headless 클라이언트 봇 최대 10개 동시 | 42/42 |
-| export 실행 파일 왕복 | Linux 서버 export + Linux 클라이언트 export(봇 모드)로 가입→원정→결과 왕복, export 본에서 에셋 8종·폰트·효과음 로드 확인 | 통과 |
+| export 실행 파일 왕복 | `tests/integration/run_export_smoke.sh`: Linux 서버·클라이언트 export 를 프로젝트 밖 임시 폴더에 복사해 실행, 가입→원정→결과 왕복과 export 본 에셋 8종·폰트·효과음 로드 확인. CI 빌드 잡에서도 실행 | 통과 |
 | Windows export | `TailExpedition.exe`(101MB, pck 내장), `tail-expedition-server.exe` 생성 | 생성만 확인, 실행 미검증 |
 | 정상 종료 | `scripts/stop_server.sh` → STOP 파일 → 접속자 알림·저장 플러시·status `stopped=true` 후 종료 | 통과 |
 
@@ -27,6 +27,9 @@
 | NET-02 | 클라이언트가 피해·체력·재화를 확정하는 RPC 자체가 없음(`c_msg`, `c_input` 만 존재). 서버 전용 `s_*` 는 authority 모드 | 구조상 보장, 악의적 클라이언트 실측 미수행 |
 | SAVE-02 | 재시작 후 계정 통계(처치·클리어)와 불변 계정 ID 유지, 마을 누적 카운터 유지 | 통과 |
 | ECO-01, GEN-01, BAL-*, MEC-*, TIME-01, GROW-*, PERF-01 | 단계 2 이후 콘텐츠 | 미구현/미검증 |
+
+## 발견·수정한 결함
+- **export 빌드에서 모든 에셋이 대체 도형으로 표시됨** (Windows 실기에서 발견). 원인: pck 에는 원본 png/ttf/wav 가 아니라 import 된 리소스만 들어가는데 AssetRegistry 가 원본 파일 존재만 확인했다. 초기 Linux 검증은 프로젝트 폴더에서 실행해 원본을 읽는 바람에 통과했다. 수정: `ResourceLoader.exists` 로도 해석하고, export 스모크 테스트를 프로젝트 밖 폴더에서 실행하도록 바꿨다.
 
 ## 화면 검증 (Xvfb + Mesa llvmpipe, OpenGL3 호환 렌더러)
 - 클라이언트 데모 모드(`--demo=<nick> --shots=<dir>`)로 실제 클라이언트를 가상 디스플레이에서 실행해 로그인·마을·파티·전투·결과 화면을 캡처했다. `docs/screenshots/` 참고.

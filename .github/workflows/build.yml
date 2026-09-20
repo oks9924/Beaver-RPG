@@ -51,6 +51,8 @@ jobs:
           unzip -q templates.tpz -d /tmp/tpl && mv /tmp/tpl/templates ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Build all targets
         run: GODOT=/usr/local/bin/godot scripts/build.sh all
+      - name: Export smoke test (exported server + client run outside the project dir)
+        run: tests/integration/run_export_smoke.sh /usr/local/bin/godot
       - name: Package
         run: |
           VER="${GITHUB_REF_NAME}"

@@ -67,12 +67,20 @@ func resolve_path(id: String) -> String:
 		if FileAccess.file_exists(p):
 			return p
 	var fp: String = e.get("final_path", "")
-	if fp != "" and FileAccess.file_exists(fp):
+	if fp != "" and _exists(fp):
 		return fp
 	var pp: String = e.get("path", "")
-	if pp != "" and FileAccess.file_exists(pp):
+	if pp != "" and _exists(pp):
 		return pp
 	return ""
+
+
+## export 된 빌드에서는 원본 png/ttf/wav 가 아니라 import 된 리소스(.ctex/.fontdata/.sample)만 pck 에 들어간다.
+## 그래서 res:// 경로는 FileAccess 뿐 아니라 ResourceLoader 로도 존재 여부를 확인한다.
+func _exists(path: String) -> bool:
+	if FileAccess.file_exists(path):
+		return true
+	return path.begins_with("res://") and ResourceLoader.exists(path)
 
 
 func _ext_for(e: Dictionary) -> String:
@@ -90,7 +98,7 @@ func get_texture(id: String) -> Texture2D:
 	if path != "":
 		if path.begins_with("res://") and ResourceLoader.exists(path, "Texture2D"):
 			tex = load(path) as Texture2D
-		if tex == null:
+		if tex == null and FileAccess.file_exists(path):
 			var img := Image.new()
 			var err := img.load_png_from_buffer(FileAccess.get_file_as_bytes(path))
 			if err == OK:
@@ -139,9 +147,12 @@ func get_font(id: String) -> Font:
 	var path := resolve_path(id)
 	var font: Font = null
 	if path != "":
-		var ff := FontFile.new()
-		if ff.load_dynamic_font(path) == OK:
-			font = ff
+		if path.begins_with("res://") and ResourceLoader.exists(path, "Font"):
+			font = load(path) as Font
+		if font == null:
+			var ff := FontFile.new()
+			if ff.load_dynamic_font(path) == OK:
+				font = ff
 	if font == null:
 		push_warning("[AssetRegistry] font fallback for '%s'" % id)
 		font = ThemeDB.fallback_font
@@ -154,10 +165,10 @@ func get_audio(id: String) -> AudioStream:
 		return _audio_cache[id]
 	var path := resolve_path(id)
 	var stream: AudioStream = null
-	if path != "" and path.ends_with(".wav"):
+	if path != "":
 		if path.begins_with("res://") and ResourceLoader.exists(path, "AudioStream"):
 			stream = load(path) as AudioStream
-		if stream == null:
+		if stream == null and path.ends_with(".wav") and FileAccess.file_exists(path):
 			stream = AudioStreamWAV.load_from_file(path)
 	if stream == null and not missing_ids.has(id):
 		missing_ids.append(id)
