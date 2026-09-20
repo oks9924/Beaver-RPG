@@ -29,7 +29,7 @@ func running_count() -> int:
 	return c
 
 
-func create(s: Session, public: bool, difficulty: String, permanent: Dictionary = {}) -> Dictionary:
+func create(s: Session, public: bool, difficulty: String, permanent: Dictionary = {}, tutorial: bool = false) -> Dictionary:
 	if s.expedition_id != "":
 		return {"ok": false, "error": Protocol.ERR_ALREADY_IN_EXPEDITION}
 	if active_count() >= max_active:
@@ -38,7 +38,10 @@ func create(s: Session, public: bool, difficulty: String, permanent: Dictionary 
 	_seq += 1
 	var inst := ExpeditionInstance.new(id, int(rng.randi()))
 	inst.public = public
-	inst.difficulty = difficulty if difficulty in ["normal"] else "normal"
+	inst.difficulty = difficulty if (ContentDB.rules.get("difficulties", {}) as Dictionary).has(difficulty) else "normal"
+	inst.tutorial = tutorial
+	if tutorial:
+		inst.public = false
 	inst.host_nick = s.nickname
 	inst.add_member(s, permanent)
 	instances[id] = inst
@@ -51,6 +54,11 @@ func join(s: Session, id: String, permanent: Dictionary = {}) -> Dictionary:
 	var inst: ExpeditionInstance = instances.get(id, null)
 	if inst == null or inst.state == Protocol.ExpState.CLOSED:
 		return {"ok": false, "error": Protocol.ERR_NO_EXPEDITION}
+	if inst.paused:
+		if not inst.members.has(s.account_id):
+			return {"ok": false, "error": Protocol.ERR_NO_EXPEDITION}
+		inst.resume_member(s)
+		return {"ok": true, "expedition": inst, "resumed": true}
 	var err := inst.can_join(s.account_id)
 	if err != "":
 		return {"ok": false, "error": err}
@@ -88,10 +96,19 @@ func close(inst: ExpeditionInstance) -> void:
 	instances.erase(inst.id)
 
 
-func board_list() -> Array:
+## 공개 원정 + (account_id 가 주어지면) 그 계정이 멤버인 중단된 원정(이어하기)
+func board_list(account_id: String = "") -> Array:
 	var out: Array = []
 	for e: ExpeditionInstance in instances.values():
-		if e.state == Protocol.ExpState.CLOSED or not e.public:
+		if e.state == Protocol.ExpState.CLOSED:
+			continue
+		if e.paused and account_id != "" and e.members.has(account_id):
+			var entry := e.board_entry()
+			entry["resume"] = true
+			entry["joinable"] = true
+			out.append(entry)
+			continue
+		if not e.public or e.paused:
 			continue
 		out.append(e.board_entry())
 	return out

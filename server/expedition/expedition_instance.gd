@@ -20,6 +20,9 @@ var last_result: Dictionary = {}
 var n_locked: int = 0
 var suspended: bool = false
 var suspended_at: float = 0.0
+var paused: bool = false            # 파티가 안전 지점에서 명시적으로 중단한 원정 (이어하기 가능, SAVE-01)
+var paused_at: float = 0.0
+var tutorial: bool = false
 var content_version: String = Protocol.CONTENT_VERSION
 var _snap_accum: int = 0
 var rooms_cleared: int = 0
@@ -214,6 +217,8 @@ func _new_run() -> void:
 	var reward_rng := RandomNumberGenerator.new()
 	reward_rng.seed = seed_value + 7919
 	var layers: Array = build_route(seed_value, "willow_river", int(ContentDB.rule("run_regions", 3)))
+	if tutorial:
+		layers = [[{"id": "L0N0", "layer": 0, "index": 0, "type": "combat", "variant": "tutorial", "hint": "튜토리얼", "region": "willow_river", "region_name": "버들둑 훈련장"}]]
 	if debug_boss != "" and ContentDB.bosses.has(debug_boss):
 		var bnode := {}
 		for layer: Array in layers:
@@ -394,6 +399,42 @@ func _start_room_for_node(node: Dictionary) -> void:
 	start_room()
 
 
+## 인원 프로필에 난이도 배율을 곱한 값 (rules.difficulties)
+func effective_profile(base: Dictionary) -> Dictionary:
+	var d: Dictionary = ContentDB.rules.get("difficulties", {}).get(difficulty, {})
+	if d.is_empty():
+		return base
+	var out := base.duplicate()
+	out["enemy_hp_mult"] = float(base.get("enemy_hp_mult", 1.0)) * float(d.get("enemy_hp_mult", 1.0))
+	out["hit_damage_mult"] = float(base.get("hit_damage_mult", 1.0)) * float(d.get("damage_mult", 1.0))
+	out["boss_hp_mult"] = float(base.get("boss_hp_mult", 1.0)) * float(d.get("boss_hp_mult", 1.0))
+	out["wave_budget_mult"] = float(base.get("wave_budget_mult", 1.0)) * float(d.get("wave_budget_mult", 1.0))
+	out["difficulty"] = difficulty
+	return out
+
+
+## 파티 중단 (안전 지점에서만): 체크포인트로 저장되고 멤버는 마을로 돌아간다. 멤버가 모집판에서 이어하기로 복귀한다.
+func pause_run() -> bool:
+	if not is_safe_point() and state != Protocol.ExpState.PREPARING:
+		return false
+	if state == Protocol.ExpState.PREPARING:
+		return false
+	paused = true
+	paused_at = Time.get_unix_time_from_system()
+	suspended = true
+	checkpoint_dirty = true
+	for aid: String in members.keys():
+		members[aid]["ready"] = false
+	return true
+
+
+func resume_member(s: Session) -> void:
+	paused = false
+	suspended = false
+	mark_reconnected(s)
+	outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": "%s 이(가) 중단했던 원정을 이어갑니다 (%s)." % [s.nickname, String(run.get("checkpoint_note", ""))]}})
+
+
 ## 방 시작: 이 시점의 연결된 멤버 수로 N 을 확정하고 프로필을 고정한다.
 func start_room() -> Dictionary:
 	if run.is_empty():
@@ -415,7 +456,7 @@ func start_room() -> Dictionary:
 	var room_seed := int(rng.randi())
 	var opts := {"budget_add": float(run.get("next_room_budget_add", 0.0)), "team_wood": int(run.get("team_wood", 0)), "enemy_pool": ContentDB.get_room_def(room_id).get("enemy_pool", run.get("enemy_pool", []))}
 	run["next_room_budget_add"] = 0.0
-	room = CombatRoom.new(ContentDB.get_room_def(room_id), profile, ContentDB.rules, room_seed, member_list, opts)
+	room = CombatRoom.new(ContentDB.get_room_def(room_id), effective_profile(profile), ContentDB.rules, room_seed, member_list, opts)
 	if room_id.begins_with("boss_"):
 		var boss_id := String(room_id.trim_prefix("boss_"))
 		var path := "res://server/expedition/boss_%s.gd" % boss_id
@@ -423,7 +464,7 @@ func start_room() -> Dictionary:
 			path = "res://server/expedition/boss_ironclaw.gd"
 		var boss_script: GDScript = load(path)
 		if boss_script != null:
-			room.boss = boss_script.new(room, profile, ContentDB.bosses.get(boss_id, {}))
+			room.boss = boss_script.new(room, effective_profile(profile), ContentDB.bosses.get(boss_id, {}))
 	room_index += 1
 	state = Protocol.ExpState.IN_ROOM
 	choices.clear()
@@ -457,7 +498,7 @@ func party_payload() -> Dictionary:
 
 
 func board_entry() -> Dictionary:
-	return {"id": id, "state": state, "public": public, "difficulty": difficulty, "members": members.size(), "max": Protocol.MAX_PARTY_SIZE, "room_index": room_index, "joinable": is_joinable() and members.size() < Protocol.MAX_PARTY_SIZE, "host_nick": host_nick}
+	return {"id": id, "state": state, "public": public, "difficulty": difficulty, "members": members.size(), "max": Protocol.MAX_PARTY_SIZE, "room_index": room_index, "joinable": is_joinable() and members.size() < Protocol.MAX_PARTY_SIZE and not paused, "host_nick": host_nick, "paused": paused, "tutorial": tutorial, "region": run.get("region_name", "") if not run.is_empty() else ""}
 
 
 func run_payload() -> Dictionary:
@@ -749,6 +790,16 @@ func menu_payload() -> Dictionary:
 
 ## 메뉴 행동: {"action": "vote", "choice": id} | {"action": "buy", "item": id} | {"action": "continue"}
 func node_action(aid: String, payload: Dictionary) -> Dictionary:
+	if String(payload.get("action", "")) == "skip_tutorial":
+		if state == Protocol.ExpState.IN_ROOM and room != null and room.objective == "tutorial":
+			room.tutorial_skip()
+			return {"ok": true}
+		return {"ok": false, "error": Protocol.ERR_BAD_STATE}
+	if String(payload.get("action", "")) == "ping":
+		if state == Protocol.ExpState.IN_ROOM and room != null:
+			room.pending_events.append({"k": "ping", "id": aid, "x": float(payload.get("x", 0)), "y": float(payload.get("y", 0))})
+			return {"ok": true}
+		return {"ok": false, "error": Protocol.ERR_BAD_STATE}
 	if state != Protocol.ExpState.NODE_MENU:
 		return {"ok": false, "error": Protocol.ERR_BAD_STATE}
 	var menu: Dictionary = run["menu"]
@@ -968,7 +1019,7 @@ func to_checkpoint() -> Dictionary:
 		m["connected"] = false
 		m["peer_id"] = 0
 		mem[aid] = m
-	return {"id": id, "seed": seed_value, "public": public, "difficulty": difficulty, "created_at": created_at, "saved_at": Time.get_unix_time_from_system(),
+	return {"id": id, "seed": seed_value, "public": public, "difficulty": difficulty, "paused": paused, "tutorial": tutorial, "created_at": created_at, "saved_at": Time.get_unix_time_from_system(),
 		"state": state, "room_index": room_index, "room_id": room_id, "rooms_cleared": rooms_cleared, "n_locked": n_locked, "host_nick": host_nick,
 		"members": mem, "run": run.duplicate(true), "rng_state": rng.state, "content_version": content_version, "phase_deadline": phase_deadline, "run_outcome": run_outcome,
 		"room_in_progress": state == Protocol.ExpState.IN_ROOM, "last_result": last_result.duplicate(true)}
@@ -978,6 +1029,8 @@ static func from_checkpoint(cp: Dictionary) -> ExpeditionInstance:
 	var inst := ExpeditionInstance.new(String(cp["id"]), int(cp["seed"]))
 	inst.public = bool(cp.get("public", true))
 	inst.difficulty = String(cp.get("difficulty", "normal"))
+	inst.paused = bool(cp.get("paused", false))
+	inst.tutorial = bool(cp.get("tutorial", false))
 	inst.created_at = float(cp.get("created_at", 0))
 	inst.room_index = int(cp.get("room_index", 0))
 	inst.room_id = String(cp.get("room_id", "annihilate"))

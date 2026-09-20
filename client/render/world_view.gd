@@ -11,6 +11,8 @@ var objects: Array = []           # PackedFloat32Array (Protocol.SNAP_OB)
 var water_zone: PackedFloat32Array = PackedFloat32Array()
 var hazards: Array = []           # PackedFloat32Array [x,y,w,h,slow]
 var npcs: Array = []              # 마을 NPC [{id,name_ko,x,y,sprite}]
+var sfx_volume: float = 0.8
+var flash_reduce: bool = false
 var _npc_sprites: Array = []
 var boss_state: Dictionary = {}
 var _object_tex: Dictionary = {}
@@ -471,6 +473,7 @@ func play_sound(asset_id: String, min_gap: float = 0.06) -> void:
 	for ap: AudioStreamPlayer in _audio_players:
 		if not ap.playing:
 			ap.stream = stream
+			ap.volume_db = linear_to_db(clampf(sfx_volume, 0.0, 1.0)) if sfx_volume > 0.001 else -80.0
 			ap.play()
 			_audio_last[asset_id] = now
 			return

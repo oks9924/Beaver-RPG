@@ -3130,5 +3130,111 @@
     850
    ]
   ]
+ },
+ "tutorial": {
+  "id": "tutorial",
+  "name_ko": "버들둑 훈련장 — 튜토리얼",
+  "region": "willow_river",
+  "objective": "tutorial",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1400,
+   "h": 900
+  },
+  "player_spawns": [
+   [
+    300,
+    450
+   ],
+   [
+    340,
+    410
+   ],
+   [
+    340,
+    490
+   ],
+   [
+    380,
+    450
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    700,
+    450
+   ],
+   [
+    760,
+    500
+   ],
+   [
+    640,
+    500
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 700,
+    "y": 300,
+    "r": 48,
+    "asset": "prop.willow.log"
+   },
+   {
+    "shape": "circle",
+    "x": 760,
+    "y": 640,
+    "r": 56,
+    "asset": "prop.willow.rock"
+   }
+  ],
+  "water": [
+   {
+    "x": 0,
+    "y": 820,
+    "w": 1400,
+    "h": 80,
+    "damage_fraction": 0.1
+   }
+  ],
+  "waves": {
+   "base_budget": 1.5,
+   "wave_count": 1,
+   "next_wave_when_alive_at_most": 0,
+   "wave_gap_sec": 99
+  },
+  "enemy_pool": [
+   {
+    "id": "training_dummy",
+    "weight": 1.0
+   }
+  ],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.combat_normal"
+  },
+  "gnaw_trees": [
+   [
+    520,
+    300
+   ]
+  ],
+  "sluice": {
+   "lever": [
+    1000,
+    140
+   ],
+   "zone": {
+    "x": 600,
+    "y": 60,
+    "w": 800,
+    "h": 140
+   },
+   "hold_sec": 1.5
+  }
  }
 }

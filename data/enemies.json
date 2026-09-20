@@ -485,5 +485,40 @@
    "enemy_heal_per_sec": 2.0
   },
   "region_hint": "ancient_root_dam"
+ },
+ "training_dummy": {
+  "id": "training_dummy",
+  "name_ko": "훈련 허수아비",
+  "role": "dummy",
+  "implemented": true,
+  "hp": 30,
+  "move_speed": 0,
+  "radius": 22,
+  "threat_cost": 0.5,
+  "aggro_range": 0,
+  "leash_range": 0,
+  "xp": 0,
+  "wood_drop": 0,
+  "assets": {
+   "sprite": "enemy.sap_snail",
+   "icon": "icon.enemy.sap_snail",
+   "sfx_hit": "sfx.snail_hit",
+   "sfx_death": "sfx.snail_death"
+  },
+  "attack": {
+   "id": "none",
+   "windup_sec": 99,
+   "active_sec": 0.1,
+   "recovery_sec": 1,
+   "cooldown_sec": 99,
+   "shape": "circle",
+   "radius": 1,
+   "forward_offset": 0,
+   "damage": 0,
+   "heavy": false,
+   "telegraph_asset": "vfx.telegraph_circle"
+  },
+  "stagger_sec_on_hit": 0.1,
+  "stagger_resist_after_sec": 1.0
  }
 }

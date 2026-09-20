@@ -145,7 +145,7 @@ func _process(dt: float) -> void:
 	_flash_t = maxf(_flash_t - dt, 0.0)
 	var mod := Color.WHITE
 	if _flash_t > 0.0:
-		mod = Color(1.6, 0.6, 0.6)
+		mod = Color(1.15, 0.85, 0.85) if (get_parent() != null and get_parent().get("flash_reduce") == true) else Color(1.6, 0.6, 0.6)
 	elif status_bits & Protocol.ST_VULN:
 		mod = Color(1.3, 0.85, 0.6)
 	elif status_bits & Protocol.ST_SLOW or status_bits & Protocol.ST_ROOT:

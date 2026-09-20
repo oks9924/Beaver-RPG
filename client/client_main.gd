@@ -28,6 +28,9 @@ var _pending: Array = []            # [{seq, mv, dt}]
 var _pred_pos: Vector2 = Vector2.ZERO
 var selected_class: String = "guardian"
 var npc_panel := NpcPanel.new()
+var settings_panel := SettingsPanel.new()
+var selected_difficulty: String = "normal"
+var _map_big: bool = false
 var build_kind: String = "log_cover"
 var _me_snapshot: PackedFloat32Array = PackedFloat32Array()
 var _room_players: Array = []
@@ -52,6 +55,8 @@ func _ready() -> void:
 		selected_class = String(settings.data.get("last_class", "guardian"))
 	if launch_args.has("class") and ContentDB.is_class_playable(String(launch_args["class"])):
 		selected_class = String(launch_args["class"])
+	if (ContentDB.rules.get("difficulties", {}) as Dictionary).has(String(settings.data.get("last_difficulty", ""))):
+		selected_difficulty = String(settings.data["last_difficulty"])
 	_setup_input_map()
 	net = NetClient.new()
 	net.name = "NetClient"
@@ -92,7 +97,7 @@ func _ready() -> void:
 	login_screen.login_requested.connect(func(n: String, p: String) -> void: _auth(Protocol.C.LOGIN, {"nick": n, "password": p}))
 	login_screen.register_requested.connect(func(n: String, p: String) -> void: _auth(Protocol.C.REGISTER, {"nick": n, "password": p}))
 	login_screen.back_requested.connect(func() -> void: net.disconnect_from_server(""); _set_mode("connect"))
-	hub_screen.create_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class}))
+	hub_screen.create_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": selected_difficulty, "class_id": selected_class}))
 	hub_screen.join_requested.connect(func(id: String) -> void: net.send(Protocol.C.BOARD_JOIN, {"expedition_id": id, "class_id": selected_class}))
 	hub_screen.class_changed.connect(func(cid: String) -> void:
 		selected_class = cid
@@ -114,6 +119,19 @@ func _ready() -> void:
 	run_panels.node_action.connect(func(p: Dictionary) -> void: net.send(Protocol.C.NODE_ACTION, p))
 	npc_panel.name = "NpcPanel"
 	root.add_child(npc_panel)
+	settings_panel.setup(settings)
+	settings_panel.name = "SettingsPanel"
+	root.add_child(settings_panel)
+	settings_panel.changed.connect(_apply_settings)
+	_apply_settings()
+	hub_screen.settings_requested.connect(func() -> void: settings_panel.show_panel())
+	hub_screen.tutorial_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": false, "difficulty": "easy", "class_id": selected_class, "tutorial": true}))
+	hub_screen.difficulty_changed.connect(func(d: String) -> void:
+		selected_difficulty = d
+		settings.data["last_difficulty"] = d
+		settings.save())
+	run_panels.pause_requested.connect(func() -> void: net.send(Protocol.C.EXPEDITION_PAUSE, {}))
+	hud.skip_tutorial.connect(func() -> void: net.send(Protocol.C.NODE_ACTION, {"action": "skip_tutorial"}))
 	npc_panel.quest_action.connect(func(qid: String, action: String) -> void: net.send(Protocol.C.QUEST_ACTION, {"quest": qid, "action": action}))
 	net.state_changed.connect(_on_net_state)
 	net.hello_result.connect(_on_hello)
@@ -142,9 +160,16 @@ func _setup_input_map() -> void:
 		"dodge": [KEY_SPACE], "skill_q": [KEY_Q], "skill_e": [KEY_E], "skill_r": [KEY_R], "interact": [KEY_F], "heal": [KEY_1], "build_place": [KEY_B],
 		"build": [KEY_B], "build_cycle": [KEY_G], "map": [KEY_TAB], "dev_overlay": [KEY_F3], "chat": [KEY_ENTER], "fullscreen": [KEY_F11],
 	}
+	var custom: Dictionary = settings.data.get("keybinds", {})
 	for action: String in binds.keys():
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
+		InputMap.action_erase_events(action)
+		if custom.has(action):
+			var ev := InputEventKey.new()
+			ev.physical_keycode = int(custom[action]) as Key
+			InputMap.action_add_event(action, ev)
+		else:
 			for key: Key in binds[action]:
 				var ev := InputEventKey.new()
 				ev.physical_keycode = key
@@ -154,6 +179,23 @@ func _setup_input_map() -> void:
 		var mb := InputEventMouseButton.new()
 		mb.button_index = MOUSE_BUTTON_LEFT
 		InputMap.action_add_event("attack", mb)
+	if not InputMap.has_action("ping"):
+		InputMap.add_action("ping")
+		var mm := InputEventMouseButton.new()
+		mm.button_index = MOUSE_BUTTON_MIDDLE
+		InputMap.action_add_event("ping", mm)
+
+
+## 설정 적용: UI 배율, 아군 VFX 투명도, 음량, 전체 화면, 키 재설정 (18절 접근성)
+func _apply_settings() -> void:
+	get_tree().root.content_scale_factor = clampf(float(settings.data.get("ui_scale", 1.0)), 0.8, 1.6)
+	world.ally_vfx_alpha = float(settings.data.get("ally_vfx_alpha", 0.7))
+	world.sfx_volume = float(settings.data.get("volume_sfx", 0.8))
+	world.flash_reduce = bool(settings.data.get("flash_reduce", false))
+	var want_full := bool(settings.data.get("fullscreen", false))
+	if not demo and bot == null and DisplayServer.get_name() != "headless":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if want_full else DisplayServer.WINDOW_MODE_WINDOWED)
+	_setup_input_map()
 
 
 func _set_mode(m: String) -> void:
@@ -165,6 +207,7 @@ func _set_mode(m: String) -> void:
 	hub_screen.visible = m == "hub"
 	if m == "hub":
 		hub_screen.set_selected_class(selected_class)
+		hub_screen.set_selected_difficulty(selected_difficulty)
 	hud.visible = m in ["room", "result", "phase"]
 	result_panel.visible = m == "result"
 	run_panels.visible = m == "phase"
@@ -295,6 +338,10 @@ func _on_message(type: int, p: Dictionary) -> void:
 			world.camera.position = _pred_pos
 			world.camera.reset_smoothing()
 			hud.update_room(room)
+			hud.set_tutorial("", 0, 1)
+			hud.minimap.bounds = Rect2(b["x"], b["y"], b["w"], b["h"])
+			hud.minimap.pings.clear()
+			hud.minimap.route_text = _route_summary(p.get("run", {}))
 			hud.toast("%s — 기준 인원 %d" % [def.get("name_ko", "전투방"), int(p.get("n", 1))], 3.0)
 			run_panels.hide_panel()
 			_set_mode("room")
@@ -472,6 +519,17 @@ func _on_room_event(ev: Dictionary) -> void:
 			hud.toast("밸브가 되돌아갔다 — 동시에 돌리세요", 1.5)
 		"log_wrong":
 			hud.toast("틀린 순서! 처음부터", 1.5)
+		"tutorial_step":
+			hud.set_tutorial(String(ev.get("text", "")), int(ev.get("index", 0)), int(ev.get("total", 1)))
+			hud.toast(String(ev.get("text", "")), 4.0)
+		"tutorial_done":
+			hud.set_tutorial("", 0, 1)
+			hud.toast("튜토리얼 완료! 마을로 돌아갑니다" if not bool(ev.get("skipped", false)) else "튜토리얼 건너뜀", 3.0)
+		"ping":
+			var pp := Vector2(float(ev.get("x", 0)), float(ev.get("y", 0)))
+			hud.minimap.pings.append([pp, 4.0, _roster_nick(String(ev.get("id", "")))])
+			world.spawn_effect("vfx.rescue_ring", pp, 0.0, 2.5)
+			hud.toast("%s: 여기!" % _roster_nick(String(ev.get("id", ""))), 1.5)
 		"secret_found":
 			hud.toast("지역 비밀 발견: %s (+%d 조각)" % [String(ev.get("name", "")), int(ContentDB.rule("secret_reward_shards", 2))], 3.0)
 			world.spawn_effect("vfx.rescue_ring", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
@@ -651,6 +709,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		if ev.ai_state != Protocol.EnemyAI.DEAD:
 			_enemies_alive += 1
 	world.remove_missing(ekeys, "e:")
+	_feed_minimap(p)
 	var bs: Dictionary = p.get("boss", {})
 	if not bs.is_empty():
 		var bpos := Vector2(float(bs["x"]), float(bs["y"]))
@@ -710,6 +769,10 @@ func _reconcile(server_pos: Vector2, ack: int, me: PackedFloat32Array) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if bot != null:
 		return
+	if event is InputEventKey and event.pressed and (event as InputEventKey).keycode == KEY_ESCAPE and mode in ["hub", "connect", "login"] and not settings_panel.visible and not npc_panel.visible:
+		settings_panel.show_panel()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("dev_overlay"):
 		overlay.visible = not overlay.visible
 		settings.data["show_dev_overlay"] = overlay.visible
@@ -755,6 +818,11 @@ func _physics_process(dt: float) -> void:
 		if Input.is_action_just_pressed("build_place"): btn |= Protocol.BTN_BUILD
 		if Input.is_action_just_pressed("build_cycle") and mode == "room":
 			_cycle_build_kind()
+		if Input.is_action_just_pressed("map") and mode == "room":
+			_map_big = not _map_big
+			hud.minimap.big = _map_big
+		if Input.is_action_just_pressed("ping") and mode == "room":
+			net.send(Protocol.C.MARK, {"x": world.get_global_mouse_position().x, "y": world.get_global_mouse_position().y})
 		if mode == "hub" and Input.is_action_just_pressed("interact") and not npc_panel.visible:
 			var npc := world.nearest_npc(_pred_pos, float(ContentDB.rule("hub_talk_range", 90.0)))
 			if not npc.is_empty():
@@ -914,3 +982,38 @@ func _cycle_build_kind() -> void:
 	net.send(Protocol.C.BUILD_SELECT, {"kind": build_kind})
 	hud.toast("건설 (B): %s — %s, 목재 %d" % [bk.get("name_ko", build_kind), bk.get("desc_ko", ""), int(bk.get("cost_wood", 3))], 2.0)
 	hud.set_build_hint(build_kind)
+
+
+func _feed_minimap(p: Dictionary) -> void:
+	var mm: Minimap = hud.minimap
+	mm.players.clear()
+	for entry: Array in p.get("p", []):
+		var e: PackedFloat32Array = entry[1]
+		mm.players.append([Vector2(e[Protocol.SNAP_P.X], e[Protocol.SNAP_P.Y]), String(entry[0]) == my_id, int(e[Protocol.SNAP_P.STATE]) != Protocol.EntState.ALIVE])
+	mm.enemies.clear()
+	for entry: Array in p.get("e", []):
+		var e: PackedFloat32Array = entry[2]
+		if int(e[Protocol.SNAP_E.AI]) != Protocol.EnemyAI.DEAD:
+			mm.enemies.append([Vector2(e[Protocol.SNAP_E.X], e[Protocol.SNAP_E.Y]), e.size() > Protocol.SNAP_E.STATUS and int(e[Protocol.SNAP_E.STATUS]) & Protocol.ST_ELITE != 0])
+	mm.objectives.clear()
+	for o: PackedFloat32Array in p.get("ob", []):
+		var kind := int(o[Protocol.SNAP_OB.KIND])
+		if kind in [Protocol.ObKind.DEVICE, Protocol.ObKind.HOLD_ZONE, Protocol.ObKind.RAFT, Protocol.ObKind.GNAW_TREE, Protocol.ObKind.SLUICE_LEVER, Protocol.ObKind.SECRET] or kind >= Protocol.ObKind.PILLAR:
+			mm.objectives.append([Vector2(o[Protocol.SNAP_OB.X], o[Protocol.SNAP_OB.Y]), kind])
+	var bs: Dictionary = p.get("boss", {})
+	mm.has_boss = not bs.is_empty() and int(bs.get("state", 0)) != BossIronclaw.BS.DEAD
+	if mm.has_boss:
+		mm.boss_pos = Vector2(float(bs["x"]), float(bs["y"]))
+
+
+func _route_summary(run: Dictionary) -> String:
+	var parts: PackedStringArray = []
+	var layers: Array = run.get("layers", [])
+	var cur := String(run.get("current", ""))
+	for layer: Array in layers:
+		var names: PackedStringArray = []
+		for n: Dictionary in layer:
+			var t: String = {"combat": "전투", "event": "사건", "shop": "상점", "rest": "휴식", "boss": "보스", "elite": "정예"}.get(String(n.get("type", "")), "?")
+			names.append(("▶" if String(n.get("id", "")) == cur else "") + t)
+		parts.append("/".join(names))
+	return "경로: " + " → ".join(parts) if not parts.is_empty() else ""

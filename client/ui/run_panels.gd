@@ -5,6 +5,8 @@ extends Control
 signal reward_picked(index: int)
 signal route_voted(node_id: String)
 signal node_action(payload: Dictionary)
+signal pause_requested()
+var pause_btn: Button
 
 var panel: PanelContainer
 var vbox: VBoxContainer
@@ -35,6 +37,8 @@ func _ready() -> void:
 	footer.custom_minimum_size = Vector2(600, 0)
 	for c in [title, body, timer_label, buttons_box, footer]:
 		vbox.add_child(c)
+	pause_btn = UIKit.button("원정 중단 (안전 지점 저장 · 모집판에서 이어하기)", func() -> void: pause_requested.emit())
+	vbox.add_child(pause_btn)
 	add_child(UIKit.center(panel))
 
 

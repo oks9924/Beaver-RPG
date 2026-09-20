@@ -3,6 +3,11 @@ extends Control
 ## 공용 마을 UI: 마을 정보, 접속자, 원정 모집판, 파티 준비 패널, 채팅.
 
 signal create_requested()
+signal tutorial_requested()
+signal difficulty_changed(difficulty: String)
+signal settings_requested()
+var difficulty_pick: OptionButton
+var _difficulty_ids: Array = []
 signal join_requested(expedition_id: String)
 signal leave_requested()
 signal ready_toggled(ready: bool)
@@ -71,7 +76,21 @@ func _ready() -> void:
 	rv.add_child(UIKit.label("혼자도 출정 가능 · 파티 최대 4명 · 초대 불필요", 12, Color(0.7, 0.7, 0.65)))
 	board_list = UIKit.vbox(4)
 	rv.add_child(board_list)
+	var dh := UIKit.hbox(6)
+	dh.add_child(UIKit.label("난이도", 13))
+	difficulty_pick = OptionButton.new()
+	for did: String in ContentDB.rules.get("difficulties", {}).keys():
+		var dd: Dictionary = ContentDB.rules["difficulties"][did]
+		_difficulty_ids.append(did)
+		difficulty_pick.add_item("%s — %s" % [dd.get("name_ko", did), dd.get("desc_ko", "")])
+	difficulty_pick.item_selected.connect(func(i: int) -> void: difficulty_changed.emit(String(_difficulty_ids[i])))
+	dh.add_child(difficulty_pick)
+	rv.add_child(dh)
 	rv.add_child(UIKit.button("새 원정 만들기 (공개)", func() -> void: create_requested.emit()))
+	var th := UIKit.hbox(6)
+	th.add_child(UIKit.button("튜토리얼 (혼자 · 5분)", func() -> void: tutorial_requested.emit()))
+	th.add_child(UIKit.button("설정 (Esc)", func() -> void: settings_requested.emit()))
+	rv.add_child(th)
 	party_box = UIKit.vbox(6)
 	party_box.visible = false
 	party_box.add_child(UIKit.label("내 파티", 17, Color(0.8, 0.9, 1.0)))
@@ -144,9 +163,12 @@ func show_board(list: Array, my_expedition: String) -> void:
 		board_list.add_child(UIKit.label("모집 중인 원정이 없습니다.", 13, Color(0.7, 0.7, 0.65)))
 	for e: Dictionary in list:
 		var h := UIKit.hbox()
-		var state_txt: String = {Protocol.ExpState.PREPARING: "준비 중", Protocol.ExpState.IN_ROOM: "전투 중", Protocol.ExpState.RESULT: "안전 지점"}.get(int(e.get("state", 0)), "?")
-		h.add_child(UIKit.label("%s  %d/%d  %s  방 %d" % [String(e["id"]).left(14), int(e["members"]), int(e["max"]), state_txt, int(e.get("room_index", 0))], 13))
-		var b := UIKit.button("참가", func() -> void: join_requested.emit(String(e["id"])))
+		var state_txt: String = {Protocol.ExpState.PREPARING: "준비 중", Protocol.ExpState.IN_ROOM: "전투 중", Protocol.ExpState.RESULT: "안전 지점"}.get(int(e.get("state", 0)), "안전 지점")
+		if bool(e.get("paused", false)):
+			state_txt = "중단됨 (이어하기)"
+		var dname: String = String(ContentDB.rules.get("difficulties", {}).get(String(e.get("difficulty", "normal")), {}).get("name_ko", e.get("difficulty", "")))
+		h.add_child(UIKit.label("%s  %d/%d  %s  방 %d  %s%s" % [String(e["id"]).left(14), int(e["members"]), int(e["max"]), state_txt, int(e.get("room_index", 0)), dname, ("  " + String(e.get("region", ""))) if String(e.get("region", "")) != "" else ""], 13))
+		var b := UIKit.button("이어하기" if bool(e.get("resume", false)) else "참가", func() -> void: join_requested.emit(String(e["id"])))
 		b.disabled = not bool(e.get("joinable", false)) or my_expedition != ""
 		h.add_child(b)
 		board_list.add_child(h)
@@ -252,3 +274,9 @@ func show_quests(summary: Dictionary) -> void:
 	for q: Dictionary in summary.get("complete", []):
 		parts.append("%s (보상 수령 가능)" % q.get("name_ko", ""))
 	add_chat("퀘스트", ("진행: " + ", ".join(parts)) if not parts.is_empty() else "진행 중인 퀘스트 없음 (NPC 에게 F)", "hub")
+
+
+func set_selected_difficulty(did: String) -> void:
+	var i := _difficulty_ids.find(did)
+	if i >= 0 and difficulty_pick != null:
+		difficulty_pick.select(i)

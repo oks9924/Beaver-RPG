@@ -56,6 +56,8 @@ func _ready() -> void:
 	test_quests_and_progression()
 	print("-- test_secrets_and_relics")
 	test_secrets_and_relics()
+	print("-- test_difficulty_tutorial_pause")
+	test_difficulty_tutorial_pause()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -1289,3 +1291,83 @@ func test_secrets_and_relics() -> void:
 	for i in 30:
 		room.step(1.0 / 30.0)
 	check(p["hp"] > 20.5, "river heart regenerates at low hp")
+
+
+func test_difficulty_tutorial_pause() -> void:
+	# 난이도 배율
+	var inst := ExpeditionInstance.new("exp_d", 5)
+	inst.difficulty = "hard"
+	var prof := inst.effective_profile(ContentDB.get_party_profile(2))
+	check(is_equal_approx(float(prof["enemy_hp_mult"]), 1.1 * 1.25) and is_equal_approx(float(prof["hit_damage_mult"]), 1.3), "hard difficulty multiplies profile (%s)" % [prof])
+	inst.difficulty = "nope"
+	check(inst.effective_profile(ContentDB.get_party_profile(1)) == ContentDB.get_party_profile(1), "unknown difficulty leaves profile unchanged")
+	# 튜토리얼: 단계가 실제 행동으로 넘어가고, 건너뛰기가 방을 끝낸다
+	var room := CombatRoom.new(ContentDB.get_room_def("tutorial"), ContentDB.get_party_profile(1), ContentDB.rules, 1, _members(1))
+	check(room.objective == "tutorial" and room.enemies.size() >= 1 and room.enemies.values()[0]["role"] == "dummy", "tutorial room with dummies")
+	var dt := 1.0 / 30.0
+	var first_ev := false
+	for ev: Dictionary in room.step(dt):
+		if ev["k"] == "tutorial_step" and int(ev["index"]) == 0:
+			first_ev = true
+	check(first_ev, "first tutorial hint is sent on the first tick")
+	var p: Dictionary = room.players["p0"]
+	var seq := 1
+	for i in 60:
+		room.queue_input("p0", seq, Vector2.RIGHT, Vector2.ZERO, 0)
+		seq += 1
+		room.step(dt)
+	check(room.tutorial_step == 1, "moving 200px completes the move step (step %d)" % room.tutorial_step)
+	for e: Dictionary in room.enemies.values():
+		room._damage_enemy(e, 1000.0, p, 0.0, 0.0)
+	room.step(dt)
+	check(room.tutorial_step == 2, "killing the dummy completes the attack step")
+	var dummy_moved := false
+	for e: Dictionary in room.enemies.values():
+		if e["ai"] != Protocol.EnemyAI.DEAD and e["ai"] != Protocol.EnemyAI.IDLE:
+			dummy_moved = true
+	check(not dummy_moved, "dummies never chase or attack")
+	room.queue_input("p0", seq, Vector2.RIGHT, Vector2.ZERO, Protocol.BTN_DODGE)
+	seq += 1
+	room.step(dt)
+	check(room.tutorial_step == 3, "dodge completes the dodge step")
+	room.tutorial_skip()
+	room.step(dt)
+	check(room.outcome == Protocol.Outcome.VICTORY and room.objective_done, "skip ends the tutorial as a clear")
+	# 핑 이벤트는 다음 틱에 실린다
+	var room2 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 1, _members(1))
+	room2.pending_events.append({"k": "ping", "id": "p0", "x": 10, "y": 20})
+	var got_ping := false
+	for ev: Dictionary in room2.step(dt):
+		if ev["k"] == "ping":
+			got_ping = true
+	check(got_ping and room2.pending_events.is_empty(), "pending ping delivered once")
+	# 파티 중단/이어하기: 안전 지점에서만 중단, 체크포인트에 paused, 멤버 복귀 시 해제 (SAVE-01)
+	var e2 := ExpeditionInstance.new("exp_p", 77)
+	var s0 := _make_session(60)
+	e2.add_member(s0)
+	e2.start_run()
+	check(not e2.pause_run(), "cannot pause mid-combat")
+	e2.room._all_spawned = true
+	for en: Dictionary in e2.room.enemies.values():
+		e2.room._kill_enemy(en, e2.room.players["run60"])
+	e2.step(dt, 2)
+	check(e2.is_safe_point(), "reached a safe point after the room (state %d)" % e2.state)
+	check(e2.pause_run() and e2.paused and bool(e2.to_checkpoint()["paused"]), "pause at safe point saves a paused checkpoint")
+	var relics_before: Array = (e2._run_player("run60")["relics"] as Array).duplicate()
+	var restored := ExpeditionInstance.from_checkpoint(e2.to_checkpoint())
+	check(restored.paused and restored._run_player("run60")["relics"] == relics_before, "restored paused expedition keeps player state (no duplication)")
+	restored.resume_member(s0)
+	check(not restored.paused and not restored.suspended and restored.members["run60"]["connected"], "member resume clears paused state")
+	# 관리자: 중단된 원정은 멤버에게만 이어하기로 보이고, 남에게는 보이지 않는다
+	var mgr := ExpeditionManager.new(2, 1)
+	mgr.instances[restored.id] = restored
+	restored.paused = true
+	var mine := mgr.board_list("run60")
+	var other := mgr.board_list("someone")
+	check(mine.size() == 1 and bool(mine[0].get("resume", false)) and other.is_empty(), "paused expedition listed only for its members as resume")
+	var s1 := _make_session(61)
+	var rj := mgr.join(s1, restored.id)
+	check(not bool(rj["ok"]), "non-member cannot join a paused expedition")
+	s0.expedition_id = ""   # 중단 후 마을로 돌아간 상태
+	var rj2 := mgr.join(s0, restored.id)
+	check(bool(rj2["ok"]) and bool(rj2.get("resumed", false)) and not restored.paused, "member resumes through join")

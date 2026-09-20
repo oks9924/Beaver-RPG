@@ -26,7 +26,11 @@ var relic_label: Label
 var boss_bar: ProgressBar
 var boss_label: Label
 var boss_box: VBoxContainer
+var minimap: Minimap
+var tutorial_label: Label
+var skip_btn: Button
 signal chat_sent(text: String)
+signal skip_tutorial()
 
 
 func _ready() -> void:
@@ -107,6 +111,22 @@ func _ready() -> void:
 	conn_label.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
 	conn_label.position = Vector2(12, 12)
 	add_child(conn_label)
+	minimap = Minimap.new()
+	minimap.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
+	minimap.position = Vector2(-500, 12)
+	add_child(minimap)
+	tutorial_label = UIKit.label("", 16, Color(0.7, 1.0, 0.8))
+	tutorial_label.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
+	tutorial_label.position = Vector2(-300, 150)
+	tutorial_label.custom_minimum_size = Vector2(600, 0)
+	tutorial_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tutorial_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(tutorial_label)
+	skip_btn = UIKit.button("튜토리얼 건너뛰기", func() -> void: skip_tutorial.emit())
+	skip_btn.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
+	skip_btn.position = Vector2(-80, 200)
+	skip_btn.visible = false
+	add_child(skip_btn)
 	hint_label = UIKit.label("", 16, Color(1.0, 0.8, 0.5))
 	hint_label.set_anchors_and_offsets_preset(PRESET_CENTER)
 	hint_label.position = Vector2(-200, 120)
@@ -291,3 +311,8 @@ func add_chat(from: String, text: String) -> void:
 func set_build_hint(kind: String) -> void:
 	var bk: Dictionary = ContentDB.rules.get("build_kinds", {}).get(kind, {})
 	build_label.text = "B %s(%d) · G 바꾸기" % [bk.get("name_ko", kind), int(bk.get("cost_wood", 3))]
+
+
+func set_tutorial(text: String, index: int, total: int) -> void:
+	tutorial_label.text = ("튜토리얼 %d/%d — %s" % [index + 1, total, text]) if text != "" else ""
+	skip_btn.visible = text != ""

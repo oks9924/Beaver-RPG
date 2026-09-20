@@ -270,7 +270,7 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				return
 			match type:
 				Protocol.C.LOGOUT: _handle_logout(s)
-				Protocol.C.BOARD_LIST: Net.send_to_peer(peer_id, Protocol.S.BOARD_STATE, {"list": expeditions.board_list()})
+				Protocol.C.BOARD_LIST: Net.send_to_peer(peer_id, Protocol.S.BOARD_STATE, {"list": _board_for(s.account_id)})
 				Protocol.C.BOARD_CREATE: _handle_board_create(s, payload)
 				Protocol.C.BOARD_JOIN: _handle_board_join(s, payload)
 				Protocol.C.BOARD_LEAVE: _handle_board_leave(s)
@@ -286,6 +286,8 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.BUILD_SELECT: _handle_build_select(s, payload)
 				Protocol.C.NPC_TALK: _handle_npc_talk(s, payload)
 				Protocol.C.QUEST_ACTION: _handle_quest_action(s, payload)
+				Protocol.C.EXPEDITION_PAUSE: _handle_expedition_pause(s)
+				Protocol.C.MARK: _handle_mark(s, payload)
 				_: _err(s, Protocol.ERR_BAD_STATE, {"message": "unknown message %d" % type})
 
 
@@ -411,7 +413,7 @@ func _public_account(account: Dictionary) -> Dictionary:
 func _enter_hub(s: Session) -> void:
 	hub.enter(s)
 	s.expedition_id = ""
-	Net.send_to_peer(s.peer_id, Protocol.S.ENTER_HUB, {"hub": hub.hub_info(), "roster": hub.roster(), "board": expeditions.board_list(), "you": {"id": s.account_id, "x": s.hub_pos.x, "y": s.hub_pos.y}})
+	Net.send_to_peer(s.peer_id, Protocol.S.ENTER_HUB, {"hub": hub.hub_info(), "roster": hub.roster(), "board": _board_for(s.account_id), "you": {"id": s.account_id, "x": s.hub_pos.x, "y": s.hub_pos.y}})
 	_broadcast_hub_roster()
 
 
@@ -435,7 +437,7 @@ func _handle_board_create(s: Session, payload: Dictionary) -> void:
 		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": class_id})
 		return
 	s.class_id = class_id
-	var r := expeditions.create(s, bool(payload.get("public", true)), String(payload.get("difficulty", "normal")), _permanent_bonus(s.account_id))
+	var r := expeditions.create(s, bool(payload.get("public", true)), String(payload.get("difficulty", "normal")), _permanent_bonus(s.account_id), bool(payload.get("tutorial", false)))
 	if not r["ok"]:
 		_err(s, r["error"], {"active": expeditions.active_count(), "max": expeditions.max_active})
 		return
@@ -458,6 +460,15 @@ func _handle_board_join(s: Session, payload: Dictionary) -> void:
 		_err(s, r["error"], {"expedition_id": payload.get("expedition_id", "")})
 		return
 	var inst: ExpeditionInstance = r["expedition"]
+	if bool(r.get("resumed", false)):
+		_log(1, "%s resumed paused expedition %s" % [s.nickname, inst.id])
+		if hub.has(s.account_id):
+			hub.leave(s.account_id)
+			_broadcast_hub_roster()
+		_flush_outbox(inst)
+		_broadcast_party(inst)
+		_broadcast_board()
+		return
 	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
 	_log(1, "%s joined expedition %s (%d/%d, state %d)" % [s.nickname, inst.id, inst.member_count(), Protocol.MAX_PARTY_SIZE, inst.state])
 	if inst.is_safe_point():
@@ -745,6 +756,42 @@ func _handle_quest_action(s: Session, payload: Dictionary) -> void:
 	Net.send_to_peer(s.peer_id, Protocol.S.NPC_DIALOG, _npc_dialog(s, String(q.get("giver", ""))))
 
 
+## 파티 중단 (SAVE-01): 안전 지점에서만. 체크포인트 저장 후 전원 마을로. 멤버는 모집판의 '이어하기'로 복귀한다.
+func _handle_expedition_pause(s: Session) -> void:
+	var inst := expeditions.get_for_session(s)
+	if inst == null:
+		_err(s, Protocol.ERR_NO_EXPEDITION)
+		return
+	if not inst.pause_run():
+		_err(s, Protocol.ERR_BAD_STATE, {"message": "safe_point_only"})
+		return
+	if store.save_expedition(inst.to_checkpoint()) != OK:
+		metrics["save_failures"] += 1
+	inst.checkpoint_dirty = false
+	_log(1, "%s paused expedition %s at %s" % [s.nickname, inst.id, String(inst.run.get("checkpoint_note", ""))])
+	for aid: String in inst.members.keys():
+		var ms := _session_for_account(aid)
+		if ms == null:
+			continue
+		inst.members[aid]["connected"] = false
+		inst.members[aid]["disconnect_at"] = Time.get_unix_time_from_system()
+		Net.send_to_peer(ms.peer_id, Protocol.S.NOTICE, {"text": "원정을 중단했습니다. 모집판의 '이어하기'로 같은 자리에서 계속할 수 있습니다."})
+		Net.send_to_peer(ms.peer_id, Protocol.S.LEAVE_EXPEDITION, {"expedition_id": inst.id, "paused": true})
+		_enter_hub(ms)
+	_broadcast_board()
+
+
+## 핑 (중클릭): 같은 방 멤버에게 표식 이벤트를 보낸다. 서버 판정에는 영향이 없다.
+func _handle_mark(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if inst == null or inst.room == null:
+		return
+	if Time.get_unix_time_from_system() - float(s.get_meta("last_ping", 0.0)) < float(ContentDB.rule("ping_cooldown_sec", 1.0)):
+		return
+	s.set_meta("last_ping", Time.get_unix_time_from_system())
+	inst.node_action(s.account_id, {"action": "ping", "x": payload.get("x", 0), "y": payload.get("y", 0)})
+
+
 func _handle_build_select(s: Session, payload: Dictionary) -> void:
 	var inst := expeditions.get_for_session(s)
 	if inst == null:
@@ -881,7 +928,7 @@ func _handle_hub_upgrade(s: Session, payload: Dictionary) -> void:
 		Net.send_to_peer(s.peer_id, Protocol.S.NOTICE, {"text": "퀘스트 목표 달성: " + ", ".join(qdone.map(func(q: String) -> String: return String(QuestEngine.get_def(q).get("name_ko", q))))})
 	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
 	for hs: Session in hub.sessions.values():
-		Net.send_to_peer(hs.peer_id, Protocol.S.ENTER_HUB, {"hub": hub.hub_info(), "roster": hub.roster(), "board": expeditions.board_list(), "you": {"id": hs.account_id, "x": hs.hub_pos.x, "y": hs.hub_pos.y}, "refresh": true})
+		Net.send_to_peer(hs.peer_id, Protocol.S.ENTER_HUB, {"hub": hub.hub_info(), "roster": hub.roster(), "board": _board_for(hs.account_id), "you": {"id": hs.account_id, "x": hs.hub_pos.x, "y": hs.hub_pos.y}, "refresh": true})
 		Net.send_to_peer(hs.peer_id, Protocol.S.NOTICE, {"text": "%s 이(가) %s 을(를) %d단계로 복구했습니다: %s" % [s.nickname, sdef.get("name_ko", sid), next, ldef.get("desc_ko", "")]})
 
 
@@ -1044,7 +1091,10 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 			st["wipes"] = int(st.get("wipes", 0)) + 1
 		var prog: Dictionary = acc["progression"]
 		# 기억 조각: 방 클리어마다 1 (원정 완주 보너스는 _on_run_finished). 유물 도감·적 도감 갱신.
-		var shard := 1 if victory else 0
+		var dmult := float(ContentDB.rules.get("difficulties", {}).get(inst.difficulty, {}).get("reward_mult", 1.0))
+		var shard := (1 if victory else 0) if inst.difficulty == "normal" else (int(ceil(dmult)) if victory and dmult >= 1.0 else (1 if victory and randf() < dmult else 0))
+		if inst.tutorial:
+			shard = 0
 		var rp: Dictionary = inst.run.get("players", {}).get(aid, {})
 		if victory and int(inst.member_mods(aid)["mods"].get("shard_bonus", 0)) > 0 and int(rp.get("shard_bonus_used", 0)) < 3:
 			shard += 1
@@ -1057,7 +1107,9 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		var xp_gain := int(ps.get("kills", 0)) * int(xpr.get("per_kill", 5)) + (int(xpr.get("room_clear", 10)) if victory else int(xpr.get("room_wipe", 2)))
 		if victory and String(res.get("objective", "")) == "boss":
 			xp_gain += int(xpr.get("boss_kill", 40))
-		xp_gain = int(round(xp_gain * (1.0 + float(_permanent_bonus(aid).get("mastery_xp_mult", 0.0)))))
+		xp_gain = int(round(xp_gain * (1.0 + float(_permanent_bonus(aid).get("mastery_xp_mult", 0.0))) * float(ContentDB.rules.get("difficulties", {}).get(inst.difficulty, {}).get("xp_mult", 1.0))))
+		if inst.tutorial:
+			xp_gain = 0
 		entry["xp"] = int(entry.get("xp", 0)) + xp_gain
 		entry["level"] = ContentDB.mastery_level(int(entry["xp"]))
 		mastery[cls] = entry
@@ -1126,10 +1178,14 @@ func _broadcast_party(inst: ExpeditionInstance) -> void:
 	_send_to_members(inst, Protocol.S.PARTY_STATE, inst.party_payload())
 
 
+func _board_for(account_id: String) -> Array:
+	return expeditions.board_list(account_id)
+
+
 func _broadcast_board() -> void:
-	var payload := {"list": expeditions.board_list()}
+	# 중단된 원정(이어하기)은 그 멤버에게만 보이므로 접속자마다 목록을 따로 만든다
 	for hs: Session in hub.sessions.values():
-		Net.send_to_peer(hs.peer_id, Protocol.S.BOARD_STATE, payload)
+		Net.send_to_peer(hs.peer_id, Protocol.S.BOARD_STATE, {"list": _board_for(hs.account_id)})
 
 
 func _broadcast_hub_roster() -> void:

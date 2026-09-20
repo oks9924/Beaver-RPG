@@ -18,6 +18,10 @@ var data: Dictionary = {
 	"volume_ambient": 0.6,
 	"fullscreen": false,
 	"show_dev_overlay": false,
+	"flash_reduce": false,
+	"keybinds": {},        # action -> physical keycode (재설정한 키만)
+	"last_class": "guardian",
+	"last_difficulty": "normal",
 }
 
 

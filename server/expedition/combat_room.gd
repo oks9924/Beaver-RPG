@@ -36,6 +36,10 @@ var team_wood: int = 0
 var water_zone: Dictionary = {}   # {x,y,w,h,state(0 low,1 warning,2 high), t}
 var hazards: Array = []           # 지역 위험 구역 [{x,y,w,h,kind,slow,dps}] (수액 웅덩이 등)
 var _members_snapshot: Array = []
+var pending_events: Array = []     # 서버 틱 밖에서 들어온 이벤트(핑 등)를 다음 틱 이벤트에 싣는다
+var tutorial_step: int = 0
+var _tutorial_moved: float = 0.0
+var _tutorial_flags: Dictionary = {}
 var elite_spawned: bool = false
 var enemy_pool: Array = []
 var boss: RefCounted = null        # 보스방일 때 BossController (단계 2-3)
@@ -69,6 +73,10 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 	_setup_objects()
 	if objective != "boss":
 		_spawn_wave()
+	if objective == "tutorial":
+		var steps: Array = rules.get("tutorial_steps", [])
+		if not steps.is_empty():
+			pending_events.append({"k": "tutorial_step", "index": 0, "total": steps.size(), "text": steps[0].get("text_ko", "")})
 
 
 # ------------------------------------------------------------------ setup
@@ -193,6 +201,9 @@ func all_obstacles() -> Array:
 
 func step(dt: float) -> Array:
 	events.clear()
+	if not pending_events.is_empty():
+		events.append_array(pending_events)
+		pending_events.clear()
 	if is_finished():
 		return events
 	tick += 1
@@ -302,6 +313,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		p["rescue_t"] = 0.0
 		p["interact_target"] = 0
 		events.append({"k": "dodge", "id": p["id"]})
+		_tutorial_flags["dodge"] = true
 		_fire_procs(p, "on_dodge", {})
 		action = p["action"]
 	elif _can_act(p):
@@ -650,6 +662,7 @@ func _apply_cast(p: Dictionary, cdef: Dictionary, kind: String) -> void:
 				_burst_dam(dam)
 			stats["builds"] += 1
 	events.append({"k": "skill", "id": p["id"], "skill": skill.get("id", kind), "slot": kind, "x": p["pos"].x, "y": p["pos"].y})
+	_tutorial_flags["skill"] = true
 	_fire_procs(p, "on_skill", {})
 
 
@@ -1504,6 +1517,9 @@ func _step_enemy(e: Dictionary, dt: float) -> void:
 	var def: Dictionary = e["def"]
 	var atk: Dictionary = def.get("attack", {})
 	_step_enemy_passives(e, def, dt)
+	if String(e["role"]) == "dummy":
+		e["ai"] = Protocol.EnemyAI.IDLE
+		return
 	match e["ai"]:
 		Protocol.EnemyAI.IDLE, Protocol.EnemyAI.SEEK:
 			var t := _nearest_alive_player(e["pos"], float(def.get("aggro_range", 500)))
@@ -1830,6 +1846,8 @@ func _step_objective(dt: float) -> void:
 			objective_progress = float(done) / maxf(total, 1)
 			if total > 0 and done == total:
 				_objective_complete()
+		"tutorial":
+			_step_tutorial(dt)
 		"escort":
 			for o: Dictionary in objects.values():
 				if o["kind"] != Protocol.ObKind.RAFT:
@@ -1875,6 +1893,50 @@ func _step_objective(dt: float) -> void:
 			objective_progress = float(stats["enemies_killed"]) / maxf(float(stats["enemies_spawned"]), 1.0)
 
 
+## 튜토리얼: 이동 → 공격 → 회피 → 스킬 → 구조(설명) → 갉기 → 건설 → 수문 순서 (18절). 각 단계는 실제 행동으로 넘어간다.
+func _step_tutorial(dt: float) -> void:
+	var steps: Array = rules.get("tutorial_steps", [])
+	if tutorial_step >= steps.size():
+		return
+	var sid := String(steps[tutorial_step].get("id", ""))
+	var done := false
+	match sid:
+		"move":
+			for p: Dictionary in players.values():
+				_tutorial_moved += (p["pos"] as Vector2).distance_to(p.get("_tut_last", p["pos"]))
+				p["_tut_last"] = p["pos"]
+			done = _tutorial_moved >= 200.0
+		"attack": done = int(stats["enemies_killed"]) >= 1
+		"dodge": done = bool(_tutorial_flags.get("dodge", false))
+		"skill": done = bool(_tutorial_flags.get("skill", false))
+		"rescue":
+			# 혼자면 설명만 보고 3초 뒤 넘어간다. 2인 이상은 실제 구조 또는 6초 대기
+			_tutorial_flags["rescue_t"] = float(_tutorial_flags.get("rescue_t", 0.0)) + dt
+			done = int(stats["rescues"]) >= 1 or float(_tutorial_flags["rescue_t"]) >= (3.0 if players.size() == 1 else 6.0)
+		"gnaw": done = int(stats["gnaws"]) >= 1
+		"build": done = int(stats["builds"]) >= 1
+		"sluice": done = int(stats["sluice_toggles"]) >= 1
+	if done:
+		tutorial_step += 1
+		objective_progress = float(tutorial_step) / maxf(steps.size(), 1)
+		if tutorial_step < steps.size():
+			events.append({"k": "tutorial_step", "index": tutorial_step, "total": steps.size(), "text": steps[tutorial_step].get("text_ko", "")})
+			if String(steps[tutorial_step].get("id", "")) == "build":
+				team_wood = maxi(team_wood, 6)
+		else:
+			events.append({"k": "tutorial_done"})
+			_objective_complete()
+
+
+func tutorial_skip() -> void:
+	if objective != "tutorial" or objective_done:
+		return
+	tutorial_step = (rules.get("tutorial_steps", []) as Array).size()
+	objective_progress = 1.0
+	events.append({"k": "tutorial_done", "skipped": true})
+	_objective_complete()
+
+
 func _objective_complete() -> void:
 	objective_done = true
 	# 남은 적은 후퇴한다 (보상 없음). 목표를 빨리 달성하면 일찍 끝난다 (4절)
@@ -1899,7 +1961,7 @@ func _check_outcome() -> void:
 		events.append({"k": "wipe"})
 		return
 	if objective_done:
-		if _alive_enemy_count() == 0:
+		if _alive_enemy_count() == 0 or objective == "tutorial":
 			outcome = Protocol.Outcome.VICTORY
 			events.append({"k": "room_clear", "elapsed": elapsed})
 		return
