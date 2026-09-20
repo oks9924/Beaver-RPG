@@ -1985,7 +1985,7 @@ func snapshot() -> Dictionary:
 	var tgs: Array = []
 	for e: Dictionary in enemies.values():
 		var est := (Protocol.ST_SLOW if float(e.get("slow_t", 0.0)) > 0.0 else 0) | (Protocol.ST_ROOT if e["ai"] == Protocol.EnemyAI.ROOTED else 0) | (Protocol.ST_VULN if float(e.get("vuln_t", 0.0)) > 0.0 else 0) | (Protocol.ST_ELITE if bool(e.get("elite", false)) else 0)
-		es.append([e["id"], e["type"], PackedFloat32Array([e["pos"].x, e["pos"].y, e["facing"].x, e["facing"].y, e["hp"], e["max_hp"], e["ai"], float(est)])])
+		es.append([e["id"], ContentDB.enemy_index(String(e["type"])), PackedFloat32Array([e["pos"].x, e["pos"].y, e["facing"].x, e["facing"].y, e["hp"], e["max_hp"], e["ai"], float(est)])])
 		var tg: Dictionary = e["telegraph"]
 		if not tg.is_empty() and e["ai"] == Protocol.EnemyAI.WINDUP:
 			if int(tg.get("type", 0)) == 1:

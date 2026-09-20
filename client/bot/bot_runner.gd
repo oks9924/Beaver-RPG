@@ -436,7 +436,7 @@ func _phase_room() -> void:
 				best = d
 				nearest = e
 		var bs: Dictionary = _snapshot.get("boss", {})
-		if not bs.is_empty() and int(bs.get("state", 0)) != BossIronclaw.BS.DEAD and not bool(bs.get("molting", false)):
+		if not bs.is_empty() and int(bs.get("state", 0)) != BossIronclaw.BS.DEAD and not (int(bs.get("f", 0)) & 8 != 0):
 			var bp := Vector2(float(bs["x"]), float(bs["y"]))
 			var bd := bp.distance_to(my_pos) - 46.0
 			if bd < best or nearest.is_empty():
@@ -512,11 +512,13 @@ func _phase_room() -> void:
 		elif not nearest.is_empty():
 			var ep := Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y])
 			aim = ep - my_pos
-			var reach := 60.0 if String(args.get("class", "guardian")) == "guardian" else 260.0
+			var reach := 60.0 if String(args.get("class", "guardian")) in ["guardian", "sawtooth"] else 260.0   # 근접 직업은 붙어야 때린다
 			if best > reach:
 				mv = aim.normalized()
+				_count("chase_ticks")
 			else:
 				btn |= Protocol.BTN_ATTACK
+				_count("attack_presses")
 				if me[Protocol.SNAP_P.CD_E] <= 0.0 and randf() < 0.3:
 					btn |= Protocol.BTN_E
 				if me[Protocol.SNAP_P.CD_Q] <= 0.0 and randf() < 0.2:

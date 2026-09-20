@@ -133,6 +133,24 @@ func village_bonus(structures: Dictionary) -> Dictionary:
 	return out
 
 
+## 스냅샷용 적 종류 인덱스 (문자열 대신 정수로 보내 패킷을 줄인다). 양쪽이 같은 정렬 순서를 쓴다.
+var _enemy_ids: Array = []
+func enemy_ids() -> Array:
+	if _enemy_ids.is_empty():
+		_enemy_ids = enemies.keys().filter(func(k: String) -> bool: return not k.begins_with("_"))
+		_enemy_ids.sort()
+	return _enemy_ids
+
+
+func enemy_index(type_id: String) -> int:
+	return enemy_ids().find(type_id)
+
+
+func enemy_id_at(index: int) -> String:
+	var ids := enemy_ids()
+	return String(ids[index]) if index >= 0 and index < ids.size() else ""
+
+
 ## 숙련 경험치 → 단계 (1~10). mastery.json level_xp 는 누적 임계값.
 func mastery_level(xp: int) -> int:
 	var table: Array = mastery.get("level_xp", [0, 100])

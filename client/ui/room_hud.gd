@@ -288,13 +288,25 @@ func update_objective(obj: Array, wood: int, boss_state: Dictionary) -> void:
 		boss_bar.max_value = float(boss_state.get("max_hp", 1))
 		boss_bar.value = float(boss_state.get("hp", 0))
 		var tags: PackedStringArray = []
-		tags.append("갑각 %d/%d 파괴" % [int(boss_state.get("shell_broken", 0)), int(boss_state.get("shell_total", 3))])
-		if bool(boss_state.get("claw_weak", false)): tags.append("집게 약화")
-		if bool(boss_state.get("joint_weak", false)): tags.append("관절 약화")
-		if bool(boss_state.get("exposed", false)): tags.append("노출")
-		if bool(boss_state.get("molting", false)): tags.append("탈피 중")
-		boss_label.text = "%s  %d / %d  ·  단계 %d  ·  %s" % [boss_state.get("name", ""), int(boss_state.get("hp", 0)), int(boss_state.get("max_hp", 0)), int(boss_state.get("phase", 0)) + 1, " · ".join(tags)]
-		var hint := String(boss_state.get("hint_ko", ""))
+		var bdef: Dictionary = ContentDB.bosses.get(String(boss_state.get("id", "")), {})
+		var bf := int(boss_state.get("f", 0))
+		if int(boss_state.get("shell_total", 0)) > 0:
+			tags.append("갑각 %d/%d 파괴" % [int(boss_state.get("shell_broken", 0)), int(boss_state.get("shell_total", 3))])
+		if bf & 1: tags.append("집게 약화")
+		if bf & 2: tags.append("관절 약화")
+		if bf & 4: tags.append("노출")
+		if bf & 16: tags.append("격노")
+		if bf & 32: tags.append("취약")
+		var mid := String(boss_state.get("m", ""))
+		var hint_built := ""
+		if mid != "":
+			var md: Dictionary = bdef.get("mechanics", {}).get(mid, {})
+			hint_built = "%s (%s) — %s · 남은 %ds" % [md.get("name_ko", mid), mid, md.get("telegraph_ko", ""), int(float(boss_state.get("mt", 0.0)))]
+		elif int(boss_state.get("state", 0)) == BossIronclaw.BS.STAGGER:
+			hint_built = "경직! 집중 공격"
+		if int(boss_state.get("f", 0)) & 8: tags.append("탈피 중")
+		boss_label.text = "%s  %d / %d  ·  단계 %d  ·  %s" % [bdef.get("name_ko", ""), int(boss_state.get("hp", 0)), int(boss_state.get("max_hp", 0)), int(boss_state.get("phase", 0)) + 1, " · ".join(tags)]
+		var hint := hint_built
 		if hint != "":
 			objective_label.text += "\n" + hint
 

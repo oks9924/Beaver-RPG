@@ -1095,20 +1095,13 @@ func telegraphs() -> Array:
 	return [PackedFloat32Array([0, telegraph["x"], telegraph["y"], telegraph["r"], t, telegraph["total"], 0, 0, 0])]
 
 
+## 스냅샷 (15Hz, MTU 안에 들어가도록 문자열은 id 만 보낸다: 이름·안내문은 클라이언트가 ContentDB 로 만든다)
 func snapshot() -> Dictionary:
-	var m_info: Dictionary = {}
-	if active != "":
-		var md: Dictionary = def["mechanics"][active]
-		m_info = {"id": active, "name": md.get("name_ko", active), "t_left": snappedf(float(mechanics[active]["t"]), 0.1), "hint": md.get("telegraph_ko", "")}
-	var hint := ""
-	if active != "":
-		hint = "%s (%s) — %s · 남은 %ds" % [m_info["name"], active, m_info["hint"], int(m_info["t_left"])]
-	elif state == BS.STAGGER:
-		hint = "경직! 집중 공격"
+	var flags := (1 if claw_weak else 0) | (2 if joint_weak_t > 0.0 else 0) | (4 if exposed_t > 0.0 else 0) | (8 if state == BS.MOLT else 0) | (16 if enrage_t > 0.0 else 0) | (32 if extra_vuln_t > 0.0 else 0)
 	return {
-		"id": def.get("id", ""), "name": def.get("name_ko", ""), "x": snappedf(pos.x, 0.1), "y": snappedf(pos.y, 0.1), "fx": snappedf(facing.x, 0.01), "fy": snappedf(facing.y, 0.01),
+		"id": def.get("id", ""), "x": snappedf(pos.x, 0.1), "y": snappedf(pos.y, 0.1), "fx": snappedf(facing.x, 0.01), "fy": snappedf(facing.y, 0.01),
 		"hp": snappedf(hp, 0.1), "max_hp": max_hp, "state": state, "phase": phase, "shell_broken": shell_broken, "shell_total": def.get("shell_segments", 3),
-		"claw_weak": claw_weak, "joint_weak": joint_weak_t > 0.0, "exposed": exposed_t > 0.0, "molting": state == BS.MOLT, "grabbed": grabbed,
-		"stagger_gauge": snappedf(stagger_gauge, 1.0), "mechanic": m_info, "hint_ko": hint, "pattern": pattern.get("id", "") if state in [BS.WINDUP, BS.ATTACK] else "",
-		"enraged": enrage_t > 0.0, "vulnerable": extra_vuln_t > 0.0 or joint_weak_t > 0.0 or exposed_t > 0.0,
+		"f": flags, "grabbed": grabbed, "stagger_gauge": snappedf(stagger_gauge, 1.0),
+		"m": active, "mt": snappedf(float(mechanics[active]["t"]), 0.1) if active != "" else 0.0,
+		"pattern": pattern.get("id", "") if state in [BS.WINDUP, BS.ATTACK] else "",
 	}

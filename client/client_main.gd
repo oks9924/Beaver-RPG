@@ -698,7 +698,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		var key := "e:%d" % int(entry[0])
 		ekeys.append(key)
 		var pos := Vector2(e[Protocol.SNAP_E.X], e[Protocol.SNAP_E.Y])
-		var ev := world.get_or_create(key, false, "enemy." + String(entry[1]), pos)
+		var ev := world.get_or_create(key, false, "enemy." + ContentDB.enemy_id_at(int(entry[1])), pos)
 		ev.entity_id = int(entry[0])
 		ev.facing = Vector2(e[Protocol.SNAP_E.FX], e[Protocol.SNAP_E.FY])
 		ev.hp = e[Protocol.SNAP_E.HP]
@@ -715,13 +715,13 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		var bpos := Vector2(float(bs["x"]), float(bs["y"]))
 		var bev := world.get_or_create("b:" + String(bs.get("id", "boss")), false, "boss." + String(bs.get("id", "ironclaw")), bpos)
 		bev.entity_id = "boss"
-		bev.display_name = String(bs.get("name", ""))
+		bev.display_name = String(ContentDB.bosses.get(String(bs.get("id", "")), {}).get("name_ko", ""))
 		bev.facing = Vector2(float(bs["fx"]), float(bs["fy"]))
 		bev.hp = float(bs["hp"])
 		bev.max_hp = float(bs["max_hp"])
 		bev.boss_state = int(bs.get("state", 0))
 		bev.boss_pattern = String(bs.get("pattern", ""))
-		bev.molting = bool(bs.get("molting", false))
+		bev.molting = (int(bs.get("f", 0)) & 8 != 0)
 		bev.target_pos = bpos
 		bev.visible = not bev.molting
 		if int(bs.get("state", 0)) == BossIronclaw.BS.DEAD:
