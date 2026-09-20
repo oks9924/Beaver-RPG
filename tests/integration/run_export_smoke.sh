@@ -8,9 +8,16 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="$ROOT/tests/out/export_smoke"; PORT=7861
 rm -rf "$OUT"; mkdir -p "$OUT/data"
 cd "$ROOT"
-[ -x build/linux-server/tail-expedition-server.x86_64 ] || "$GODOT" --headless --path "$ROOT" --export-release "Linux Server" build/linux-server/tail-expedition-server.x86_64 >/dev/null 2>&1
-[ -x build/linux/TailExpedition.x86_64 ] || "$GODOT" --headless --path "$ROOT" --export-release "Linux Client" build/linux/TailExpedition.x86_64 >/dev/null 2>&1
-[ -x build/linux-server/tail-expedition-server.x86_64 ] && [ -x build/linux/TailExpedition.x86_64 ] || { echo "[export-smoke] export missing"; exit 1; }
+mkdir -p build/linux-server build/linux   # Godot export 는 대상 폴더를 만들어 주지 않는다
+if [ ! -x build/linux-server/tail-expedition-server.x86_64 ]; then
+  "$GODOT" --headless --path "$ROOT" --export-release "Linux Server" build/linux-server/tail-expedition-server.x86_64 > "$OUT/export_server.log" 2>&1 || true
+fi
+if [ ! -x build/linux/TailExpedition.x86_64 ]; then
+  "$GODOT" --headless --path "$ROOT" --export-release "Linux Client" build/linux/TailExpedition.x86_64 > "$OUT/export_client.log" 2>&1 || true
+fi
+if [ ! -x build/linux-server/tail-expedition-server.x86_64 ] || [ ! -x build/linux/TailExpedition.x86_64 ]; then
+  echo "[export-smoke] export missing"; grep -iE "error" "$OUT"/export_*.log | head -20; exit 1
+fi
 # 프로젝트 소스가 보이지 않는 별도 위치로 복사해 실행한다 (원본 png 를 우연히 읽는 상황 방지)
 WORK="$(mktemp -d)"
 cp build/linux-server/tail-expedition-server.x86_64 build/linux/TailExpedition.x86_64 "$WORK/"

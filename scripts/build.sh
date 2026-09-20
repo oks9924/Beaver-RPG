@@ -10,7 +10,7 @@ VERSION="$(grep -oP 'const BUILD_VERSION: String = "\K[^"]+' "$ROOT/shared/proto
 cd "$ROOT"
 echo "[build] godot: $("$GODOT" --version)  build version: $VERSION"
 "$GODOT" --headless --path "$ROOT" --import >/dev/null 2>&1 || true
-export_one() { # preset, output
+export_one() { # preset, output  (Godot 는 대상 폴더를 만들어 주지 않으므로 먼저 만든다)
   mkdir -p "$(dirname "$2")"
   echo "[build] export '$1' -> $2"
   "$GODOT" --headless --path "$ROOT" --export-release "$1" "$2" 2>&1 | grep -iE "error" && { echo "[build] export failed: $1"; exit 1; } || true
