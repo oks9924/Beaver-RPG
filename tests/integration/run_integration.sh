@@ -11,7 +11,7 @@ PORT=7811
 rm -rf "$OUT"; mkdir -p "$OUT/data"
 cd "$ROOT"
 cat > "$OUT/server_config.json" <<CFG
-{"port": $PORT, "max_online_players": 6, "max_active_expeditions": 2, "allow_registration": true, "data_dir": "$OUT/data", "log_level": "info", "metrics_interval_sec": 10, "password_iterations": 2000}
+{"port": $PORT, "max_online_players": 6, "max_active_expeditions": 2, "allow_registration": true, "data_dir": "$OUT/data", "log_level": "info", "metrics_interval_sec": 10, "password_iterations": 2000, "debug_route_layers": 2}
 CFG
 
 start_server() {
@@ -36,19 +36,19 @@ wait_all() { for p in "${PIDS[@]}"; do wait "$p" 2>/dev/null; done; PIDS=(); }
 
 echo "[it] === Phase 1: two isolated 2-player expeditions (NET-05, RUN-01) ==="
 start_server
-bot a1 expedition --create --starter --party=2 --timeout=80
-bot b1 expedition --create --starter --party=2 --timeout=80
+bot a1 expedition --create --starter --party=2 --timeout=200
+bot b1 expedition --create --starter --party=2 --timeout=200
 sleep 1.5
-bot a2 expedition --join=host:a1 --timeout=80
-bot b2 expedition --join=host:b1 --timeout=80
+bot a2 expedition --join=host:a1 --timeout=200
+bot b2 expedition --join=host:b1 --timeout=200
 wait_all
 
 echo "[it] === Phase 2: 4-player party, 5th client hub-only + PARTY_FULL, 7th SERVER_FULL, auth negatives, reconnect (NET-01, NET-03, AUTH-01) ==="
-bot c1 expedition --create --starter --party=4 --timeout=100
+bot c1 expedition --create --starter --party=4 --timeout=240
 sleep 1.0
-bot c2 expedition --join=host:c1 --timeout=100
-bot c3 expedition --join=host:c1 --timeout=100
-bot c4 expedition --join=host:c1 --drop=4 --timeout=100
+bot c2 expedition --join=host:c1 --timeout=240
+bot c3 expedition --join=host:c1 --timeout=240
+bot c4 expedition --join=host:c1 --drop=4 --timeout=240
 sleep 1.0
 bot c5 hub_only --wait=6 --join=host:c1 --expect_join_error=PARTY_FULL --timeout=40
 bot c6 hub_only --wait=10 --timeout=40
@@ -81,15 +81,18 @@ a1, a2, b1, b2 = load("a1"), load("a2"), load("b1"), load("b2")
 for n, d in [("a1", a1), ("a2", a2), ("b1", b1), ("b2", b2)]:
     check(d.get("ok"), f"{n} completed expedition flow: errors={d.get('errors')}")
     check(d.get("room_n") == 2, f"{n} room N == 2 (got {d.get('room_n')})")
-    check("room_result" in d, f"{n} received room result")
+    check("room_result" in d, f"{n} received run result")
+    check(d.get("events", {}).get("reward_picks", 0) >= 1, f"{n} picked a room reward")
 check(a1.get("room_seed") != b1.get("room_seed"), "NET-05 two expeditions have different seeds")
 check(a1.get("room_seed") == a2.get("room_seed") and b1.get("room_seed") == b2.get("room_seed"), "party members share the same room seed")
+check(a1.get("events", {}).get("route_votes", 0) >= 1 and a2.get("events", {}).get("route_votes", 0) >= 1, "route vote happened after the first room")
 ka = a1.get("events", {}).get("kills", 0) + a2.get("events", {}).get("kills", 0)
 kb = b1.get("events", {}).get("kills", 0) + b2.get("events", {}).get("kills", 0)
 check(ka > 0 and kb > 0, f"RUN-01 both parties killed enemies (A={ka}, B={kb})")
 sa, sb = a1.get("room_result", {}).get("stats", {}), b1.get("room_result", {}).get("stats", {})
-check(sa.get("enemies_spawned") == ka + 0 or sa.get("enemies_killed") == ka, f"NET-05 party A result counts only its own kills (result={sa.get('enemies_killed')}, bots={ka})")
-check(sb.get("enemies_killed") == kb, f"NET-05 party B result counts only its own kills (result={sb.get('enemies_killed')}, bots={kb})")
+rsa, rsb = a1.get("room_result", {}).get("run_stats", {}), b1.get("room_result", {}).get("run_stats", {})
+check(rsa.get("enemies_killed") == ka, f"NET-05 party A run result counts only its own kills (result={rsa.get('enemies_killed')}, bots={ka})")
+check(rsb.get("enemies_killed") == kb, f"NET-05 party B run result counts only its own kills (result={rsb.get('enemies_killed')}, bots={kb})")
 c = {n: load(n) for n in ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "dup", "badpw", "badver"]}
 for n in ["c1", "c2", "c3", "c4"]:
     check(c[n].get("ok"), f"{n} completed 4-player expedition: errors={c[n].get('errors')}")

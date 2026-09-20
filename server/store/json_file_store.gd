@@ -9,6 +9,8 @@ var _nick_index: Dictionary = {}    # nickname_lower -> id
 var _world: Dictionary = {}
 var _dirty_accounts: bool = false
 var _dirty_world: bool = false
+var _expeditions: Dictionary = {}
+var _dirty_expeditions: bool = false
 var write_failures: int = 0
 
 
@@ -41,6 +43,24 @@ func open() -> Error:
 			push_warning("[Store] world.json unreadable, recovered from .bak")
 			w = wb
 	_world = w
+	_expeditions = _read_json(data_dir.path_join("expeditions.json")).get("expeditions", {})
+	return OK
+
+
+func load_expeditions() -> Dictionary:
+	return _expeditions.duplicate(true)
+
+
+func save_expedition(checkpoint: Dictionary) -> Error:
+	_expeditions[String(checkpoint["id"])] = checkpoint.duplicate(true)
+	_dirty_expeditions = true
+	return flush()
+
+
+func delete_expedition(id: String) -> Error:
+	if _expeditions.erase(id):
+		_dirty_expeditions = true
+		return flush()
 	return OK
 
 
@@ -101,6 +121,12 @@ func flush() -> Error:
 			_dirty_world = false
 		elif err == OK:
 			err = e2
+	if _dirty_expeditions:
+		var e3 := _write_atomic(data_dir.path_join("expeditions.json"), {"schema_version": SCHEMA_VERSION, "expeditions": _expeditions})
+		if e3 == OK:
+			_dirty_expeditions = false
+		elif err == OK:
+			err = e3
 	return err
 
 
@@ -108,7 +134,7 @@ func backup(dest_dir: String) -> Error:
 	var err := DirAccess.make_dir_recursive_absolute(dest_dir)
 	if err != OK and err != ERR_ALREADY_EXISTS:
 		return err
-	for f in ["accounts.json", "world.json"]:
+	for f in ["accounts.json", "world.json", "expeditions.json"]:
 		var src := data_dir.path_join(f)
 		if FileAccess.file_exists(src):
 			var e := DirAccess.copy_absolute(src, dest_dir.path_join(f))

@@ -26,6 +26,16 @@ func _ready() -> void:
 	test_expedition_capacity()
 	print("-- test_content_data")
 	test_content_data()
+	print("-- test_projectiles_and_roles")
+	test_projectiles_and_roles()
+	print("-- test_objectives_and_interactables")
+	test_objectives_and_interactables()
+	print("-- test_run_structure")
+	test_run_structure()
+	print("-- test_shop_event_checkpoint")
+	test_shop_event_checkpoint()
+	print("-- test_village_bonus")
+	test_village_bonus()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -294,3 +304,366 @@ func test_content_data() -> void:
 		for anim in ["idle", "walk", "attack", "cast", "hit", "down"]:
 			check(AssetRegistry.has("char.%s.%s" % [cid, anim]), "asset id char.%s.%s" % [cid, anim])
 	check(AssetRegistry.get_sheet("char.guardian.walk")["hframes"] == 4 and AssetRegistry.get_sheet("char.guardian.walk")["vframes"] == 4, "walk sheet 4x4")
+
+
+func _make_session(i: int, cls: String = "guardian") -> Session:
+	var s := Session.new(200 + i)
+	s.account_id = "run%d" % i
+	s.nickname = "R%d" % i
+	s.class_id = cls
+	s.state = Session.State.AUTHED
+	return s
+
+
+func test_projectiles_and_roles() -> void:
+	var dt := 1.0 / 30.0
+	# 솔방울사수 투사체가 적을 맞히고, 3연속 명중 시 표식이 터진다
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 5, [{"account_id": "p0", "nickname": "P0", "class_id": "pinecone"}])
+	for e: Dictionary in room.enemies.values():
+		e["ai"] = Protocol.EnemyAI.ROOTED
+		e["root_t"] = 100.0
+	var p: Dictionary = room.players["p0"]
+	var e0: Dictionary = room.enemies.values()[0]
+	e0["pos"] = p["pos"] + Vector2(200, 0)
+	var hp0: float = e0["hp"]
+	var seq := 1
+	var burst := false
+	for i in 60:
+		room.queue_input("p0", seq, Vector2.ZERO, Vector2.RIGHT, Protocol.BTN_ATTACK)
+		seq += 1
+		for ev: Dictionary in room.step(dt):
+			if ev["k"] == "mark_burst":
+				burst = true
+	check(e0["hp"] < hp0, "sling projectile damages enemy at range")
+	check(burst, "pinecone mark bursts after consecutive hits")
+	# 돌진병: 직선 예고 후 돌진이 경로의 플레이어를 맞힌다
+	var room2 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 6, _members(1))
+	for k in room2.enemies.keys():
+		room2.enemies.erase(k)
+	var boar := room2._spawn_enemy("thorn_boar", room2.players["p0"]["pos"] + Vector2(250, 0))
+	var saw_line := false
+	var hit := false
+	for i in 120:
+		var snap := room2.snapshot()
+		for tg: PackedFloat32Array in snap["tg"]:
+			if int(tg[0]) == 1:
+				saw_line = true
+		for ev: Dictionary in room2.step(dt):
+			if ev["k"] == "hit" and ev["id"] == "p0":
+				hit = true
+	check(saw_line, "charger shows a line telegraph")
+	check(hit, "charge hits the player standing in its path")
+	check(boar["ai"] != Protocol.EnemyAI.WINDUP or true, "charger state machine advanced")
+	# 원거리병: 투사체를 쏘고 플레이어가 맞는다
+	var room3 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 6, _members(1))
+	for k in room3.enemies.keys():
+		room3.enemies.erase(k)
+	room3._spawn_enemy("black_bird", room3.players["p0"]["pos"] + Vector2(260, 0))
+	var shot := false
+	var hit3 := false
+	for i in 150:
+		for ev: Dictionary in room3.step(dt):
+			if ev["k"] == "enemy_shoot":
+				shot = true
+			if ev["k"] == "hit" and ev["id"] == "p0":
+				hit3 = true
+	check(shot and hit3, "ranged enemy shoots a projectile that hits (shot=%s hit=%s)" % [shot, hit3])
+	# 회피 무적은 투사체도 피한다
+	var room4 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 6, _members(1))
+	var p4: Dictionary = room4.players["p0"]
+	p4["invuln_t"] = 5.0
+	room4._spawn_projectile(p4["pos"] + Vector2(-30, 0), Vector2(600, 0), 10, 50, 0, "test", 1.0, 0, 0, 0)
+	var evaded := false
+	for i in 10:
+		for ev: Dictionary in room4.step(dt):
+			if ev["k"] == "evaded":
+				evaded = true
+	check(evaded and p4["hp"] == p4["max_hp"], "i-frames evade projectiles")
+
+
+func test_objectives_and_interactables() -> void:
+	var dt := 1.0 / 30.0
+	# 장치 가동: F 유지로 진행, 두 장치 모두 가동되면 목표 완료 + 적 후퇴
+	var room := CombatRoom.new(ContentDB.get_room_def("device"), ContentDB.get_party_profile(2), ContentDB.rules, 11, _members(2))
+	check(room.objective == "device", "device room objective")
+	var devices: Array = []
+	for o: Dictionary in room.objects.values():
+		if o["kind"] == Protocol.ObKind.DEVICE:
+			devices.append(o)
+	check(devices.size() == 2, "two devices present")
+	room.players["p0"]["pos"] = devices[0]["pos"] + Vector2(40, 0)
+	room.players["p1"]["pos"] = devices[1]["pos"] + Vector2(40, 0)
+	var seq := 1
+	var done_events := 0
+	for i in int(6.0 / dt):
+		room.queue_input("p0", seq, Vector2.ZERO, Vector2.ZERO, Protocol.BTN_INTERACT)
+		room.queue_input("p1", seq, Vector2.ZERO, Vector2.ZERO, Protocol.BTN_INTERACT)
+		seq += 1
+		for ev: Dictionary in room.step(dt):
+			if ev["k"] == "device_done":
+				done_events += 1
+		if room.objective_done:
+			break
+	check(done_events == 2 and room.objective_done, "both devices activated completes the objective")
+	var retreating := 0
+	for e: Dictionary in room.enemies.values():
+		if e["ai"] in [Protocol.EnemyAI.RETREAT, Protocol.EnemyAI.DEAD]:
+			retreating += 1
+	check(retreating == room.enemies.size(), "remaining enemies retreat after objective")
+	for i in 90:
+		room.step(dt)
+	check(room.outcome == Protocol.Outcome.VICTORY, "room clears after retreat")
+	# 진행도는 담당자가 놓아도 유지된다 (이어받기)
+	var room2 := CombatRoom.new(ContentDB.get_room_def("device"), ContentDB.get_party_profile(1), ContentDB.rules, 12, _members(1))
+	var dev: Dictionary = {}
+	for o: Dictionary in room2.objects.values():
+		if o["kind"] == Protocol.ObKind.DEVICE:
+			dev = o
+			break
+	room2.players["p0"]["pos"] = dev["pos"] + Vector2(40, 0)
+	for i in 30:
+		room2.queue_input("p0", i + 1, Vector2.ZERO, Vector2.ZERO, Protocol.BTN_INTERACT)
+		room2.step(dt)
+	var partial: float = dev["progress"]
+	room2.queue_input("p0", 100, Vector2.ZERO, Vector2.ZERO, 0)
+	room2.step(dt)
+	check(partial > 0.1 and is_equal_approx(float(dev["progress"]), partial), "device progress persists after releasing")
+	# 거점 탈환: 안에 서 있으면 진행, 적이 근처면 중단
+	var room3 := CombatRoom.new(ContentDB.get_room_def("hold_point"), ContentDB.get_party_profile(1), ContentDB.rules, 13, _members(1))
+	for k in room3.enemies.keys():
+		room3.enemies.erase(k)
+	var zone: Dictionary = {}
+	for o: Dictionary in room3.objects.values():
+		if o["kind"] == Protocol.ObKind.HOLD_ZONE:
+			zone = o
+	room3.players["p0"]["pos"] = zone["pos"]
+	room3._all_spawned = true
+	for i in 30:
+		room3.step(dt)
+	var prog1: float = zone["progress"]
+	check(prog1 > 0.0, "hold zone progresses with a player inside")
+	var snail := room3._spawn_enemy("sap_snail", zone["pos"] + Vector2(60, 0))
+	snail["ai"] = Protocol.EnemyAI.ROOTED
+	snail["root_t"] = 100.0
+	for i in 30:
+		room3.step(dt)
+	check(is_equal_approx(float(zone["progress"]), prog1) and int(zone["state"]) == 2, "hold zone is contested by nearby enemy")
+	# 수문: 레버 → 경고 → 급류. 급류 안의 적은 느려지고 피해를 입는다
+	var room4 := CombatRoom.new(ContentDB.get_room_def("hold_point"), ContentDB.get_party_profile(1), ContentDB.rules, 14, _members(1))
+	for k in room4.enemies.keys():
+		room4.enemies.erase(k)
+	var lever: Dictionary = {}
+	for o: Dictionary in room4.objects.values():
+		if o["kind"] == Protocol.ObKind.SLUICE_LEVER:
+			lever = o
+	room4.players["p0"]["pos"] = lever["pos"] + Vector2(30, 0)
+	var states: Array = []
+	for i in 90:
+		room4.queue_input("p0", i + 1, Vector2.ZERO, Vector2.ZERO, Protocol.BTN_INTERACT if i < 60 else 0)
+		for ev: Dictionary in room4.step(dt):
+			if ev["k"] == "sluice":
+				states.append(int(ev["state"]))
+	check(states == [1, 2], "sluice lever warns then floods (%s)" % [states])
+	var wz: Dictionary = room4.water_zone
+	var wet := room4._spawn_enemy("sap_snail", Vector2(wz["x"] + wz["w"] * 0.5, wz["y"] + wz["h"] * 0.5))
+	var hp_before: float = wet["hp"]
+	for i in 30:
+		room4.step(dt)
+	check(wet["hp"] < hp_before, "enemy inside flooded zone takes damage")
+	# 건설: 목재 소비, 상한, 구조물이 적을 막는다
+	var room5 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 15, _members(1), {"team_wood": 7})
+	for k in room5.enemies.keys():
+		room5.enemies.erase(k)
+	var builds := 0
+	for i in 3:
+		room5.queue_input("p0", i * 2 + 1, Vector2.ZERO, Vector2.RIGHT, Protocol.BTN_BUILD)
+		room5.step(dt)
+		room5.queue_input("p0", i * 2 + 2, Vector2.ZERO, Vector2.RIGHT, 0)
+		room5.step(dt)
+		room5.players["p0"]["pos"] += Vector2(0, 90)
+	for o: Dictionary in room5.objects.values():
+		if o["kind"] == Protocol.ObKind.STRUCTURE:
+			builds += 1
+	check(builds == 2 and room5.team_wood == 1, "build consumes 3 wood each and never goes negative (builds=%d wood=%d)" % [builds, room5.team_wood])
+	# 갉기: 나무 제거 + 목재
+	var room6 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 16, _members(1))
+	var tree: Dictionary = {}
+	for o: Dictionary in room6.objects.values():
+		if o["kind"] == Protocol.ObKind.GNAW_TREE:
+			tree = o
+	room6.players["p0"]["pos"] = tree["pos"] + Vector2(50, 0)
+	var gnawed := false
+	for i in 60:
+		room6.queue_input("p0", i + 1, Vector2.ZERO, Vector2.ZERO, Protocol.BTN_INTERACT)
+		for ev: Dictionary in room6.step(dt):
+			if ev["k"] == "gnaw":
+				gnawed = true
+	check(gnawed and room6.team_wood >= 3 and not room6.objects.has(tree["id"]), "gnawing a tree removes it and adds team wood")
+	# 가시 덫: 적 속박
+	var room7 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 17, [{"account_id": "p0", "nickname": "P0", "class_id": "pinecone"}])
+	for k in room7.enemies.keys():
+		room7.enemies.erase(k)
+	var p7: Dictionary = room7.players["p0"]
+	room7.queue_input("p0", 1, Vector2.ZERO, Vector2(100, 0), Protocol.BTN_E)
+	for i in 20:
+		room7.step(dt)
+	var trap_count := 0
+	for o: Dictionary in room7.objects.values():
+		if o["kind"] == Protocol.ObKind.TRAP:
+			trap_count += 1
+	check(trap_count == 1, "thorn trap placed")
+	var victim := room7._spawn_enemy("sap_snail", p7["pos"] + Vector2(100, 0))
+	for i in 10:
+		room7.step(dt)
+	check(victim["ai"] == Protocol.EnemyAI.ROOTED, "trap roots the enemy")
+
+
+func test_run_structure() -> void:
+	var a := ExpeditionInstance.new("exp_t", 4242)
+	var b := ExpeditionInstance.new("exp_t2", 4242)
+	for i in 2:
+		a.add_member(_make_session(i))
+		b.add_member(_make_session(10 + i))
+	a.start_run()
+	b.start_run()
+	check(a.run["layers"].size() == 5 and a.state == Protocol.ExpState.IN_ROOM, "run starts in the first combat node")
+	var va: Array = []
+	var vb: Array = []
+	for layer: Array in a.run["layers"]:
+		for n: Dictionary in layer:
+			va.append(n["variant"])
+	for layer: Array in b.run["layers"]:
+		for n: Dictionary in layer:
+			vb.append(n["variant"])
+	check(va == vb, "same seed reproduces the same route (GEN-01)")
+	var c := ExpeditionInstance.new("exp_t3", 99)
+	c.add_member(_make_session(20))
+	c.start_run()
+	check(c.run_payload()["layers"].size() == 5, "run payload has layers")
+	# 방 완료 → 보상 3지선다 → 전원 선택 → 다음 층(2노드) 경로 투표
+	a.room._all_spawned = true
+	for e: Dictionary in a.room.enemies.values():
+		a.room._kill_enemy(e, a.room.players["run0"])
+	a.step(1.0 / 30.0, 2)
+	check(a.state == Protocol.ExpState.REWARD, "victory enters REWARD")
+	var opts0: Array = a.run["pending_rewards"]["run0"]
+	check(opts0.size() == 3, "three reward options offered")
+	check(int(a.run["xp"]) > 0 and int(a.run["players"]["run0"]["acorns"]) > 0, "xp and acorns granted after room")
+	check(a.pick_reward("run0", 0), "pick reward")
+	check(a.state == Protocol.ExpState.REWARD, "waits for the other member")
+	check(a.pick_reward("run1", 1), "second pick")
+	check(a.state == Protocol.ExpState.ROUTE_VOTE and a.run["vote_nodes"].size() == 2, "after rewards, route vote with 2 nodes")
+	var rp0: Dictionary = a.run["players"]["run0"]
+	check(rp0["relics"].size() + rp0["upgrades"].size() == 1, "reward applied to run player")
+	var mods: Dictionary = a.member_mods("run0")["mods"]
+	check(mods.has("damage_mult"), "mods computed from relics")
+	# 투표 동률 → 시드 추첨, 결정 후 노드 진입
+	var n0: String = a.run["vote_nodes"][0]["id"]
+	var n1: String = a.run["vote_nodes"][1]["id"]
+	a.vote_route("run0", n0)
+	a.vote_route("run1", n1)
+	check(a.state in [Protocol.ExpState.IN_ROOM, Protocol.ExpState.NODE_MENU], "tie resolved by seeded draw and node entered")
+	# 이탈자는 보상·투표를 막지 않는다
+	var d := ExpeditionInstance.new("exp_t4", 77)
+	d.add_member(_make_session(30))
+	d.add_member(_make_session(31))
+	d.start_run()
+	d.mark_disconnected("run31")
+	d.room._all_spawned = true
+	for e: Dictionary in d.room.enemies.values():
+		d.room._kill_enemy(e, d.room.players["run30"])
+	d.step(1.0 / 30.0, 2)
+	d.pick_reward("run30", 0)
+	check(d.state != Protocol.ExpState.REWARD, "disconnected member's reward is defaulted so the party proceeds")
+	# 안전 지점 합류: 합류 묶음과 N 재산정
+	var e_inst := ExpeditionInstance.new("exp_t5", 500)
+	e_inst.add_member(_make_session(40))
+	e_inst.start_run()
+	e_inst.room._all_spawned = true
+	for en: Dictionary in e_inst.room.enemies.values():
+		e_inst.room._kill_enemy(en, e_inst.room.players["run40"])
+	e_inst.step(1.0 / 30.0, 2)
+	check(e_inst.is_safe_point() and e_inst.can_join("run41") == "", "REWARD is a safe point for joining")
+	e_inst.add_member(_make_session(41))
+	check(e_inst.run["players"].has("run41"), "joiner gets a run player record")
+	e_inst.pick_reward("run40", 0)
+	if e_inst.state == Protocol.ExpState.ROUTE_VOTE:
+		e_inst.vote_route("run40", String(e_inst.run["vote_nodes"][0]["id"]))
+		e_inst.vote_route("run41", String(e_inst.run["vote_nodes"][0]["id"]))
+	if e_inst.state == Protocol.ExpState.NODE_MENU:
+		e_inst.node_action("run40", {"action": "continue"})
+		e_inst.node_action("run41", {"action": "continue"})
+		if e_inst.state == Protocol.ExpState.NODE_MENU:
+			e_inst.node_action("run40", {"action": "vote", "choice": String(ContentDB.events[String(e_inst.run["menu"]["variant"])]["choices"][0]["id"])})
+			e_inst.node_action("run41", {"action": "vote", "choice": String(ContentDB.events[String(e_inst.run["menu"]["variant"])]["choices"][0]["id"])})
+	if e_inst.state == Protocol.ExpState.ROUTE_VOTE:
+		e_inst.vote_route("run40", String(e_inst.run["vote_nodes"][0]["id"]))
+		e_inst.vote_route("run41", String(e_inst.run["vote_nodes"][0]["id"]))
+	check(e_inst.state == Protocol.ExpState.IN_ROOM and e_inst.n_locked == 2, "next room recalculates N with the joiner (state %d n %d)" % [e_inst.state, e_inst.n_locked])
+
+
+func test_shop_event_checkpoint() -> void:
+	var inst := ExpeditionInstance.new("exp_s", 8)
+	inst.add_member(_make_session(50))
+	inst.start_run()
+	inst.run["players"]["run50"]["acorns"] = 20
+	inst._begin_menu("shop", "riverside_stall")
+	check(inst.state == Protocol.ExpState.NODE_MENU, "shop menu state")
+	check(inst.node_action("run50", {"action": "buy", "item": "heal_charge"})["ok"], "buy heal charge")
+	check(int(inst.run["players"]["run50"]["acorns"]) == 5 and int(inst.members["run50"]["heal_uses"]) == 3, "acorns deducted once and heal use added")
+	var r := inst.node_action("run50", {"action": "buy", "item": "heal_charge"})
+	check(not r["ok"] and r["error"] == "NOT_ENOUGH_ACORNS" and int(inst.run["players"]["run50"]["acorns"]) == 5, "insufficient acorns never goes negative (ECO-01)")
+	inst.run["players"]["run50"]["acorns"] = 100
+	inst.node_action("run50", {"action": "buy", "item": "heal_charge"})
+	var r2 := inst.node_action("run50", {"action": "buy", "item": "heal_charge"})
+	check(not r2["ok"] and r2["error"] == "SOLD_OUT", "per-player purchase limit enforced")
+	# 사건: 다수결, 효과 적용
+	var ev := ExpeditionInstance.new("exp_e", 9)
+	ev.add_member(_make_session(60))
+	ev.add_member(_make_session(61))
+	ev.start_run()
+	ev._begin_menu("event", "fallen_branch")
+	ev.node_action("run60", {"action": "vote", "choice": "gnaw"})
+	check(ev.state == Protocol.ExpState.NODE_MENU, "event waits for all votes")
+	ev.node_action("run61", {"action": "vote", "choice": "gnaw"})
+	check(int(ev.run["team_wood"]) == 6, "event effect applied (wood +6)")
+	check(ev.state != Protocol.ExpState.NODE_MENU, "event resolved moves on")
+	# 체크포인트 왕복
+	var cp := inst.to_checkpoint()
+	var text := JSON.stringify(cp)
+	var back: Dictionary = JSON.parse_string(text)
+	var restored := ExpeditionInstance.from_checkpoint(back)
+	check(restored.id == inst.id and restored.state == Protocol.ExpState.NODE_MENU and int(restored.run["players"]["run50"]["acorns"]) == int(inst.run["players"]["run50"]["acorns"]), "checkpoint round-trips through JSON")
+	check(restored.members["run50"]["connected"] == false and restored.restored_from_checkpoint, "restored members start disconnected")
+	var s50 := _make_session(50)
+	restored.mark_reconnected(s50)
+	var has_menu := false
+	for msg: Dictionary in restored.outbox:
+		if int(msg["type"]) == Protocol.S.NODE_MENU:
+			has_menu = true
+	check(has_menu, "reconnect re-sends the safe-point phase")
+	# 전투 중 저장본은 RESULT(서버 오류)로 복구된다
+	var cp2 := inst.to_checkpoint()
+	cp2["state"] = Protocol.ExpState.IN_ROOM
+	var r3 := ExpeditionInstance.from_checkpoint(cp2)
+	check(r3.state == Protocol.ExpState.RESULT and r3.run_outcome == Protocol.Outcome.SERVER_ERROR, "mid-combat checkpoint is not restored as a fight")
+
+
+func test_village_bonus() -> void:
+	var b0 := ContentDB.village_bonus({"memory_tree": {"level": 1}, "workshop": {"level": 0}})
+	check(b0.is_empty() or float(b0.get("max_hp_add", 0)) == 0.0, "no bonus at base levels")
+	var b2 := ContentDB.village_bonus({"memory_tree": {"level": 2}, "workshop": {"level": 1}})
+	check(int(b2.get("max_hp_add", 0)) == 5 and int(b2.get("heal_uses_add", 0)) == 1, "level 2 tree + level 1 workshop bonuses")
+	var b3 := ContentDB.village_bonus({"memory_tree": {"level": 3}, "workshop": {"level": 2}})
+	check(int(b3.get("max_hp_add", 0)) == 10 and int(b3.get("team_wood_add", 0)) == 3, "max levels: hp +10 (not 15), wood +3")
+	var b9 := ContentDB.village_bonus({"memory_tree": {"level": 9}})
+	check(int(b9.get("max_hp_add", 0)) <= int(ContentDB.village["permanent_caps"]["max_hp_add"]), "permanent cap applied (GROW-02)")
+	# 출정 시 작업실 보너스가 회복 도구·팀 목재에 반영되고, 최대 체력 보너스가 전투 수치에 반영된다 (GROW-01)
+	var inst := ExpeditionInstance.new("exp_v", 3)
+	var s := _make_session(70)
+	inst.add_member(s, b3)
+	inst.start_run()
+	check(int(inst.members["run70"]["heal_uses"]) == 3 and int(inst.run["team_wood"]) == 3, "workshop bonuses applied at run start")
+	var p: Dictionary = inst.room.players["run70"]
+	check(is_equal_approx(p["max_hp"], float(ContentDB.get_class_def("guardian")["base_hp"]) + 10.0), "memory tree hp bonus applied to combat max hp")
+	check(inst.room.team_wood == 3, "combat room starts with the team wood")

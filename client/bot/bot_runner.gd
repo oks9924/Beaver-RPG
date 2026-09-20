@@ -27,6 +27,9 @@ var _join_attempts: int = 0
 var _restarts_done: int = 0
 var _dropped: bool = false
 var _drop_pending: bool = false
+var _run: Dictionary = {}
+var _bought: bool = false
+var _voted_layer: int = -1
 
 
 func start(net: NetClient, launch_args: Dictionary) -> void:
@@ -201,13 +204,63 @@ func _on_message(type: int, p: Dictionary) -> void:
 					"room_clear": _count("room_clear")
 					"wipe": _count("wipe")
 		Protocol.S.ROOM_RESULT:
-			result["room_result"] = {"outcome": p.get("outcome", 0), "elapsed": p.get("elapsed", 0), "stats": p.get("stats", {}), "rewards": p.get("rewards", {})}
-			_log("room result outcome=%s elapsed=%.1f" % [p.get("outcome", 0), float(p.get("elapsed", 0))])
+			result["room_result"] = {"outcome": p.get("outcome", 0), "run_outcome": p.get("run_outcome", 0), "elapsed": p.get("elapsed", 0), "stats": p.get("stats", {}), "rewards": p.get("rewards", {}), "run_stats": p.get("run_stats", {}), "run": p.get("run", {})}
+			if int(p.get("run_outcome", 0)) == Protocol.Outcome.VICTORY:
+				_count("run_complete")
+			_log("run result outcome=%s rooms=%s" % [p.get("run_outcome", 0), p.get("run_stats", {}).get("rooms_cleared", "?")])
 			_phase = "result"
 			_timer = 0.0
 		Protocol.S.LEAVE_EXPEDITION:
 			_log("left expedition (%s)" % p.get("reason", ""))
 			_phase = "returning"
+		Protocol.S.RUN_STATE:
+			_run = p
+		Protocol.S.REWARD_OFFER:
+			_count("reward_offers")
+			if not bool(p.get("picked", false)) and not (p.get("options", []) as Array).is_empty():
+				_log("reward options: %s" % [p["options"].map(func(o: Dictionary) -> String: return String(o.get("id", "")))])
+				client.send(Protocol.C.REWARD_PICK, {"index": 0})
+				_count("reward_picks")
+			_phase = "phase"
+			_timer = 0.0
+		Protocol.S.ROUTE_OFFER:
+			var votes: Dictionary = p.get("votes", {})
+			if not votes.has(_my_id) and _voted_layer != int(p.get("layer", -1)):
+				_voted_layer = int(p.get("layer", -1))
+				var nodes: Array = p.get("nodes", [])
+				var pick: Dictionary = nodes[0]
+				for n: Dictionary in nodes:
+					if String(n.get("type", "")) == String(args.get("prefer", "combat")):
+						pick = n
+				_log("voting %s (%s)" % [pick["id"], pick["type"]])
+				client.send(Protocol.C.ROUTE_VOTE, {"node_id": String(pick["id"])})
+				_count("route_votes")
+			_phase = "phase"
+			_timer = 0.0
+		Protocol.S.NODE_MENU:
+			_phase = "phase"
+			_timer = 0.0
+			var kind := String(p.get("kind", ""))
+			var done: Array = p.get("done", [])
+			match kind:
+				"event":
+					if not (p.get("votes", {}) as Dictionary).has(_my_id):
+						var choices: Array = p.get("data", {}).get("choices", [])
+						client.send(Protocol.C.NODE_ACTION, {"action": "vote", "choice": String(choices[0]["id"])})
+						_count("event_votes")
+				"shop":
+					if not done.has(_my_id):
+						var mine: Dictionary = p.get("run", {}).get("players", {}).get(_my_id, {})
+						if int(mine.get("acorns", 0)) >= 15 and not _bought:
+							_bought = true
+							client.send(Protocol.C.NODE_ACTION, {"action": "buy", "item": "heal_charge"})
+							_count("shop_buys")
+						else:
+							client.send(Protocol.C.NODE_ACTION, {"action": "continue"})
+				"rest":
+					if not done.has(_my_id):
+						client.send(Protocol.C.NODE_ACTION, {"action": "continue"})
+						_count("rests")
 		Protocol.S.ERROR:
 			var code := String(p.get("error", ""))
 			result["last_error"] = p
@@ -250,6 +303,7 @@ func _physics_process(dt: float) -> void:
 		"party": _phase_party()
 		"room": _phase_room()
 		"result": _phase_result()
+		"phase": pass
 		"returning": pass
 		"done": pass
 
@@ -284,7 +338,7 @@ func _phase_hub() -> void:
 				if _timer > 0.5:
 					_log("creating expedition")
 					_phase = "joining"
-					client.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": "guardian"})
+					client.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": String(args.get("class", "guardian"))})
 					_timer = 0.0
 			elif _timer > float(args.get("join_delay", 1.5)):
 				var target := _resolve_join_target(String(args.get("join", "")))
@@ -292,7 +346,7 @@ func _phase_hub() -> void:
 					_join_attempts += 1
 					_log("joining %s (attempt %d)" % [target, _join_attempts])
 					_phase = "joining"
-					client.send(Protocol.C.BOARD_JOIN, {"expedition_id": target, "class_id": "guardian"})
+					client.send(Protocol.C.BOARD_JOIN, {"expedition_id": target, "class_id": String(args.get("class", "guardian"))})
 				else:
 					client.send(Protocol.C.BOARD_LIST)
 				_timer = 0.0
@@ -323,7 +377,7 @@ func _phase_party() -> void:
 		if m.get("id", "") == _my_id:
 			me_ready = bool(m.get("ready", false))
 	if not me_ready:
-		client.send(Protocol.C.READY, {"ready": true, "class_id": "guardian"})
+		client.send(Protocol.C.READY, {"ready": true, "class_id": String(args.get("class", "guardian"))})
 		_timer = 0.0
 		return
 	if args.has("starter"):
@@ -365,50 +419,110 @@ func _phase_room() -> void:
 	var aim := Vector2.ZERO
 	var btn := 0
 	if my_state == Protocol.EntState.ALIVE:
-		# 다운된 아군 우선 구조
 		var downed := PackedFloat32Array()
 		for entry: Array in _snapshot.get("p", []):
 			var p: PackedFloat32Array = entry[1]
 			if int(p[Protocol.SNAP_P.STATE]) == Protocol.EntState.DOWNED:
 				downed = p
-		if not downed.is_empty():
+		var nearest := PackedFloat32Array()
+		var best := 1e9
+		for entry: Array in _snapshot.get("e", []):
+			var e: PackedFloat32Array = entry[2]
+			if int(e[Protocol.SNAP_E.AI]) in [Protocol.EnemyAI.DEAD, Protocol.EnemyAI.RETREAT]:
+				continue
+			var ep := Vector2(e[Protocol.SNAP_E.X], e[Protocol.SNAP_E.Y])
+			var d := ep.distance_to(my_pos)
+			if d < best:
+				best = d
+				nearest = e
+		var bs: Dictionary = _snapshot.get("boss", {})
+		if not bs.is_empty() and int(bs.get("state", 0)) != BossIronclaw.BS.DEAD and not bool(bs.get("molting", false)):
+			var bp := Vector2(float(bs["x"]), float(bs["y"]))
+			var bd := bp.distance_to(my_pos) - 46.0
+			if bd < best or nearest.is_empty():
+				best = bd
+				nearest = PackedFloat32Array([bp.x, bp.y, 0, 0, float(bs["hp"]), float(bs["max_hp"]), Protocol.EnemyAI.CHASE])
+		# 보스 기믹 오브젝트: 가까운 상호작용물이 있으면 F 유지 (봇은 규칙을 모르지만 접근·조작은 한다)
+		var boss_obj := PackedFloat32Array()
+		if not bs.is_empty():
+			for o: PackedFloat32Array in _snapshot.get("ob", []):
+				if int(o[Protocol.SNAP_OB.KIND]) >= Protocol.ObKind.PILLAR and int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.HAZARD and int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.PLATFORM and int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.HUSK:
+					var od := Vector2(o[2], o[3]).distance_to(my_pos)
+					if od < 110.0 and (boss_obj.is_empty() or od < Vector2(boss_obj[2], boss_obj[3]).distance_to(my_pos)):
+						boss_obj = o
+		var in_danger := false
+		for tg: PackedFloat32Array in _snapshot.get("tg", []):
+			var tc := Vector2(tg[Protocol.SNAP_TG.X], tg[Protocol.SNAP_TG.Y])
+			var rem := tg[Protocol.SNAP_TG.REMAINING]
+			if int(tg[Protocol.SNAP_TG.TYPE]) == 1:
+				var d := Vector2(tg[Protocol.SNAP_TG.DX], tg[Protocol.SNAP_TG.DY])
+				var rel := my_pos - tc
+				var along := rel.dot(d)
+				var side := absf(rel.cross(d))
+				if along > -20 and along < tg[Protocol.SNAP_TG.R] + 20 and side < tg[Protocol.SNAP_TG.W] * 0.5 + 24 and rem < 0.5:
+					in_danger = true
+					aim = Vector2(-d.y, d.x)
+			elif tc.distance_to(my_pos) < tg[Protocol.SNAP_TG.R] + 20.0 and rem < 0.35:
+				in_danger = true
+				aim = my_pos - tc
+		var obj: Array = _snapshot.get("obj", ["annihilate", 0, 0])
+		var objective := String(obj[0])
+		var target_obj := PackedFloat32Array()
+		for o: PackedFloat32Array in _snapshot.get("ob", []):
+			var kind := int(o[Protocol.SNAP_OB.KIND])
+			if objective == "device" and kind == Protocol.ObKind.DEVICE and int(o[Protocol.SNAP_OB.STATE]) == 0:
+				if target_obj.is_empty() or Vector2(o[2], o[3]).distance_to(my_pos) < Vector2(target_obj[2], target_obj[3]).distance_to(my_pos):
+					target_obj = o
+			elif objective == "hold_point" and kind == Protocol.ObKind.HOLD_ZONE:
+				target_obj = o
+		if not boss_obj.is_empty() and randf() < 0.7:
+			var op := Vector2(boss_obj[Protocol.SNAP_OB.X], boss_obj[Protocol.SNAP_OB.Y])
+			if op.distance_to(my_pos) > boss_obj[Protocol.SNAP_OB.R] + 40.0:
+				mv = (op - my_pos).normalized()
+			else:
+				btn |= Protocol.BTN_INTERACT
+			aim = op - my_pos
+		elif not downed.is_empty():
 			var dp := Vector2(downed[Protocol.SNAP_P.X], downed[Protocol.SNAP_P.Y])
 			if dp.distance_to(my_pos) > 50.0:
 				mv = (dp - my_pos).normalized()
 			else:
 				btn |= Protocol.BTN_INTERACT
 			aim = dp - my_pos
-		else:
-			var nearest := PackedFloat32Array()
-			var best := 1e9
-			for entry: Array in _snapshot.get("e", []):
-				var e: PackedFloat32Array = entry[2]
-				if int(e[Protocol.SNAP_E.AI]) == Protocol.EnemyAI.DEAD:
-					continue
-				var ep := Vector2(e[Protocol.SNAP_E.X], e[Protocol.SNAP_E.Y])
-				var d := ep.distance_to(my_pos)
-				if d < best:
-					best = d
-					nearest = e
-			if not nearest.is_empty():
-				var ep := Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y])
-				aim = ep - my_pos
-				# 예고 범위 안이면 회피
-				var in_danger := false
-				for tg: PackedFloat32Array in _snapshot.get("tg", []):
-					if Vector2(tg[Protocol.SNAP_TG.X], tg[Protocol.SNAP_TG.Y]).distance_to(my_pos) < tg[Protocol.SNAP_TG.R] + 20.0 and tg[Protocol.SNAP_TG.REMAINING] < 0.35:
-						in_danger = true
-				if in_danger and int(me[Protocol.SNAP_P.DODGE]) > 0:
-					mv = -aim.normalized()
-					btn |= Protocol.BTN_DODGE
-				elif best > 60.0:
-					mv = aim.normalized()
-				else:
+		elif in_danger and int(me[Protocol.SNAP_P.DODGE]) > 0:
+			mv = aim.normalized() if aim.length() > 0.1 else Vector2.RIGHT
+			btn |= Protocol.BTN_DODGE
+		elif not target_obj.is_empty() and (nearest.is_empty() or best > 90.0 or objective == "hold_point"):
+			var op := Vector2(target_obj[Protocol.SNAP_OB.X], target_obj[Protocol.SNAP_OB.Y])
+			var r := target_obj[Protocol.SNAP_OB.R]
+			if objective == "hold_point":
+				if op.distance_to(my_pos) > r * 0.5:
+					mv = (op - my_pos).normalized()
+				elif not nearest.is_empty() and best < 140.0:
+					aim = Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y]) - my_pos
 					btn |= Protocol.BTN_ATTACK
-					if me[Protocol.SNAP_P.CD_E] <= 0.0 and randf() < 0.3:
-						btn |= Protocol.BTN_E
-				if me[Protocol.SNAP_P.HP] < 60.0 and int(me[Protocol.SNAP_P.HEAL]) > 0 and best > 120.0:
-					btn |= Protocol.BTN_HEAL
+			else:
+				if op.distance_to(my_pos) > r + 40.0:
+					mv = (op - my_pos).normalized()
+				else:
+					btn |= Protocol.BTN_INTERACT
+				aim = op - my_pos
+		elif not nearest.is_empty():
+			var ep := Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y])
+			aim = ep - my_pos
+			var reach := 60.0 if String(args.get("class", "guardian")) == "guardian" else 260.0
+			if best > reach:
+				mv = aim.normalized()
+			else:
+				btn |= Protocol.BTN_ATTACK
+				if me[Protocol.SNAP_P.CD_E] <= 0.0 and randf() < 0.3:
+					btn |= Protocol.BTN_E
+				if me[Protocol.SNAP_P.CD_Q] <= 0.0 and randf() < 0.2:
+					btn |= Protocol.BTN_Q
+			if me[Protocol.SNAP_P.HP] < 60.0 and int(me[Protocol.SNAP_P.HEAL]) > 0 and best > 120.0:
+				btn |= Protocol.BTN_HEAL
+			if int(_snapshot.get("wood", 0)) >= 3 and randf() < 0.01:
+				btn |= Protocol.BTN_BUILD
 	_seq += 1
 	client.send_input(_seq, mv, aim, btn)
 

@@ -92,4 +92,6 @@ func hub_info() -> Dictionary:
 		"bounds": [bounds.position.x, bounds.position.y, bounds.size.x, bounds.size.y],
 		"obstacles": obstacles,
 		"spawn": [SPAWN.x, SPAWN.y],
+		"village": ContentDB.village.get("structures", {}),
+		"bonus": ContentDB.village_bonus(world["hub"].get("structures", {})),
 	}

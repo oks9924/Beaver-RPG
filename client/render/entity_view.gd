@@ -22,6 +22,8 @@ var down_t: float = 0.0
 var rescue_t: float = 0.0
 var front_guard: bool = false
 var party_color: Color = Color.WHITE
+var boss_state: int = -1
+var molting: bool = false
 var _sprite := Sprite2D.new()
 var _guard := Sprite2D.new()
 var _anim: String = ""
@@ -78,6 +80,14 @@ func _pick_anim() -> String:
 			Protocol.Action.CAST, Protocol.Action.RESCUING:
 				return "cast"
 		return "walk" if moving else "idle"
+	if boss_state >= 0:
+		match boss_state:
+			BossIronclaw.BS.DEAD: return "death"
+			BossIronclaw.BS.WINDUP, BossIronclaw.BS.ATTACK, BossIronclaw.BS.GRAB_APPROACH, BossIronclaw.BS.GRABBING: return "attack"
+			BossIronclaw.BS.STAGGER: return "stagger"
+			BossIronclaw.BS.MOLT: return "molt"
+			BossIronclaw.BS.CHASE: return "walk" if moving else "idle"
+		return "idle"
 	match ai_state:
 		Protocol.EnemyAI.DEAD: return "death"
 		Protocol.EnemyAI.WINDUP, Protocol.EnemyAI.ATTACK: return "attack"
@@ -136,8 +146,8 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1, 0.35, 0.2, 0.8), 3.0)
 		var t := "%.0f" % down_t
 		draw_string(font, Vector2(-10, -72), t, HORIZONTAL_ALIGNMENT_CENTER, 20, 14, Color(1, 0.6, 0.4))
-	var w := 44.0 if is_player else 36.0
-	var y := -70.0 if is_player else -60.0
+	var w := 44.0 if is_player else (120.0 if boss_state >= 0 else 36.0)
+	var y := -70.0 if is_player else (-150.0 if boss_state >= 0 else -60.0)
 	draw_rect(Rect2(-w / 2, y, w, 6), Color(0, 0, 0, 0.6))
 	var frac := clampf(hp / maxf(max_hp, 1.0), 0.0, 1.0)
 	var col := Color(0.3, 0.85, 0.35) if is_player else Color(0.85, 0.3, 0.25)

@@ -12,7 +12,9 @@ var login_screen: LoginScreen
 var hub_screen: HubScreen
 var hud: RoomHud
 var result_panel: ResultPanel
+var run_panels: RunPanels
 var overlay: DevOverlay
+var run_state: Dictionary = {}
 var bot: BotRunner = null
 var mode: String = "connect"
 var my_id: String = ""
@@ -37,6 +39,8 @@ var demo: bool = false
 var _demo_t: float = 0.0
 var _demo_step: int = 0
 var _shots_dir: String = ""
+var _demo_phase_shots: int = 0
+var _route_offer: Dictionary = {}
 
 
 func _ready() -> void:
@@ -69,8 +73,9 @@ func _ready() -> void:
 	hub_screen = HubScreen.new()
 	hud = RoomHud.new()
 	result_panel = ResultPanel.new()
+	run_panels = RunPanels.new()
 	overlay = DevOverlay.new()
-	for s: Control in [connect_screen, login_screen, hub_screen, hud, result_panel]:
+	for s: Control in [connect_screen, login_screen, hub_screen, hud, result_panel, run_panels]:
 		root.add_child(s)
 		s.visible = false
 	root.add_child(overlay)
@@ -87,8 +92,12 @@ func _ready() -> void:
 	hub_screen.start_requested.connect(func() -> void: net.send(Protocol.C.BOARD_START))
 	hub_screen.logout_requested.connect(func() -> void: settings.clear_token(net.host, net.port); net.send(Protocol.C.LOGOUT))
 	hub_screen.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
+	hub_screen.upgrade_requested.connect(func(sid: String) -> void: net.send(Protocol.C.HUB_UPGRADE, {"structure": sid}))
 	hud.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	result_panel.choice_made.connect(func(c: String) -> void: net.send(Protocol.C.ROOM_CHOICE, {"choice": c}))
+	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))
+	run_panels.route_voted.connect(func(n: String) -> void: net.send(Protocol.C.ROUTE_VOTE, {"node_id": n}))
+	run_panels.node_action.connect(func(p: Dictionary) -> void: net.send(Protocol.C.NODE_ACTION, p))
 	net.state_changed.connect(_on_net_state)
 	net.hello_result.connect(_on_hello)
 	net.auth_result.connect(_on_auth)
@@ -111,7 +120,7 @@ func _ready() -> void:
 func _setup_input_map() -> void:
 	var binds := {
 		"move_up": [KEY_W, KEY_UP], "move_down": [KEY_S, KEY_DOWN], "move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
-		"dodge": [KEY_SPACE], "skill_q": [KEY_Q], "skill_e": [KEY_E], "skill_r": [KEY_R], "interact": [KEY_F], "heal": [KEY_1],
+		"dodge": [KEY_SPACE], "skill_q": [KEY_Q], "skill_e": [KEY_E], "skill_r": [KEY_R], "interact": [KEY_F], "heal": [KEY_1], "build_place": [KEY_B],
 		"build": [KEY_B], "map": [KEY_TAB], "dev_overlay": [KEY_F3], "chat": [KEY_ENTER], "fullscreen": [KEY_F11],
 	}
 	for action: String in binds.keys():
@@ -135,9 +144,10 @@ func _set_mode(m: String) -> void:
 	connect_screen.visible = m == "connect"
 	login_screen.visible = m == "login"
 	hub_screen.visible = m == "hub"
-	hud.visible = m in ["room", "result"]
+	hud.visible = m in ["room", "result", "phase"]
 	result_panel.visible = m == "result"
-	world.visible = m in ["hub", "room", "result"]
+	run_panels.visible = m == "phase"
+	world.visible = m in ["hub", "room", "result", "phase"]
 
 
 # ------------------------------------------------------------------ 접속·인증
@@ -218,6 +228,11 @@ func _on_message(type: int, p: Dictionary) -> void:
 		Protocol.S.ENTER_HUB:
 			hub_info = p.get("hub", {})
 			roster = p.get("roster", [])
+			if bool(p.get("refresh", false)) and mode == "hub":
+				hub_screen.show_hub(hub_info, roster, int(net.server_info.get("online", 0)), int(net.server_info.get("max_online", 0)))
+				hub_screen.show_board(p.get("board", []), String(party.get("expedition_id", "")))
+				hub_screen.show_progression(hub_info, net.account)
+				return
 			party = {}
 			room = {}
 			var b: Array = hub_info.get("bounds", [0, 0, 1600, 1000])
@@ -231,6 +246,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			hub_screen.show_hub(hub_info, roster, int(net.server_info.get("online", 0)), int(net.server_info.get("max_online", 0)))
 			hub_screen.show_board(p.get("board", []), "")
 			hub_screen.show_party({}, my_id)
+			hub_screen.show_progression(hub_info, net.account)
 			_set_mode("hub")
 		Protocol.S.HUB_ROSTER:
 			roster = p.get("roster", [])
@@ -257,18 +273,45 @@ func _on_message(type: int, p: Dictionary) -> void:
 			world.camera.reset_smoothing()
 			hud.update_room(room)
 			hud.toast("%s — 기준 인원 %d" % [def.get("name_ko", "전투방"), int(p.get("n", 1))], 3.0)
+			run_panels.hide_panel()
 			_set_mode("room")
+			if demo and _demo_step >= 20:
+				_demo_step = 4
+				_demo_t = 0.0
 		Protocol.S.ROOM_EVENTS:
 			for ev: Dictionary in p.get("events", []):
 				_on_room_event(ev)
 		Protocol.S.ROOM_RESULT:
 			last_result = p
-			result_panel.show_result(p, room.get("party", []), my_id)
+			result_panel.show_result(p, room.get("party", []) if not room.is_empty() else party.get("members", []), my_id)
 			result_panel.show_choices(party.get("members", []))
 			_set_mode("result")
+		Protocol.S.RUN_STATE:
+			run_state = p
+			hud.update_run(run_state, my_id)
+		Protocol.S.REWARD_OFFER:
+			run_panels.show_reward(p, my_id)
+			_set_mode("phase")
+		Protocol.S.ROUTE_OFFER:
+			_route_offer = p
+			run_panels.show_route(p, my_id, party.get("members", []))
+			_set_mode("phase")
+		Protocol.S.NODE_MENU:
+			run_panels.show_menu(p, my_id, party.get("members", []))
+			_set_mode("phase")
+		Protocol.S.NOTICE:
+			hud.toast(String(p.get("text", "")), 3.0)
+			hud.add_chat("알림", String(p.get("text", "")))
+			if mode == "hub":
+				hub_screen.add_chat("알림", String(p.get("text", "")), "hub")
+		Protocol.S.ACCOUNT_UPDATE:
+			if mode == "hub":
+				hub_screen.show_progression(hub_info, net.account)
 		Protocol.S.LEAVE_EXPEDITION:
 			party = {}
 			room = {}
+			run_state = {}
+			run_panels.hide_panel()
 		Protocol.S.ERROR:
 			var code := String(p.get("error", ""))
 			var text := UIKit.error_text(code, p)
@@ -345,6 +388,70 @@ func _on_room_event(ev: Dictionary) -> void:
 			hud.toast("전멸... 기억나무가 원정대를 마을로 되돌립니다", 4.0)
 		"heal":
 			world.play_sound("sfx.rescue")
+		"shoot":
+			world.play_sound("sfx.sling", 0.05)
+		"enemy_shoot":
+			world.play_sound("sfx.snail_hit", 0.1)
+		"enemy_charge":
+			world.play_sound("sfx.tail_slam", 0.2)
+		"gnaw":
+			hud.toast("목재 +%d (팀 목재 %d)" % [int(ContentDB.rule("gnaw_wood", 3)), int(ev.get("wood", 0))], 1.5)
+			world.play_sound("sfx.wood_block")
+		"build":
+			world.play_sound("sfx.wood_block")
+		"build_failed":
+			hud.toast({"wood": "목재가 부족합니다 (B: 통나무 엄폐 %d)" % int(ContentDB.rule("build_cost_wood", 3)), "limit": "구조물 상한", "blocked": "여기에는 설치할 수 없습니다"}.get(String(ev.get("reason", "")), "설치 실패"), 1.5)
+		"sluice":
+			hud.toast({0: "수문 닫힘 — 물길이 낮아집니다", 1: "수문 개방 준비 — 곧 급류!", 2: "급류! 물길 안의 적은 느려지고 피해를 입습니다"}.get(int(ev.get("state", 0)), ""), 2.0)
+			world.play_sound("sfx.great_tree", 0.3)
+		"device_done":
+			hud.toast("장치 가동!", 1.5)
+			world.play_sound("sfx.rescue")
+		"objective_done":
+			hud.toast("목표 달성! 남은 적이 물러납니다", 2.5)
+		"trap":
+			world.play_sound("sfx.wood_block", 0.1)
+		"mark_burst":
+			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30))
+		"proc":
+			pass
+		"boss_spawn":
+			hud.toast("철턱 가재가 나타났다!", 3.0)
+		"mechanic_start":
+			hud.toast("[%s] %s — %s" % [ev.get("id", ""), ev.get("name", ""), ev.get("hint", "")], 5.0)
+			hud.add_chat("기믹", "%s: %s" % [ev.get("name", ""), ev.get("hint", "")])
+			world.play_sound("sfx.great_tree", 0.3)
+		"mechanic_end":
+			hud.toast("%s %s — %s" % [ev.get("id", ""), "성공!" if bool(ev.get("success", false)) else "실패", ev.get("text", "")], 4.0)
+			world.play_sound("sfx.rescue" if bool(ev.get("success", false)) else "sfx.down")
+		"shell_break":
+			hud.toast("갑각 파괴! (%d/3) 받는 피해 증가" % int(ev.get("segments", 0)), 3.0)
+			world.spawn_effect("vfx.tail_shockwave", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
+		"boss_stagger":
+			hud.toast("보스 경직 %d초 — 집중 공격!" % int(ev.get("sec", 0)), 2.5)
+		"boss_phase":
+			hud.toast("보스 단계 전환: %s" % ev.get("name", ""), 3.0)
+		"boss_grabbed":
+			hud.toast("%s 이(가) 집게에 붙잡혔다! 고리→쐐기 순서로 구조" % _nick_of(String(ev.get("target", ""))), 3.5)
+		"boss_released":
+			hud.toast("붙잡힌 아군 풀려남", 2.0)
+		"boss_exposed":
+			hud.toast("본체 노출! 받는 피해 +50%", 3.0)
+		"boss_molt_heal":
+			hud.toast("탈피 성공… 보스 회복", 3.0)
+		"pillar_weakened":
+			hud.toast("지지목 약화! 보스 돌진을 이쪽으로 유도", 3.0)
+		"gate_wrong":
+			hud.toast("잘못된 수문 연결 — 근처가 침수됩니다", 2.5)
+		"channel_locked":
+			hud.toast("수로 잠김 — 관절이 약해졌다", 3.0)
+		"platform_fixed":
+			hud.toast("발판 고정! 위에서 공격하면 피해 +25%", 3.0)
+		"boss_died":
+			hud.toast("철턱 가재 격파!", 4.0)
+		"boss_hit":
+			if world.entities.has("b:ironclaw"):
+				world.entities["b:ironclaw"].flash()
 
 
 func _nick_of(id: String) -> String:
@@ -456,7 +563,31 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		if ev.ai_state != Protocol.EnemyAI.DEAD:
 			_enemies_alive += 1
 	world.remove_missing(ekeys, "e:")
+	var bs: Dictionary = p.get("boss", {})
+	if not bs.is_empty():
+		var bpos := Vector2(float(bs["x"]), float(bs["y"]))
+		var bev := world.get_or_create("b:" + String(bs.get("id", "boss")), false, "boss." + String(bs.get("id", "ironclaw")), bpos)
+		bev.entity_id = "boss"
+		bev.display_name = String(bs.get("name", ""))
+		bev.facing = Vector2(float(bs["fx"]), float(bs["fy"]))
+		bev.hp = float(bs["hp"])
+		bev.max_hp = float(bs["max_hp"])
+		bev.boss_state = int(bs.get("state", 0))
+		bev.molting = bool(bs.get("molting", false))
+		bev.target_pos = bpos
+		bev.visible = not bev.molting
+		if int(bs.get("state", 0)) == BossIronclaw.BS.DEAD:
+			bev.ai_state = Protocol.EnemyAI.DEAD
+		else:
+			bev.ai_state = Protocol.EnemyAI.CHASE
+	else:
+		world.remove_missing([], "b:")
 	world.telegraphs = p.get("tg", [])
+	world.projectiles = p.get("pr", [])
+	world.objects = p.get("ob", [])
+	world.water_zone = p.get("wz", PackedFloat32Array())
+	world.boss_state = p.get("boss", {})
+	hud.update_objective(p.get("obj", []), int(p.get("wood", 0)), world.boss_state)
 	if hud != null:
 		hud.update_wave(p.get("wave", [0, 0]), _enemies_alive)
 		hud.update_party(_room_players, party_list, my_id)
@@ -532,6 +663,7 @@ func _physics_process(dt: float) -> void:
 		if Input.is_action_pressed("skill_r"): btn |= Protocol.BTN_R
 		if Input.is_action_pressed("interact"): btn |= Protocol.BTN_INTERACT
 		if Input.is_action_pressed("heal"): btn |= Protocol.BTN_HEAL
+		if Input.is_action_just_pressed("build_place"): btn |= Protocol.BTN_BUILD
 	var aim: Vector2 = demo_in["aim"] if demo else (world.get_global_mouse_position() - _pred_pos + Vector2(0, 24))
 	_seq += 1
 	net.send_input(_seq, mv, aim, btn)
@@ -595,6 +727,31 @@ func _demo_tick(dt: float) -> void:
 			elif _demo_step == 7 and _demo_t > 12.0:
 				_demo_step = 8
 				_screenshot("06_room_late.png")
+		"phase":
+			if _demo_step < 20:
+				_demo_step = 20
+				_demo_t = 0.0
+				_demo_phase_shots = 0
+			elif _demo_t > 1.2:
+				_demo_t = 0.0
+				_demo_phase_shots += 1
+				_screenshot("08_phase_%02d.png" % _demo_phase_shots)
+				# 자동 진행: 보상 첫 항목 / 첫 경로 / 메뉴 계속·투표
+				if run_panels._mode == "reward":
+					net.send(Protocol.C.REWARD_PICK, {"index": 0})
+				elif run_panels._mode == "route":
+					var nodes: Array = _route_offer.get("nodes", [])
+					if not nodes.is_empty():
+						net.send(Protocol.C.ROUTE_VOTE, {"node_id": String(nodes[0]["id"])})
+				elif run_panels._mode == "menu":
+					net.send(Protocol.C.NODE_ACTION, {"action": "continue"})
+					net.send(Protocol.C.NODE_ACTION, {"action": "vote", "choice": "gnaw"})
+			if _demo_phase_shots >= 3 and _demo_step < 30:
+				_demo_step = 30
+			if _demo_step >= 30 and _demo_t > 0.5:
+				_screenshot("09_last.png")
+				await get_tree().create_timer(0.3).timeout
+				get_tree().quit()
 		"result":
 			if _demo_step < 9:
 				_demo_step = 9
@@ -604,7 +761,7 @@ func _demo_tick(dt: float) -> void:
 				_screenshot("07_result.png")
 				await get_tree().create_timer(0.5).timeout
 				get_tree().quit()
-	if _demo_t > 60.0:
+	if _demo_t > 90.0:
 		get_tree().quit(1)
 
 

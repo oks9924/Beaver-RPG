@@ -1,0 +1,15 @@
+{
+  "_comment": "런 중 스킬 강화 (6절 변형). 같은 스킬의 exclusive 강화는 하나만 고를 수 있다. 눈에 보이는 행동 변화가 있어야 한다.",
+  "guardian": {
+    "tail_slam_wide": {"id": "tail_slam_wide", "skill": "e", "name_ko": "넓은 꼬리", "desc_ko": "꼬리 내려치기 반경 +45%, 경직 +0.3초", "exclusive_group": "tail_slam", "mods": {"e_radius_mult": 0.45, "e_stagger_add": 0.3}},
+    "log_shield_counter": {"id": "log_shield_counter", "skill": "q", "name_ko": "반격 방패", "desc_ko": "통나무 방패로 막을 때마다 공격자에게 10 피해", "exclusive_group": "log_shield", "procs": [{"trigger": "on_guard", "effect": "reflect", "value": 10, "icd_sec": 0.3}]},
+    "log_shield_long": {"id": "log_shield_long", "skill": "q", "name_ko": "튼튼한 방패", "desc_ko": "통나무 방패 지속 +2초, 피해 감소 60%", "exclusive_group": "log_shield", "mods": {"q_duration_add": 2.0, "q_value_set": 0.6}},
+    "great_tree_roots": {"id": "great_tree_roots", "skill": "r", "name_ko": "뿌리 내린 거목", "desc_ko": "거목의 품 범위 안 적 속박 1.5초", "exclusive_group": "great_tree", "mods": {"r_root_sec": 1.5}}
+  },
+  "pinecone": {
+    "scatter_seven": {"id": "scatter_seven", "skill": "q", "name_ko": "일곱 알 산탄", "desc_ko": "도토리 산탄 탄 수 5→7, 부채꼴 확대", "exclusive_group": "scatter", "mods": {"q_pellets_add": 2, "q_spread_add": 15}},
+    "trap_double": {"id": "trap_double", "skill": "e", "name_ko": "이중 가시 덫", "desc_ko": "가시 덫 2개 유지, 속박 +0.5초", "exclusive_group": "trap", "mods": {"e_max_traps_add": 1, "e_root_add": 0.5}},
+    "mark_burst": {"id": "mark_burst", "skill": "passive", "name_ko": "표식 폭발", "desc_ko": "표식 발동 피해 +8, 주변 적에게도 절반", "exclusive_group": "mark", "mods": {"mark_damage_add": 8, "mark_splash": 0.5}},
+    "volley_long": {"id": "volley_long", "skill": "r", "name_ko": "긴 일제사격", "desc_ko": "숲의 일제사격 지속 +2초", "exclusive_group": "volley", "mods": {"r_duration_add": 2.0}}
+  }
+}

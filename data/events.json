@@ -1,0 +1,20 @@
+{
+  "_comment": "탐험·사건 노드 2개. 선택은 파티 투표(동률은 시드 추첨). 효과는 이번 원정에만 적용된다.",
+  "fallen_branch": {
+    "id": "fallen_branch", "name_ko": "쓰러진 기억나무 가지",
+    "text_ko": "강가에 커다란 가지가 쓰러져 있다. 갉아서 목재로 쓰거나, 가지에 맺힌 수액을 핥아 기운을 차릴 수 있다.",
+    "choices": [
+      {"id": "gnaw", "text_ko": "갉아서 목재로 (팀 목재 +6)", "effects": [{"type": "wood", "value": 6}]},
+      {"id": "lick", "text_ko": "수액을 핥는다 (전원 체력 30% 회복, 다음 방 적 웨이브 +1)", "effects": [{"type": "heal_all", "value": 0.3}, {"type": "next_room_budget_add", "value": 1.0}]},
+      {"id": "leave", "text_ko": "그냥 지나간다", "effects": []}
+    ]
+  },
+  "drifting_crate": {
+    "id": "drifting_crate", "name_ko": "떠내려온 상자",
+    "text_ko": "검은 수액이 묻은 상자가 물가에 걸려 있다. 열어 보면 무언가 있을지도 모른다.",
+    "choices": [
+      {"id": "open", "text_ko": "연다 (도토리 +12 전원, 다음 방에 매복: 웨이브 예산 +2)", "effects": [{"type": "acorns_all", "value": 12}, {"type": "next_room_budget_add", "value": 2.0}]},
+      {"id": "sniff", "text_ko": "냄새만 맡고 지나간다 (도토리 +3 전원)", "effects": [{"type": "acorns_all", "value": 3}]}
+    ]
+  }
+}

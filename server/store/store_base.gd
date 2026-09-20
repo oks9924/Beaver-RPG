@@ -42,6 +42,18 @@ func all_account_ids() -> Array:
 	return []
 
 
+func load_expeditions() -> Dictionary:
+	return {}
+
+
+func save_expedition(_checkpoint: Dictionary) -> Error:
+	return ERR_UNAVAILABLE
+
+
+func delete_expedition(_id: String) -> Error:
+	return ERR_UNAVAILABLE
+
+
 func flush() -> Error:
 	return OK
 

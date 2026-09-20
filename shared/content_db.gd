@@ -11,6 +11,13 @@ var rules: Dictionary = {}
 var rooms: Dictionary = {}
 var status_effects: Dictionary = {}
 var hitboxes: Dictionary = {}
+var relics: Dictionary = {}
+var upgrades: Dictionary = {}
+var events: Dictionary = {}
+var shop: Dictionary = {}
+var regions: Dictionary = {}
+var bosses: Dictionary = {}
+var village: Dictionary = {}
 var load_errors: PackedStringArray = []
 
 
@@ -27,6 +34,15 @@ func reload() -> void:
 	rooms = _load_json("rooms.json")
 	status_effects = _load_json("status_effects.json")
 	hitboxes = _load_json("hitboxes.json")
+	relics = _load_json("relics.json")
+	upgrades = _load_json("upgrades.json")
+	events = _load_json("events.json")
+	shop = _load_json("shop.json")
+	regions = _load_json("regions.json")
+	bosses = _load_json("bosses.json") if FileAccess.file_exists(DATA_DIR + "bosses.json") else {}
+	village = _load_json("village.json")
+	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village]:
+		d.erase("_comment")
 	_validate()
 
 
@@ -89,3 +105,23 @@ func rule(key: String, default: Variant = null) -> Variant:
 
 func get_room_def(room_id: String) -> Dictionary:
 	return rooms.get(room_id, {})
+
+
+## 마을 시설 단계에 따른 영구 보너스 합계 (상한 적용). world["hub"]["structures"] 를 받는다.
+func village_bonus(structures: Dictionary) -> Dictionary:
+	var out: Dictionary = {}
+	var caps: Dictionary = village.get("permanent_caps", {})
+	for sid: String in village.get("structures", {}).keys():
+		var sdef: Dictionary = village["structures"][sid]
+		var level := int(structures.get(sid, {}).get("level", 0))
+		var best: Dictionary = {}
+		for lk: String in sdef.get("levels", {}).keys():
+			if int(lk) <= level:
+				for bk: String in sdef["levels"][lk].get("bonus", {}).keys():
+					best[bk] = maxf(float(best.get(bk, 0.0)), float(sdef["levels"][lk]["bonus"][bk]))
+		for bk: String in best.keys():
+			out[bk] = float(out.get(bk, 0.0)) + float(best[bk])
+	for bk: String in caps.keys():
+		if out.has(bk):
+			out[bk] = minf(float(out[bk]), float(caps[bk]))
+	return out

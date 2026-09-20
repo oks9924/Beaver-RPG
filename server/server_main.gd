@@ -63,6 +63,10 @@ func _ready() -> void:
 	auth.lockout_sec = float(config.get_value("login_fail_lockout_sec"))
 	auth.fail_max = int(config.get_value("login_fail_max"))
 	expeditions = ExpeditionManager.new(int(config.get_value("max_active_expeditions")), int(Time.get_ticks_usec()))
+	ExpeditionInstance.debug_route_layers = int(config.get_value("debug_route_layers"))
+	if ExpeditionInstance.debug_route_layers > 0:
+		_log(2, "debug_route_layers=%d: routes are truncated (test configuration)" % ExpeditionInstance.debug_route_layers)
+	_restore_expeditions()
 	# 네트워크
 	peer = ENetMultiplayerPeer.new()
 	var bind: String = String(config.get_value("bind_address"))
@@ -87,6 +91,21 @@ func _ready() -> void:
 	_write_status()
 	_log(1, "listening on %s:%d  max_online=%d max_expeditions=%d party=%d registration=%s" % [bind, port, int(config.get_value("max_online_players")), int(config.get_value("max_active_expeditions")), Protocol.MAX_PARTY_SIZE, config.get_value("allow_registration")])
 	_log(1, "world persists with 0 players online; hub '%s' ready" % world.get("name", ""))
+
+
+## 서버 재시작 후 안전 지점 체크포인트를 복구한다. 유예 시간이 지난 원정은 버린다.
+func _restore_expeditions() -> void:
+	var grace := float(ContentDB.rule("checkpoint_grace_sec", 600.0))
+	var now := Time.get_unix_time_from_system()
+	for cid: String in store.load_expeditions().keys():
+		var cp: Dictionary = store.load_expeditions()[cid]
+		if now - float(cp.get("saved_at", 0)) > grace or String(cp.get("content_version", "")) != Protocol.CONTENT_VERSION:
+			store.delete_expedition(cid)
+			_log(1, "discarded stale checkpoint %s" % cid)
+			continue
+		var inst := ExpeditionInstance.from_checkpoint(cp)
+		expeditions.instances[inst.id] = inst
+		_log(1, "restored expedition %s at state %d (members %d, note %s)" % [inst.id, inst.state, inst.member_count(), inst.run.get("checkpoint_note", "")])
 
 
 func _notification(what: int) -> void:
@@ -254,7 +273,11 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.READY: _handle_ready(s, payload)
 				Protocol.C.BOARD_START: _handle_board_start(s)
 				Protocol.C.ROOM_CHOICE: _handle_room_choice(s, payload)
+				Protocol.C.REWARD_PICK: _handle_reward_pick(s, payload)
+				Protocol.C.ROUTE_VOTE: _handle_route_vote(s, payload)
+				Protocol.C.NODE_ACTION: _handle_node_action(s, payload)
 				Protocol.C.CHAT: _handle_chat(s, payload)
+				Protocol.C.HUB_UPGRADE: _handle_hub_upgrade(s, payload)
 				_: _err(s, Protocol.ERR_BAD_STATE, {"message": "unknown message %d" % type})
 
 
@@ -365,11 +388,9 @@ func _finish_login(s: Session, account: Dictionary, token: String, is_new: bool)
 	if reserved != null:
 		reserved.mark_reconnected(s)
 		_log(1, "%s reconnected to expedition %s (state %d)" % [s.nickname, reserved.id, reserved.state])
-		if reserved.state == Protocol.ExpState.IN_ROOM:
-			Net.send_to_peer(s.peer_id, Protocol.S.ENTER_EXPEDITION, reserved.room_enter_payload())
-		elif reserved.state == Protocol.ExpState.RESULT:
-			Net.send_to_peer(s.peer_id, Protocol.S.ENTER_EXPEDITION, reserved.room_enter_payload())
-			Net.send_to_peer(s.peer_id, Protocol.S.ROOM_RESULT, _result_payload(reserved))
+		if reserved.state == Protocol.ExpState.PREPARING:
+			_enter_hub(s)
+		_flush_outbox(reserved)
 		_broadcast_party(reserved)
 		return
 	_enter_hub(s)
@@ -406,7 +427,7 @@ func _handle_board_create(s: Session, payload: Dictionary) -> void:
 		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": class_id})
 		return
 	s.class_id = class_id
-	var r := expeditions.create(s, bool(payload.get("public", true)), String(payload.get("difficulty", "normal")))
+	var r := expeditions.create(s, bool(payload.get("public", true)), String(payload.get("difficulty", "normal")), _permanent_bonus(s.account_id))
 	if not r["ok"]:
 		_err(s, r["error"], {"active": expeditions.active_count(), "max": expeditions.max_active})
 		return
@@ -423,12 +444,17 @@ func _handle_board_join(s: Session, payload: Dictionary) -> void:
 	var class_id := String(payload.get("class_id", s.class_id))
 	if ContentDB.is_class_playable(class_id):
 		s.class_id = class_id
-	var r := expeditions.join(s, String(payload.get("expedition_id", "")))
+	var r := expeditions.join(s, String(payload.get("expedition_id", "")), _permanent_bonus(s.account_id))
 	if not r["ok"]:
 		_err(s, r["error"], {"expedition_id": payload.get("expedition_id", "")})
 		return
 	var inst: ExpeditionInstance = r["expedition"]
-	_log(1, "%s joined expedition %s (%d/%d)" % [s.nickname, inst.id, inst.member_count(), Protocol.MAX_PARTY_SIZE])
+	_log(1, "%s joined expedition %s (%d/%d, state %d)" % [s.nickname, inst.id, inst.member_count(), Protocol.MAX_PARTY_SIZE, inst.state])
+	if inst.is_safe_point():
+		if hub.has(s.account_id):
+			hub.leave(s.account_id)
+			_broadcast_hub_roster()
+		_flush_outbox(inst)
 	_broadcast_party(inst)
 	_broadcast_board()
 
@@ -476,33 +502,142 @@ func _handle_board_start(s: Session) -> void:
 	if not inst.all_ready():
 		_err(s, Protocol.ERR_NOT_READY)
 		return
-	_start_room(inst)
+	_start_run(inst)
 
 
-func _start_room(inst: ExpeditionInstance) -> void:
-	var payload := inst.start_room()
+func _start_run(inst: ExpeditionInstance) -> void:
 	metrics["expeditions_started"] += 1
 	world["hub"]["total_expeditions"] = int(world["hub"].get("total_expeditions", 0)) + 1
 	store.save_world(world)
 	for aid: String in inst.members.keys():
-		var m: Dictionary = inst.members[aid]
-		if not m["connected"]:
+		if not inst.members[aid]["connected"]:
 			continue
-		var ms: Session = _session_for_account(aid)
-		if ms == null:
-			continue
-		ms.location = Protocol.Location.IN_ROOM
-		if hub.has(aid):
-			hub.leave(aid)
-		if inst.room_index == 1:
-			var acc := store.get_account(aid)
-			if not acc.is_empty():
-				acc["stats"]["expeditions_started"] = int(acc["stats"].get("expeditions_started", 0)) + 1
-				store.put_account(acc)
-		Net.send_to_peer(ms.peer_id, Protocol.S.ENTER_EXPEDITION, payload)
-	_log(1, "expedition %s room %d started: N=%d seed=%d" % [inst.id, inst.room_index, inst.n_locked, payload["seed"]])
+		var acc := store.get_account(aid)
+		if not acc.is_empty():
+			acc["stats"]["expeditions_started"] = int(acc["stats"].get("expeditions_started", 0)) + 1
+			store.put_account(acc)
+	inst.start_run()
+	_flush_outbox(inst)
+	_log(1, "expedition %s run started: seed=%d members=%d" % [inst.id, inst.seed_value, inst.member_count()])
 	_broadcast_hub_roster()
 	_broadcast_board()
+
+
+## 인스턴스가 쌓아 둔 메시지를 보낸다. ENTER_EXPEDITION 은 세션 위치도 갱신한다.
+func _flush_outbox(inst: ExpeditionInstance) -> void:
+	while not inst.outbox.is_empty():
+		var msg: Dictionary = inst.outbox.pop_front()
+		var targets: Array = []
+		if msg["to"] == "members":
+			targets = inst.members.keys()
+		else:
+			targets = [msg["to"]]
+		for aid: String in targets:
+			if not inst.members.has(aid) or not inst.members[aid]["connected"]:
+				continue
+			var ms: Session = _session_for_account(aid)
+			if ms == null:
+				continue
+			if int(msg["type"]) == Protocol.S.ENTER_EXPEDITION:
+				ms.location = Protocol.Location.IN_ROOM
+				if hub.has(aid):
+					hub.leave(aid)
+					_broadcast_hub_roster()
+			elif int(msg["type"]) in [Protocol.S.REWARD_OFFER, Protocol.S.ROUTE_OFFER, Protocol.S.NODE_MENU]:
+				ms.location = inst._location_for_state()
+			Net.send_to_peer(ms.peer_id, int(msg["type"]), msg["payload"])
+	if inst.run_finished_unreported:
+		inst.run_finished_unreported = false
+		_on_run_finished(inst)
+	if inst.checkpoint_dirty:
+		inst.checkpoint_dirty = false
+		if inst.state == Protocol.ExpState.CLOSED:
+			return
+		if store.save_expedition(inst.to_checkpoint()) != OK:
+			metrics["save_failures"] += 1
+
+
+## 원정 종료(완주·전멸·오류 복구): 원정 단위 보상을 계정에 반영하고 결과 화면을 보낸다.
+func _on_run_finished(inst: ExpeditionInstance) -> void:
+	var victory: bool = inst.run_outcome == Protocol.Outcome.VICTORY
+	if victory:
+		world["hub"]["total_runs_completed"] = int(world["hub"].get("total_runs_completed", 0)) + 1
+		store.save_world(world)
+	var rewards: Dictionary = inst.last_result.get("rewards", {})
+	for aid: String in inst.members.keys():
+		var acc := store.get_account(aid)
+		if acc.is_empty():
+			continue
+		var st: Dictionary = acc["stats"]
+		var prog: Dictionary = acc["progression"]
+		var shard := 3 if victory else 0
+		if victory:
+			st["runs_completed"] = int(st.get("runs_completed", 0)) + 1
+			prog["memory_shards"] = int(prog.get("memory_shards", 0)) + shard
+			var codex: Dictionary = prog.get("codex", {"enemies": {}, "relics": [], "bosses": []})
+			var region_boss: String = String(ContentDB.regions.get(String(inst.run.get("region", "")), {}).get("boss", ""))
+			if region_boss != "" and not (codex.get("bosses", []) as Array).has(region_boss):
+				codex["bosses"].append(region_boss)
+			prog["codex"] = codex
+		if store.put_account(acc) != OK:
+			metrics["save_failures"] += 1
+		var entry: Dictionary = rewards.get(aid, {"memory_shards": 0, "mastery_xp": 0})
+		entry["memory_shards"] = int(entry.get("memory_shards", 0)) + shard
+		entry["totals"] = {"memory_shards": prog.get("memory_shards", 0), "mastery": prog.get("class_mastery", {}).get(String(inst.members[aid]["class_id"]), {})}
+		rewards[aid] = entry
+		var ms := _session_for_account(aid)
+		if ms != null:
+			ms.location = Protocol.Location.RESULT
+			Net.send_to_peer(ms.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+	inst.last_result["rewards"] = rewards
+	_log(1, "expedition %s run finished: %s (rooms %d, combat %.0fs)" % [inst.id, "VICTORY" if victory else ("WIPE" if inst.run_outcome == Protocol.Outcome.WIPE else "OTHER"), int(inst.run.get("stats", {}).get("rooms_cleared", 0)), float(inst.run.get("stats", {}).get("combat_sec", 0))])
+	_send_to_members(inst, Protocol.S.ROOM_RESULT, inst.result_payload())
+	_broadcast_party(inst)
+	_broadcast_board()
+
+
+func _permanent_bonus(account_id: String) -> Dictionary:
+	# 마을 시설(공용)과 개인 내실의 영구 보너스. 상한은 13-1절에 따라 ContentDB.village_bonus 가 통합 관리한다.
+	var bonus := ContentDB.village_bonus(world.get("hub", {}).get("structures", {}))
+	var acc := store.get_account(account_id)
+	var perm: Dictionary = acc.get("progression", {}).get("permanent", {})
+	for k: String in perm.keys():
+		bonus[k] = float(bonus.get(k, 0.0)) + float(perm[k])
+	return bonus
+
+
+func _handle_reward_pick(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if inst == null:
+		_err(s, Protocol.ERR_NO_EXPEDITION)
+		return
+	if not inst.pick_reward(s.account_id, int(payload.get("index", 0))):
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	_flush_outbox(inst)
+	_broadcast_party(inst)
+
+
+func _handle_route_vote(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if inst == null:
+		_err(s, Protocol.ERR_NO_EXPEDITION)
+		return
+	if not inst.vote_route(s.account_id, String(payload.get("node_id", ""))):
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	_flush_outbox(inst)
+
+
+func _handle_node_action(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if inst == null:
+		_err(s, Protocol.ERR_NO_EXPEDITION)
+		return
+	var r := inst.node_action(s.account_id, payload)
+	if not r["ok"]:
+		_err(s, String(r["error"]))
+	_flush_outbox(inst)
 
 
 func _handle_room_choice(s: Session, payload: Dictionary) -> void:
@@ -517,7 +652,8 @@ func _handle_room_choice(s: Session, payload: Dictionary) -> void:
 	_broadcast_party(inst)
 	var resolved := inst.resolved_choice()
 	if resolved == "restart":
-		_start_room(inst)
+		store.delete_expedition(inst.id)
+		_start_run(inst)
 	elif resolved == "hub":
 		_return_to_hub(inst)
 
@@ -532,8 +668,53 @@ func _return_to_hub(inst: ExpeditionInstance) -> void:
 			Net.send_to_peer(ms.peer_id, Protocol.S.LEAVE_EXPEDITION, {"reason": "returned"})
 			_enter_hub(ms)
 	expeditions.close(inst)
+	store.delete_expedition(inst.id)
 	_log(1, "expedition %s closed (returned to hub)" % inst.id)
 	_broadcast_board()
+
+
+## 마을 시설 복구: 요청자의 기억 조각을 차감(트랜잭션)하고 공용 시설 단계를 올린다. 저장 실패 시 환불한다.
+func _handle_hub_upgrade(s: Session, payload: Dictionary) -> void:
+	if s.location != Protocol.Location.HUB:
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	var sid := String(payload.get("structure", ""))
+	var sdef: Dictionary = ContentDB.village.get("structures", {}).get(sid, {})
+	if sdef.is_empty():
+		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": sid})
+		return
+	var structures: Dictionary = world["hub"].get("structures", {})
+	var level := int(structures.get(sid, {}).get("level", 0))
+	var next := level + 1
+	var ldef: Dictionary = sdef.get("levels", {}).get(str(next), {})
+	if next > int(sdef.get("max_level", 1)) or ldef.is_empty():
+		_err(s, "MAX_LEVEL", {"structure": sid})
+		return
+	var cost := int(ldef.get("cost_shards", 0))
+	var acc := store.get_account(s.account_id)
+	var shards := int(acc.get("progression", {}).get("memory_shards", 0))
+	if shards < cost:
+		_err(s, "NOT_ENOUGH_SHARDS", {"need": cost, "have": shards})
+		return
+	acc["progression"]["memory_shards"] = shards - cost
+	acc["progression"]["village_repair"] = int(acc["progression"].get("village_repair", 0)) + cost
+	if store.put_account(acc) != OK:
+		metrics["save_failures"] += 1
+		_err(s, Protocol.ERR_SAVE_FAILED)
+		return
+	structures[sid] = {"level": next, "repaired_by": s.nickname, "repaired_at": int(Time.get_unix_time_from_system())}
+	world["hub"]["structures"] = structures
+	if store.save_world(world) != OK:
+		acc["progression"]["memory_shards"] = shards
+		store.put_account(acc)
+		metrics["save_failures"] += 1
+		_err(s, Protocol.ERR_SAVE_FAILED)
+		return
+	_log(1, "%s repaired %s to level %d (-%d shards)" % [s.nickname, sid, next, cost])
+	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+	for hs: Session in hub.sessions.values():
+		Net.send_to_peer(hs.peer_id, Protocol.S.ENTER_HUB, {"hub": hub.hub_info(), "roster": hub.roster(), "board": expeditions.board_list(), "you": {"id": hs.account_id, "x": hs.hub_pos.x, "y": hs.hub_pos.y}, "refresh": true})
+		Net.send_to_peer(hs.peer_id, Protocol.S.NOTICE, {"text": "%s 이(가) %s 을(를) %d단계로 복구했습니다: %s" % [s.nickname, sdef.get("name_ko", sid), next, ldef.get("desc_ko", "")]})
 
 
 func _handle_chat(s: Session, payload: Dictionary) -> void:
@@ -600,10 +781,13 @@ func _physics_process(dt: float) -> void:
 			_log(1, "expedition %s: removed %s after grace" % [inst.id, removed])
 			if inst.member_count() == 0:
 				expeditions.close(inst)
+				store.delete_expedition(inst.id)
 				_broadcast_board()
 				continue
 			_broadcast_party(inst)
 		var r := inst.step(dt, snap_every)
+		if inst.state == Protocol.ExpState.CLOSED:
+			continue
 		var evs: Array = r["events"]
 		if not evs.is_empty():
 			_send_to_members(inst, Protocol.S.ROOM_EVENTS, {"t": inst.room.tick if inst.room else 0, "events": evs})
@@ -621,6 +805,8 @@ func _physics_process(dt: float) -> void:
 				Net.send_snapshot(ms.peer_id, own)
 		if r["finished"]:
 			_on_room_finished(inst)
+		if not inst.outbox.is_empty() or inst.checkpoint_dirty:
+			_flush_outbox(inst)
 	_flush_accum += dt
 	if _flush_accum >= 5.0:
 		_flush_accum = 0.0
@@ -655,7 +841,8 @@ func _check_hello_timeouts() -> void:
 
 func _on_room_finished(inst: ExpeditionInstance) -> void:
 	var res := inst.last_result
-	var victory: bool = res["outcome"] == Protocol.Outcome.VICTORY
+	var victory: bool = int(res.get("outcome", 0)) == Protocol.Outcome.VICTORY
+	var run_over: bool = false
 	if victory:
 		metrics["rooms_cleared"] += 1
 		world["hub"]["total_rooms_cleared"] = int(world["hub"].get("total_rooms_cleared", 0)) + 1
@@ -664,7 +851,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		world["hub"]["total_wipes"] = int(world["hub"].get("total_wipes", 0)) + 1
 	store.save_world(world)
 	var rewards: Dictionary = {}
-	for aid: String in res["players"].keys():
+	for aid: String in res.get("players", {}).keys():
 		if not inst.members.has(aid):
 			continue
 		var ps: Dictionary = res["players"][aid]
@@ -682,6 +869,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		else:
 			st["wipes"] = int(st.get("wipes", 0)) + 1
 		var prog: Dictionary = acc["progression"]
+		# 기억 조각: 방 클리어마다 1 (원정 완주 보너스는 _on_run_finished). 유물 도감·적 도감 갱신.
 		var shard := 1 if victory else 0
 		prog["memory_shards"] = int(prog.get("memory_shards", 0)) + shard
 		var cls: String = inst.members[aid]["class_id"]
@@ -692,26 +880,27 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		entry["level"] = 1 + int(entry["xp"]) / 100
 		mastery[cls] = entry
 		prog["class_mastery"] = mastery
+		var codex: Dictionary = prog.get("codex", {"enemies": {}, "relics": [], "bosses": []})
+		for type_id: String in res.get("stats", {}).get("kills_by_type", {}).keys():
+			codex["enemies"][type_id] = int(codex["enemies"].get(type_id, 0)) + int(res["stats"]["kills_by_type"][type_id])
+		for rid: String in inst.run.get("players", {}).get(aid, {}).get("relics", []):
+			if not (codex["relics"] as Array).has(rid):
+				codex["relics"].append(rid)
+		prog["codex"] = codex
 		if store.put_account(acc) != OK:
 			metrics["save_failures"] += 1
 		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}}
 		var ms := _session_for_account(aid)
 		if ms != null:
-			ms.location = Protocol.Location.RESULT
 			Net.send_to_peer(ms.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
 	inst.last_result["rewards"] = rewards
-	_log(1, "expedition %s room %d finished: %s in %.1fs (kills %d, downs %d)" % [inst.id, inst.room_index, "VICTORY" if victory else "WIPE", res["elapsed"], res["stats"]["enemies_killed"], res["stats"]["downs"]])
-	_send_to_members(inst, Protocol.S.ROOM_RESULT, _result_payload(inst))
+	_log(1, "expedition %s room %d (%s) finished: %s in %.1fs (kills %d, downs %d)" % [inst.id, inst.room_index, inst.room_id, "VICTORY" if victory else "WIPE", float(res.get("elapsed", 0)), int(res.get("stats", {}).get("enemies_killed", 0)), int(res.get("stats", {}).get("downs", 0))])
 	_broadcast_party(inst)
 	_broadcast_board()
 
 
 func _result_payload(inst: ExpeditionInstance) -> Dictionary:
-	var r := inst.last_result.duplicate(true)
-	r["expedition_id"] = inst.id
-	r["room_index"] = inst.room_index
-	r["rooms_cleared"] = inst.rooms_cleared
-	return r
+	return inst.result_payload()
 
 
 # ------------------------------------------------------------------ 브로드캐스트

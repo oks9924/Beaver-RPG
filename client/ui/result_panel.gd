@@ -26,7 +26,7 @@ func _ready() -> void:
 	choice_label = UIKit.label("", 13, Color(0.8, 0.9, 1.0))
 	v.add_child(choice_label)
 	var h := UIKit.hbox()
-	restart_btn = UIKit.button("다시 도전 (새 시드)", func() -> void: choice_made.emit("restart"))
+	restart_btn = UIKit.button("새 원정 (새 시드)", func() -> void: choice_made.emit("restart"))
 	hub_btn = UIKit.button("마을로 돌아가기", func() -> void: choice_made.emit("hub"))
 	h.add_child(restart_btn)
 	h.add_child(hub_btn)
@@ -36,8 +36,11 @@ func _ready() -> void:
 
 
 func show_result(r: Dictionary, party: Array, my_id: String) -> void:
-	var outcome := int(r.get("outcome", 0))
-	title.text = {Protocol.Outcome.VICTORY: "방 클리어!", Protocol.Outcome.WIPE: "전멸...", Protocol.Outcome.ABORTED: "중단", Protocol.Outcome.SERVER_ERROR: "서버 오류"}.get(outcome, "결과")
+	var outcome := int(r.get("run_outcome", r.get("outcome", 0)))
+	title.text = {Protocol.Outcome.VICTORY: "원정 완주!", Protocol.Outcome.WIPE: "전멸... 기억나무가 원정대를 마을로 되돌립니다", Protocol.Outcome.ABORTED: "중단", Protocol.Outcome.SERVER_ERROR: "서버 오류로 복구된 원정"}.get(outcome, "결과")
+	var rs: Dictionary = r.get("run_stats", {})
+	if not rs.is_empty():
+		title.text += "  (클리어 방 %d · 처치 %d · 전투 %s)" % [int(rs.get("rooms_cleared", 0)), int(rs.get("enemies_killed", 0)), UIKit.fmt_time(float(rs.get("combat_sec", 0)))]
 	var lines: PackedStringArray = []
 	lines.append("소요 %s · 기준 인원 %d · 시드 %d · 처치 %d · 다운 %d · 구조 %d" % [UIKit.fmt_time(float(r.get("elapsed", 0))), int(r.get("n", 0)), int(r.get("seed", 0)), int(r.get("stats", {}).get("enemies_killed", 0)), int(r.get("stats", {}).get("downs", 0)), int(r.get("stats", {}).get("rescues", 0))])
 	var players: Dictionary = r.get("players", {})

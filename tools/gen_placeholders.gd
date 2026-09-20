@@ -67,6 +67,24 @@ func _draw_frame(img: Image, shape: String, ph: Dictionary, e: Dictionary, frame
 		"log": _draw_log(img, ph)
 		"rock": _draw_rock(img, ph)
 		"tree": _draw_tree(img, ph)
+		"boar": _draw_boar(img, ph, frame, row, frames)
+		"bird": _draw_bird(img, ph, frame, row, frames)
+		"line_telegraph": _draw_line_telegraph(img, ph)
+		"dot": _draw_dot(img, ph)
+		"thorns": _draw_thorns(img, ph)
+		"rain": _draw_rain(img, ph, frame, frames)
+		"device": _draw_device(img, ph)
+		"crayfish": _draw_crayfish(img, ph, frame, row)
+		"pillar": _draw_pillar(img, ph)
+		"gate": _draw_gate(img, ph)
+		"husk": _draw_crayfish(img, {"body": ph.get("color", "#8a8a8a"), "accent": ph.get("accent", "#b0b0b0"), "anim": "idle"}, 0, 0)
+		"corridor": _draw_corridor(img, ph)
+		"rope": _draw_rope(img, ph)
+		"debris": _draw_debris(img, ph)
+		"anchor": _draw_anchor(img, ph)
+		"platform": _draw_platform(img, ph)
+		"claw_link": _draw_claw_link(img, ph)
+		"lever": _draw_lever(img, ph)
 		"ring": _draw_ring_asset(img, ph)
 		"spark": _draw_spark(img, ph, frame, frames)
 		"arc": _draw_arc_vfx(img, ph, frame, frames)
@@ -328,6 +346,52 @@ func _draw_icon(img: Image, ph: Dictionary) -> void:
 			_fill_circle(img, c - 4, c - 4, 14, light)
 			_ring(img, c - 4, c - 4, 8, 5, col.darkened(0.5))
 			_fill_ellipse(img, c + 8, c + 12, 14, 7, col.lightened(0.25))
+		"boar":
+			_fill_ellipse(img, c, c + 2, 18, 12, light)
+			_fill_circle(img, c + 14, c - 2, 8, light)
+			_triangle(img, Vector2(c - 10, c - 10), Vector2(c, c - 10), Vector2(c - 5, c - 22), light.darkened(0.2))
+		"bird":
+			_fill_ellipse(img, c, c, 10, 8, light)
+			_fill_ellipse(img, c - 16, c - 4, 12, 4, light)
+			_fill_ellipse(img, c + 16, c - 4, 12, 4, light)
+			_triangle(img, Vector2(c + 8, c - 8), Vector2(c + 8, c - 2), Vector2(c + 18, c - 5), col.lightened(0.6))
+		"scatter":
+			for i in 5:
+				var a := -0.6 + i * 0.3
+				_fill_circle(img, c + cos(a - PI / 2) * 16, c + 10 + sin(a - PI / 2) * 16, 3.5, light)
+			_fill_rect(img, int(c) - 3, int(c) + 6, 6, 14, light)
+		"trap":
+			_ring(img, c, c, 18, 13, light)
+			for i in 8:
+				var a := i * TAU / 8.0
+				_triangle(img, Vector2(c, c) + Vector2(cos(a), sin(a)) * 12, Vector2(c, c) + Vector2(cos(a + 0.3), sin(a + 0.3)) * 12, Vector2(c, c) + Vector2(cos(a + 0.15), sin(a + 0.15)) * 24, light)
+		"volley":
+			for i in 4:
+				_fill_rect(img, int(c) - 18 + i * 10, int(c) - 18 + (i % 2) * 6, 3, 18, light)
+				_fill_circle(img, c - 17 + i * 10, c + 4 + (i % 2) * 6, 3, light)
+		"tooth":
+			_triangle(img, Vector2(c - 12, c - 16), Vector2(c + 12, c - 16), Vector2(c, c + 18), light)
+		"paw":
+			_fill_ellipse(img, c, c + 6, 12, 9, light)
+			for i in 4:
+				_fill_circle(img, c - 12 + i * 8, c - 8 - (2 if i in [1, 2] else 0), 4, light)
+		"drop":
+			_fill_circle(img, c, c + 6, 12, light)
+			_triangle(img, Vector2(c - 11, c + 2), Vector2(c + 11, c + 2), Vector2(c, c - 20), light)
+		"ring":
+			_ring(img, c - 6, c, 12, 8, light)
+			_ring(img, c + 6, c, 12, 8, light)
+		"thorn":
+			_fill_ellipse(img, c, c + 4, 18, 9, light)
+			for i in 5:
+				_triangle(img, Vector2(c - 16 + i * 8, c - 4), Vector2(c - 10 + i * 8, c - 4), Vector2(c - 13 + i * 8, c - 18), light)
+		"paddle":
+			_fill_rect(img, int(c) - 3, int(c) - 20, 6, 28, light)
+			_fill_ellipse(img, c, c + 12, 14, 8, light)
+		"acorn":
+			_fill_ellipse(img, c, c + 6, 12, 14, light)
+			_fill_ellipse(img, c, c - 6, 15, 7, light.darkened(0.3))
+			_fill_rect(img, int(c) - 2, int(c) - 18, 4, 8, light.darkened(0.3))
 		_:
 			_fill_circle(img, c, c, 12, light)
 
@@ -421,6 +485,247 @@ func _draw_tree(img: Image, ph: Dictionary) -> void:
 	for i in 5:
 		var a := i * TAU / 5.0
 		_fill_circle(img, c + cos(a) * s * 0.2, s * 0.32 + sin(a) * s * 0.12, s * 0.02, glow)
+
+
+func _draw_boar(img: Image, ph: Dictionary, frame: int, row: int, _frames: int) -> void:
+	var body := _c(ph.get("body", "#6b4a2e"))
+	var accent := _c(ph.get("accent", "#d8c8a0"))
+	var anim: String = ph.get("anim", "idle")
+	var facing: Vector2 = [Vector2(0, 1), Vector2(0, -1), Vector2(-1, 0), Vector2(1, 0)][row]
+	var lunge := 0.0
+	if anim == "attack":
+		lunge = [-6.0, 0.0, 16.0, 10.0][frame % 4]
+	elif anim == "walk":
+		lunge = [0.0, 2.0, 0.0, -2.0][frame % 4]
+	var alpha: float = 1.0 if anim != "death" else [0.8, 0.4][frame % 2]
+	_fill_ellipse(img, 64, 106, 30, 7, Color(0, 0, 0, 0.25 * alpha))
+	var c: Vector2 = Vector2(64, 80) + facing * lunge
+	_fill_ellipse(img, c.x, c.y, 32 if row >= 2 else 24, 22 if row >= 2 else 26, Color(body, alpha))
+	var head: Vector2 = c + facing * 24
+	_fill_circle(img, head.x, head.y - 4, 16, Color(body.darkened(0.1), alpha))
+	# 등가시
+	for i in 5:
+		var sp: Vector2 = c - facing * (i * 8 - 12) + Vector2(0, -22)
+		_triangle(img, sp + Vector2(-4, 0), sp + Vector2(4, 0), sp + Vector2(0, -12), Color(accent.darkened(0.2), alpha))
+	# 엄니
+	var t1: Vector2 = head + facing * 12 + Vector2(-facing.y, facing.x) * 8
+	var t2: Vector2 = head + facing * 12 - Vector2(-facing.y, facing.x) * 8
+	_fill_rect(img, int(t1.x) - 2, int(t1.y), 4, 8, Color(accent, alpha))
+	_fill_rect(img, int(t2.x) - 2, int(t2.y), 4, 8, Color(accent, alpha))
+	_fill_circle(img, head.x + 6 * (1 if row == 3 else -1 if row == 2 else 0), head.y - 8, 2.5, Color(0.1, 0.05, 0.05, alpha))
+	if anim == "hit":
+		_fill_ellipse(img, c.x, c.y, 32, 26, Color(1, 0.3, 0.3, 0.4))
+	if anim == "attack" and frame == 2:
+		var tip: Vector2 = head + facing * 22
+		_triangle(img, tip + facing * 10, tip + Vector2(-facing.y, facing.x) * 10, tip - Vector2(-facing.y, facing.x) * 10, Color(1, 0.45, 0.2, 0.9))
+	pass
+
+
+func _draw_bird(img: Image, ph: Dictionary, frame: int, row: int, _frames: int) -> void:
+	var body := _c(ph.get("body", "#2a2530"))
+	var accent := _c(ph.get("accent", "#e0b040"))
+	var anim: String = ph.get("anim", "idle")
+	var facing: Vector2 = [Vector2(0, 1), Vector2(0, -1), Vector2(-1, 0), Vector2(1, 0)][row]
+	var alpha: float = 1.0 if anim != "death" else [0.8, 0.4][frame % 2]
+	var flap: float = [0.0, -8.0, 0.0, 8.0][frame % 4] if anim in ["walk", "attack"] else [0.0, -3.0][frame % 2]
+	_fill_ellipse(img, 64, 100, 18, 5, Color(0, 0, 0, 0.2 * alpha))
+	var c := Vector2(64, 64)
+	_fill_ellipse(img, c.x, c.y, 14, 11, Color(body, alpha))
+	_fill_ellipse(img, c.x - 26, c.y - 4 + flap, 18, 6, Color(body.lightened(0.1), alpha))
+	_fill_ellipse(img, c.x + 26, c.y - 4 + flap, 18, 6, Color(body.lightened(0.1), alpha))
+	var head: Vector2 = c + facing * 12 + Vector2(0, -6)
+	_fill_circle(img, head.x, head.y, 8, Color(body, alpha))
+	var beak: Vector2 = head + facing * 10
+	_triangle(img, beak + facing * 8, beak + Vector2(-facing.y, facing.x) * 4, beak - Vector2(-facing.y, facing.x) * 4, Color(accent, alpha))
+	_fill_circle(img, head.x + 3 * (1 if row == 3 else -1 if row == 2 else 0), head.y - 2, 2, Color(0.9, 0.2, 0.2, alpha))
+	if anim == "hit":
+		_fill_ellipse(img, c.x, c.y, 16, 12, Color(1, 0.3, 0.3, 0.4))
+	if anim == "attack" and frame >= 2:
+		_fill_circle(img, beak.x + facing.x * 16, beak.y + facing.y * 16, 5, Color(0.6, 0.3, 0.8, 0.9))
+	pass
+
+
+func _draw_line_telegraph(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#ff7a3d"))
+	var s := img.get_width()
+	_fill_rect(img, 4, int(s * 0.3), s - 24, int(s * 0.4), Color(col, 0.25))
+	_fill_rect(img, 4, int(s * 0.3), s - 24, 4, col)
+	_fill_rect(img, 4, int(s * 0.7) - 4, s - 24, 4, col)
+	_triangle(img, Vector2(s - 24, s * 0.22), Vector2(s - 24, s * 0.78), Vector2(s - 2, s * 0.5), col)
+
+
+func _draw_dot(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#8a5a2b"))
+	var glow := _c(ph.get("glow", "#e2b04a"))
+	var c := img.get_width() / 2.0
+	_fill_circle(img, c, c, c - 2, Color(glow, 0.35))
+	_fill_circle(img, c, c, c * 0.55, col)
+	_fill_circle(img, c - c * 0.2, c - c * 0.2, c * 0.18, Color(1, 1, 1, 0.7))
+
+
+func _draw_thorns(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#5b8c3a"))
+	var c := img.get_width() / 2.0
+	_ring(img, c, c, c - 6, c - 12, Color(col, 0.8))
+	for i in 12:
+		var a := i * TAU / 12.0
+		var base: Vector2 = Vector2(c, c) + Vector2(cos(a), sin(a)) * (c - 16)
+		var tip: Vector2 = Vector2(c, c) + Vector2(cos(a), sin(a)) * (c - 2)
+		var n: Vector2 = Vector2(-sin(a), cos(a)) * 4
+		_triangle(img, base + n, base - n, tip, col.darkened(0.2))
+
+
+func _draw_rain(img: Image, ph: Dictionary, frame: int, frames: int) -> void:
+	var col := _c(ph.get("color", "#6fae5a"))
+	var s := img.get_width()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 77
+	_ring(img, s / 2.0, s / 2.0, s / 2.0 - 4, s / 2.0 - 10, Color(col, 0.6))
+	for i in 24:
+		var x := rng.randf_range(20, s - 20)
+		var y := fmod(rng.randf_range(0, s) + frame * (s / float(max(frames, 1))), s)
+		_fill_rect(img, int(x), int(y), 3, 14, Color(col.lightened(0.2), 0.9))
+		_fill_circle(img, x + 1, y + 16, 3, Color(col, 0.9))
+
+
+func _draw_device(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#7a6248"))
+	var accent := _c(ph.get("accent", "#3b8fd9"))
+	_fill_ellipse(img, 64, 104, 34, 8, Color(0, 0, 0, 0.25))
+	_fill_rect(img, 36, 44, 56, 58, col)
+	_fill_rect(img, 32, 40, 64, 8, col.lightened(0.2))
+	_ring(img, 64, 70, 18, 12, accent)
+	_fill_rect(img, 62, 52, 4, 36, accent.lightened(0.3))
+	_fill_rect(img, 46, 68, 36, 4, accent.lightened(0.3))
+
+
+func _draw_lever(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#5a3d22"))
+	var accent := _c(ph.get("accent", "#c9a26b"))
+	_fill_ellipse(img, 64, 104, 26, 7, Color(0, 0, 0, 0.25))
+	_fill_rect(img, 44, 84, 40, 18, col)
+	_fill_rect(img, 60, 40, 8, 48, accent)
+	_fill_circle(img, 64, 38, 9, accent.lightened(0.3))
+
+
+func _draw_crayfish(img: Image, ph: Dictionary, frame: int, row: int) -> void:
+	var body := _c(ph.get("body", "#7a3b2e"))
+	var accent := _c(ph.get("accent", "#c9a26b"))
+	var anim: String = ph.get("anim", "idle")
+	var s := img.get_width()
+	var c := Vector2(s / 2.0, s * 0.55)
+	var facing: Vector2 = [Vector2(0, 1), Vector2(0, -1), Vector2(-1, 0), Vector2(1, 0)][row]
+	var side := Vector2(-facing.y, facing.x)
+	var alpha := 1.0
+	if anim == "death":
+		alpha = [0.7, 0.35][frame % 2]
+	var bob: float = [0.0, -4.0][frame % 2] if anim == "idle" else 0.0
+	var lunge: float = [-10.0, 0.0, 26.0, 14.0][frame % 4] if anim == "attack" else 0.0
+	_fill_ellipse(img, c.x, s * 0.84, s * 0.30, s * 0.06, Color(0, 0, 0, 0.25 * alpha))
+	# 꼬리(뒤) → 몸통 마디 → 머리(앞) → 집게
+	var tail: Vector2 = c - facing * s * 0.24
+	_fill_ellipse(img, tail.x, tail.y + bob, s * 0.10, s * 0.14, Color(body.darkened(0.2), alpha))
+	for i in 3:
+		var seg: Vector2 = c - facing * (s * 0.12 - i * s * 0.08)
+		_fill_ellipse(img, seg.x, seg.y + bob, s * 0.15 - i * 0.01 * s, s * 0.12, Color(body.lightened(i * 0.06), alpha))
+		# 갑각 마디 강조선
+		_fill_ellipse(img, seg.x, seg.y + bob - s * 0.05, s * 0.10, s * 0.02, Color(accent, 0.5 * alpha))
+	var head: Vector2 = c + facing * s * 0.16
+	_fill_circle(img, head.x, head.y + bob, s * 0.11, Color(body, alpha))
+	var claw_l: Vector2 = head + side * s * 0.20 + facing * (s * 0.08 + lunge)
+	var claw_r: Vector2 = head - side * s * 0.20 + facing * (s * 0.08 + lunge)
+	for cl: Vector2 in [claw_l, claw_r]:
+		_fill_ellipse(img, cl.x, cl.y + bob, s * 0.10, s * 0.07, Color(accent.darkened(0.2), alpha))
+		_triangle(img, cl + facing * s * 0.06, cl + facing * s * 0.16 + side * s * 0.03, cl + facing * s * 0.16 - side * s * 0.03, Color(accent, alpha))
+	# 더듬이
+	for k in [-1, 1]:
+		var a0: Vector2 = head + facing * s * 0.08 + side * s * 0.04 * k
+		var wig: float = 0.0
+		if anim == "molt":
+			wig = [-6.0, 6.0][frame % 2]
+		_fill_rect(img, int(a0.x + facing.x * 8), int(a0.y + facing.y * 8 - 30 + wig), 3, 30, Color(accent, alpha))
+	_fill_circle(img, head.x + side.x * s * 0.05, head.y + bob - s * 0.02, 4, Color(0.1, 0.05, 0.05, alpha))
+	_fill_circle(img, head.x - side.x * s * 0.05, head.y + bob - s * 0.02, 4, Color(0.1, 0.05, 0.05, alpha))
+	if anim == "hit":
+		_fill_circle(img, c.x, c.y, s * 0.3, Color(1, 0.3, 0.3, 0.35))
+	if anim == "stagger":
+		for i in 3:
+			_fill_circle(img, head.x - 20 + i * 20, head.y - s * 0.2, 5, Color(1, 1, 0.5, 0.9))
+
+
+func _draw_pillar(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#6a4a2a"))
+	var accent := _c(ph.get("accent", "#e2b04a"))
+	_fill_ellipse(img, 64, 104, 26, 7, Color(0, 0, 0, 0.25))
+	_fill_rect(img, 50, 20, 28, 84, col)
+	_fill_rect(img, 46, 16, 36, 8, col.lightened(0.2))
+	_fill_rect(img, 50, 56, 28, 6, accent)
+	_triangle(img, Vector2(64, 4), Vector2(56, 16), Vector2(72, 16), accent)
+
+
+func _draw_gate(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#5a3d22"))
+	var accent := _c(ph.get("accent", "#3b8fd9"))
+	_fill_ellipse(img, 64, 104, 34, 7, Color(0, 0, 0, 0.25))
+	_fill_rect(img, 28, 40, 10, 64, col)
+	_fill_rect(img, 90, 40, 10, 64, col)
+	_fill_rect(img, 38, 56, 52, 40, accent.darkened(0.2))
+	for i in 3:
+		_fill_rect(img, 40, 60 + i * 12, 48, 4, accent)
+	_fill_rect(img, 28, 36, 72, 6, col.lightened(0.2))
+
+
+func _draw_corridor(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#4a3a2a"))
+	var accent := _c(ph.get("accent", "#7fb6ef"))
+	_fill_rect(img, 20, 30, 88, 70, Color(accent, 0.35))
+	_fill_rect(img, 20, 30, 12, 70, col)
+	_fill_rect(img, 96, 30, 12, 70, col)
+	_triangle(img, Vector2(50, 50), Vector2(50, 80), Vector2(84, 65), Color(accent, 0.9))
+
+
+func _draw_rope(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#c9a26b"))
+	var s := img.get_width()
+	_ring(img, s / 2.0, s / 2.0, s * 0.42, s * 0.30, col)
+	_ring(img, s / 2.0, s / 2.0, s * 0.26, s * 0.18, col.darkened(0.3))
+
+
+func _draw_debris(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#7a5230"))
+	_fill_ellipse(img, 64, 100, 40, 8, Color(0, 0, 0, 0.25))
+	_fill_ellipse(img, 50, 74, 30, 12, col)
+	_fill_ellipse(img, 80, 84, 26, 10, col.darkened(0.15))
+	_fill_ellipse(img, 66, 60, 22, 9, col.lightened(0.1))
+
+
+func _draw_anchor(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#5a5a5a"))
+	var accent := _c(ph.get("accent", "#e2b04a"))
+	_fill_ellipse(img, 64, 104, 30, 7, Color(0, 0, 0, 0.25))
+	_fill_rect(img, 60, 30, 8, 70, col)
+	_ring(img, 64, 26, 12, 7, col)
+	_ring(img, 64, 92, 34, 26, col, 0, 180)
+	_fill_rect(img, 44, 54, 40, 6, accent)
+
+
+func _draw_platform(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#8a6a45"))
+	var accent := _c(ph.get("accent", "#e2b04a"))
+	var c := img.get_width() / 2.0
+	_fill_circle(img, c, c, c - 4, Color(col, 0.55))
+	_ring(img, c, c, c - 2, c - 12, accent)
+	for i in 6:
+		_fill_rect(img, int(c - c * 0.8), int(c - c * 0.7 + i * c * 0.28), int(c * 1.6), 4, Color(col.darkened(0.3), 0.7))
+
+
+func _draw_claw_link(img: Image, ph: Dictionary) -> void:
+	var col := _c(ph.get("color", "#7a3b2e"))
+	var accent := _c(ph.get("accent", "#e2b04a"))
+	var c := img.get_width() / 2.0
+	_ring(img, c, c, c - 4, c - 14, col)
+	_ring(img, c, c, c * 0.5, c * 0.3, accent)
+	_triangle(img, Vector2(c - 8, c - 4), Vector2(c + 8, c - 4), Vector2(c, c + 14), accent.lightened(0.3))
 
 
 func _draw_ring_asset(img: Image, ph: Dictionary) -> void:

@@ -1,0 +1,18 @@
+{
+  "_comment": "지역과 경로 템플릿 (10절). 노드는 시드로 변형된다. 같은 시드·콘텐츠 버전이면 경로·배치·보상 후보가 재현된다.",
+  "willow_river": {
+    "id": "willow_river",
+    "name_ko": "버들강 하류",
+    "description_ko": "밝은 강변, 쓰러진 나무, 얕은 물. 기본 회피와 목재 엄폐, 간단한 수문을 배운다.",
+    "layers": [
+      [{"type": "combat", "pool": ["annihilate"]}],
+      [{"type": "combat", "pool": ["hold_point", "device"]}, {"type": "event", "pool": ["fallen_branch", "drifting_crate"]}],
+      [{"type": "combat", "pool": ["annihilate", "hold_point", "device"]}, {"type": "shop", "pool": ["riverside_stall"]}],
+      [{"type": "rest", "pool": ["campfire"]}, {"type": "combat", "pool": ["device", "hold_point"]}],
+      [{"type": "boss", "pool": ["ironclaw"]}]
+    ],
+    "boss": "ironclaw",
+    "enemy_pool": [{"id": "sap_snail", "weight": 1.0}, {"id": "thorn_boar", "weight": 0.7}, {"id": "black_bird", "weight": 0.6}],
+    "danger_hints": {"combat": "전투", "event": "탐험·사건", "shop": "상점", "rest": "휴식", "boss": "지역 보스", "elite": "정예"}
+  }
+}

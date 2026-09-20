@@ -1,19 +1,679 @@
 {
-  "test_arena": {
-    "id": "test_arena",
-    "name_ko": "버들강 하류 시험장",
-    "region": "willow_river",
-    "objective": "annihilate",
-    "bounds": {"x": 0, "y": 0, "w": 1400, "h": 900},
-    "player_spawns": [[300, 450], [340, 410], [340, 490], [380, 450]],
-    "enemy_spawns": [[1150, 200], [1200, 450], [1150, 700], [900, 150], [900, 760], [1250, 320], [1250, 580]],
-    "obstacles": [
-      {"shape": "circle", "x": 700, "y": 300, "r": 48, "asset": "prop.willow.log"},
-      {"shape": "circle", "x": 760, "y": 640, "r": 56, "asset": "prop.willow.rock"}
-    ],
-    "water": [{"x": 0, "y": 820, "w": 1400, "h": 80, "damage_fraction": 0.1}],
-    "waves": {"base_budget": 6.0, "wave_count": 2, "next_wave_when_alive_at_most": 1, "wave_gap_sec": 2.5},
-    "enemy_pool": [{"id": "sap_snail", "weight": 1.0}],
-    "assets": {"ground": "tile.willow.ground", "wall": "tile.willow.wall", "water": "tile.willow.water", "bgm": "bgm.combat_normal"}
+ "test_arena": {
+  "id": "test_arena",
+  "name_ko": "버들강 하류 시험장",
+  "region": "willow_river",
+  "objective": "annihilate",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1400,
+   "h": 900
+  },
+  "player_spawns": [
+   [
+    300,
+    450
+   ],
+   [
+    340,
+    410
+   ],
+   [
+    340,
+    490
+   ],
+   [
+    380,
+    450
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    1150,
+    200
+   ],
+   [
+    1200,
+    450
+   ],
+   [
+    1150,
+    700
+   ],
+   [
+    900,
+    150
+   ],
+   [
+    900,
+    760
+   ],
+   [
+    1250,
+    320
+   ],
+   [
+    1250,
+    580
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 700,
+    "y": 300,
+    "r": 48,
+    "asset": "prop.willow.log"
+   },
+   {
+    "shape": "circle",
+    "x": 760,
+    "y": 640,
+    "r": 56,
+    "asset": "prop.willow.rock"
+   }
+  ],
+  "water": [
+   {
+    "x": 0,
+    "y": 820,
+    "w": 1400,
+    "h": 80,
+    "damage_fraction": 0.1
+   }
+  ],
+  "waves": {
+   "base_budget": 6.0,
+   "wave_count": 2,
+   "next_wave_when_alive_at_most": 1,
+   "wave_gap_sec": 2.5
+  },
+  "enemy_pool": [
+   {
+    "id": "sap_snail",
+    "weight": 1.0
+   }
+  ],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.combat_normal"
+  },
+  "gnaw_trees": [
+   [
+    520,
+    180
+   ]
+  ],
+  "sluice": null
+ },
+ "annihilate": {
+  "id": "annihilate",
+  "name_ko": "버들강 여울 — 섬멸",
+  "region": "willow_river",
+  "objective": "annihilate",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1400,
+   "h": 900
+  },
+  "player_spawns": [
+   [
+    300,
+    450
+   ],
+   [
+    340,
+    410
+   ],
+   [
+    340,
+    490
+   ],
+   [
+    380,
+    450
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    1150,
+    200
+   ],
+   [
+    1200,
+    450
+   ],
+   [
+    1150,
+    700
+   ],
+   [
+    900,
+    150
+   ],
+   [
+    900,
+    760
+   ],
+   [
+    1250,
+    320
+   ],
+   [
+    1250,
+    580
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 700,
+    "y": 300,
+    "r": 48,
+    "asset": "prop.willow.log"
+   },
+   {
+    "shape": "circle",
+    "x": 760,
+    "y": 640,
+    "r": 56,
+    "asset": "prop.willow.rock"
+   }
+  ],
+  "water": [
+   {
+    "x": 0,
+    "y": 820,
+    "w": 1400,
+    "h": 80,
+    "damage_fraction": 0.1
+   }
+  ],
+  "waves": {
+   "base_budget": 6.0,
+   "wave_count": 2,
+   "next_wave_when_alive_at_most": 1,
+   "wave_gap_sec": 2.5
+  },
+  "enemy_pool": [
+   {
+    "id": "sap_snail",
+    "weight": 1.0
+   },
+   {
+    "id": "thorn_boar",
+    "weight": 0.6
+   },
+   {
+    "id": "black_bird",
+    "weight": 0.5
+   }
+  ],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.combat_normal"
+  },
+  "gnaw_trees": [
+   [
+    520,
+    180
+   ],
+   [
+    560,
+    700
+   ]
+  ],
+  "sluice": null
+ },
+ "hold_point": {
+  "id": "hold_point",
+  "name_ko": "무너진 둑 — 거점 탈환",
+  "region": "willow_river",
+  "objective": "hold_point",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1400,
+   "h": 900
+  },
+  "player_spawns": [
+   [
+    300,
+    450
+   ],
+   [
+    340,
+    410
+   ],
+   [
+    340,
+    490
+   ],
+   [
+    380,
+    450
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    1150,
+    200
+   ],
+   [
+    1200,
+    450
+   ],
+   [
+    1150,
+    700
+   ],
+   [
+    900,
+    150
+   ],
+   [
+    900,
+    760
+   ],
+   [
+    1250,
+    320
+   ],
+   [
+    1250,
+    580
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 700,
+    "y": 300,
+    "r": 48,
+    "asset": "prop.willow.log"
+   },
+   {
+    "shape": "circle",
+    "x": 760,
+    "y": 640,
+    "r": 56,
+    "asset": "prop.willow.rock"
+   }
+  ],
+  "water": [
+   {
+    "x": 0,
+    "y": 820,
+    "w": 1400,
+    "h": 80,
+    "damage_fraction": 0.1
+   }
+  ],
+  "waves": {
+   "base_budget": 7.0,
+   "wave_count": 3,
+   "next_wave_when_alive_at_most": 99,
+   "wave_gap_sec": 9.0
+  },
+  "enemy_pool": [
+   {
+    "id": "sap_snail",
+    "weight": 1.0
+   },
+   {
+    "id": "thorn_boar",
+    "weight": 0.8
+   }
+  ],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.combat_normal"
+  },
+  "hold_zone": {
+   "x": 760,
+   "y": 450,
+   "r": 120,
+   "required_sec": 24.0,
+   "contest_radius": 140
+  },
+  "gnaw_trees": [
+   [
+    400,
+    200
+   ]
+  ],
+  "sluice": {
+   "lever": [
+    1000,
+    140
+   ],
+   "zone": {
+    "x": 600,
+    "y": 60,
+    "w": 800,
+    "h": 140
+   },
+   "hold_sec": 1.5
   }
+ },
+ "device": {
+  "id": "device",
+  "name_ko": "옛 수문 — 장치 가동",
+  "region": "willow_river",
+  "objective": "device",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1400,
+   "h": 900
+  },
+  "player_spawns": [
+   [
+    300,
+    450
+   ],
+   [
+    340,
+    410
+   ],
+   [
+    340,
+    490
+   ],
+   [
+    380,
+    450
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    1150,
+    200
+   ],
+   [
+    1200,
+    450
+   ],
+   [
+    1150,
+    700
+   ],
+   [
+    900,
+    150
+   ],
+   [
+    900,
+    760
+   ],
+   [
+    1250,
+    320
+   ],
+   [
+    1250,
+    580
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 700,
+    "y": 300,
+    "r": 48,
+    "asset": "prop.willow.log"
+   },
+   {
+    "shape": "circle",
+    "x": 760,
+    "y": 640,
+    "r": 56,
+    "asset": "prop.willow.rock"
+   }
+  ],
+  "water": [
+   {
+    "x": 0,
+    "y": 820,
+    "w": 1400,
+    "h": 80,
+    "damage_fraction": 0.1
+   }
+  ],
+  "waves": {
+   "base_budget": 6.5,
+   "wave_count": 3,
+   "next_wave_when_alive_at_most": 99,
+   "wave_gap_sec": 8.0
+  },
+  "enemy_pool": [
+   {
+    "id": "sap_snail",
+    "weight": 0.8
+   },
+   {
+    "id": "black_bird",
+    "weight": 1.0
+   }
+  ],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.combat_normal"
+  },
+  "devices": [
+   {
+    "x": 420,
+    "y": 180,
+    "hold_sec": 4.0
+   },
+   {
+    "x": 1180,
+    "y": 720,
+    "hold_sec": 4.0
+   }
+  ],
+  "gnaw_trees": [
+   [
+    800,
+    450
+   ]
+  ],
+  "sluice": {
+   "lever": [
+    700,
+    760
+   ],
+   "zone": {
+    "x": 300,
+    "y": 720,
+    "w": 900,
+    "h": 150
+   },
+   "hold_sec": 1.5
+  }
+ },
+ "boss_ironclaw": {
+  "id": "boss_ironclaw",
+  "name_ko": "철턱 가재의 여울",
+  "region": "willow_river",
+  "objective": "boss",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1500,
+   "h": 1000
+  },
+  "player_spawns": [
+   [
+    220,
+    500
+   ],
+   [
+    260,
+    450
+   ],
+   [
+    260,
+    550
+   ],
+   [
+    300,
+    500
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    1300,
+    200
+   ],
+   [
+    1300,
+    800
+   ],
+   [
+    750,
+    120
+   ],
+   [
+    750,
+    880
+   ]
+  ],
+  "obstacles": [],
+  "water": [
+   {
+    "x": 0,
+    "y": 920,
+    "w": 1500,
+    "h": 80,
+    "damage_fraction": 0.1
+   }
+  ],
+  "waves": {
+   "base_budget": 0,
+   "wave_count": 0,
+   "next_wave_when_alive_at_most": 0,
+   "wave_gap_sec": 99
+  },
+  "enemy_pool": [
+   {
+    "id": "sap_snail",
+    "weight": 1.0
+   }
+  ],
+  "gnaw_trees": [],
+  "sluice": null,
+  "boss": "ironclaw",
+  "boss_spawn": [
+   1000,
+   500
+  ],
+  "pillars": [
+   [
+    600,
+    220
+   ],
+   [
+    600,
+    780
+   ],
+   [
+    1100,
+    220
+   ],
+   [
+    1100,
+    780
+   ]
+  ],
+  "gate_sets": [
+   [
+    [
+     420,
+     120
+    ],
+    [
+     520,
+     120
+    ],
+    [
+     620,
+     120
+    ]
+   ],
+   [
+    [
+     420,
+     880
+    ],
+    [
+     520,
+     880
+    ],
+    [
+     620,
+     880
+    ]
+   ]
+  ],
+  "corridors": [
+   [
+    1350,
+    300
+   ],
+   [
+    1350,
+    500
+   ],
+   [
+    1350,
+    700
+   ]
+  ],
+  "platform": {
+   "x": 750,
+   "y": 500,
+   "r": 140
+  },
+  "anchor_points": [
+   [
+    560,
+    500
+   ],
+   [
+    940,
+    500
+   ]
+  ],
+  "center_point": [
+   750,
+   500
+  ],
+  "debris_points": [
+   [
+    650,
+    420
+   ],
+   [
+    850,
+    580
+   ]
+  ],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.boss"
+  }
+ }
 }

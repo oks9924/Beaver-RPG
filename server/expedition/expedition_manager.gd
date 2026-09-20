@@ -29,7 +29,7 @@ func running_count() -> int:
 	return c
 
 
-func create(s: Session, public: bool, difficulty: String) -> Dictionary:
+func create(s: Session, public: bool, difficulty: String, permanent: Dictionary = {}) -> Dictionary:
 	if s.expedition_id != "":
 		return {"ok": false, "error": Protocol.ERR_ALREADY_IN_EXPEDITION}
 	if active_count() >= max_active:
@@ -40,12 +40,12 @@ func create(s: Session, public: bool, difficulty: String) -> Dictionary:
 	inst.public = public
 	inst.difficulty = difficulty if difficulty in ["normal"] else "normal"
 	inst.host_nick = s.nickname
-	inst.add_member(s)
+	inst.add_member(s, permanent)
 	instances[id] = inst
 	return {"ok": true, "expedition": inst}
 
 
-func join(s: Session, id: String) -> Dictionary:
+func join(s: Session, id: String, permanent: Dictionary = {}) -> Dictionary:
 	if s.expedition_id != "":
 		return {"ok": false, "error": Protocol.ERR_ALREADY_IN_EXPEDITION}
 	var inst: ExpeditionInstance = instances.get(id, null)
@@ -54,7 +54,7 @@ func join(s: Session, id: String) -> Dictionary:
 	var err := inst.can_join(s.account_id)
 	if err != "":
 		return {"ok": false, "error": err}
-	inst.add_member(s)
+	inst.add_member(s, permanent)
 	return {"ok": true, "expedition": inst}
 
 

@@ -22,6 +22,19 @@
 | 원정 | `server/expedition/*.gd` | 모집판·인스턴스·전투방 시뮬레이션 |
 | 클라이언트 | `client/*.gd` | 접속/로그인/마을/원정 준비/전투 HUD/결과, 예측·보간, 봇 모드 |
 
+## 원정 런 흐름 (단계 2)
+- `ExpeditionInstance.start_run()` 이 지역 템플릿(`data/regions.json`)과 시드로 5층 경로를 만든다. 같은 시드·콘텐츠 버전이면 경로·보상 후보가 재현된다 (지도·보상·전투 난수 스트림 분리).
+- `IN_ROOM → REWARD(3지선다, 25초) → ROUTE_VOTE(25초, 동률 시드 추첨) 또는 단일 노드 진입 → IN_ROOM | NODE_MENU(사건 투표·상점·휴식, 45초) → … → 보스 → RESULT`.
+- 인스턴스는 보낼 메시지를 `outbox` 에 쌓고 `ServerMain._flush_outbox` 가 전송·위치 갱신·체크포인트 저장을 한다.
+- 안전 지점(REWARD/ROUTE_VOTE/NODE_MENU)마다 `expeditions.json` 에 체크포인트를 저장한다. 서버 재시작 시 유예(600초) 안의 체크포인트를 복구하고, 전투 중 저장본은 복원하지 않는다(마지막 안전 지점부터).
+- 안전 지점에서는 공개 파티에 새 멤버가 합류할 수 있다. 합류 묶음(완료 노드 2개당 유물 1개, 파티 평균 도토리)을 받고, 다음 방부터 N 을 재산정한다. 지나간 보상은 소급하지 않는다.
+- 플레이어 수치 보정은 `RunMods.build()` 가 유물·강화·런 레벨·영구 보너스를 합쳐 `mods`(가산)와 `procs`(원인 ID·내부 대기시간) 로 만든다.
+
+## 전투방 시스템 (단계 2)
+- `CombatRoom` 은 플레이어·적(역할별 AI: approach/charger/ranged)·투사체·상호작용물(objects)·구조물·수문·목표(annihilate/hold_point/device/boss)를 갖는다.
+- 상호작용은 공통 F 유지 규칙: 서버가 `interactable` 오브젝트의 `progress` 를 올리고 완료 시 종류별 처리. 담당자가 놓아도 진행도가 남는다(장치·갉기).
+- 보스는 `BossIronclaw` 가 방에 부착되어 자체 상태 기계(추격·예고·공격·회복·경직·결박·탈피·노출)와 기믹 스케줄러를 돌린다. 기믹은 미체험 우선, 연속 재사용 금지, 양립 불가 조합 회피, 반복 상한 2.
+
 ## 상태 흐름
 - 연결: `DISCONNECTED → CONNECTING → AUTHENTICATING(hello·로그인) → SYNCING → ONLINE`
 - 위치: `HUB → PREPARING_EXPEDITION → IN_ROOM → RESULT → (IN_ROOM | HUB)`. `REWARD/ROUTE_VOTE/JOIN_PENDING/SUSPENDED` 는 enum 만 예약.
@@ -54,6 +67,6 @@
 ## 알려진 제한 (단계 1)
 - ENet 전송에 DTLS 가 켜져 있지 않다. 비밀번호·토큰은 현재 평문 UDP 로 전송된다. **인터넷 공개 운영 전에** DTLS(ENetConnection.dtls_client/server + 인증서) 또는 별도 HTTPS 인증 경로가 필요하다.
 - 저장소는 JSON 파일이다. 트랜잭션은 "단일 프로세스 + 원자적 파일 교체" 수준이며, SQLite(GDExtension) 어댑터는 `StoreBase` 인터페이스로 교체 예정.
-- 원정 진행 중 저장(완료 방 체크포인트·이어하기)은 미구현. 서버 재시작 시 진행 중 원정은 사라지고, 계정·월드·완료된 방의 기록은 유지된다.
+- 전투 중 상태는 저장하지 않는다. 서버 재시작 시 마지막 안전 지점 체크포인트로 복구되며, 진행 중이던 전투는 다시 한다.
 - 채팅 뮤트·운영자 차단, 운영 권한 인증은 미구현(속도 제한만 있음).
 - Godot 는 SIGTERM 에 종료 훅을 부르지 않는다. 정상 종료는 `STOP` 파일(`scripts/stop_server.sh`) 을 쓴다. 강제 종료돼도 계정·월드 파일은 변경 시마다 즉시 원자적으로 저장되어 손실이 없다.

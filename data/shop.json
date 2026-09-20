@@ -1,0 +1,12 @@
+{
+  "_comment": "상점 1종. 개인 도토리로 구매하며 서버가 트랜잭션으로 한 번만 처리한다 (ECO-01).",
+  "riverside_stall": {
+    "id": "riverside_stall", "name_ko": "강변 노점",
+    "items": [
+      {"id": "heal_charge", "name_ko": "회복 도구 +1", "cost": 15, "limit_per_player": 2, "effect": {"type": "heal_uses", "value": 1}},
+      {"id": "max_hp", "name_ko": "든든한 식사 (최대 체력 +10, 즉시 회복 10)", "cost": 20, "limit_per_player": 1, "effect": {"type": "max_hp_add", "value": 10}},
+      {"id": "team_wood", "name_ko": "통나무 묶음 (팀 목재 +4)", "cost": 8, "limit_per_player": 3, "effect": {"type": "wood", "value": 4}},
+      {"id": "random_relic", "name_ko": "수상한 꾸러미 (무작위 유물)", "cost": 30, "limit_per_player": 1, "effect": {"type": "random_relic"}}
+    ]
+  }
+}

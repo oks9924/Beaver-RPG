@@ -18,6 +18,13 @@
 | UI | `ui.panel.default`, `ui.button.default`(9-slice 12px), `ui.app_icon` | 48/256 | 도형 |
 | 초상 | `portrait.guardian` | 256×256 | 도형 |
 | 효과음 11종 | `sfx.*` | 22.05kHz 16bit mono WAV | 합성음 |
+| 솔방울사수 6동작 | `char.pinecone.*` | 128×128 | 도형 |
+| 가시 멧돼지·검은 새 | `enemy.thorn_boar.*`, `enemy.black_bird.*` | 128×128 | 도형 |
+| 철턱 가재 9동작 | `boss.ironclaw.{idle,walk,attack,stagger,molt,death,hit,cast,down}` | 256×256, 4방향 | 도형 |
+| 기믹 소품 | `prop.boss.{pillar,gate,husk,corridor,rope,debris,anchor,platform,claw_link}` | 64~256 | 도형 |
+| 방 소품 | `prop.gnaw_tree`, `prop.device`, `prop.lever`, `prop.log_cover`, `prop.hub.memory_tree` | 128/256 | 도형 |
+| 유물·스킬·적 아이콘 | `icon.relic.*`(10), `icon.skill.pinecone.*`, `icon.enemy.*` | 64×64 | 도형 |
+| 투사체·VFX | `vfx.projectile_{sap,pinecone}`, `vfx.telegraph_line`, `vfx.sling_shot`, `vfx.thorn_trap`, `vfx.forest_volley` | 32~256 | 도형 |
 | 폰트 | `font.ui.main` | Noto Sans KR Regular (OFL) | 외부, **final** |
 | 예정(파일 없음) | 나머지 4직업 스프라이트·아이콘·초상, `bgm.*`, `amb.*` | | planned |
 

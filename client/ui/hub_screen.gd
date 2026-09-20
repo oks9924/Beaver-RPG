@@ -9,6 +9,7 @@ signal ready_toggled(ready: bool)
 signal start_requested()
 signal logout_requested()
 signal chat_sent(text: String)
+signal upgrade_requested(structure: String)
 
 var info_label: Label
 var roster_label: Label
@@ -21,6 +22,8 @@ var chat_log: RichTextLabel
 var chat_edit: LineEdit
 var _my_ready: bool = false
 var _board: Array = []
+var village_box: VBoxContainer
+var codex_label: Label
 
 
 func _ready() -> void:
@@ -40,6 +43,13 @@ func _ready() -> void:
 	lv.add_child(UIKit.label("접속자", 15, Color(0.8, 0.9, 0.8)))
 	roster_label = UIKit.label("", 13)
 	lv.add_child(roster_label)
+	lv.add_child(UIKit.label("내실 · 마을 복구", 15, Color(0.8, 0.9, 0.8)))
+	village_box = UIKit.vbox(3)
+	lv.add_child(village_box)
+	codex_label = UIKit.label("", 12, Color(0.8, 0.78, 0.7))
+	codex_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	codex_label.custom_minimum_size = Vector2(270, 0)
+	lv.add_child(codex_label)
 	lv.add_child(UIKit.button("로그아웃", func() -> void: logout_requested.emit()))
 	add_child(left)
 	# 우측: 원정 모집판 + 파티
@@ -142,3 +152,42 @@ func show_party(party: Dictionary, my_id: String) -> void:
 
 func add_chat(from: String, text: String, scope: String) -> void:
 	chat_log.append_text("[color=#c9a26b][%s][/color] [b]%s[/b]: %s\n" % ["파티" if scope == "party" else "마을", from, text.xml_escape()])
+
+
+## 마을 시설 단계·복구 버튼, 개인 내실(기억 조각·숙련·도감). 런 보너스와 영구 보너스를 구분해 표시한다.
+func show_progression(info: Dictionary, account: Dictionary) -> void:
+	for c: Node in village_box.get_children():
+		c.queue_free()
+	var prog: Dictionary = account.get("progression", {})
+	var shards := int(prog.get("memory_shards", 0))
+	var structures: Dictionary = info.get("structures", {})
+	var defs: Dictionary = info.get("village", {})
+	var bonus: Dictionary = info.get("bonus", {})
+	village_box.add_child(UIKit.label("기억 조각 %d · 영구 보너스: 최대 체력 +%d, 회복 도구 +%d, 팀 목재 +%d (상한 적용)" % [shards, int(bonus.get("max_hp_add", 0)), int(bonus.get("heal_uses_add", 0)), int(bonus.get("team_wood_add", 0))], 12))
+	for sid: String in defs.keys():
+		var sdef: Dictionary = defs[sid]
+		var level := int(structures.get(sid, {}).get("level", 0))
+		var next := level + 1
+		var ldef: Dictionary = sdef.get("levels", {}).get(str(next), {})
+		var h := UIKit.hbox(6)
+		h.add_child(UIKit.label("%s %d/%d단계" % [sdef.get("name_ko", sid), level, int(sdef.get("max_level", 1))], 13))
+		if ldef.is_empty():
+			h.add_child(UIKit.label("완료", 12, Color(0.6, 1.0, 0.6)))
+		else:
+			var b := UIKit.button("복구 (%d조각): %s" % [int(ldef.get("cost_shards", 0)), ldef.get("desc_ko", "")], func() -> void: upgrade_requested.emit(sid))
+			b.disabled = shards < int(ldef.get("cost_shards", 0))
+			h.add_child(b)
+		village_box.add_child(h)
+	var mastery: Dictionary = prog.get("class_mastery", {})
+	var parts: PackedStringArray = []
+	for cid: String in mastery.keys():
+		parts.append("%s 숙련 %d (경험치 %d)" % [ContentDB.get_class_def(cid).get("name_ko", cid), int(mastery[cid].get("level", 1)), int(mastery[cid].get("xp", 0))])
+	var codex: Dictionary = prog.get("codex", {})
+	var enemies: Dictionary = codex.get("enemies", {})
+	var ename: PackedStringArray = []
+	for eid: String in enemies.keys():
+		ename.append("%s %d" % [ContentDB.get_enemy_def(eid).get("name_ko", eid), int(enemies[eid])])
+	var stats: Dictionary = account.get("stats", {})
+	codex_label.text = "%s\n도감: 적 %d종 (%s) · 유물 %d/%d · 보스 %d\n기록: 원정 %d회, 완주 %d, 클리어 방 %d, 전멸 %d" % [
+		", ".join(parts) if not parts.is_empty() else "직업 숙련 없음", enemies.size(), ", ".join(ename), (codex.get("relics", []) as Array).size(), ContentDB.relics.size(), (codex.get("bosses", []) as Array).size(),
+		int(stats.get("expeditions_started", 0)), int(stats.get("runs_completed", 0)), int(stats.get("rooms_cleared", 0)), int(stats.get("wipes", 0))]

@@ -17,6 +17,12 @@ var toast_label: Label
 var _toast_t: float = 0.0
 var chat_log: RichTextLabel
 var chat_edit: LineEdit
+var run_label: Label
+var objective_label: Label
+var relic_label: Label
+var boss_bar: ProgressBar
+var boss_label: Label
+var boss_box: VBoxContainer
 signal chat_sent(text: String)
 
 
@@ -64,9 +70,9 @@ func _ready() -> void:
 	sh.add_child(heal_label)
 	v.add_child(sh)
 	add_child(bl)
-	var tr := UIKit.panel(Vector2(260, 0))
+	var tr := UIKit.panel(Vector2(270, 0))
 	tr.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
-	tr.position = Vector2(-272, 12)
+	tr.position = Vector2(-282, 12)
 	var pv := UIKit.vbox(4)
 	tr.add_child(pv)
 	wave_label = UIKit.label("", 15, Color(0.98, 0.85, 0.45))
@@ -74,7 +80,21 @@ func _ready() -> void:
 	party_label = UIKit.label("", 13)
 	pv.add_child(party_label)
 	room_label = UIKit.label("", 11, Color(0.7, 0.7, 0.65))
+	room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	room_label.custom_minimum_size = Vector2(230, 0)
 	pv.add_child(room_label)
+	objective_label = UIKit.label("", 13, Color(0.6, 1.0, 0.6))
+	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective_label.custom_minimum_size = Vector2(230, 0)
+	pv.add_child(objective_label)
+	run_label = UIKit.label("", 12, Color(0.9, 0.85, 0.7))
+	run_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	run_label.custom_minimum_size = Vector2(230, 0)
+	pv.add_child(run_label)
+	relic_label = UIKit.label("", 11, Color(0.8, 0.75, 0.6))
+	relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	relic_label.custom_minimum_size = Vector2(230, 0)
+	pv.add_child(relic_label)
 	add_child(tr)
 	conn_label = UIKit.label("", 12, Color(0.9, 0.9, 0.8))
 	conn_label.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
@@ -86,6 +106,25 @@ func _ready() -> void:
 	hint_label.custom_minimum_size = Vector2(400, 0)
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(hint_label)
+	boss_box = UIKit.vbox(2)
+	boss_box.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
+	boss_box.position = Vector2(-260, 100)
+	boss_box.custom_minimum_size = Vector2(520, 0)
+	boss_label = UIKit.label("", 15, Color(1.0, 0.8, 0.6))
+	boss_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_bar = ProgressBar.new()
+	boss_bar.custom_minimum_size = Vector2(520, 16)
+	boss_bar.show_percentage = false
+	var bbg := StyleBoxFlat.new()
+	bbg.bg_color = Color(0.1, 0.05, 0.05)
+	var bfill := StyleBoxFlat.new()
+	bfill.bg_color = Color(0.85, 0.25, 0.2)
+	boss_bar.add_theme_stylebox_override("background", bbg)
+	boss_bar.add_theme_stylebox_override("fill", bfill)
+	boss_box.add_child(boss_label)
+	boss_box.add_child(boss_bar)
+	boss_box.visible = false
+	add_child(boss_box)
 	toast_label = UIKit.label("", 26, Color(1.0, 0.95, 0.7))
 	toast_label.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
 	toast_label.position = Vector2(-250, 60)
@@ -171,6 +210,55 @@ func update_wave(wave: Array, enemies_alive: int) -> void:
 
 func update_room(room: Dictionary) -> void:
 	room_label.text = "%s · 방 %d · 기준 인원 %d · 시드 %d" % [room.get("room_def", {}).get("name_ko", room.get("room_id", "?")), int(room.get("room_index", 0)), int(room.get("n", 0)), int(room.get("seed", 0))]
+
+
+func update_run(run: Dictionary, my_id: String) -> void:
+	if run.is_empty():
+		run_label.text = ""
+		relic_label.text = ""
+		return
+	var mine: Dictionary = run.get("players", {}).get(my_id, {})
+	var table: Array = run.get("xp_table", [])
+	var lvl := int(run.get("level", 1))
+	var next_xp: String = str(table[lvl]) if lvl < table.size() else "최대"
+	run_label.text = "런 레벨 %d (경험치 %d/%s) · 팀 목재 %d · 도토리 %d · 노드 %d/%d" % [lvl, int(run.get("xp", 0)), next_xp, int(run.get("team_wood", 0)), int(mine.get("acorns", 0)), (run.get("path", []) as Array).size(), (run.get("layers", []) as Array).size()]
+	var names: PackedStringArray = []
+	for rid: String in mine.get("relics", []):
+		names.append(String(ContentDB.relics.get(rid, {}).get("name_ko", rid)))
+	for uid: String in mine.get("upgrades", []):
+		for cls: String in ContentDB.upgrades.keys():
+			if ContentDB.upgrades[cls].has(uid):
+				names.append("★" + String(ContentDB.upgrades[cls][uid].get("name_ko", uid)))
+	relic_label.text = ("유물·강화: " + ", ".join(names)) if not names.is_empty() else ""
+
+
+func update_objective(obj: Array, wood: int, boss_state: Dictionary) -> void:
+	if obj.size() < 3:
+		objective_label.text = ""
+		return
+	var kind := String(obj[0])
+	var prog := float(obj[1])
+	var done := int(obj[2]) == 1
+	match kind:
+		"hold_point": objective_label.text = "목표: 거점 유지 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
+		"device": objective_label.text = "목표: 장치 가동 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
+		"boss": objective_label.text = "보스 체력 %d%%" % int(prog * 100)
+		_: objective_label.text = "목표: 섬멸 (처치 %d%%)" % int(prog * 100)
+	objective_label.text += "   팀 목재 %d (B: 엄폐 %d)" % [wood, int(ContentDB.rule("build_cost_wood", 3))]
+	boss_box.visible = not boss_state.is_empty()
+	if not boss_state.is_empty():
+		boss_bar.max_value = float(boss_state.get("max_hp", 1))
+		boss_bar.value = float(boss_state.get("hp", 0))
+		var tags: PackedStringArray = []
+		tags.append("갑각 %d/%d 파괴" % [int(boss_state.get("shell_broken", 0)), int(boss_state.get("shell_total", 3))])
+		if bool(boss_state.get("claw_weak", false)): tags.append("집게 약화")
+		if bool(boss_state.get("joint_weak", false)): tags.append("관절 약화")
+		if bool(boss_state.get("exposed", false)): tags.append("노출")
+		if bool(boss_state.get("molting", false)): tags.append("탈피 중")
+		boss_label.text = "%s  %d / %d  ·  단계 %d  ·  %s" % [boss_state.get("name", ""), int(boss_state.get("hp", 0)), int(boss_state.get("max_hp", 0)), int(boss_state.get("phase", 0)) + 1, " · ".join(tags)]
+		var hint := String(boss_state.get("hint_ko", ""))
+		if hint != "":
+			objective_label.text += "\n" + hint
 
 
 func update_conn(state: int, ping: int) -> void:

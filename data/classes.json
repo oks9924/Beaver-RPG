@@ -1,53 +1,267 @@
 {
-  "guardian": {
-    "id": "guardian",
-    "name_ko": "수호목수",
-    "implemented": true,
-    "role_ko": "보호·전선 유지",
-    "weakness_ko": "긴 사거리와 기동성이 약함",
-    "base_hp": 140,
-    "move_speed": 185,
-    "radius": 18,
-    "assets": {
-      "sprite": "char.guardian",
-      "icon": "icon.class.guardian",
-      "portrait": "portrait.guardian"
-    },
-    "basic_attack": {
-      "id": "guardian_hammer",
-      "name_ko": "나무망치",
-      "damage": 12,
-      "windup_sec": 0.22,
-      "active_sec": 0.10,
-      "recovery_sec": 0.28,
-      "shape": "arc",
-      "range": 82,
-      "angle_deg": 120,
-      "knockback": 40,
-      "stagger_sec": 0.15,
-      "hitbox": "hit.guardian_hammer",
-      "assets": {"vfx": "vfx.hammer_swing", "sfx": "sfx.hammer_hit"}
-    },
-    "passive": {"id": "guardian_bulwark", "name_ko": "든든한 등", "desc_ko": "보호 성공 시 다음 공격 강화", "implemented": false},
-    "skills": {
-      "q": {"id": "log_shield", "name_ko": "통나무 방패", "cooldown_sec": 8, "cast_sec": 0.15, "duration_sec": 3.0,
-            "effect": {"type": "front_damage_reduction", "value": 0.5, "arc_deg": 150},
-            "assets": {"icon": "icon.skill.guardian.q", "vfx": "vfx.log_shield", "sfx": "sfx.wood_block"}},
-      "e": {"id": "tail_slam", "name_ko": "꼬리 내려치기", "cooldown_sec": 10, "cast_sec": 0.30,
-            "effect": {"type": "circle_hit", "radius": 100, "damage": 8, "knockback": 140, "stagger_sec": 0.5},
-            "assets": {"icon": "icon.skill.guardian.e", "vfx": "vfx.tail_shockwave", "sfx": "sfx.tail_slam"}},
-      "r": {"id": "great_tree_embrace", "name_ko": "거목의 품", "cooldown_sec": 60, "cast_sec": 0.40,
-            "effect": {"type": "party_shield", "radius": 220, "shield": 30, "duration_sec": 6.0, "max_shield_per_target": 45},
-            "assets": {"icon": "icon.skill.guardian.r", "vfx": "vfx.great_tree", "sfx": "sfx.great_tree"}}
-    },
-    "build_paths": ["shield", "counter", "shockwave"]
+ "guardian": {
+  "id": "guardian",
+  "name_ko": "수호목수",
+  "implemented": true,
+  "role_ko": "보호·전선 유지",
+  "weakness_ko": "긴 사거리와 기동성이 약함",
+  "base_hp": 140,
+  "move_speed": 185,
+  "radius": 18,
+  "assets": {
+   "sprite": "char.guardian",
+   "icon": "icon.class.guardian",
+   "portrait": "portrait.guardian"
   },
-  "sawtooth": {"id": "sawtooth", "name_ko": "톱니전사", "implemented": false, "base_hp": 115, "move_speed": 205, "radius": 18,
-    "assets": {"sprite": "char.sawtooth", "icon": "icon.class.sawtooth", "portrait": "portrait.sawtooth"}, "build_paths": ["combo", "bleed", "risk"]},
-  "pinecone": {"id": "pinecone", "name_ko": "솔방울사수", "implemented": false, "base_hp": 95, "move_speed": 200, "radius": 17,
-    "assets": {"sprite": "char.pinecone", "icon": "icon.class.pinecone", "portrait": "portrait.pinecone"}, "build_paths": ["mark", "scatter", "trap"]},
-  "sapshaman": {"id": "sapshaman", "name_ko": "수액주술사", "implemented": false, "base_hp": 100, "move_speed": 195, "radius": 17,
-    "assets": {"sprite": "char.sapshaman", "icon": "icon.class.sapshaman", "portrait": "portrait.sapshaman"}, "build_paths": ["heal", "toxin", "root"]},
-  "hydro": {"id": "hydro", "name_ko": "물길공학자", "implemented": false, "base_hp": 105, "move_speed": 190, "radius": 18,
-    "assets": {"sprite": "char.hydro", "icon": "icon.class.hydro", "portrait": "portrait.hydro"}, "build_paths": ["turret", "pressure", "structure"]}
+  "basic_attack": {
+   "id": "guardian_hammer",
+   "name_ko": "나무망치",
+   "damage": 12,
+   "windup_sec": 0.22,
+   "active_sec": 0.1,
+   "recovery_sec": 0.28,
+   "shape": "arc",
+   "range": 82,
+   "angle_deg": 120,
+   "knockback": 40,
+   "stagger_sec": 0.15,
+   "hitbox": "hit.guardian_hammer",
+   "assets": {
+    "vfx": "vfx.hammer_swing",
+    "sfx": "sfx.hammer_hit"
+   }
+  },
+  "passive": {
+   "id": "guardian_bulwark",
+   "name_ko": "든든한 등",
+   "desc_ko": "보호 성공 시 다음 공격 강화",
+   "implemented": false
+  },
+  "skills": {
+   "q": {
+    "id": "log_shield",
+    "name_ko": "통나무 방패",
+    "cooldown_sec": 8,
+    "cast_sec": 0.15,
+    "duration_sec": 3.0,
+    "effect": {
+     "type": "front_damage_reduction",
+     "value": 0.5,
+     "arc_deg": 150
+    },
+    "assets": {
+     "icon": "icon.skill.guardian.q",
+     "vfx": "vfx.log_shield",
+     "sfx": "sfx.wood_block"
+    }
+   },
+   "e": {
+    "id": "tail_slam",
+    "name_ko": "꼬리 내려치기",
+    "cooldown_sec": 10,
+    "cast_sec": 0.3,
+    "effect": {
+     "type": "circle_hit",
+     "radius": 100,
+     "damage": 8,
+     "knockback": 140,
+     "stagger_sec": 0.5
+    },
+    "assets": {
+     "icon": "icon.skill.guardian.e",
+     "vfx": "vfx.tail_shockwave",
+     "sfx": "sfx.tail_slam"
+    }
+   },
+   "r": {
+    "id": "great_tree_embrace",
+    "name_ko": "거목의 품",
+    "cooldown_sec": 60,
+    "cast_sec": 0.4,
+    "effect": {
+     "type": "party_shield",
+     "radius": 220,
+     "shield": 30,
+     "duration_sec": 6.0,
+     "max_shield_per_target": 45
+    },
+    "assets": {
+     "icon": "icon.skill.guardian.r",
+     "vfx": "vfx.great_tree",
+     "sfx": "sfx.great_tree"
+    }
+   }
+  },
+  "build_paths": [
+   "shield",
+   "counter",
+   "shockwave"
+  ]
+ },
+ "sawtooth": {
+  "id": "sawtooth",
+  "name_ko": "톱니전사",
+  "implemented": false,
+  "base_hp": 115,
+  "move_speed": 205,
+  "radius": 18,
+  "assets": {
+   "sprite": "char.sawtooth",
+   "icon": "icon.class.sawtooth",
+   "portrait": "portrait.sawtooth"
+  },
+  "build_paths": [
+   "combo",
+   "bleed",
+   "risk"
+  ]
+ },
+ "pinecone": {
+  "id": "pinecone",
+  "name_ko": "솔방울사수",
+  "implemented": true,
+  "role_ko": "원거리 집중 공격·약점 공략",
+  "weakness_ko": "좁은 공간과 근접 압박에 취약",
+  "base_hp": 95,
+  "move_speed": 200,
+  "radius": 17,
+  "assets": {
+   "sprite": "char.pinecone",
+   "icon": "icon.class.pinecone",
+   "portrait": "portrait.pinecone"
+  },
+  "basic_attack": {
+   "id": "pinecone_sling",
+   "name_ko": "새총 솔방울",
+   "damage": 7,
+   "windup_sec": 0.12,
+   "active_sec": 0.05,
+   "recovery_sec": 0.24,
+   "shape": "projectile",
+   "projectile": {
+    "speed": 540,
+    "radius": 9,
+    "ttl_sec": 0.8,
+    "asset": "vfx.projectile_pinecone"
+   },
+   "knockback": 10,
+   "stagger_sec": 0.0,
+   "hitbox": "hit.pinecone_sling",
+   "assets": {
+    "vfx": "vfx.sling_shot",
+    "sfx": "sfx.sling"
+   }
+  },
+  "passive": {
+   "id": "pinecone_mark",
+   "name_ko": "표식",
+   "desc_ko": "같은 대상 연속 3회 명중 시 표식이 터져 추가 피해 6",
+   "implemented": true,
+   "mark_hits": 3,
+   "mark_damage": 6
+  },
+  "skills": {
+   "q": {
+    "id": "acorn_scatter",
+    "name_ko": "도토리 산탄",
+    "cooldown_sec": 7,
+    "cast_sec": 0.2,
+    "effect": {
+     "type": "scatter",
+     "pellets": 5,
+     "spread_deg": 40,
+     "damage": 5,
+     "speed": 480,
+     "ttl_sec": 0.5,
+     "radius": 8
+    },
+    "assets": {
+     "icon": "icon.skill.pinecone.q",
+     "vfx": "vfx.sling_shot",
+     "sfx": "sfx.sling"
+    }
+   },
+   "e": {
+    "id": "thorn_trap",
+    "name_ko": "가시 덫",
+    "cooldown_sec": 12,
+    "cast_sec": 0.25,
+    "effect": {
+     "type": "trap",
+     "radius": 52,
+     "arm_sec": 0.5,
+     "root_sec": 1.5,
+     "damage": 8,
+     "max_traps": 1,
+     "place_range": 140,
+     "lifetime_sec": 20
+    },
+    "assets": {
+     "icon": "icon.skill.pinecone.e",
+     "vfx": "vfx.thorn_trap",
+     "sfx": "sfx.wood_block"
+    }
+   },
+   "r": {
+    "id": "forest_volley",
+    "name_ko": "숲의 일제사격",
+    "cooldown_sec": 60,
+    "cast_sec": 0.4,
+    "effect": {
+     "type": "volley",
+     "radius": 110,
+     "duration_sec": 3.0,
+     "tick_sec": 0.4,
+     "damage": 9,
+     "place_range": 360
+    },
+    "assets": {
+     "icon": "icon.skill.pinecone.r",
+     "vfx": "vfx.forest_volley",
+     "sfx": "sfx.great_tree"
+    }
+   }
+  },
+  "build_paths": [
+   "mark",
+   "scatter",
+   "trap"
+  ]
+ },
+ "sapshaman": {
+  "id": "sapshaman",
+  "name_ko": "수액주술사",
+  "implemented": false,
+  "base_hp": 100,
+  "move_speed": 195,
+  "radius": 17,
+  "assets": {
+   "sprite": "char.sapshaman",
+   "icon": "icon.class.sapshaman",
+   "portrait": "portrait.sapshaman"
+  },
+  "build_paths": [
+   "heal",
+   "toxin",
+   "root"
+  ]
+ },
+ "hydro": {
+  "id": "hydro",
+  "name_ko": "물길공학자",
+  "implemented": false,
+  "base_hp": 105,
+  "move_speed": 190,
+  "radius": 18,
+  "assets": {
+   "sprite": "char.hydro",
+   "icon": "icon.class.hydro",
+   "portrait": "portrait.hydro"
+  },
+  "build_paths": [
+   "turret",
+   "pressure",
+   "structure"
+  ]
+ }
 }

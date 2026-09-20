@@ -1,0 +1,10 @@
+{
+  "_comment": "마을 시설 복구 (13-1절). 시설은 공용 마을 상태이며 누구의 기억 조각으로든 복구할 수 있다. 영구 보너스는 통합 상한을 넘지 않는다. 검증 전 출발값.",
+  "permanent_caps": {"max_hp_add": 10, "damage_mult": 0.05},
+  "structures": {
+    "memory_tree": {"id": "memory_tree", "name_ko": "기억나무", "max_level": 3,
+      "levels": {"2": {"cost_shards": 5, "desc_ko": "전원 최대 체력 +5", "bonus": {"max_hp_add": 5}}, "3": {"cost_shards": 12, "desc_ko": "전원 최대 체력 +10 (누적, 상한)", "bonus": {"max_hp_add": 10}}}},
+    "workshop": {"id": "workshop", "name_ko": "작업실", "max_level": 2,
+      "levels": {"1": {"cost_shards": 4, "desc_ko": "출정 시 회복 도구 +1", "bonus": {"heal_uses_add": 1}}, "2": {"cost_shards": 10, "desc_ko": "출정 시 팀 목재 +3", "bonus": {"team_wood_add": 3}}}}
+  }
+}

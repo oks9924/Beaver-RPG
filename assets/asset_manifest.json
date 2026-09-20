@@ -793,8 +793,8 @@
   {
    "id": "char.pinecone.idle",
    "type": "sprite_sheet",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_pinecone_idle.png",
    "final_path": "",
    "frame_size": [
     128,
@@ -847,8 +847,8 @@
   {
    "id": "char.pinecone.walk",
    "type": "sprite_sheet",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_pinecone_walk.png",
    "final_path": "",
    "frame_size": [
     128,
@@ -903,8 +903,8 @@
   {
    "id": "char.pinecone.attack",
    "type": "sprite_sheet",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_pinecone_attack.png",
    "final_path": "",
    "frame_size": [
     128,
@@ -961,8 +961,8 @@
   {
    "id": "char.pinecone.cast",
    "type": "sprite_sheet",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_pinecone_cast.png",
    "final_path": "",
    "frame_size": [
     128,
@@ -1019,8 +1019,8 @@
   {
    "id": "char.pinecone.hit",
    "type": "sprite_sheet",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_pinecone_hit.png",
    "final_path": "",
    "frame_size": [
     128,
@@ -1072,8 +1072,8 @@
   {
    "id": "char.pinecone.down",
    "type": "sprite_sheet",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/beaver_pinecone_down.png",
    "final_path": "",
    "frame_size": [
     128,
@@ -1125,8 +1125,8 @@
   {
    "id": "icon.class.pinecone",
    "type": "texture",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_class_pinecone.png",
    "final_path": "",
    "source_size": [
     64,
@@ -1151,8 +1151,8 @@
   {
    "id": "portrait.pinecone",
    "type": "texture",
-   "status": "planned",
-   "path": "",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/portrait_pinecone.png",
    "final_path": "",
    "source_size": [
     256,
@@ -3172,6 +3172,2067 @@
     "leaf": "#6fae5a",
     "glow": "#e8d27a"
    }
+  },
+  {
+   "id": "enemy.thorn_boar.idle",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_thorn_boar_idle.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 3,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.thorn_boar_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "boar",
+    "body": "#6b4a2e",
+    "accent": "#d8c8a0",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "enemy.black_bird.idle",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_black_bird_idle.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 3,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "render_size": [
+    80,
+    80
+   ],
+   "hitbox_ref": "hit.black_bird_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "bird",
+    "body": "#2a2530",
+    "accent": "#e0b040",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "enemy.thorn_boar.walk",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_thorn_boar_walk.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.thorn_boar_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "boar",
+    "body": "#6b4a2e",
+    "accent": "#d8c8a0",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "enemy.black_bird.walk",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_black_bird_walk.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "render_size": [
+    80,
+    80
+   ],
+   "hitbox_ref": "hit.black_bird_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "bird",
+    "body": "#2a2530",
+    "accent": "#e0b040",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "enemy.thorn_boar.attack",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_thorn_boar_attack.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.thorn_boar_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "boar",
+    "body": "#6b4a2e",
+    "accent": "#d8c8a0",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "enemy.black_bird.attack",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_black_bird_attack.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    512,
+    512
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 10,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "render_size": [
+    80,
+    80
+   ],
+   "hitbox_ref": "hit.black_bird_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "bird",
+    "body": "#2a2530",
+    "accent": "#e0b040",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "enemy.thorn_boar.hit",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_thorn_boar_hit.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.thorn_boar_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "boar",
+    "body": "#6b4a2e",
+    "accent": "#d8c8a0",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "enemy.black_bird.hit",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_black_bird_hit.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    128,
+    512
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "render_size": [
+    80,
+    80
+   ],
+   "hitbox_ref": "hit.black_bird_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "bird",
+    "body": "#2a2530",
+    "accent": "#e0b040",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "enemy.thorn_boar.death",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_thorn_boar_death.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "death",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    96,
+    96
+   ],
+   "hitbox_ref": "hit.thorn_boar_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "boar",
+    "body": "#6b4a2e",
+    "accent": "#d8c8a0",
+    "anim": "death"
+   }
+  },
+  {
+   "id": "enemy.black_bird.death",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/enemy_black_bird_death.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    256,
+    512
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "death",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ],
+   "render_size": [
+    80,
+    80
+   ],
+   "hitbox_ref": "hit.black_bird_body",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "bird",
+    "body": "#2a2530",
+    "accent": "#e0b040",
+    "anim": "death"
+   }
+  },
+  {
+   "id": "icon.enemy.thorn_boar",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_enemy_thorn_boar.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#6b4a2e",
+    "glyph": "boar"
+   }
+  },
+  {
+   "id": "icon.enemy.black_bird",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_enemy_black_bird.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#2a2530",
+    "glyph": "bird"
+   }
+  },
+  {
+   "id": "icon.skill.pinecone.q",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_skill_pinecone_q.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#5b8c3a",
+    "glyph": "scatter"
+   }
+  },
+  {
+   "id": "icon.skill.pinecone.e",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_skill_pinecone_e.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#5b8c3a",
+    "glyph": "trap"
+   }
+  },
+  {
+   "id": "icon.skill.pinecone.r",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_skill_pinecone_r.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#5b8c3a",
+    "glyph": "volley"
+   }
+  },
+  {
+   "id": "icon.relic.oak_heart",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_oak_heart.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "plus"
+   }
+  },
+  {
+   "id": "icon.relic.sharp_incisors",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_sharp_incisors.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "tooth"
+   }
+  },
+  {
+   "id": "icon.relic.river_stone",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_river_stone.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "dash"
+   }
+  },
+  {
+   "id": "icon.relic.quick_paws",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_quick_paws.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "paw"
+   }
+  },
+  {
+   "id": "icon.relic.sap_amber",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_sap_amber.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "drop"
+   }
+  },
+  {
+   "id": "icon.relic.hunters_tooth",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_hunters_tooth.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "tooth"
+   }
+  },
+  {
+   "id": "icon.relic.kin_bond",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_kin_bond.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "ring"
+   }
+  },
+  {
+   "id": "icon.relic.thorn_tail",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_thorn_tail.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "thorn"
+   }
+  },
+  {
+   "id": "icon.relic.heavy_paddle",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_heavy_paddle.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "paddle"
+   }
+  },
+  {
+   "id": "icon.relic.acorn_pouch",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/icon_relic_acorn_pouch.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "icon",
+    "color": "#c9a26b",
+    "glyph": "acorn"
+   }
+  },
+  {
+   "id": "vfx.telegraph_line",
+   "type": "vfx",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_telegraph_line.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "line_telegraph",
+    "color": "#ff7a3d"
+   },
+   "anchor": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "id": "vfx.projectile_sap",
+   "type": "vfx",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_projectile_sap.png",
+   "final_path": "",
+   "source_size": [
+    32,
+    32
+   ],
+   "frame_size": [
+    32,
+    32
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "dot",
+    "color": "#7b4fa0",
+    "glow": "#c9a0ff"
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "id": "vfx.projectile_pinecone",
+   "type": "vfx",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_projectile_pinecone.png",
+   "final_path": "",
+   "source_size": [
+    32,
+    32
+   ],
+   "frame_size": [
+    32,
+    32
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "dot",
+    "color": "#8a5a2b",
+    "glow": "#e2b04a"
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "id": "vfx.sling_shot",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_sling_shot.png",
+   "final_path": "",
+   "frame_size": [
+    128,
+    128
+   ],
+   "source_size": [
+    384,
+    128
+   ],
+   "columns": 3,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "sling_shot",
+    "frames": [
+     0,
+     1,
+     2
+    ],
+    "fps": 18,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    48,
+    48
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "spark",
+    "color": "#e2b04a"
+   }
+  },
+  {
+   "id": "vfx.thorn_trap",
+   "type": "vfx",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_thorn_trap.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "thorns",
+    "color": "#5b8c3a"
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "id": "vfx.forest_volley",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/vfx_forest_volley.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    1024,
+    256
+   ],
+   "columns": 4,
+   "rows": 1,
+   "directions": [
+    "all"
+   ],
+   "animation": {
+    "name": "forest_volley",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "render_size": [
+    220,
+    220
+   ],
+   "hitbox_ref": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "rain",
+    "color": "#6fae5a"
+   }
+  },
+  {
+   "id": "prop.gnaw_tree",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_gnaw_tree.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "tree",
+    "color": "#6a4a2a",
+    "leaf": "#7fb35e",
+    "glow": "#7fb35e"
+   },
+   "anchor": [
+    0.5,
+    0.85
+   ],
+   "hitbox_ref": "obstacle"
+  },
+  {
+   "id": "prop.device",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_device.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "device",
+    "color": "#7a6248",
+    "accent": "#3b8fd9"
+   },
+   "anchor": [
+    0.5,
+    0.8
+   ]
+  },
+  {
+   "id": "prop.lever",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_lever.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "lever",
+    "color": "#5a3d22",
+    "accent": "#c9a26b"
+   },
+   "anchor": [
+    0.5,
+    0.8
+   ]
+  },
+  {
+   "id": "prop.log_cover",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_log_cover.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "log",
+    "color": "#8a5a2b"
+   },
+   "anchor": [
+    0.5,
+    0.7
+   ],
+   "hitbox_ref": "obstacle"
+  },
+  {
+   "id": "sfx.sling",
+   "type": "audio",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/sfx_sling.wav",
+   "final_path": "",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd (합성음)",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "kind": "whoosh",
+    "freq": 900,
+    "len": 0.08
+   }
+  },
+  {
+   "id": "boss.ironclaw.idle",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_idle.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    512,
+    1024
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "idle",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 3,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "idle"
+   }
+  },
+  {
+   "id": "boss.ironclaw.walk",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_walk.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    1024,
+    1024
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "walk",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 6,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "walk"
+   }
+  },
+  {
+   "id": "boss.ironclaw.attack",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_attack.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    1024,
+    1024
+   ],
+   "columns": 4,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "attack",
+    "frames": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "fps": 8,
+    "loop": false,
+    "event_frames": {
+     "hit": 2
+    }
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "attack"
+   }
+  },
+  {
+   "id": "boss.ironclaw.stagger",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_stagger.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    1024
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "stagger",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "stagger"
+   }
+  },
+  {
+   "id": "boss.ironclaw.molt",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_molt.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    512,
+    1024
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "molt",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 2,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "molt"
+   }
+  },
+  {
+   "id": "boss.ironclaw.death",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_death.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    512,
+    1024
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "death",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 3,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "death"
+   }
+  },
+  {
+   "id": "boss.ironclaw.hit",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_hit.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    1024
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "hit",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "hit"
+   }
+  },
+  {
+   "id": "boss.ironclaw.cast",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_cast.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    512,
+    1024
+   ],
+   "columns": 2,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "cast",
+    "frames": [
+     0,
+     1
+    ],
+    "fps": 4,
+    "loop": true,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "cast"
+   }
+  },
+  {
+   "id": "boss.ironclaw.down",
+   "type": "sprite_sheet",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/boss_ironclaw_down.png",
+   "final_path": "",
+   "frame_size": [
+    256,
+    256
+   ],
+   "source_size": [
+    256,
+    1024
+   ],
+   "columns": 1,
+   "rows": 4,
+   "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+   ],
+   "animation": {
+    "name": "down",
+    "frames": [
+     0
+    ],
+    "fps": 1,
+    "loop": false,
+    "event_frames": {}
+   },
+   "anchor": [
+    0.5,
+    0.82
+   ],
+   "render_size": [
+    200,
+    200
+   ],
+   "hitbox_ref": "hit.boss_ironclaw",
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal",
+    "note": "임시 도형"
+   },
+   "placeholder": {
+    "shape": "crayfish",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b",
+    "anim": "down"
+   }
+  },
+  {
+   "id": "portrait.ironclaw",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/portrait_ironclaw.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "portrait",
+    "body": "#7a3b2e",
+    "accent": "#c9a26b"
+   }
+  },
+  {
+   "id": "prop.boss.pillar",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_pillar.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "pillar",
+    "color": "#6a4a2a",
+    "accent": "#e2b04a"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.gate",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_gate.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "gate",
+    "color": "#5a3d22",
+    "accent": "#3b8fd9"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.husk",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_husk.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "husk",
+    "color": "#8a8a8a",
+    "accent": "#b0b0b0"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.corridor",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_corridor.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "corridor",
+    "color": "#4a3a2a",
+    "accent": "#7fb6ef"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.rope",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_rope.png",
+   "final_path": "",
+   "source_size": [
+    64,
+    64
+   ],
+   "frame_size": [
+    64,
+    64
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "rope",
+    "color": "#c9a26b",
+    "accent": "#8a5a2b"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.debris",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_debris.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "debris",
+    "color": "#7a5230",
+    "accent": "#5a3d22"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.anchor",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_anchor.png",
+   "final_path": "",
+   "source_size": [
+    128,
+    128
+   ],
+   "frame_size": [
+    128,
+    128
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "anchor",
+    "color": "#5a5a5a",
+    "accent": "#e2b04a"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.platform",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_platform.png",
+   "final_path": "",
+   "source_size": [
+    256,
+    256
+   ],
+   "frame_size": [
+    256,
+    256
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "platform",
+    "color": "#8a6a45",
+    "accent": "#e2b04a"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
+  },
+  {
+   "id": "prop.boss.claw_link",
+   "type": "texture",
+   "status": "placeholder",
+   "path": "res://assets/placeholders/prop_boss_claw_link.png",
+   "final_path": "",
+   "source_size": [
+    96,
+    96
+   ],
+   "frame_size": [
+    96,
+    96
+   ],
+   "columns": 1,
+   "rows": 1,
+   "source": {
+    "method": "generated:tools/gen_placeholders.gd",
+    "license": "project-internal"
+   },
+   "placeholder": {
+    "shape": "claw_link",
+    "color": "#7a3b2e",
+    "accent": "#e2b04a"
+   },
+   "anchor": [
+    0.5,
+    0.75
+   ]
   }
  ]
 }

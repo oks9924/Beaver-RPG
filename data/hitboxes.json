@@ -1,7 +1,38 @@
 {
-  "_comment": "판정 데이터는 시각 에셋과 분리한다 (17절). 서버 export 에서도 유지된다.",
-  "hit.player_default": {"type": "circle", "radius": 18},
-  "hit.guardian_hammer": {"type": "arc", "range": 82, "angle_deg": 120},
-  "hit.sap_snail_body": {"type": "circle", "radius": 20},
-  "hit.sap_snail_bite": {"type": "circle", "radius": 46, "forward_offset": 28}
+ "_comment": "판정 데이터는 시각 에셋과 분리한다 (17절). 서버 export 에서도 유지된다.",
+ "hit.player_default": {
+  "type": "circle",
+  "radius": 18
+ },
+ "hit.guardian_hammer": {
+  "type": "arc",
+  "range": 82,
+  "angle_deg": 120
+ },
+ "hit.sap_snail_body": {
+  "type": "circle",
+  "radius": 20
+ },
+ "hit.sap_snail_bite": {
+  "type": "circle",
+  "radius": 46,
+  "forward_offset": 28
+ },
+ "hit.pinecone_sling": {
+  "type": "projectile",
+  "radius": 9
+ },
+ "hit.thorn_boar_body": {
+  "type": "circle",
+  "radius": 22
+ },
+ "hit.black_bird_body": {
+  "type": "circle",
+  "radius": 16
+ },
+ "hit.boss_ironclaw": {
+  "type": "circle",
+  "radius": 46,
+  "note": "공격 부위(집게)와 본체 판정을 구분: 집게는 부채꼴 판정, 본체는 원"
+ }
 }

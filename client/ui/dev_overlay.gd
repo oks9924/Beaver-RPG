@@ -4,7 +4,7 @@ extends Label
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
-	position = Vector2(330, 8)
+	position = Vector2(440, 8)
 	add_theme_font_size_override("font_size", 12)
 	add_theme_color_override("font_color", Color(0.8, 1.0, 0.8))
 	visible = false
