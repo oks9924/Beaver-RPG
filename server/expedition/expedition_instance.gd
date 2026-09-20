@@ -638,7 +638,14 @@ func _make_reward_options(aid: String, rr: RandomNumberGenerator) -> Array:
 			var u: Dictionary = ContentDB.upgrades.get(String(members[aid]["class_id"]), {}).get(uid, {})
 			options.append({"kind": "upgrade", "id": uid, "name_ko": u.get("name_ko", uid), "desc_ko": u.get("desc_ko", ""), "skill": u.get("skill", "")})
 		else:
-			var rid: String = relics.pop_at(rr.randi() % relics.size())
+			var rare_bonus := float(member_mods(aid)["mods"].get("rare_chance_add", 0.0))
+			var pick_from := relics
+			if rare_bonus > 0.0 and rr.randf() < rare_bonus:
+				var rares: Array = relics.filter(func(x: String) -> bool: return String(ContentDB.relics.get(x, {}).get("rarity", "common")) != "common")
+				if not rares.is_empty():
+					pick_from = rares
+			var rid: String = pick_from[rr.randi() % pick_from.size()]
+			relics.erase(rid)
 			var r: Dictionary = ContentDB.relics.get(rid, {})
 			options.append({"kind": "relic", "id": rid, "name_ko": r.get("name_ko", rid), "desc_ko": r.get("desc_ko", ""), "rarity": r.get("rarity", "common")})
 	if options.is_empty():

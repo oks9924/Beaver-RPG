@@ -478,7 +478,7 @@ func _apply_basic_attack(p: Dictionary, atk: Dictionary) -> void:
 func _apply_cast(p: Dictionary, cdef: Dictionary, kind: String) -> void:
 	if kind == "heal":
 		p["heal_uses"] = int(p["heal_uses"]) - 1
-		var amount := float(p["max_hp"]) * float(rules.get("heal_fraction", 0.3))
+		var amount := float(p["max_hp"]) * (float(rules.get("heal_fraction", 0.3)) + float(p["mods"].get("heal_fraction_add", 0.0)))
 		p["hp"] = minf(float(p["hp"]) + amount, float(p["max_hp"]))
 		events.append({"k": "heal", "id": p["id"], "amount": amount})
 		return

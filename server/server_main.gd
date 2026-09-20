@@ -1126,7 +1126,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		for sid: String in res.get("stats", {}).get("secrets", []):
 			if not (prog["secrets_found"] as Array).has(sid):
 				prog["secrets_found"].append(sid)
-				prog["memory_shards"] = int(prog["memory_shards"]) + int(ContentDB.rule("secret_reward_shards", 2))
+				prog["memory_shards"] = int(prog["memory_shards"]) + int(ContentDB.rule("secret_reward_shards", 2)) + int(_permanent_bonus(aid).get("secret_reward_add", 0))
 		inst.members[aid]["secrets_found"] = (prog["secrets_found"] as Array).duplicate()
 		var completed: Array = []
 		completed.append_array(QuestEngine.on_event(prog, {"type": "kills", "count": int(ps.get("kills", 0))}))

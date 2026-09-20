@@ -129,9 +129,9 @@
     },
     "2": {
      "cost_shards": 14,
-     "desc_ko": "지역 비밀 위치가 미니맵에 표시",
+     "desc_ko": "지역 비밀 발견 시 기억 조각 +1",
      "bonus": {
-      "reveal_secrets": 1
+      "secret_reward_add": 1
      }
     },
     "3": {

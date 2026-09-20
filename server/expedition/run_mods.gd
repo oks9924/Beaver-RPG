@@ -13,7 +13,7 @@ const MOD_KEYS := ["damage_mult", "max_hp_add", "dodge_charges_add", "speed_mult
 	"q_max_turrets_add", "q_fire_rate", "q_hp_add", "e_length_add", "e_knockback_add", "e_ally_sec_add", "e_self_slide", "r_hp_add", "r_burst_radius_add", "pressure_per_hit_add", "q_double_shot", "q_shot_slow", "r_burst_on_place", "r_burst_shield",
 	"damage_reduction", "dodge_recharge_add", "basic_damage_add", "proj_speed_mult", "rest_heal_add", "structure_hp_mult", "build_cost_add", "rescue_hold_add", "rescue_protect_add",
 	"heal_mult", "shop_discount", "boss_damage_mult", "shield_cap_add", "shield_duration_add", "interact_speed", "knockback_slow", "hp_per_ally", "start_acorns", "status_resist",
-	"dodge_invuln_add", "proj_damage_add", "proj_bleed", "low_hp_regen", "shard_bonus", "start_shield", "mastery_xp_mult", "heal_fraction_add", "rare_chance_add", "reveal_secrets"]
+	"dodge_invuln_add", "proj_damage_add", "proj_bleed", "low_hp_regen", "shard_bonus", "start_shield", "mastery_xp_mult", "heal_fraction_add", "rare_chance_add", "secret_reward_add"]
 
 
 static func empty() -> Dictionary:
