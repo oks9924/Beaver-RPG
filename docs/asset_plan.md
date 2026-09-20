@@ -24,7 +24,7 @@
 | 기믹 장치 IC-01~05 | `prop.mechanic.ic_0N.{activation,success,failure}` | v2 `mechanic_ic_0N` (256, 4프레임 단일 행) | 제공됨·연결됨·검증됨(화면: 서버 오브젝트 kind→시트) |
 | 예비 기믹 장치 TF/RK | `prop.mechanic.{tf,rk}_0N.*` | v2 | 제공됨·미연결 |
 | 아이콘·초상 | `icon.class.*`(5), `icon.enemy.*`(12), `portrait.*`(8), `ui.app_icon` | 팩 idle 첫 프레임 잘라 축소 | derived·연결됨 |
-| 타일·VFX·UI·스킬/유물 아이콘·방 소품·마을 소품·효과음 | `tile.*`, `vfx.*`, `ui.*`, `icon.skill.*`, `icon.relic.*`, `prop.*`(기믹 장치 제외), `sfx.*` | 없음 (팩 미제공) | placeholder 유지 (64개) |
+| 타일·VFX·UI·스킬/유물 아이콘·방 소품·마을 소품·NPC·효과음 | `tile.*`(3지역), `vfx.*`, `ui.*`, `icon.skill.*`(15), `icon.relic.*`(36), `prop.*`(기믹 장치 제외), `npc.*`, `portrait.npc.*`, `sfx.*` | 없음 (팩 미제공, `docs/asset_request_v3.md` 로 요청) | placeholder 유지 (135개) |
 | 폰트 | `font.ui.main` | Noto Sans KR Regular (OFL) | final |
 | 예정 | `bgm.*`, `amb.*` | | planned (5) |
 

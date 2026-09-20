@@ -1,11 +1,63 @@
 {
-  "_comment": "8절 PartyScalingProfile. 방 시작 시 기준 인원 N을 확정하고 프로필을 고정한다. 검증 전 출발값.",
-  "content_version": "0.1.0",
-  "profiles": {
-    "1": {"n": 1, "enemy_hp_mult": 1.00, "wave_budget_mult": 1.00, "boss_hp_mult": 1.00, "hit_damage_mult": 1.00, "max_concurrent_heavy_telegraphs": 1, "objective_count": 1, "concurrent_interactions": 1, "sequential_fallback": true, "mechanic_grace_sec": 6.0, "fail_penalty": "limited_damage"},
-    "2": {"n": 2, "enemy_hp_mult": 1.10, "wave_budget_mult": 1.30, "boss_hp_mult": 1.70, "hit_damage_mult": 1.00, "max_concurrent_heavy_telegraphs": 1, "objective_count": 1, "concurrent_interactions": 1, "sequential_fallback": true, "mechanic_grace_sec": 5.0, "fail_penalty": "limited_damage"},
-    "3": {"n": 3, "enemy_hp_mult": 1.15, "wave_budget_mult": 1.60, "boss_hp_mult": 2.30, "hit_damage_mult": 1.00, "max_concurrent_heavy_telegraphs": 2, "objective_count": 2, "concurrent_interactions": 2, "sequential_fallback": true, "mechanic_grace_sec": 5.0, "fail_penalty": "extra_adds"},
-    "4": {"n": 4, "enemy_hp_mult": 1.20, "wave_budget_mult": 1.90, "boss_hp_mult": 2.80, "hit_damage_mult": 1.00, "max_concurrent_heavy_telegraphs": 2, "objective_count": 2, "concurrent_interactions": 2, "sequential_fallback": true, "mechanic_grace_sec": 4.0, "fail_penalty": "extra_adds"}
+ "_comment": "8절 PartyScalingProfile. 방 시작 시 기준 인원 N을 확정하고 프로필을 고정한다. 검증 전 출발값.",
+ "content_version": "0.2.0",
+ "profiles": {
+  "1": {
+   "n": 1,
+   "enemy_hp_mult": 1.0,
+   "wave_budget_mult": 1.0,
+   "boss_hp_mult": 1.0,
+   "hit_damage_mult": 1.0,
+   "max_concurrent_heavy_telegraphs": 1,
+   "objective_count": 1,
+   "concurrent_interactions": 1,
+   "sequential_fallback": true,
+   "mechanic_grace_sec": 6.0,
+   "fail_penalty": "limited_damage"
   },
-  "screen_caps": {"max_enemies_on_screen": 12, "max_projectiles": 40, "max_ground_zones": 8}
+  "2": {
+   "n": 2,
+   "enemy_hp_mult": 1.1,
+   "wave_budget_mult": 1.3,
+   "boss_hp_mult": 1.7,
+   "hit_damage_mult": 1.0,
+   "max_concurrent_heavy_telegraphs": 1,
+   "objective_count": 1,
+   "concurrent_interactions": 1,
+   "sequential_fallback": true,
+   "mechanic_grace_sec": 5.0,
+   "fail_penalty": "limited_damage"
+  },
+  "3": {
+   "n": 3,
+   "enemy_hp_mult": 1.15,
+   "wave_budget_mult": 1.6,
+   "boss_hp_mult": 2.3,
+   "hit_damage_mult": 1.0,
+   "max_concurrent_heavy_telegraphs": 2,
+   "objective_count": 2,
+   "concurrent_interactions": 2,
+   "sequential_fallback": true,
+   "mechanic_grace_sec": 5.0,
+   "fail_penalty": "extra_adds"
+  },
+  "4": {
+   "n": 4,
+   "enemy_hp_mult": 1.2,
+   "wave_budget_mult": 1.9,
+   "boss_hp_mult": 2.8,
+   "hit_damage_mult": 1.0,
+   "max_concurrent_heavy_telegraphs": 2,
+   "objective_count": 2,
+   "concurrent_interactions": 2,
+   "sequential_fallback": true,
+   "mechanic_grace_sec": 4.0,
+   "fail_penalty": "extra_adds"
+  }
+ },
+ "screen_caps": {
+  "max_enemies_on_screen": 12,
+  "max_projectiles": 40,
+  "max_ground_zones": 8
+ }
 }

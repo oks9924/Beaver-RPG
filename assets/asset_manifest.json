@@ -1,6 +1,6 @@
 {
 	"manifest_version": 1.0,
-	"content_version": "0.1.0",
+	"content_version": "0.2.0",
 	"_readme": [
 		"모든 코드·데이터는 파일 경로가 아닌 에셋 ID 로 에셋을 참조한다.",
 		"교체 절차: (1) 같은 규격의 최종 파일을 원하는 경로에 넣고 final_path 를 채운다, 또는 asset_overrides/<id>.<ext> 로 둔다. (2) status 를 final 로 바꾼다. (3) godot --headless -s tools/check_assets.gd 로 검수한다.",

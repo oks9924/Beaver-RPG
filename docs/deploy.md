@@ -29,10 +29,13 @@ sudo systemctl restart tail-expedition-server
 ## 설정 항목 (`server_config.json`)
 `bind_address`, `port`, `world_id`(비우면 최초 기동 시 생성), `world_name`, `max_online_players`(기본 8), `max_active_expeditions`(기본 2), `allow_registration`, `reconnect_reserved_slots`, `data_dir`, `log_level`, `metrics_interval_sec`, `hello_timeout_sec`, `maintenance`, `login_fail_lockout_sec`, `login_fail_max`, `password_iterations`, `token_ttl_days`. `max_party_size` 는 4 로 고정된다.
 
+테스트·연습용: `debug_route_layers`(N 층만 / -1 마지막 보스만), `debug_boss`(`ironclaw`/`lantern_toad`/`root_king` — 모든 원정이 그 보스방 하나). 명령줄 `--route-layers=`, `--boss=` 로도 준다. 실제 운영 설정에서는 비워 둔다.
+
 ## 저장 데이터
 - `server_data/accounts.json`, `world.json` — 변경 시마다 임시 파일에 쓰고 rename 으로 교체, 이전본은 `.bak`.
 - 손상 시 자동으로 `.bak` 을 읽는다. 별도 백업은 위 스크립트로.
-- 서버 재시작 시 진행 중이던 원정 인스턴스는 사라진다(단계 1 제한). 계정·월드·완료된 방 기록은 유지된다.
+- `expeditions.json` — 안전 지점 체크포인트와 중단(이어하기) 원정. 재시작 시 유예 안의 체크포인트를 복구하고 전투 중이던 방은 마지막 안전 지점부터 다시 한다. 콘텐츠 버전이 바뀌면 이전 체크포인트는 버린다.
+- 메트릭 로그의 `snapshot_max` 는 4인 전투 스냅샷의 최대 바이트다. ENet MTU(1392B)를 넘으면 WARN 이 남는다.
 
 ## 인터넷 공개 전 확인
 - DTLS 미적용: 현재 로그인 정보가 평문 UDP 로 전달된다. 친구끼리 LAN/VPN(예: Tailscale) 사용을 권장하며, 공개 운영 전 DTLS 또는 HTTPS 인증 경로를 추가해야 한다.

@@ -1,4 +1,4 @@
-# 기술 구조 (단계 0·1)
+# 기술 구조 (단계 0~4)
 
 ## 핵심 가정
 - 엔진: **Godot 4.4.1 stable**, 타입 지정 GDScript. 서버와 클라이언트는 같은 프로젝트를 공유하되 다른 프로세스로 실행된다.
@@ -19,7 +19,8 @@
 | 인증 | `server/auth_service.gd` | 서버 내부 계정, PBKDF2-HMAC-SHA256, 재접속 토큰(SHA-256 해시 저장) |
 | 저장 | `server/store/*.gd` | `StoreBase` 인터페이스 + `JsonFileStore`(원자적 rename, .bak) |
 | 공용 월드 | `server/world/hub_world.gd` | 서버 소유 마을, 접속자 0명이어도 유지, 통계·구조물 단계 |
-| 원정 | `server/expedition/*.gd` | 모집판·인스턴스·전투방 시뮬레이션 |
+| 원정 | `server/expedition/*.gd` | 모집판·인스턴스·전투방 시뮬레이션·유물/강화 합성(`run_mods.gd`)·보스 컨트롤러 3종 |
+| 퀘스트·내실 | `server/quests.gd` | 퀘스트 상태·인연·비밀·결말 판정 (계정 progression 만 다룸) |
 | 클라이언트 | `client/*.gd` | 접속/로그인/마을/원정 준비/전투 HUD/결과, 예측·보간, 봇 모드 |
 
 ## 원정 런 흐름 (단계 2)
@@ -34,6 +35,16 @@
 - `CombatRoom` 은 플레이어·적(역할별 AI: approach/charger/ranged)·투사체·상호작용물(objects)·구조물·수문·목표(annihilate/hold_point/device/boss)를 갖는다.
 - 상호작용은 공통 F 유지 규칙: 서버가 `interactable` 오브젝트의 `progress` 를 올리고 완료 시 종류별 처리. 담당자가 놓아도 진행도가 남는다(장치·갉기).
 - 보스는 `BossIronclaw` 가 방에 부착되어 자체 상태 기계(추격·예고·공격·회복·경직·결박·탈피·노출)와 기믹 스케줄러를 돌린다. 기믹은 미체험 우선, 연속 재사용 금지, 양립 불가 조합 회피, 반복 상한 2.
+
+## 단계 3·4 추가 구조
+- **직업**: `data/classes.json` 의 스킬 `effect.type` 을 `CombatRoom._apply_cast` 가 해석한다 (dash, heavy_strike, whirl, heal_zone, root_zone, flood_zone, turret, jet, dam …). 직업 자원(열의·씨앗·수압)은 `p["resource"]` 하나로 스냅샷에 실린다. 스킬 변형·진화·특성·유물·시너지는 전부 `mods` 키(`RunMods.MOD_KEYS`)와 `procs` 로 합쳐지며, 코드는 `m.get("<slot>_<효과>")` 로만 읽는다.
+- **지역·경로**: `ExpeditionInstance.build_route(seed)` 가 `regions.json` 의 `next` 를 따라 3지역 층을 이어 붙인다 (18층, 지역 보스 3). 노드마다 `region` 이 있어 지역 전환 시 적 풀·안내가 바뀐다. `tools/check_routes.gd` 가 시드 100개를 점검한다.
+- **적 행동**: 역할 approach/charger/ranged/stationary/leaper/dummy + 정의 플래그(`armor_front`, `aura`, `summon`, `attack.combo`, `attack.on_hit`{slow/root/bleed}, `structure_dps_mult`). 정예는 방 정의 `elite` 로 첫 웨이브에 등장한다.
+- **보스**: `BossIronclaw` 가 공통 컨트롤러다(패턴 모양 arc/line(돌진·즉발)/circle_at_target/leap/projectile_fan, 경직 게이지, 단계, 위험 구역, 운반 시스템, 스케줄러). `BossLanternToad`, `BossRootKing` 은 이를 상속해 `_mechanic_start/_step/_end/_object` 훅만 구현한다. 보스 id → `server/expedition/boss_<id>.gd`.
+- **퀘스트**: 서버가 방·원정 결과와 마을 행동을 `QuestEngine.on_event` 이벤트로 바꾼다. 보상은 `reward_id` 로 한 번만 지급, 선택 임무 실패는 런 단위(`run_failed`)라 메인을 막지 않는다.
+- **중단/이어하기**: 안전 지점에서 `EXPEDITION_PAUSE` → `paused` 체크포인트 저장, 멤버는 마을로. 모집판은 계정별로 만들어져 멤버에게만 `resume` 항목이 보이고, `BOARD_JOIN` 이 복귀 경로다.
+- **난이도**: `rules.difficulties` 배율을 `ExpeditionInstance.effective_profile()` 이 인원 프로필에 곱한다. 보상·숙련 경험치도 배율을 따른다.
+- **튜토리얼**: `tutorial` 원정은 방 하나(`rooms.json: tutorial`)이며 서버가 실제 행동(이동·처치·회피·스킬·갉기·건설·수문)으로 단계를 넘긴다.
 
 ## 상태 흐름
 - 연결: `DISCONNECTED → CONNECTING → AUTHENTICATING(hello·로그인) → SYNCING → ONLINE`
@@ -52,7 +63,7 @@
 `schema_version` 을 계정·월드에 기록한다. 마이그레이션 코드는 아직 없다(스키마 1).
 
 ## 버전
-- `PROTOCOL_VERSION=1`, `CONTENT_VERSION="0.1.0"`, `BUILD_VERSION="0.1.0-stage1"` (`shared/protocol.gd`).
+- `PROTOCOL_VERSION=1`, `CONTENT_VERSION="0.2.0"`, `BUILD_VERSION="0.2.0-stage4"` (`shared/protocol.gd`). 콘텐츠 버전이 바뀌면 이전 체크포인트는 버린다.
 - hello 에서 프로토콜·콘텐츠 버전이 다르면 게임 상태를 보내기 전에 `VERSION_MISMATCH` 와 요구 버전, 업데이트 URL 을 보내고 끊는다.
 
 ## 인원별 프로필
