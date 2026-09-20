@@ -33,6 +33,7 @@ var phase_deadline: float = 0.0
 var run_outcome: int = Protocol.Outcome.NONE
 var run_finished_unreported: bool = false
 static var debug_route_layers: int = 0   # 테스트용: 0 이면 전체 경로, N 이면 앞 N개 층만 사용
+static var debug_boss: String = ""        # 테스트·연습용: 지정 보스방 하나만 있는 경로 (ironclaw / lantern_toad / root_king)
 
 
 func _init(expedition_id: String, seed_: int) -> void:
@@ -213,10 +214,18 @@ func _new_run() -> void:
 	var reward_rng := RandomNumberGenerator.new()
 	reward_rng.seed = seed_value + 7919
 	var layers: Array = build_route(seed_value, "willow_river", int(ContentDB.rule("run_regions", 3)))
-	if debug_route_layers > 0 and layers.size() > debug_route_layers:
+	if debug_boss != "" and ContentDB.bosses.has(debug_boss):
+		var bnode := {}
+		for layer: Array in layers:
+			for node: Dictionary in layer:
+				if String(node["type"]) == "boss" and String(node["variant"]) == debug_boss:
+					bnode = node
+		if not bnode.is_empty():
+			layers = [[bnode]]
+	elif debug_route_layers > 0 and layers.size() > debug_route_layers:
 		layers = layers.slice(0, debug_route_layers)
 	elif debug_route_layers < 0:
-		layers = [layers[layers.size() - 1]]   # 테스트용: 보스 노드만
+		layers = [layers[layers.size() - 1]]   # 테스트용: 마지막 보스 노드만
 	run = {
 		"region": region.get("id", "willow_river"), "region_name": region.get("name_ko", ""), "layers": layers, "layer": 0, "current": "", "path": [],
 		"xp": 0, "level": 1, "team_wood": 0, "players": {}, "next_room_budget_add": 0.0,

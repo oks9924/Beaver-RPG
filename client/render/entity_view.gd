@@ -102,7 +102,9 @@ func _pick_anim() -> String:
 		match boss_state:
 			BossIronclaw.BS.DEAD: return "death"
 			BossIronclaw.BS.WINDUP, BossIronclaw.BS.ATTACK:
-				return {"claw_sweep": "claw_sweep", "line_charge": "straight_charge", "rock_toss": "rock_throw", "ground_slam": "ground_slam"}.get(boss_pattern, "attack")
+				return {"claw_sweep": "claw_sweep", "line_charge": "straight_charge", "rock_toss": "rock_throw", "ground_slam": "ground_slam",
+					"jump_slam": "jump_slam", "tongue_lance": "tongue_lance", "sap_throw": "sap_throw", "body_bash": "body_bash",
+					"root_sweep": "root_sweep", "pressure_jet": "pressure_jet", "root_eruption": "root_eruption", "splinter_fan": "splinter_fan"}.get(boss_pattern, "attack")
 			BossIronclaw.BS.GRAB_APPROACH, BossIronclaw.BS.GRABBING: return "cast"
 			BossIronclaw.BS.STAGGER: return "stagger"
 			BossIronclaw.BS.EXPOSED: return "exposed"

@@ -42,6 +42,10 @@ var log: Array = []                # 기믹 등장·완료·실패 기록 (검�
 var molt_real_husk: int = 0
 var stats := {"mechanics_started": 0, "mechanics_succeeded": 0, "mechanics_failed": 0, "patterns_used": {}}
 var passive: bool = false   # 테스트 전용: 기본 공격 패턴을 시작하지 않는다 (기믹 해결 가능성 검증용)
+var carry: Dictionary = {}          # 운반 중인 오브젝트: player id -> object id (씨앗·반딧불 등)
+var enrage_t: float = 0.0           # 패턴 피해 +20% (실패 벌칙)
+var regen_per_sec: float = 0.0      # 기생 뿌리 등으로 켜지는 회복
+var extra_vuln_t: float = 0.0       # 추가 취약 (받는 피해 +50%)
 
 
 func _init(r: CombatRoom, party_profile: Dictionary, boss_def: Dictionary) -> void:
@@ -79,6 +83,8 @@ func damage_taken_mult() -> float:
 	if joint_weak_t > 0.0:
 		m *= 1.3
 	if exposed_t > 0.0:
+		m *= 1.5
+	if extra_vuln_t > 0.0:
 		m *= 1.5
 	return m
 
@@ -192,10 +198,16 @@ func step(dt: float) -> void:
 	exposed_t = maxf(exposed_t - dt, 0.0)
 	stagger_resist_t = maxf(stagger_resist_t - dt, 0.0)
 	stagger_gauge = maxf(stagger_gauge - dt * 4.0, 0.0)
+	enrage_t = maxf(enrage_t - dt, 0.0)
+	extra_vuln_t = maxf(extra_vuln_t - dt, 0.0)
+	if regen_per_sec > 0.0:
+		hp = minf(hp + regen_per_sec * dt, max_hp)
 	for pid: String in cooldowns.keys():
 		cooldowns[pid] = maxf(float(cooldowns[pid]) - dt, 0.0)
 	_step_hazards(dt)
+	_step_carry(dt)
 	_step_mechanics(dt)
+	_step_extra(dt)
 	match state:
 		BS.CHASE: _step_chase(dt)
 		BS.WINDUP:
@@ -256,13 +268,7 @@ func _pick_pattern(dist: float) -> Dictionary:
 		if float(cooldowns[pid]) > 0.0:
 			continue
 		var p: Dictionary = pats[pid]
-		var ok := false
-		match pid:
-			"claw_sweep": ok = dist <= float(p.get("range", 150)) + 20.0
-			"line_charge": ok = dist >= 160.0 and dist <= float(p.get("length", 520))
-			"rock_toss": ok = dist <= 600.0
-			"ground_slam": ok = dist <= float(p.get("radius", 170)) + 10.0
-		if not ok:
+		if not _pattern_ok(pid, p, dist):
 			continue
 		var w := float(p.get("weight", 1.0))
 		if active == "IC-01" and pid == "line_charge":
@@ -282,6 +288,20 @@ func _pick_pattern(dist: float) -> Dictionary:
 	return candidates[candidates.size() - 1]
 
 
+## 패턴 사용 가능 거리 (모양 기준). 보스별로 재정의할 수 있다.
+func _pattern_ok(_pid: String, p: Dictionary, dist: float) -> bool:
+	match String(p.get("shape", "circle")):
+		"arc": return dist <= float(p.get("range", 150)) + 20.0
+		"line":
+			if float(p.get("charge_speed", 0)) > 0.0:
+				return dist >= 160.0 and dist <= float(p.get("length", 520))
+			return dist <= float(p.get("length", 520))
+		"circle_at_target": return dist <= 600.0
+		"leap": return dist >= 120.0 and dist <= float(p.get("leap_range", 420))
+		"projectile_fan": return dist <= 520.0
+		_: return dist <= float(p.get("radius", 170)) + 10.0
+
+
 func _begin_pattern(p: Dictionary) -> void:
 	pattern = p
 	state = BS.WINDUP
@@ -294,9 +314,11 @@ func _begin_pattern(p: Dictionary) -> void:
 			telegraph = {"type": 0, "x": c.x, "y": c.y, "r": float(p.get("range", 150)) * 0.6, "total": t}
 		"line":
 			telegraph = {"type": 1, "x": pos.x, "y": pos.y, "len": float(p.get("length", 520)), "w": float(p.get("width", 90)), "dx": facing.x, "dy": facing.y, "total": t}
-		"circle_at_target":
+		"circle_at_target", "leap":
 			var tp: Vector2 = room.players[target]["pos"] if room.players.has(target) else pos
 			telegraph = {"type": 0, "x": tp.x, "y": tp.y, "r": float(p.get("radius", 80)), "total": t}
+		"projectile_fan":
+			telegraph = {"type": 0, "x": pos.x, "y": pos.y, "r": radius + 20.0, "total": t}
 		_:
 			telegraph = {"type": 0, "x": pos.x, "y": pos.y, "r": float(p.get("radius", 170)), "total": t}
 	room.events.append({"k": "boss_pattern", "pattern": pid})
@@ -307,26 +329,125 @@ func _attack_begin() -> void:
 	var p := pattern
 	cooldowns[String(p["id"])] = float(p.get("cooldown_sec", 3.0))
 	t = 0.15
+	var emult := 1.2 if enrage_t > 0.0 else 1.0
 	match String(p.get("shape", "circle")):
 		"arc":
-			var dmg := float(p.get("damage", 18)) * (0.7 if claw_weak else 1.0)
+			var dmg := float(p.get("damage", 18)) * (0.7 if claw_weak else 1.0) * emult
 			for pl: Dictionary in room.players.values():
 				if pl["state"] == Protocol.EntState.ALIVE and SimRules.arc_hit(pos, facing, float(p.get("range", 150)), float(p.get("angle_deg", 110)), pl["pos"], float(pl["radius"])):
 					room._damage_player(pl, dmg, pos, "boss")
+					_on_boss_hit_player(pl)
 		"line":
-			t = 0.9
-			charge_dir = facing
-			charge_hit = []
-			room.events.append({"k": "boss_charge"})
+			if float(p.get("charge_speed", 0)) > 0.0:
+				t = 0.9
+				charge_dir = facing
+				charge_hit = []
+				room.events.append({"k": "boss_charge"})
+			else:
+				# 즉발 직선 (혀 창·수압 분사): 피해 + 끌어당김 또는 넉백
+				for pl: Dictionary in room.players.values():
+					if pl["state"] == Protocol.EntState.ALIVE and room._in_line(pos, facing, float(p.get("length", 420)), float(p.get("width", 60)), pl["pos"], float(pl["radius"])):
+						room._damage_player(pl, float(p.get("damage", 16)) * emult, pos, "boss")
+						_on_boss_hit_player(pl)
+						if pl["state"] == Protocol.EntState.ALIVE:
+							if float(p.get("pull", 0)) > 0.0:
+								pl["pos"] = SimRules.move(pl["pos"], (pos - pl["pos"]).normalized(), minf(float(p["pull"]), maxf((pl["pos"] as Vector2).distance_to(pos) - radius - 30.0, 0.0)), 1.0, room.bounds, float(pl["radius"]), room.obstacles)
+							elif float(p.get("knockback", 0)) > 0.0:
+								pl["pos"] = SimRules.move(pl["pos"], facing, float(p["knockback"]), 1.0, room.bounds, float(pl["radius"]), room.obstacles)
+				room.events.append({"k": "boss_line", "x": pos.x, "y": pos.y, "fx": facing.x, "fy": facing.y, "len": p.get("length", 420), "w": p.get("width", 60)})
+		"leap":
+			var c := Vector2(float(telegraph.get("x", pos.x)), float(telegraph.get("y", pos.y)))
+			pos = room._clamp_in_bounds(c, radius)
+			var r := float(telegraph.get("r", 150))
+			for pl: Dictionary in room.players.values():
+				if pl["state"] == Protocol.EntState.ALIVE and SimRules.circle_hit(c, r, pl["pos"], float(pl["radius"])):
+					room._damage_player(pl, float(p.get("damage", 20)) * emult, pos, "boss")
+					_on_boss_hit_player(pl)
+			room.events.append({"k": "boss_slam", "x": c.x, "y": c.y, "r": r, "leap": true})
+		"projectile_fan":
+			var count := int(p.get("count", 5))
+			var spread := deg_to_rad(float(p.get("spread_deg", 60)))
+			for i in count:
+				var a := -spread * 0.5 + spread * (float(i) / maxf(count - 1, 1))
+				var d := facing.rotated(a)
+				room._spawn_projectile(pos + d * (radius + 10.0), d * float(p.get("speed", 380)), 10.0, float(p.get("damage", 9)) * emult, 0, "boss", 1.6, 0, 0.0, 0.0)
+			room.events.append({"k": "boss_fan", "x": pos.x, "y": pos.y})
 		"circle_at_target", "circle":
 			var c := Vector2(float(telegraph.get("x", pos.x)), float(telegraph.get("y", pos.y)))
 			var r := float(telegraph.get("r", 100))
-			for pl: Dictionary in room.players.values():
-				if pl["state"] == Protocol.EntState.ALIVE and SimRules.circle_hit(c, r, pl["pos"], float(pl["radius"])):
-					room._damage_player(pl, float(p.get("damage", 15)), pos, "boss")
-			room.events.append({"k": "boss_slam", "x": c.x, "y": c.y, "r": r})
-	if String(p.get("shape", "")) != "line":
+			var centers: Array = [c]
+			for i in range(1, int(p.get("count", 1))):
+				centers.append(c + Vector2.RIGHT.rotated(TAU * i / float(p.get("count", 1))) * r * 1.6)
+			for cc: Vector2 in centers:
+				for pl: Dictionary in room.players.values():
+					if pl["state"] == Protocol.EntState.ALIVE and SimRules.circle_hit(cc, r, pl["pos"], float(pl["radius"])):
+						room._damage_player(pl, float(p.get("damage", 15)) * emult, pos, "boss")
+						_on_boss_hit_player(pl)
+						if float(p.get("root_sec", 0)) > 0.0:
+							room._apply_hit_status(pl, {"root_sec": p["root_sec"]})
+				if float(p.get("leaves_hazard_sec", 0)) > 0.0:
+					_add_hazard(cc, r * float(_hazard_scale()), float(p["leaves_hazard_sec"]), 4.0)
+				room.events.append({"k": "boss_slam", "x": cc.x, "y": cc.y, "r": r})
+	if not (String(p.get("shape", "")) == "line" and float(p.get("charge_speed", 0)) > 0.0):
 		telegraph = {}
+
+
+## 보스 패턴에 맞은 플레이어 (운반물 떨어뜨림 등). 서브클래스가 확장한다.
+func _on_boss_hit_player(pl: Dictionary) -> void:
+	if carry.has(pl["id"]):
+		_drop_carry(pl["id"])
+
+
+func _hazard_scale() -> float:
+	return 1.0
+
+
+## 서브클래스용 추가 틱
+func _step_extra(_dt: float) -> void:
+	pass
+
+
+# ------------------------------------------------------------------ 운반 (씨앗·반딧불): 집으면 느려지고, 맞으면 떨어뜨린다
+
+func _pickup(o: Dictionary, p: Dictionary) -> void:
+	if carry.has(p["id"]):
+		return
+	carry[p["id"]] = int(o["id"])
+	o["carrier"] = p["id"]
+	o["interactable"] = false
+	o["state"] = 1
+	room.events.append({"k": "carry_pickup", "id": p["id"], "oid": o["id"], "kind": o["kind"]})
+
+
+func _drop_carry(pid: String) -> void:
+	var oid: int = int(carry.get(pid, 0))
+	carry.erase(pid)
+	var o: Dictionary = room.objects.get(oid, {})
+	if o.is_empty():
+		return
+	o["carrier"] = ""
+	o["interactable"] = true
+	o["state"] = 0
+	var pl: Dictionary = room.players.get(pid, {})
+	if not pl.is_empty():
+		o["pos"] = room._clamp_in_bounds(pl["pos"] + Vector2(30, 0), 20.0)
+	room.events.append({"k": "carry_drop", "id": pid, "oid": oid})
+
+
+func _step_carry(_dt: float) -> void:
+	for pid: String in carry.keys().duplicate():
+		var pl: Dictionary = room.players.get(pid, {})
+		var o: Dictionary = room.objects.get(int(carry[pid]), {})
+		if pl.is_empty() or o.is_empty() or pl["state"] != Protocol.EntState.ALIVE:
+			_drop_carry(pid)
+			continue
+		o["pos"] = pl["pos"] + Vector2(0, -6)
+		pl["slow_t"] = maxf(float(pl["slow_t"]), 0.2)
+		pl["slow_mult"] = maxf(float(pl["slow_mult"]), 0.3)
+
+
+func _carried_object(pid: String) -> Dictionary:
+	return room.objects.get(int(carry.get(pid, 0)), {})
 
 
 func _charge_step(dt: float) -> void:
@@ -367,12 +488,7 @@ func _step_mechanics(dt: float) -> void:
 	if active != "":
 		var m: Dictionary = mechanics[active]
 		m["t"] = float(m["t"]) - dt
-		match active:
-			"IC-01": _ic01_step(dt, m)
-			"IC-02": _ic02_step(dt, m)
-			"IC-03": _ic03_step(dt, m)
-			"IC-04": _ic04_step(dt, m)
-			"IC-05": _ic05_step(dt, m)
+		_mechanic_step(active, dt, m)
 		if float(m["t"]) <= 0.0 and active != "":
 			_finish_mechanic(false, "timeout")
 		return
@@ -421,12 +537,7 @@ func _start_mechanic(mid: String) -> void:
 	m["repeats"] = int(m["repeats"]) + 1
 	stats["mechanics_started"] += 1
 	log.append({"mechanic": mid, "event": "start", "n": n, "repeat": m["repeats"], "elapsed": room.elapsed})
-	match mid:
-		"IC-01": _ic01_start(m)
-		"IC-02": _ic02_start(m)
-		"IC-03": _ic03_start(m)
-		"IC-04": _ic04_start(m)
-		"IC-05": _ic05_start(m)
+	_mechanic_start(mid, m)
 	room.events.append({"k": "mechanic_start", "id": mid, "name": md.get("name_ko", mid), "hint": md.get("telegraph_ko", ""), "duration": m["t"], "n": n})
 
 
@@ -443,12 +554,7 @@ func _finish_mechanic(success: bool, reason: String) -> void:
 	else:
 		stats["mechanics_failed"] += 1
 	log.append({"mechanic": mid, "event": "success" if success else "fail", "reason": reason, "elapsed": room.elapsed})
-	match mid:
-		"IC-01": _ic01_end(success)
-		"IC-02": _ic02_end(success)
-		"IC-03": _ic03_end(success)
-		"IC-04": _ic04_end(success)
-		"IC-05": _ic05_end(success)
+	_mechanic_end(mid, success)
 	room.events.append({"k": "mechanic_end", "id": mid, "success": success, "reason": reason, "text": md.get("success_ko" if success else "fail_ko", "")})
 	last_mechanic = mid
 	active = ""
@@ -518,6 +624,38 @@ func find_interactable(p: Dictionary) -> int:
 
 
 func on_object_complete(o: Dictionary, p: Dictionary) -> void:
+	_mechanic_object(o, p)
+
+
+## 기믹 훅: 보스 컨트롤러마다 재정의한다 (철턱 가재는 IC-01~05)
+func _mechanic_start(mid: String, m: Dictionary) -> void:
+	match mid:
+		"IC-01": _ic01_start(m)
+		"IC-02": _ic02_start(m)
+		"IC-03": _ic03_start(m)
+		"IC-04": _ic04_start(m)
+		"IC-05": _ic05_start(m)
+
+
+func _mechanic_step(mid: String, dt: float, m: Dictionary) -> void:
+	match mid:
+		"IC-01": _ic01_step(dt, m)
+		"IC-02": _ic02_step(dt, m)
+		"IC-03": _ic03_step(dt, m)
+		"IC-04": _ic04_step(dt, m)
+		"IC-05": _ic05_step(dt, m)
+
+
+func _mechanic_end(mid: String, success: bool) -> void:
+	match mid:
+		"IC-01": _ic01_end(success)
+		"IC-02": _ic02_end(success)
+		"IC-03": _ic03_end(success)
+		"IC-04": _ic04_end(success)
+		"IC-05": _ic05_end(success)
+
+
+func _mechanic_object(o: Dictionary, p: Dictionary) -> void:
 	match int(o["kind"]):
 		Protocol.ObKind.PILLAR: _ic01_gnawed(o, p)
 		Protocol.ObKind.GATE: _ic02_toggle(o, p)
@@ -972,4 +1110,5 @@ func snapshot() -> Dictionary:
 		"hp": snappedf(hp, 0.1), "max_hp": max_hp, "state": state, "phase": phase, "shell_broken": shell_broken, "shell_total": def.get("shell_segments", 3),
 		"claw_weak": claw_weak, "joint_weak": joint_weak_t > 0.0, "exposed": exposed_t > 0.0, "molting": state == BS.MOLT, "grabbed": grabbed,
 		"stagger_gauge": snappedf(stagger_gauge, 1.0), "mechanic": m_info, "hint_ko": hint, "pattern": pattern.get("id", "") if state in [BS.WINDUP, BS.ATTACK] else "",
+		"enraged": enrage_t > 0.0, "vulnerable": extra_vuln_t > 0.0 or joint_weak_t > 0.0 or exposed_t > 0.0,
 	}

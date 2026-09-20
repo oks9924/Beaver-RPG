@@ -13,7 +13,10 @@ var hazards: Array = []           # PackedFloat32Array [x,y,w,h,slow]
 var boss_state: Dictionary = {}
 var _object_tex: Dictionary = {}
 var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
-const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE: "ic_02", Protocol.ObKind.CLAW_LINK: "ic_03", Protocol.ObKind.CORRIDOR: "ic_04", Protocol.ObKind.ANCHOR: "ic_05"}
+const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE: "ic_02", Protocol.ObKind.CLAW_LINK: "ic_03", Protocol.ObKind.CORRIDOR: "ic_04", Protocol.ObKind.ANCHOR: "ic_05",
+	Protocol.ObKind.LANTERN: "tf_01", Protocol.ObKind.SEED: "tf_02", Protocol.ObKind.SPORE_NODE: "tf_03", Protocol.ObKind.RESONANCE_LOG: "tf_04", Protocol.ObKind.FIREFLY: "tf_05", Protocol.ObKind.VAT: "tf_05",
+	Protocol.ObKind.CRACK: "rk_01", Protocol.ObKind.CHANNEL_PIECE: "rk_02", Protocol.ObKind.PARASITE: "rk_03", Protocol.ObKind.ECHO: "rk_04", Protocol.ObKind.VALVE: "rk_05", Protocol.ObKind.GAUGE: "rk_05"}
+const MECHANIC_ID_OF_KEY := {"ic_01": "IC-01", "ic_02": "IC-02", "ic_03": "IC-03", "ic_04": "IC-04", "ic_05": "IC-05", "tf_01": "TF-01", "tf_02": "TF-02", "tf_03": "TF-03", "tf_04": "TF-04", "tf_05": "TF-05", "rk_01": "RK-01", "rk_02": "RK-02", "rk_03": "RK-03", "rk_04": "RK-04", "rk_05": "RK-05"}
 var camera := Camera2D.new()
 var _ground := Sprite2D.new()
 var _water_rects: Array = []
@@ -189,6 +192,64 @@ func _draw_telegraphs() -> void:
 				L.draw_arc(c, r, 0, TAU, 40, Color(0.6, 1.0, 0.5, 0.9), 2.0)
 			Protocol.ObKind.TRAP:
 				_draw_tex(L, _object_tex["trap"], c, r * 2.0, Color(1, 1, 1, 0.9 if st == 1 else 0.5))
+			Protocol.ObKind.LANTERN:
+				if not _draw_device(L, kind, c, prog, st, 130):
+					L.draw_circle(c, 16, Color(1.0, 0.85, 0.4) if st == 1 else Color(0.4, 0.35, 0.3))
+				if st == 1:
+					L.draw_circle(c, 120, Color(1.0, 0.9, 0.5, 0.08))
+				_draw_progress(L, c, prog, "F 점화" if st == 0 else ("켜짐 (꺼지기까지 %d%%)" % int(prog * 100) if prog < 1.0 and prog > 0.0 else "켜짐"))
+			Protocol.ObKind.SEED, Protocol.ObKind.FIREFLY:
+				if st == 1:
+					_draw_device(L, kind, c + Vector2(0, -40), 1.0, 0, 60)   # 운반 중: 머리 위
+				elif not _draw_device(L, kind, c, prog, st, 90):
+					L.draw_circle(c, 12, Color(0.6, 0.9, 0.4) if kind == Protocol.ObKind.SEED else Color(1.0, 0.95, 0.5))
+				if st != 1:
+					_draw_progress(L, c, prog, "F 집기" if kind == Protocol.ObKind.SEED else "F 잡기 (도망친다)")
+			Protocol.ObKind.VAT:
+				if not _draw_device(L, kind, c, prog, st, 130):
+					L.draw_circle(c, 26, Color(0.5, 0.4, 0.3))
+				_draw_progress(L, c, prog, "혼합통 %d%%" % int(prog * 100))
+			Protocol.ObKind.SPORE_NODE:
+				if not _draw_device(L, kind, c, prog, st, 120):
+					L.draw_circle(c, 20, Color(0.8, 0.5, 0.9))
+				if st == 1:
+					L.draw_arc(c, 70, 0, TAU, 32, Color(1.0, 0.4, 0.7, 0.8), 3.0)
+				_draw_progress(L, c, prog, "맥동 중 — 물러나세요" if st == 1 else "F 끊기")
+			Protocol.ObKind.RESONANCE_LOG:
+				if not _draw_device(L, kind, c, prog, 0, 120):
+					L.draw_circle(c, 22, Color(0.6, 0.45, 0.3))
+				L.draw_string(AssetRegistry.get_font("font.ui.main"), c + Vector2(-8, -40), str(st), HORIZONTAL_ALIGNMENT_CENTER, 16, 22, Color(1.0, 0.95, 0.6))
+				_draw_progress(L, c, prog, "F %d번째" % st)
+			Protocol.ObKind.CRACK:
+				if not _draw_device(L, kind, c, prog, st, 120):
+					L.draw_circle(c, 18, Color(0.3, 0.6, 0.9) if st == 0 else Color(0.5, 0.4, 0.3))
+				_draw_progress(L, c, prog, "F 막기" if st == 0 else "막힘")
+			Protocol.ObKind.CHANNEL_PIECE:
+				var cur := st & 1
+				var tgt := (st >> 1) & 1
+				var ok := st == 4
+				if not _draw_device(L, kind, c, prog, st, 120):
+					L.draw_circle(c, 20, Color(0.6, 1.0, 0.7) if ok else Color.WHITE)
+				L.draw_rect(Rect2(c.x - 26, c.y + 28, 24, 10), Color(0.3, 0.6, 1.0) if cur == 1 else Color(0.5, 0.4, 0.3))
+				L.draw_rect(Rect2(c.x + 2, c.y + 28, 24, 10), Color(0.3, 0.6, 1.0) if tgt == 1 else Color(0.5, 0.4, 0.3), false, 2.0)
+				_draw_progress(L, c + Vector2(0, 10), prog, "연결됨" if ok else "F 방향 전환 (현재→목표)")
+			Protocol.ObKind.PARASITE:
+				if not _draw_device(L, kind, c, prog, st, 120):
+					L.draw_circle(c, 20, Color(0.5, 0.3, 0.2))
+				_draw_progress(L, c, prog, "F 뽑기 (묶이면 불가)")
+			Protocol.ObKind.ECHO:
+				if not _draw_device(L, kind, c, prog, st, 120):
+					L.draw_circle(c, 20, Color(0.7, 0.8, 1.0, 0.7))
+				L.draw_arc(c, 34, -PI / 2, -PI / 2 + TAU * prog, 32, Color(0.7, 0.85, 1.0, 0.9), 3.0)
+				_draw_progress(L, c, prog, "F 붙잡기 (사라지기 전에)")
+			Protocol.ObKind.VALVE:
+				if not _draw_device(L, kind, c, prog, st, 120):
+					L.draw_circle(c, 20, Color(0.8, 0.6, 0.3) if st == 0 else Color(0.6, 1.0, 0.7))
+				_draw_progress(L, c, prog, "F 밸브" if st == 0 else "돌림 — 짝을 맞추세요")
+			Protocol.ObKind.GAUGE:
+				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80, 16), Color(0, 0, 0, 0.6))
+				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80 * prog, 16), Color(1.0, 0.3, 0.2) if st == 1 else Color(0.9, 0.7, 0.3))
+				_draw_progress(L, c + Vector2(0, 14), prog, "압력 %d%%" % int(prog * 100))
 			Protocol.ObKind.RAFT:
 				L.draw_circle(c, r + 100, Color(0.9, 0.85, 0.4, 0.06))
 				L.draw_arc(c, r + 100, 0, TAU, 48, Color(0.4, 0.9, 0.5, 0.6) if st == 1 else (Color(0.95, 0.4, 0.3, 0.7) if st == 2 else Color(0.9, 0.85, 0.4, 0.5)), 2.0)
@@ -333,7 +394,7 @@ func _draw_device(L: Node2D, kind: int, c: Vector2, progress: float, state: int,
 	var key: String = MECHANIC_OF_KIND.get(kind, "")
 	if key == "":
 		return false
-	var mid := "IC-" + key.substr(3)
+	var mid: String = MECHANIC_ID_OF_KEY.get(key, "IC-" + key.substr(3))
 	var fx: Dictionary = _mechanic_fx.get(mid, {})
 	var sheet_id := "prop.mechanic.%s.activation" % key
 	var frame_t := 0.0

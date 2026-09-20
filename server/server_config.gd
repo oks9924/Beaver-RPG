@@ -22,6 +22,7 @@ const DEFAULTS := {
 	"password_iterations": 60000,
 	"token_ttl_days": 7,
 	"debug_route_layers": 0,
+	"debug_boss": "",
 }
 
 var values: Dictionary = DEFAULTS.duplicate(true)
@@ -62,6 +63,7 @@ func load(config_path: String, overrides: Dictionary) -> void:
 			"log-level": values["log_level"] = String(overrides[k])
 			"world-id": values["world_id"] = String(overrides[k])
 			"route-layers": values["debug_route_layers"] = int(overrides[k])
+			"boss": values["debug_boss"] = String(overrides[k])
 	values["max_party_size"] = Protocol.MAX_PARTY_SIZE  # 고정
 	if String(values["data_dir"]) == "":
 		values["data_dir"] = default_data_dir()

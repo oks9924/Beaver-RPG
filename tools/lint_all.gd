@@ -14,6 +14,12 @@ func _ready() -> void:
 		if s == null:
 			failed += 1
 			printerr("LOAD FAILED: " + f)
+			continue
+		# 파싱은 됐지만 컴파일이 실패한 스크립트 (미선언 식별자 등) 도 실패로 센다
+		var gd := s as GDScript
+		if gd != null and not gd.can_instantiate():
+			failed += 1
+			printerr("COMPILE FAILED: " + f)
 	print("lint: %d scripts, %d failed" % [files.size(), failed])
 	get_tree().quit(1 if failed > 0 else 0)
 

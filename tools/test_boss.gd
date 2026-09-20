@@ -23,9 +23,13 @@ func _ready() -> void:
 		test_ic03(n)
 		test_ic04(n)
 		test_ic05(n)
+	for n in range(1, 5):
+		test_toad(n)
+		test_root_king(n)
 	passive_boss = false
 	test_patterns_and_death()
 	test_scheduler_rules()
+	test_new_boss_patterns()
 	print("boss tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -390,3 +394,330 @@ func test_scheduler_rules() -> void:
 			if pair.has(order[i]) and pair.has(order[i - 1]):
 				pair_ok = false
 	check(pair_ok, "incompatible mechanics never follow each other")
+
+
+# ------------------------------------------------------------------ 늪등불 두꺼비 / 뿌리왕 (4단계)
+
+func _make_boss(boss_id: String, n: int, seed_: int) -> CombatRoom:
+	var room := CombatRoom.new(ContentDB.get_room_def("boss_" + boss_id), ContentDB.get_party_profile(n), ContentDB.rules, seed_, _members(n))
+	var script: GDScript = load("res://server/expedition/boss_%s.gd" % boss_id)
+	room.boss = script.new(room, ContentDB.get_party_profile(n), ContentDB.bosses[boss_id])
+	room.boss.passive = passive_boss
+	return room
+
+
+func _run(room: CombatRoom, sec: float) -> Array:
+	var evs: Array = []
+	for i in int(sec / DT):
+		evs.append_array(room.step(DT))
+	return evs
+
+
+## 운반: 오브젝트를 집은 뒤 목적지까지 걸어간다 (플레이어 위치를 서버 이동 규칙 대신 직접 옮긴다: 판정만 검증)
+func _carry_to(room: CombatRoom, pid: String, o: Dictionary, dest: Vector2, max_sec: float = 12.0) -> bool:
+	if not _interact_until(room, pid, o):
+		return false
+	var p: Dictionary = room.players[pid]
+	for i in int(max_sec / DT):
+		var d: Vector2 = dest - p["pos"]
+		if d.length() < 30.0:
+			p["pos"] = dest
+		else:
+			p["pos"] = p["pos"] + d.normalized() * 120.0 * DT
+		room.step(DT)
+		if not room.objects.has(o["id"]):
+			return true
+	return false
+
+
+func test_toad(n: int) -> void:
+	# TF-01 등불: 모두 켜면 노출. 3인 이상은 relight 로 꺼지므로 빠르게 켜야 한다
+	var room := _make_boss("lantern_toad", n, 400 + n)
+	var boss: BossLanternToad = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("TF-01")
+	var lanterns := _objects_of(room, Protocol.ObKind.LANTERN)
+	var prof: Dictionary = boss.mprofile("TF-01")
+	check(lanterns.size() == int(prof["lanterns"]), "TF-01 n=%d lanterns=%d" % [n, lanterns.size()])
+	var i := 0
+	for l: Dictionary in lanterns:
+		check(_interact_until(room, "p%d" % (i % n), l), "TF-01 n=%d light lantern %d" % [n, i])
+		i += 1
+	check(boss.active == "" and boss.stats["mechanics_succeeded"] == 1 and boss.exposed_t > 0.0, "TF-01 n=%d all lit -> exposed" % n)
+	if float(prof.get("relight_sec", 0)) > 0.0:
+		var room2 := _make_boss("lantern_toad", n, 410 + n)
+		var b2: BossLanternToad = room2.boss
+		_park_players(room2, Vector2(300, 500))
+		b2._start_mechanic("TF-01")
+		var l0: Dictionary = _objects_of(room2, Protocol.ObKind.LANTERN)[0]
+		_interact_until(room2, "p0", l0)
+		_run(room2, float(prof["relight_sec"]) + 0.5)
+		check(int(l0["state"]) == 0 and bool(l0["interactable"]), "TF-01 n=%d a lit lantern goes out after relight_sec" % n)
+	# 실패: 시간 만료 → 어둠 파동 피해
+	var room3 := _make_boss("lantern_toad", n, 420 + n)
+	var b3: BossLanternToad = room3.boss
+	_park_players(room3, Vector2(300, 500))
+	b3._start_mechanic("TF-01")
+	b3.mechanics["TF-01"]["t"] = 0.05
+	var hp0: float = room3.players["p0"]["hp"]
+	_run(room3, 0.2)
+	check(b3.stats["mechanics_failed"] == 1 and room3.players["p0"]["hp"] < hp0, "TF-01 n=%d timeout -> darkness burst" % n)
+
+	# TF-02 씨앗 운반: 집으면 느려지고, 연못에 닿으면 전달. 모두 전달하면 취약
+	room = _make_boss("lantern_toad", n, 430 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("TF-02")
+	var seeds := _objects_of(room, Protocol.ObKind.SEED)
+	prof = boss.mprofile("TF-02")
+	check(seeds.size() == int(prof["seeds"]), "TF-02 n=%d seeds=%d" % [n, seeds.size()])
+	var pond: Vector2 = boss.mechanics["TF-02"]["data"]["pond"]
+	check(_interact_until(room, "p0", seeds[0]) and boss.carry.has("p0") and room.players["p0"]["slow_t"] > 0.0, "TF-02 n=%d pickup slows the carrier" % n)
+	# 맞으면 떨어뜨린다
+	boss._on_boss_hit_player(room.players["p0"])
+	check(not boss.carry.has("p0") and bool(seeds[0]["interactable"]), "TF-02 n=%d boss hit drops the seed" % n)
+	i = 0
+	for sd: Dictionary in seeds:
+		check(_carry_to(room, "p%d" % (i % n), sd, pond), "TF-02 n=%d deliver seed %d" % [n, i])
+		i += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.joint_weak_t > 0.0, "TF-02 n=%d all seeds -> pond purified (vulnerable)" % n)
+
+	# TF-03 포자 결절: 맥동 중에는 만질 수 없고, 모두 끊으면 회복 차단 + 경직
+	room = _make_boss("lantern_toad", n, 440 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("TF-03")
+	var nodes := _objects_of(room, Protocol.ObKind.SPORE_NODE)
+	prof = boss.mprofile("TF-03")
+	check(nodes.size() == int(prof["nodes"]) and boss.regen_per_sec > 0.0, "TF-03 n=%d nodes=%d heal the boss" % [n, nodes.size()])
+	boss.hp = boss.max_hp * 0.5
+	_run(room, 1.0)
+	check(boss.hp > boss.max_hp * 0.5, "TF-03 n=%d boss regenerates while nodes live" % n)
+	i = 0
+	for nd: Dictionary in nodes:
+		var ok := false
+		for attempt in 8:   # 맥동 창(만질 수 없음)을 피해 끊길 때까지 재시도
+			_interact_until(room, "p%d" % (i % n), nd, 3.0)
+			if not room.objects.has(nd["id"]):
+				ok = true
+				break
+			_run(room, 0.4)
+		check(ok, "TF-03 n=%d sever node %d" % [n, i])
+		i += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.regen_per_sec == 0.0 and boss.state == BossIronclaw.BS.STAGGER, "TF-03 n=%d all severed -> stagger, no regen" % n)
+
+	# TF-04 공명목: 틀린 순서는 초기화 + 감전, 올바른 순서는 기절
+	room = _make_boss("lantern_toad", n, 450 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("TF-04")
+	var logs := _objects_of(room, Protocol.ObKind.RESONANCE_LOG)
+	prof = boss.mprofile("TF-04")
+	check(logs.size() == int(prof["logs"]), "TF-04 n=%d logs=%d" % [n, logs.size()])
+	logs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["order"]) < int(b["order"]))
+	var wrong: Dictionary = logs[logs.size() - 1]
+	var hz0 := _objects_of(room, Protocol.ObKind.HAZARD).size()
+	room.queue_input("p0", 5000, Vector2.ZERO, Vector2.ZERO, 0)
+	boss._tf04_hit(wrong, room.players["p0"])
+	check(int(boss.mechanics["TF-04"]["data"]["next"]) == 0 and _objects_of(room, Protocol.ObKind.HAZARD).size() == hz0 + 1, "TF-04 n=%d wrong order resets and shocks" % n)
+	i = 0
+	for lg: Dictionary in logs:
+		boss._tf04_hit(lg, room.players["p%d" % (i % n)])
+		i += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.state == BossIronclaw.BS.STAGGER, "TF-04 n=%d correct order -> stun" % n)
+	if float(prof.get("sync_sec", 99)) < 50.0:
+		var room4 := _make_boss("lantern_toad", n, 460 + n)
+		var b4: BossLanternToad = room4.boss
+		_park_players(room4, Vector2(300, 500))
+		b4._start_mechanic("TF-04")
+		var logs4 := _objects_of(room4, Protocol.ObKind.RESONANCE_LOG)
+		logs4.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["order"]) < int(b["order"]))
+		b4._tf04_hit(logs4[0], room4.players["p0"])
+		_run(room4, float(prof["sync_sec"]) + 0.5)
+		b4._tf04_hit(logs4[1], room4.players["p1"])
+		check(int(b4.mechanics["TF-04"]["data"]["next"]) == 0, "TF-04 n=%d too slow between hits resets the sequence" % n)
+
+	# TF-05 반딧불: 도망치고, 잡아서 혼합통에 넣으면 빛 폭발
+	room = _make_boss("lantern_toad", n, 470 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("TF-05")
+	var flies := _objects_of(room, Protocol.ObKind.FIREFLY)
+	prof = boss.mprofile("TF-05")
+	check(flies.size() == int(prof["fireflies"]), "TF-05 n=%d fireflies=%d" % [n, flies.size()])
+	var f0: Dictionary = flies[0]
+	var fp0: Vector2 = f0["pos"]
+	room.players["p0"]["pos"] = fp0 + Vector2(-100, 0)
+	_run(room, 0.5)
+	check((f0["pos"] as Vector2).x > fp0.x, "TF-05 n=%d firefly flees from a player" % n)
+	var vat: Dictionary = room.objects[boss.mechanics["TF-05"]["data"]["vat"]]
+	room._spawn_enemy("sap_snail", Vector2(1200, 800))
+	i = 0
+	for fl: Dictionary in flies:
+		# 잡기: 플레이어를 반딧불 바로 옆에 계속 붙여 둔다
+		var pid := "p%d" % (i % n)
+		var caught := false
+		for attempt in 3:
+			room.players[pid]["pos"] = (fl["pos"] as Vector2) + Vector2(20, 0)
+			if _interact_until(room, pid, fl, 2.0):
+				caught = true
+				break
+		check(caught, "TF-05 n=%d catch firefly %d" % [n, i])
+		check(_carry_to(room, pid, fl, vat["pos"]), "TF-05 n=%d deliver firefly %d" % [n, i])
+		i += 1
+	var adds_alive := 0
+	for e: Dictionary in room.enemies.values():
+		if e["ai"] != Protocol.EnemyAI.DEAD:
+			adds_alive += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.exposed_t > 0.0 and adds_alive == 0, "TF-05 n=%d vat full -> light burst kills adds, boss exposed" % n)
+
+
+func test_root_king(n: int) -> void:
+	# RK-01 균열: 모두 막으면 압력 방출, 만료 시 범람
+	var room := _make_boss("root_king", n, 500 + n)
+	var boss: BossRootKing = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("RK-01")
+	var cracks := _objects_of(room, Protocol.ObKind.CRACK)
+	var prof: Dictionary = boss.mprofile("RK-01")
+	check(cracks.size() == int(prof["cracks"]) and room.enemies.size() == int(prof.get("adds", 0)), "RK-01 n=%d cracks=%d adds=%d" % [n, cracks.size(), room.enemies.size()])
+	var i := 0
+	for c: Dictionary in cracks:
+		check(_interact_until(room, "p%d" % (i % n), c), "RK-01 n=%d plug crack %d" % [n, i])
+		i += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.state == BossIronclaw.BS.STAGGER and boss.joint_weak_t > 0.0, "RK-01 n=%d all plugged -> vent" % n)
+	var room2 := _make_boss("root_king", n, 510 + n)
+	var b2: BossRootKing = room2.boss
+	_park_players(room2, Vector2(300, 500))
+	b2._start_mechanic("RK-01")
+	b2.mechanics["RK-01"]["t"] = 0.05
+	_run(room2, 0.2)
+	check(b2.stats["mechanics_failed"] == 1 and (room2.water_zone.is_empty() or int(room2.water_zone["state"]) == 2), "RK-01 n=%d timeout -> flood" % n)
+
+	# RK-02 수로 조각: 표식과 맞추면 반사 (보스 체력 손실), 틀리면 위험 구역
+	room = _make_boss("root_king", n, 520 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("RK-02")
+	var pieces := _objects_of(room, Protocol.ObKind.CHANNEL_PIECE)
+	prof = boss.mprofile("RK-02")
+	check(pieces.size() == int(prof["pieces"]), "RK-02 n=%d pieces=%d" % [n, pieces.size()])
+	var hp0: float = boss.hp
+	i = 0
+	for pc: Dictionary in pieces:
+		if int(pc["cur"]) != int(pc["target"]):
+			check(_interact_until(room, "p%d" % (i % n), pc), "RK-02 n=%d turn piece %d" % [n, i])
+		i += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.hp < hp0, "RK-02 n=%d all matched -> jet redirected (boss loses hp)" % n)
+
+	# RK-03 기생 뿌리: 주기적으로 속박, 속박된 플레이어는 뽑지 못한다, 모두 뽑으면 노출
+	room = _make_boss("root_king", n, 530 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("RK-03")
+	var roots := _objects_of(room, Protocol.ObKind.PARASITE)
+	prof = boss.mprofile("RK-03")
+	check(roots.size() == int(prof["parasites"]) and boss.regen_per_sec > 0.0, "RK-03 n=%d parasites=%d" % [n, roots.size()])
+	var latched := false
+	for ev: Dictionary in _run(room, float(prof["latch_every_sec"]) + 0.2):
+		if ev["k"] == "parasite_latch":
+			latched = true
+	check(latched, "RK-03 n=%d parasite latches a player periodically" % n)
+	var p0: Dictionary = room.players["p0"]
+	p0["root_t"] = 5.0
+	boss._rk03_pull(roots[0], p0)
+	check(room.objects.has(roots[0]["id"]), "RK-03 n=%d rooted player cannot pull" % n)
+	for pl: Dictionary in room.players.values():
+		pl["root_t"] = 0.0
+	i = 0
+	for r: Dictionary in roots:
+		var pid := "p%d" % (i % n)
+		room.players[pid]["root_t"] = 0.0
+		room.players[pid]["bleed_t"] = 0.0
+		boss.mechanics["RK-03"]["data"]["latch_t"] = 99.0   # 검증 중 추가 속박 방지
+		check(_interact_until(room, pid, r), "RK-03 n=%d pull root %d" % [n, i])
+		i += 1
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.regen_per_sec == 0.0 and boss.exposed_t > 0.0, "RK-03 n=%d all pulled -> exposed" % n)
+
+	# RK-04 기억 잔향: 차례로 도달, 창 만료 시 격노
+	room = _make_boss("root_king", n, 540 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("RK-04")
+	prof = boss.mprofile("RK-04")
+	for k in int(prof["echoes"]):
+		var echoes := _objects_of(room, Protocol.ObKind.ECHO)
+		check(echoes.size() == 1, "RK-04 n=%d echo %d appears" % [n, k])
+		if echoes.is_empty():
+			break
+		check(_interact_until(room, "p%d" % (k % n), echoes[0]), "RK-04 n=%d reach echo %d" % [n, k])
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.exposed_t > 0.0, "RK-04 n=%d all echoes -> memory found (exposed)" % n)
+	var room4 := _make_boss("root_king", n, 550 + n)
+	var b4: BossRootKing = room4.boss
+	_park_players(room4, Vector2(300, 500))
+	b4._start_mechanic("RK-04")
+	_run(room4, float(prof["window_sec"]) + 0.3)
+	check(b4.stats["mechanics_failed"] == 1 and b4.enrage_t > 0.0, "RK-04 n=%d echo fades -> enrage" % n)
+
+	# RK-05 밸브: 2인 이상은 sync 안에 둘 다, 1인은 순차 유예. 압력 만료 시 증기 폭발
+	room = _make_boss("root_king", n, 560 + n)
+	boss = room.boss
+	_park_players(room, Vector2(300, 500))
+	boss._start_mechanic("RK-05")
+	var valves := _objects_of(room, Protocol.ObKind.VALVE)
+	prof = boss.mprofile("RK-05")
+	check(valves.size() == 2 and _objects_of(room, Protocol.ObKind.GAUGE).size() == 1, "RK-05 n=%d two valves and a gauge" % n)
+	if bool(prof.get("concurrent", false)):
+		# 하나만 돌리고 sync 를 넘기면 되돌아간다
+		check(_interact_until(room, "p0", valves[0]), "RK-05 n=%d turn first valve" % n)
+		_run(room, float(prof["sync_sec"]) + 0.3)
+		check(int(valves[0]["state"]) == 0 and bool(valves[0]["interactable"]), "RK-05 n=%d lone valve resets after sync window" % n)
+		check(_interact_until(room, "p0", valves[0]) and _interact_until(room, "p1", valves[1]), "RK-05 n=%d both valves within sync" % n)
+	else:
+		check(_interact_until(room, "p0", valves[0]) and _interact_until(room, "p0", valves[1]), "RK-05 n=%d sequential valves (solo)" % n)
+	check(boss.stats["mechanics_succeeded"] == 1 and boss.state == BossIronclaw.BS.STAGGER, "RK-05 n=%d vented -> stagger" % n)
+	var room5 := _make_boss("root_king", n, 570 + n)
+	var b5: BossRootKing = room5.boss
+	_park_players(room5, Vector2(300, 500))
+	b5._start_mechanic("RK-05")
+	b5.pressure = 99.9
+	var hp_p: float = room5.players["p0"]["hp"]
+	_run(room5, 0.3)
+	check(b5.stats["mechanics_failed"] == 1 and room5.players["p0"]["hp"] < hp_p, "RK-05 n=%d pressure max -> steam burst" % n)
+
+
+func test_new_boss_patterns() -> void:
+	for bid in ["lantern_toad", "root_king"]:
+		var room := _make_boss(bid, 2, 600)
+		var boss: BossIronclaw = room.boss
+		var pats: Dictionary = ContentDB.bosses[bid]["attack_patterns"]
+		check(pats.size() == 4 and ContentDB.bosses[bid]["mechanics"].size() == 5, "%s: 4 patterns + 5 mechanics" % bid)
+		for pid: String in pats.keys():
+			var p: Dictionary = pats[pid]
+			boss.state = BossIronclaw.BS.CHASE
+			boss.target = "p0"
+			_park_players(room, boss.pos + Vector2(-150, 0))
+			boss.facing = Vector2.LEFT
+			boss.telegraph = {}
+			boss._begin_pattern(p)
+			check(not boss.telegraphs().is_empty(), "%s %s shows a telegraph" % [bid, pid])
+			var hit := false
+			for i in 50:
+				for ev: Dictionary in room.step(DT):
+					if ev["k"] == "hit" and ev["by"] == "boss" or ev["k"] == "boss_fan":
+						hit = true
+			check(hit, "%s %s resolves (hit or projectiles)" % [bid, pid])
+			for pl: Dictionary in room.players.values():
+				pl["hp"] = pl["max_hp"]
+				pl["state"] = Protocol.EntState.ALIVE
+			room.projectiles.clear()
+		# 혀 창은 끌어당긴다
+		if bid == "lantern_toad":
+			boss.state = BossIronclaw.BS.CHASE
+			_park_players(room, boss.pos + Vector2(-350, 0))
+			boss.facing = Vector2.LEFT
+			boss._begin_pattern(pats["tongue_lance"])
+			var x0: float = room.players["p0"]["pos"].x
+			for i in 40:
+				room.step(DT)
+			check(room.players["p0"]["pos"].x > x0 + 50.0, "tongue lance pulls the player toward the toad")

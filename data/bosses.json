@@ -378,7 +378,196 @@
    ]
   ],
   "mechanic_gap_sec": 10,
-  "mechanics": {}
+  "mechanics": {
+   "TF-01": {
+    "id": "TF-01",
+    "name_ko": "등불 점화",
+    "purpose_ko": "어둠 속 등불을 모두 켜 두꺼비의 눈을 멀게 한다",
+    "entry": {
+     "phase_min": 0,
+     "cooldown_sec": 40
+    },
+    "telegraph_ko": "등불에 표식이 뜬다. F 로 켜세요. 3인 이상은 켜진 등불이 다시 꺼진다",
+    "success_ko": "두꺼비 실명: 약점 노출 8초",
+    "fail_ko": "어둠의 파동: 전원 피해 12",
+    "max_repeats": 2,
+    "duration_sec": 32,
+    "profiles": {
+     "1": {
+      "lanterns": 1,
+      "light_sec": 2.0,
+      "relight_sec": 0,
+      "adds": 0
+     },
+     "2": {
+      "lanterns": 2,
+      "light_sec": 2.0,
+      "relight_sec": 0,
+      "adds": 0
+     },
+     "3": {
+      "lanterns": 3,
+      "light_sec": 2.2,
+      "relight_sec": 12.0,
+      "adds": 0
+     },
+     "4": {
+      "lanterns": 4,
+      "light_sec": 2.2,
+      "relight_sec": 10.0,
+      "adds": 1
+     }
+    }
+   },
+   "TF-02": {
+    "id": "TF-02",
+    "name_ko": "정화 씨앗 운반",
+    "purpose_ko": "씨앗을 집어 연못 중앙까지 옮겨 수액을 정화한다",
+    "entry": {
+     "phase_min": 0,
+     "cooldown_sec": 45
+    },
+    "telegraph_ko": "씨앗이 나타난다. F 로 집고 연못 중앙으로. 맞으면 떨어뜨린다",
+    "success_ko": "연못 정화: 받는 피해 +30% 15초, 웅덩이 제거",
+    "fail_ko": "웅덩이 확산",
+    "max_repeats": 2,
+    "duration_sec": 36,
+    "profiles": {
+     "1": {
+      "seeds": 1,
+      "pickup_sec": 0.8
+     },
+     "2": {
+      "seeds": 2,
+      "pickup_sec": 0.8
+     },
+     "3": {
+      "seeds": 3,
+      "pickup_sec": 0.9
+     },
+     "4": {
+      "seeds": 4,
+      "pickup_sec": 0.9
+     }
+    }
+   },
+   "TF-03": {
+    "id": "TF-03",
+    "name_ko": "포자 연결선 끊기",
+    "purpose_ko": "두꺼비를 회복시키는 포자 결절을 모두 끊는다",
+    "entry": {
+     "phase_min": 1,
+     "cooldown_sec": 45
+    },
+    "telegraph_ko": "포자 결절이 보스를 회복시킨다. 맥동하지 않을 때 F 로 갉아 끊으세요",
+    "success_ko": "회복 차단 + 체력 10% 손실 + 경직",
+    "fail_ko": "보스 10% 회복",
+    "max_repeats": 2,
+    "duration_sec": 30,
+    "profiles": {
+     "1": {
+      "nodes": 1,
+      "sever_sec": 2.0,
+      "heal_per_sec": 2.0,
+      "pulse_every_sec": 5.0,
+      "pulse_sec": 1.0
+     },
+     "2": {
+      "nodes": 2,
+      "sever_sec": 2.0,
+      "heal_per_sec": 2.5,
+      "pulse_every_sec": 4.5,
+      "pulse_sec": 1.0
+     },
+     "3": {
+      "nodes": 3,
+      "sever_sec": 2.2,
+      "heal_per_sec": 3.0,
+      "pulse_every_sec": 4.0,
+      "pulse_sec": 1.2
+     },
+     "4": {
+      "nodes": 4,
+      "sever_sec": 2.2,
+      "heal_per_sec": 3.0,
+      "pulse_every_sec": 4.0,
+      "pulse_sec": 1.2
+     }
+    }
+   },
+   "TF-04": {
+    "id": "TF-04",
+    "name_ko": "공명목 두드리기",
+    "purpose_ko": "번호 순서대로 공명목을 두드려 두꺼비를 기절시킨다",
+    "entry": {
+     "phase_min": 1,
+     "cooldown_sec": 40
+    },
+    "telegraph_ko": "공명목에 번호가 뜬다. 순서대로 F. 3인 이상은 연속 타격 간격이 짧다",
+    "success_ko": "기절 4초 + 약점 노출 5초",
+    "fail_ko": "감전 위험 구역만",
+    "max_repeats": 2,
+    "duration_sec": 26,
+    "profiles": {
+     "1": {
+      "logs": 2,
+      "hit_sec": 0.4,
+      "sync_sec": 99
+     },
+     "2": {
+      "logs": 3,
+      "hit_sec": 0.4,
+      "sync_sec": 99
+     },
+     "3": {
+      "logs": 3,
+      "hit_sec": 0.4,
+      "sync_sec": 2.5
+     },
+     "4": {
+      "logs": 4,
+      "hit_sec": 0.4,
+      "sync_sec": 2.0
+     }
+    }
+   },
+   "TF-05": {
+    "id": "TF-05",
+    "name_ko": "혼합통과 정화 반딧불",
+    "purpose_ko": "도망치는 반딧불을 잡아 혼합통에 넣어 빛을 터뜨린다",
+    "entry": {
+     "phase_min": 2,
+     "cooldown_sec": 60
+    },
+    "telegraph_ko": "반딧불이 달아난다. 몰아서 F 로 잡고 혼합통으로",
+    "success_ko": "빛 폭발: 약점 노출 6초, 추가 적 소멸",
+    "fail_ko": "수액이 짙어져 웅덩이가 커진다 (20초)",
+    "max_repeats": 1,
+    "duration_sec": 40,
+    "profiles": {
+     "1": {
+      "fireflies": 1,
+      "catch_sec": 0.6,
+      "flee_speed": 80
+     },
+     "2": {
+      "fireflies": 2,
+      "catch_sec": 0.6,
+      "flee_speed": 90
+     },
+     "3": {
+      "fireflies": 3,
+      "catch_sec": 0.6,
+      "flee_speed": 90
+     },
+     "4": {
+      "fireflies": 4,
+      "catch_sec": 0.7,
+      "flee_speed": 100
+     }
+    }
+   }
+  }
  },
  "root_king": {
   "id": "root_king",
@@ -472,6 +661,195 @@
    ]
   ],
   "mechanic_gap_sec": 10,
-  "mechanics": {}
+  "mechanics": {
+   "RK-01": {
+    "id": "RK-01",
+    "name_ko": "댐 균열 막기",
+    "purpose_ko": "수압이 차기 전에 균열을 모두 막는다",
+    "entry": {
+     "phase_min": 0,
+     "cooldown_sec": 40
+    },
+    "telegraph_ko": "댐에 균열이 생긴다. F 로 막으세요 (분산 목표)",
+    "success_ko": "압력 방출: 경직 4초 + 받는 피해 +30% 12초",
+    "fail_ko": "범람: 중앙 침수 6초",
+    "max_repeats": 2,
+    "duration_sec": 30,
+    "profiles": {
+     "1": {
+      "cracks": 1,
+      "plug_sec": 2.0,
+      "adds": 0
+     },
+     "2": {
+      "cracks": 2,
+      "plug_sec": 2.0,
+      "adds": 0
+     },
+     "3": {
+      "cracks": 3,
+      "plug_sec": 2.2,
+      "adds": 1
+     },
+     "4": {
+      "cracks": 4,
+      "plug_sec": 2.2,
+      "adds": 2
+     }
+    }
+   },
+   "RK-02": {
+    "id": "RK-02",
+    "name_ko": "수로 조각 연결",
+    "purpose_ko": "수로 조각을 표식과 맞춰 수압 분사를 보스에게 되돌린다",
+    "entry": {
+     "phase_min": 0,
+     "cooldown_sec": 45
+    },
+    "telegraph_ko": "수로 조각이 나타난다. F 로 방향을 바꿔 표식과 맞추세요",
+    "success_ko": "분사 반사: 보스 체력 12% + 경직",
+    "fail_ko": "분사 오발: 위험 구역",
+    "max_repeats": 2,
+    "duration_sec": 34,
+    "profiles": {
+     "1": {
+      "pieces": 2,
+      "hold_sec": 1.0
+     },
+     "2": {
+      "pieces": 3,
+      "hold_sec": 1.0
+     },
+     "3": {
+      "pieces": 4,
+      "hold_sec": 1.2
+     },
+     "4": {
+      "pieces": 5,
+      "hold_sec": 1.2
+     }
+    }
+   },
+   "RK-03": {
+    "id": "RK-03",
+    "name_ko": "기생 뿌리 뽑기",
+    "purpose_ko": "플레이어를 붙잡는 기생 뿌리를 모두 뽑는다",
+    "entry": {
+     "phase_min": 1,
+     "cooldown_sec": 45
+    },
+    "telegraph_ko": "기생 뿌리가 붙잡는다. 묶이지 않은 사람이 F 로 뽑으세요",
+    "success_ko": "회복 차단 + 약점 노출 5초",
+    "fail_ko": "보스 12% 회복",
+    "max_repeats": 2,
+    "duration_sec": 32,
+    "profiles": {
+     "1": {
+      "parasites": 1,
+      "pull_sec": 2.0,
+      "latch_every_sec": 8.0,
+      "root_sec": 1.0
+     },
+     "2": {
+      "parasites": 2,
+      "pull_sec": 2.0,
+      "latch_every_sec": 7.0,
+      "root_sec": 1.2
+     },
+     "3": {
+      "parasites": 3,
+      "pull_sec": 2.2,
+      "latch_every_sec": 6.0,
+      "root_sec": 1.2
+     },
+     "4": {
+      "parasites": 4,
+      "pull_sec": 2.2,
+      "latch_every_sec": 5.0,
+      "root_sec": 1.4
+     }
+    }
+   },
+   "RK-04": {
+    "id": "RK-04",
+    "name_ko": "기억 잔향 따라가기",
+    "purpose_ko": "차례로 나타나는 기억 잔향에 제한 시간 안에 도달한다",
+    "entry": {
+     "phase_min": 1,
+     "cooldown_sec": 45
+    },
+    "telegraph_ko": "기억 잔향이 나타난다. 사라지기 전에 F 로 붙잡으세요",
+    "success_ko": "기억 발견: 약점 노출 8초",
+    "fail_ko": "격노: 피해 +20% 15초",
+    "max_repeats": 1,
+    "duration_sec": 40,
+    "profiles": {
+     "1": {
+      "echoes": 2,
+      "hold_sec": 1.0,
+      "window_sec": 12.0
+     },
+     "2": {
+      "echoes": 3,
+      "hold_sec": 1.0,
+      "window_sec": 10.0
+     },
+     "3": {
+      "echoes": 3,
+      "hold_sec": 1.0,
+      "window_sec": 8.0
+     },
+     "4": {
+      "echoes": 4,
+      "hold_sec": 1.2,
+      "window_sec": 8.0
+     }
+    }
+   },
+   "RK-05": {
+    "id": "RK-05",
+    "name_ko": "압력계 밸브",
+    "purpose_ko": "압력이 차기 전에 밸브 두 개를 맞춰 돌린다",
+    "entry": {
+     "phase_min": 2,
+     "cooldown_sec": 60
+    },
+    "telegraph_ko": "압력계가 차오른다. 밸브 두 개를 F 로. 2인 이상은 동시에",
+    "success_ko": "압력 방출: 경직 4초 + 체력 8%",
+    "fail_ko": "증기 폭발: 전원 피해 15",
+    "max_repeats": 1,
+    "duration_sec": 24,
+    "profiles": {
+     "1": {
+      "valves": 2,
+      "hold_sec": 1.5,
+      "sync_sec": 6.0,
+      "concurrent": false,
+      "rate": 4.0
+     },
+     "2": {
+      "valves": 2,
+      "hold_sec": 1.5,
+      "sync_sec": 2.5,
+      "concurrent": true,
+      "rate": 4.5
+     },
+     "3": {
+      "valves": 2,
+      "hold_sec": 1.5,
+      "sync_sec": 2.0,
+      "concurrent": true,
+      "rate": 5.0
+     },
+     "4": {
+      "valves": 2,
+      "hold_sec": 1.8,
+      "sync_sec": 2.0,
+      "concurrent": true,
+      "rate": 5.5
+     }
+    }
+   }
+  }
  }
 }

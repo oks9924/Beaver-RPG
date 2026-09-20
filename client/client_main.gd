@@ -449,6 +449,19 @@ func _on_room_event(ev: Dictionary) -> void:
 		"dam_burst":
 			world.spawn_effect("vfx.great_dam", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
 			world.play_sound("sfx.tail_slam", 0.1)
+		"carry_pickup":
+			if String(ev.get("id", "")) == my_id:
+				hud.toast("운반 중: 느려지고 공격에 맞으면 떨어뜨립니다", 2.0)
+		"seed_delivered", "firefly_added":
+			hud.toast("전달 %d / %d" % [int(ev.get("count", 0)), int(ev.get("need", 0))], 1.5)
+		"echo_appears":
+			hud.toast("기억 잔향 %d/%d — 사라지기 전에 붙잡으세요" % [int(ev.get("index", 0)) + 1, int(ev.get("count", 0))], 2.0)
+		"boss_enraged":
+			hud.toast("보스 격노! 피해 +20%%", 2.5)
+		"valve_reset":
+			hud.toast("밸브가 되돌아갔다 — 동시에 돌리세요", 1.5)
+		"log_wrong":
+			hud.toast("틀린 순서! 처음부터", 1.5)
 		"elite_spawn":
 			hud.toast("정예: %s 등장!" % String(ev.get("name", "")), 3.0)
 			world.play_sound("sfx.tail_slam", 0.2)
@@ -504,8 +517,9 @@ func _on_room_event(ev: Dictionary) -> void:
 		"boss_died":
 			hud.toast("철턱 가재 격파!", 4.0)
 		"boss_hit":
-			if world.entities.has("b:ironclaw"):
-				world.entities["b:ironclaw"].flash()
+			for bk: String in world.entities.keys():
+				if bk.begins_with("b:"):
+					world.entities[bk].flash()
 
 
 func _nick_of(id: String) -> String:

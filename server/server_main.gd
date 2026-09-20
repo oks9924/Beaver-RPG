@@ -67,6 +67,9 @@ func _ready() -> void:
 	ExpeditionInstance.debug_route_layers = int(config.get_value("debug_route_layers"))
 	if ExpeditionInstance.debug_route_layers > 0:
 		_log(2, "debug_route_layers=%d: routes are truncated (test configuration)" % ExpeditionInstance.debug_route_layers)
+	ExpeditionInstance.debug_boss = String(config.get_value("debug_boss"))
+	if ExpeditionInstance.debug_boss != "":
+		_log(2, "debug_boss=%s: every expedition is a single boss room (practice/test configuration)" % ExpeditionInstance.debug_boss)
 	_restore_expeditions()
 	# 네트워크
 	peer = ENetMultiplayerPeer.new()
