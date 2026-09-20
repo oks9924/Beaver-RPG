@@ -22,7 +22,11 @@ fi
 WORK="$(mktemp -d)"
 cp build/linux-server/tail-expedition-server.x86_64 build/linux/TailExpedition.x86_64 "$WORK/"
 cd "$WORK"
-./tail-expedition-server.x86_64 --headless -- --port=$PORT --data-dir="$OUT/data" > "$OUT/server.log" 2>&1 &
+# 스모크 테스트는 export·에셋 로드 검증이 목적이므로 경로를 방 1개로 줄인다 (전체 원정은 통합 테스트가 다룬다)
+cat > "$OUT/server_config.json" <<CFG
+{"port": $PORT, "data_dir": "$OUT/data", "log_level": "info", "password_iterations": 2000, "debug_route_layers": 1}
+CFG
+./tail-expedition-server.x86_64 --headless -- --config="$OUT/server_config.json" > "$OUT/server.log" 2>&1 &
 SP=$!
 sleep 3
 timeout 90 ./TailExpedition.x86_64 --headless -- --bot=expedition --create --starter --party=1 --nick=export_bot --addr=127.0.0.1:$PORT --out="$OUT/bot.json" --timeout=80 > "$OUT/client.log" 2>&1
