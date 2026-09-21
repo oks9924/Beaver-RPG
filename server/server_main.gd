@@ -278,7 +278,6 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.BOARD_START: _handle_board_start(s)
 				Protocol.C.ROOM_CHOICE: _handle_room_choice(s, payload)
 				Protocol.C.REWARD_PICK: _handle_reward_pick(s, payload)
-				Protocol.C.ROUTE_VOTE: _handle_route_vote(s, payload)
 				Protocol.C.NODE_ACTION: _handle_node_action(s, payload)
 				Protocol.C.CHAT: _handle_chat(s, payload)
 				Protocol.C.HUB_UPGRADE: _handle_hub_upgrade(s, payload)
@@ -837,17 +836,6 @@ func _handle_reward_pick(s: Session, payload: Dictionary) -> void:
 		return
 	_flush_outbox(inst)
 	_broadcast_party(inst)
-
-
-func _handle_route_vote(s: Session, payload: Dictionary) -> void:
-	var inst := expeditions.get_for_session(s)
-	if inst == null:
-		_err(s, Protocol.ERR_NO_EXPEDITION)
-		return
-	if not inst.vote_route(s.account_id, String(payload.get("node_id", ""))):
-		_err(s, Protocol.ERR_BAD_STATE)
-		return
-	_flush_outbox(inst)
 
 
 func _handle_node_action(s: Session, payload: Dictionary) -> void:

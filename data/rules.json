@@ -36,7 +36,6 @@
   "zone_max_per_room": 8
  },
  "reward_choice_sec": 25.0,
- "route_vote_sec": 25.0,
  "node_menu_sec": 45.0,
  "rest_heal_fraction": 0.4,
  "xp_per_level": [
@@ -234,5 +233,13 @@
   "reinforce_when_alive_at_most": 5,
   "group_max": 4
  },
- "smith_upgrade_rarity": "common"
+ "smith_upgrade_rarity": "common",
+ "dungeon_doors": {
+  "_comment": "던파식 방 이동: 문 반경 안에 살아 있는 접속 인원이 전원이면 all_sec, 과반이면 majority_sec 뒤에 이동. 클리어한 방은 되돌아갈 수 있고 적은 다시 나오지 않는다.",
+  "radius": 72,
+  "all_sec": 3.0,
+  "majority_sec": 10.0,
+  "margin": 90,
+  "entry_offset": 120
+ }
 }

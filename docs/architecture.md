@@ -28,10 +28,11 @@
 | 클라이언트 | `client/*.gd` | 접속/로그인/마을/원정 준비/전투 HUD/결과, 예측·보간, 봇 모드 |
 
 ## 원정 런 흐름 (단계 2)
-- `ExpeditionInstance.start_run()` 이 지역 템플릿(`data/regions.json`)과 시드로 5층 경로를 만든다. 같은 시드·콘텐츠 버전이면 경로·보상 후보가 재현된다 (지도·보상·전투 난수 스트림 분리).
-- `IN_ROOM → REWARD(3지선다, 25초) → ROUTE_VOTE(25초, 동률 시드 추첨) 또는 단일 노드 진입 → IN_ROOM | NODE_MENU(사건 투표·상점·휴식, 45초) → … → 보스 → RESULT`.
+- `ExpeditionInstance.start_run()` 이 지역 템플릿(`data/regions.json` 의 `dungeon`)과 시드로 지역마다 방 격자(던파식, 5×3 에 9~11방)를 만든다(`build_dungeon`). 같은 시드·콘텐츠 버전이면 격자·문·보상 후보가 재현된다 (지도·보상·전투 난수 스트림 분리).
+- `IN_ROOM(전투) → REWARD(3지선다, 25초) → IN_ROOM(탐색: 같은 방에서 문 열림, 문 앞 집합 전원 3초/과반 10초) → 문 이동 → IN_ROOM(전투) | NODE_MENU(사건 투표·상점·휴식, 45초) | REWARD(보물 방, 희귀 이상) → 클리어 뒤 탐색 … → 보스 → 다음 지역 시작 방 → … → RESULT`. 클리어한 칸은 `cleared` 로 표시되어 되돌아가면 적 없는 탐색 방(`CombatRoom.explore`)으로 들어간다.
+- 격자 생성: 왼쪽 열 시작 칸에서 동쪽으로 치우친 무작위 걸음으로 오른쪽 열 보스 칸까지 주 경로(5~8칸)를 깔고, 옆길(정예 우선 + 보물·상점·모닥불·사건·전투 중 시드로 섞은 순서)을 빈 이웃 칸에 붙인 뒤 이웃 방끼리 30% 확률로 추가 문을 낸다. 보스 칸은 문 하나. 문 위치는 `CombatRoom.door_positions()` 가 방 경계·물·장애물을 피해서 정하고 입장 위치는 들어온 문 앞(동쪽 입장이면 적 스폰 좌우 반전).
 - 인스턴스는 보낼 메시지를 `outbox` 에 쌓고 `ServerMain._flush_outbox` 가 전송·위치 갱신·체크포인트 저장을 한다.
-- 안전 지점(REWARD/ROUTE_VOTE/NODE_MENU)마다 `expeditions.json` 에 체크포인트를 저장한다. 서버 재시작 시 유예(600초) 안의 체크포인트를 복구하고, 전투 중 저장본은 복원하지 않는다(마지막 안전 지점부터).
+- 안전 지점(REWARD/NODE_MENU/탐색 중)마다 `expeditions.json` 에 체크포인트를 저장한다. 서버 재시작 시 유예(600초) 안의 체크포인트를 복구하고, 전투 중 저장본은 복원하지 않는다(마지막 안전 지점부터). 탐색 중 저장본은 첫 재접속 때 같은 칸을 탐색 방으로 다시 만든다(`explore_pending`).
 - 안전 지점에서는 공개 파티에 새 멤버가 합류할 수 있다. 합류 묶음(완료 노드 2개당 유물 1개, 파티 평균 도토리)을 받고, 다음 방부터 N 을 재산정한다. 지나간 보상은 소급하지 않는다.
 - 플레이어 수치 보정은 `RunMods.build()` 가 유물·강화·런 레벨·영구 보너스를 합쳐 `mods`(가산)와 `procs`(원인 ID·내부 대기시간) 로 만든다.
 
@@ -42,7 +43,7 @@
 
 ## 단계 3·4 추가 구조
 - **직업**: `data/classes.json` 의 스킬 `effect.type` 을 `CombatRoom._apply_cast` 가 해석한다 (dash, heavy_strike, whirl, heal_zone, root_zone, flood_zone, turret, jet, dam …). 직업 자원(열의·씨앗·수압)은 `p["resource"]` 하나로 스냅샷에 실린다. 스킬 변형·진화·특성·유물·시너지는 전부 `mods` 키(`RunMods.MOD_KEYS`)와 `procs` 로 합쳐지며, 코드는 `m.get("<slot>_<효과>")` 로만 읽는다.
-- **지역·경로**: `ExpeditionInstance.build_route(seed)` 가 `regions.json` 의 `next` 를 따라 3지역 층을 이어 붙인다 (18층, 지역 보스 3). 노드마다 `region` 이 있어 지역 전환 시 적 풀·안내가 바뀐다. `tools/check_routes.gd` 가 시드 100개를 점검한다.
+- **지역·던전**: `ExpeditionInstance.build_dungeon(seed)` 가 `regions.json` 의 `next` 를 따라 3지역 격자를 잇는다 (지역 보스 3). 지역 전환 시 적 풀·안내가 바뀐다. `tools/check_routes.gd` 가 시드 100개로 방 수·문 대칭·보스 도달·문/입장 위치를 점검한다. 문은 `ObKind.DOOR` 오브젝트(STATE 비트: 방향·목표 유형·클리어·잠김·집합 인원)로 스냅샷에 실리고 클라이언트가 아치와 집합 진행을 그린다. 봇은 `RUN_STATE.dungeon` 격자에서 BFS 로 보스(또는 `--explore=all` 이면 안 깬 방)로 가는 문을 고른다.
 - **적 행동**: 역할 approach/charger/ranged/stationary/leaper/dummy + 정의 플래그(`armor_front`, `aura`, `summon`, `attack.combo`, `attack.on_hit`{slow/root/bleed}, `structure_dps_mult`). 정예는 방 정의 `elite` 로 첫 웨이브에 등장한다.
 - **보스**: `BossIronclaw` 가 공통 컨트롤러다(패턴 모양 arc/line(돌진·즉발)/circle_at_target/leap/projectile_fan, 경직 게이지, 단계, 위험 구역, 운반 시스템, 스케줄러). `BossLanternToad`, `BossRootKing` 은 이를 상속해 `_mechanic_start/_step/_end/_object` 훅만 구현한다. 보스 id → `server/expedition/boss_<id>.gd`.
 - **퀘스트**: 서버가 방·원정 결과와 마을 행동을 `QuestEngine.on_event` 이벤트로 바꾼다. 보상은 `reward_id` 로 한 번만 지급, 선택 임무 실패는 런 단위(`run_failed`)라 메인을 막지 않는다.

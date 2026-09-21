@@ -29,7 +29,6 @@ var _dropped: bool = false
 var _drop_pending: bool = false
 var _run: Dictionary = {}
 var _bought: bool = false
-var _voted_layer: int = -1
 
 
 func start(net: NetClient, launch_args: Dictionary) -> void:
@@ -203,6 +202,8 @@ func _on_message(type: int, p: Dictionary) -> void:
 					"wave": _count("waves")
 					"room_clear": _count("room_clear")
 					"wipe": _count("wipe")
+					"explore": _count("explore_rooms")
+					"door": _count("door_travels")
 		Protocol.S.ROOM_RESULT:
 			result["room_result"] = {"outcome": p.get("outcome", 0), "run_outcome": p.get("run_outcome", 0), "elapsed": p.get("elapsed", 0), "stats": p.get("stats", {}), "rewards": p.get("rewards", {}), "run_stats": p.get("run_stats", {}), "run": p.get("run", {})}
 			if int(p.get("run_outcome", 0)) == Protocol.Outcome.VICTORY:
@@ -221,20 +222,6 @@ func _on_message(type: int, p: Dictionary) -> void:
 				_log("reward options: %s" % [p["options"].map(func(o: Dictionary) -> String: return String(o.get("id", "")))])
 				client.send(Protocol.C.REWARD_PICK, {"index": 0})
 				_count("reward_picks")
-			_phase = "phase"
-			_timer = 0.0
-		Protocol.S.ROUTE_OFFER:
-			var votes: Dictionary = p.get("votes", {})
-			if not votes.has(_my_id) and _voted_layer != int(p.get("layer", -1)):
-				_voted_layer = int(p.get("layer", -1))
-				var nodes: Array = p.get("nodes", [])
-				var pick: Dictionary = nodes[0]
-				for n: Dictionary in nodes:
-					if String(n.get("type", "")) == String(args.get("prefer", "combat")):
-						pick = n
-				_log("voting %s (%s)" % [pick["id"], pick["type"]])
-				client.send(Protocol.C.ROUTE_VOTE, {"node_id": String(pick["id"])})
-				_count("route_votes")
 			_phase = "phase"
 			_timer = 0.0
 		Protocol.S.NODE_MENU:
@@ -418,6 +405,20 @@ func _phase_room() -> void:
 	var mv := Vector2.ZERO
 	var aim := Vector2.ZERO
 	var btn := 0
+	var obj0: Array = _snapshot.get("obj", ["annihilate", 0, 0])
+	if my_state == Protocol.EntState.ALIVE and String(obj0[0]) == "explore":
+		# 탐색 모드: 격자에서 목표 방(기본: 보스로 가는 최단 경로, --explore=all 이면 안 깬 방부터)으로 가는 문에 서서 기다린다
+		var dir := _explore_dir()
+		for o: PackedFloat32Array in _snapshot.get("ob", []):
+			if int(o[Protocol.SNAP_OB.KIND]) == Protocol.ObKind.DOOR and Protocol.DOOR_DIRS[int(o[Protocol.SNAP_OB.STATE]) & 3] == dir:
+				var dp := Vector2(o[Protocol.SNAP_OB.X], o[Protocol.SNAP_OB.Y])
+				if dp.distance_to(my_pos) > o[Protocol.SNAP_OB.R] * 0.45:
+					mv = (dp - my_pos).normalized()
+					_count("door_walk_ticks")
+				aim = dp - my_pos
+		_seq += 1
+		client.send_input(_seq, mv, aim, btn)
+		return
 	if my_state == Protocol.EntState.ALIVE:
 		var downed := PackedFloat32Array()
 		for entry: Array in _snapshot.get("p", []):
@@ -446,7 +447,7 @@ func _phase_room() -> void:
 		var boss_obj := PackedFloat32Array()
 		if not bs.is_empty():
 			for o: PackedFloat32Array in _snapshot.get("ob", []):
-				if int(o[Protocol.SNAP_OB.KIND]) >= Protocol.ObKind.PILLAR and int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.HAZARD and int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.PLATFORM and int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.HUSK:
+				if int(o[Protocol.SNAP_OB.KIND]) >= Protocol.ObKind.PILLAR and not int(o[Protocol.SNAP_OB.KIND]) in [Protocol.ObKind.HAZARD, Protocol.ObKind.PLATFORM, Protocol.ObKind.HUSK, Protocol.ObKind.DOOR]:
 					var od := Vector2(o[2], o[3]).distance_to(my_pos)
 					if od < 110.0 and (boss_obj.is_empty() or od < Vector2(boss_obj[2], boss_obj[3]).distance_to(my_pos)):
 						boss_obj = o
@@ -529,6 +530,46 @@ func _phase_room() -> void:
 				btn |= Protocol.BTN_BUILD
 	_seq += 1
 	client.send_input(_seq, mv, aim, btn)
+
+
+## 격자 BFS: 현재 칸에서 목표 칸까지 첫 걸음의 문 방향. 목표는 보스(기본) 또는 가장 가까운 안 깬 방(--explore=all).
+func _explore_dir() -> String:
+	var g: Dictionary = _run.get("dungeon", {})
+	var rooms: Dictionary = g.get("rooms", {})
+	var cur := String(_run.get("cell", ""))
+	if rooms.is_empty() or not rooms.has(cur):
+		return ""
+	var goal := String(g.get("boss", ""))
+	var explore_all := String(args.get("explore", "direct")) == "all"
+	var dist := {cur: 0}
+	var prev := {}
+	var queue: Array = [cur]
+	var nearest_uncleared := ""
+	while not queue.is_empty():
+		var k: String = queue.pop_front()
+		if explore_all and nearest_uncleared == "" and k != cur and not bool(rooms[k].get("cleared", false)) and k != goal:
+			nearest_uncleared = k
+		var c := ExpeditionInstance.key_cell(k)
+		for d: String in rooms[k].get("doors", []):
+			var nk := ExpeditionInstance.cell_key(c + ExpeditionInstance.DOOR_DELTA[d])
+			if rooms.has(nk) and not dist.has(nk):
+				dist[nk] = int(dist[k]) + 1
+				prev[nk] = [k, d]
+				queue.append(nk)
+	if explore_all and nearest_uncleared != "":
+		goal = nearest_uncleared
+	if goal == "" or not dist.has(goal) or goal == cur:
+		# 보스가 없는(잘린) 던전: 아무 안 깬 방으로
+		for k: String in dist.keys():
+			if k != cur and not bool(rooms[k].get("cleared", false)):
+				goal = k
+				break
+		if goal == "" or goal == cur or not dist.has(goal):
+			return ""
+	var step := goal
+	while prev.has(step) and String(prev[step][0]) != cur:
+		step = String(prev[step][0])
+	return String(prev[step][1]) if prev.has(step) else ""
 
 
 func _phase_result() -> void:

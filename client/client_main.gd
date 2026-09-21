@@ -57,7 +57,6 @@ var _demo_shots_pending: Array = []   # [[절대 초, 파일명]]
 var _demo_attack_shot: bool = false
 var _demo_force_btn: int = 0
 var _demo_hold_until: float = 0.0
-var _route_offer: Dictionary = {}
 
 
 func _ready() -> void:
@@ -128,7 +127,6 @@ func _ready() -> void:
 	hud.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	result_panel.choice_made.connect(func(c: String) -> void: net.send(Protocol.C.ROOM_CHOICE, {"choice": c}))
 	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))
-	run_panels.route_voted.connect(func(n: String) -> void: net.send(Protocol.C.ROUTE_VOTE, {"node_id": n}))
 	run_panels.node_action.connect(func(p: Dictionary) -> void: net.send(Protocol.C.NODE_ACTION, p))
 	npc_panel.name = "NpcPanel"
 	root.add_child(npc_panel)
@@ -354,28 +352,41 @@ func _on_message(type: int, p: Dictionary) -> void:
 			if mode == "result":
 				result_panel.show_choices(party.get("members", []))
 		Protocol.S.ENTER_EXPEDITION:
+			var same_room := bool(p.get("resume", false)) and not room.is_empty() and String(room.get("room_id", "")) == String(p.get("room_id", "")) and int(room.get("room_index", -1)) == int(p.get("room_index", -2))
 			room = p
 			var def: Dictionary = p.get("room_def", {})
 			var b: Dictionary = def.get("bounds", {"x": 0, "y": 0, "w": 1200, "h": 800})
-			world.clear_entities()
-			world.set_npcs([])
-			var ra: Dictionary = def.get("assets", {})
-			world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(ra.get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []), String(ra.get("wall", "tile.willow.wall")), String(ra.get("water", "tile.willow.water")), String(ra.get("shore", "tile.willow.shore")))
-			_pending.clear()
-			_me_snapshot = PackedFloat32Array()
-			var spawns: Array = def.get("player_spawns", [[100, 100]])
-			_pred_pos = Vector2(float(spawns[0][0]), float(spawns[0][1]))
-			world.camera.position = _pred_pos
-			world.camera.reset_smoothing()
+			if not same_room:
+				# 새 방: 지형을 다시 깔고 들어온 문 앞에 선다. 클리어 뒤 탐색 모드로 이어지면(resume) 위치·카메라를 그대로 둔다.
+				world.clear_entities()
+				world.set_npcs([])
+				var ra: Dictionary = def.get("assets", {})
+				world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(ra.get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []), String(ra.get("wall", "tile.willow.wall")), String(ra.get("water", "tile.willow.water")), String(ra.get("shore", "tile.willow.shore")))
+				_pending.clear()
+				_me_snapshot = PackedFloat32Array()
+				var spawns: Array = def.get("player_spawns", [[100, 100]])
+				var mine_spawn: Array = (p.get("spawns", {}) as Dictionary).get(my_id, spawns[0])
+				_pred_pos = Vector2(float(mine_spawn[0]), float(mine_spawn[1]))
+				world.camera.position = _pred_pos
+				world.camera.reset_smoothing()
+				hud.minimap.bounds = Rect2(b["x"], b["y"], b["w"], b["h"])
+				hud.minimap.pings.clear()
+			world.explore = bool(p.get("explore", false))
 			hud.update_room(room)
 			hud.set_tutorial("", 0, 1)
-			hud.minimap.bounds = Rect2(b["x"], b["y"], b["w"], b["h"])
-			hud.minimap.pings.clear()
-			hud.minimap.route_text = _route_summary(p.get("run", {}))
-			hud.toast("%s — 기준 인원 %d" % [def.get("name_ko", "전투방"), int(p.get("n", 1))], 3.0)
+			if p.has("run"):
+				run_state = p["run"]
+				hud.update_run(run_state, my_id)
+			hud.minimap.dungeon = run_state.get("dungeon", {})
+			hud.minimap.current_cell = String(p.get("cell", run_state.get("cell", "")))
+			hud.minimap.route_text = _dungeon_summary(run_state)
+			if bool(p.get("explore", false)):
+				hud.toast("%s 클리어 — 문 앞에 파티가 모이면 다음 방으로 (Tab: 지도)" % def.get("name_ko", "방") if same_room else "%s (탐색) — 문 앞에 파티가 모이면 이동" % def.get("name_ko", "방"), 3.0)
+			else:
+				hud.toast("%s — 기준 인원 %d" % [def.get("name_ko", "전투방"), int(p.get("n", 1))], 3.0)
 			run_panels.hide_panel()
 			_set_mode("room")
-			if demo and _demo_step >= 20:
+			if demo and _demo_step >= 20 and _demo_step < 39:
 				_demo_step = 4
 				_demo_t = 0.0
 		Protocol.S.ROOM_EVENTS:
@@ -389,13 +400,12 @@ func _on_message(type: int, p: Dictionary) -> void:
 		Protocol.S.RUN_STATE:
 			run_state = p
 			hud.update_run(run_state, my_id)
+			hud.minimap.dungeon = run_state.get("dungeon", {})
+			hud.minimap.current_cell = String(run_state.get("cell", ""))
+			hud.minimap.route_text = _dungeon_summary(run_state)
 		Protocol.S.REWARD_OFFER:
 			run_panels.run_class = _my_class()
 			run_panels.show_reward(p, my_id, int(run_state.get("players", {}).get(my_id, {}).get("rerolls", 0)))
-			_set_mode("phase")
-		Protocol.S.ROUTE_OFFER:
-			_route_offer = p
-			run_panels.show_route(p, my_id, party.get("members", []))
 			_set_mode("phase")
 		Protocol.S.NODE_MENU:
 			run_panels.show_menu(p, my_id, party.get("members", []))
@@ -544,6 +554,10 @@ func _on_room_event(ev: Dictionary) -> void:
 		"device_done":
 			hud.toast("장치 가동!", 1.5)
 			world.play_sound("sfx.rescue")
+		"explore":
+			hud.toast("방 클리어! 문이 열렸습니다 — 문 앞에 모이면 이동 (전원 3초 · 과반 10초)", 4.0)
+		"door":
+			hud.toast("%s 문 통과" % {"n": "북", "e": "동", "s": "남", "w": "서"}.get(String(ev.get("dir", "")), "?"), 1.5)
 		"objective_done":
 			hud.toast("목표 달성! 남은 적이 물러납니다", 2.5)
 		"trap":
@@ -995,27 +1009,34 @@ func _screenshot(name: String) -> void:
 		print("[demo] screenshot " + path)
 
 
+var _demo_dbg_step: int = -1
+
+
 func _demo_tick(dt: float) -> void:
 	_demo_t += dt
+	if _demo_step != _demo_dbg_step:
+		_demo_dbg_step = _demo_step
+		print("[demo] step %d mode %s t %.1f party %d" % [_demo_step, mode, _demo_t, (party.get("members", []) as Array).size()])
 	match mode:
 		"hub":
 			if _demo_step == 0 and _demo_t > 1.0:
-				_demo_step = 1
+				_demo_step = 50
 				_screenshot("02_hub.png")
-			elif _demo_step >= 1 and _demo_step <= 8 and _demo_t > 1.3 + 0.4 * (_demo_step - 1):
+			elif _demo_step >= 50 and _demo_step <= 57 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
 				# 메뉴 탭을 차례로 열어 찍는다 (열기 → 다음 틱에 촬영). 각 탭은 두 단계(열기/촬영)를 쓴다.
 				var tabs: Array = ["village", "mastery", "codex", "quest"]
-				var ti: int = (_demo_step - 1) / 2
-				if (_demo_step - 1) % 2 == 0:
+				var ti: int = (_demo_step - 50) / 2
+				if (_demo_step - 50) % 2 == 0:
 					hub_screen.open_menu(String(tabs[ti]))
 				else:
 					_screenshot("02%s_menu_%s.png" % [String("bcde"[ti]), String(tabs[ti])])
 				_demo_step += 1
-			elif _demo_step == 9 and _demo_t > 4.6:
+			elif _demo_step == 58 and _demo_t > 4.6:
 				_demo_step = 11
 				hub_screen.close_menu()
 			elif _demo_step == 11 and _demo_t > 4.9 and party.is_empty():
 				_demo_step = 2
+				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class})
 			elif _demo_step == 2 and not party.is_empty() and _demo_t > 2.2:
 				_demo_step = 3
 				net.send(Protocol.C.READY, {"ready": true, "class_id": selected_class})
@@ -1024,7 +1045,19 @@ func _demo_tick(dt: float) -> void:
 				_screenshot("03_party.png")
 				net.send(Protocol.C.BOARD_START)
 		"room":
-			if _demo_step >= 5 and _demo_t > 2.5 and not _demo_want.is_empty() and _demo_t - _demo_press_t >= 1.2:
+			if world.explore and _demo_step < 40:
+				if _demo_step != 39:
+					_demo_step = 39
+					_demo_t = 0.0
+					_map_big = true
+					hud.minimap.big = true
+				elif _demo_t > 1.2:
+					_demo_step = 40
+					_screenshot("10_explore_doors.png")
+			elif not world.explore and _demo_step == 40 and _demo_t > 1.5:
+				_demo_step = 5
+				_screenshot("11_next_room.png")
+			if _demo_step >= 5 and _demo_step < 39 and _demo_t > 2.5 and not _demo_want.is_empty() and _demo_t - _demo_press_t >= 1.2:
 				_demo_press_t = _demo_t
 				var slot: String = _demo_want[_demo_press_i % _demo_want.size()]
 				_demo_press_i += 1
@@ -1059,10 +1092,6 @@ func _demo_tick(dt: float) -> void:
 				# 자동 진행: 보상 첫 항목 / 첫 경로 / 메뉴 계속·투표
 				if run_panels._mode == "reward":
 					net.send(Protocol.C.REWARD_PICK, {"index": 0})
-				elif run_panels._mode == "route":
-					var nodes: Array = _route_offer.get("nodes", [])
-					if not nodes.is_empty():
-						net.send(Protocol.C.ROUTE_VOTE, {"node_id": String(nodes[0]["id"])})
 				elif run_panels._mode == "menu":
 					net.send(Protocol.C.NODE_ACTION, {"action": "continue"})
 					net.send(Protocol.C.NODE_ACTION, {"action": "vote", "choice": "gnaw"})
@@ -1103,6 +1132,25 @@ func _demo_input() -> Dictionary:
 	var btn := 0
 	var aim := Vector2.RIGHT * 10
 	if mode != "room" or _me_snapshot.is_empty():
+		return {"mv": mv, "btn": btn, "aim": aim}
+	if world.explore:
+		# 탐색 모드: 가장 가까운 열린 문(안 깬 방 우선)으로 걸어가 선다
+		var door_best := 1e9
+		var door_pos := Vector2.ZERO
+		var door_r := 70.0
+		for o: PackedFloat32Array in world.objects:
+			if int(o[Protocol.SNAP_OB.KIND]) != Protocol.ObKind.DOOR or (int(o[Protocol.SNAP_OB.STATE]) >> 7) & 1 == 1:
+				continue
+			var dp := Vector2(o[Protocol.SNAP_OB.X], o[Protocol.SNAP_OB.Y])
+			var d := dp.distance_to(_pred_pos) + (600.0 if (int(o[Protocol.SNAP_OB.STATE]) >> 6) & 1 == 1 else 0.0)
+			if d < door_best:
+				door_best = d
+				door_pos = dp
+				door_r = o[Protocol.SNAP_OB.R]
+		if door_best < 1e8:
+			aim = door_pos - _pred_pos
+			if _demo_t > 2.0 and door_pos.distance_to(_pred_pos) > door_r * 0.4:
+				mv = aim.normalized()
 		return {"mv": mv, "btn": btn, "aim": aim}
 	var best := 1e9
 	var target := Vector2.ZERO
@@ -1181,14 +1229,8 @@ func _feed_minimap(p: Dictionary) -> void:
 		mm.boss_pos = Vector2(float(bs["x"]), float(bs["y"]))
 
 
-func _route_summary(run: Dictionary) -> String:
-	var parts: PackedStringArray = []
-	var layers: Array = run.get("layers", [])
-	var cur := String(run.get("current", ""))
-	for layer: Array in layers:
-		var names: PackedStringArray = []
-		for n: Dictionary in layer:
-			var t: String = {"combat": "전투", "event": "사건", "shop": "상점", "rest": "휴식", "boss": "보스", "elite": "정예"}.get(String(n.get("type", "")), "?")
-			names.append(("▶" if String(n.get("id", "")) == cur else "") + t)
-		parts.append("/".join(names))
-	return "경로: " + " → ".join(parts) if not parts.is_empty() else ""
+func _dungeon_summary(run: Dictionary) -> String:
+	var g: Dictionary = run.get("dungeon", {})
+	if g.is_empty():
+		return ""
+	return "%s (지역 %d/%d) · 방 %d/%d 클리어 · 보스: %s" % [g.get("region_name", ""), int(run.get("region_index", 0)) + 1, int(run.get("regions_total", 1)), int(g.get("rooms_cleared", 0)), int(g.get("rooms_total", 0)), "처치" if bool(g.get("rooms", {}).get(String(g.get("boss", "")), {}).get("cleared", false)) else "오른쪽 끝"]

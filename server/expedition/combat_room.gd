@@ -48,6 +48,11 @@ var _forced_elite_done: bool = false
 var enemy_pool: Array = []
 var boss: RefCounted = null        # 보스방일 때 BossController (단계 2-3)
 var _retreat_t: float = -1.0
+var explore: bool = false          # 던파식 탐색 모드: 클리어된 방. 적 없음, 문으로 이동
+var doors: Array = []              # [{dir, target, target_type, target_cleared, pos}] (opts.doors)
+var pending_travel: String = ""    # 문 이동이 결정되면 방향("n"/"e"/"s"/"w")
+var entry_dir: String = ""
+var entry_spawns: Dictionary = {}  # account_id -> [x, y] (문 기준 입장 위치)
 
 
 func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, seed_: int, members: Array, opts: Dictionary = {}) -> void:
@@ -69,15 +74,32 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 	wave_budget_total = (float(w.get("base_budget", 4.0)) + float(opts.get("budget_add", 0.0))) * float(profile.get("wave_budget_mult", 1.0))
 	var dr: Dictionary = game_rules.get("director", {})
 	_director_reserve = wave_budget_total * float(dr.get("reserve_frac", 0.5)) if float(w.get("base_budget", 0.0)) > 0.0 else 0.0
+	explore = bool(opts.get("explore", false))
+	if explore:
+		objective = "explore"
+	entry_dir = String(opts.get("entry_dir", ""))
+	doors = (opts.get("doors", []) as Array).duplicate(true)
+	# 문 기준 입장: 들어온 문 앞에 부채꼴로 선다. 보스방은 항상 정해진 입구(플레이어 스폰)를 쓴다.
 	var spawns: Array = def.get("player_spawns", [[100, 100]])
+	if entry_dir != "" and objective != "boss":
+		spawns = entry_spawn_points(def, entry_dir, game_rules)
+		if entry_dir == "e":
+			# 동쪽에서 들어오면 적 스폰을 좌우 반전해 반대편에서 나오게 한다
+			room_def = def.duplicate(true)
+			var mirrored: Array = []
+			for sp: Array in def.get("enemy_spawns", []):
+				mirrored.append([bounds.position.x + bounds.size.x - float(sp[0]), float(sp[1])])
+			room_def["enemy_spawns"] = mirrored
 	var i := 0
 	_members_snapshot = members
 	for m: Dictionary in members:
 		add_player(m, spawns[i % spawns.size()], members.size())
+		entry_spawns[String(m.get("account_id", ""))] = spawns[i % spawns.size()]
 		i += 1
 	hazards = def.get("hazards", []).duplicate(true)
 	_setup_objects()
-	if objective != "boss":
+	_setup_doors()
+	if objective != "boss" and not explore:
 		_spawn_wave()
 	if objective == "tutorial":
 		var steps: Array = rules.get("tutorial_steps", [])
@@ -88,6 +110,9 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 # ------------------------------------------------------------------ setup
 
 func _setup_objects() -> void:
+	if explore:
+		_setup_secret()
+		return
 	for t: Array in room_def.get("gnaw_trees", []):
 		var o := _add_object(Protocol.ObKind.GNAW_TREE, Vector2(t[0], t[1]), 30.0, {"hold_sec": float(rules.get("gnaw_hold_sec", 1.2))})
 		obstacles.append({"shape": "circle", "x": o["pos"].x, "y": o["pos"].y, "r": 30, "object_id": o["id"]})
@@ -96,14 +121,7 @@ func _setup_objects() -> void:
 	var hz: Dictionary = room_def.get("hold_zone", {})
 	if not hz.is_empty():
 		_add_object(Protocol.ObKind.HOLD_ZONE, Vector2(float(hz["x"]), float(hz["y"])), float(hz.get("r", 120)), {"required": float(hz.get("required_sec", 20)), "contest_radius": float(hz.get("contest_radius", 140))})
-	var sec: Dictionary = room_def.get("secret", {})
-	if not sec.is_empty() and rng.randf() < float(sec.get("chance", 0.6)):
-		var found := false
-		for m: Dictionary in _members_snapshot:
-			if (m.get("secrets_found", []) as Array).has(String(sec.get("id", ""))):
-				found = true
-		if not found:
-			_add_object(Protocol.ObKind.SECRET, Vector2(float(sec["x"]), float(sec["y"])), 24.0, {"hold_sec": 2.0, "interactable": true, "secret_id": String(sec.get("id", "")), "name_ko": String(sec.get("name_ko", ""))})
+	_setup_secret()
 	var esc: Dictionary = room_def.get("escort", {})
 	if not esc.is_empty() and objective == "escort":
 		var path: Array = esc.get("path", [[100, 100], [900, 100]])
@@ -114,6 +132,157 @@ func _setup_objects() -> void:
 		_add_object(Protocol.ObKind.SLUICE_LEVER, Vector2(lever[0], lever[1]), 28.0, {"hold_sec": float(sl.get("hold_sec", 1.5))})
 		var z: Dictionary = sl["zone"]
 		water_zone = {"x": float(z["x"]), "y": float(z["y"]), "w": float(z["w"]), "h": float(z["h"]), "state": 0, "t": 0.0}
+
+
+func _setup_secret() -> void:
+	var sec: Dictionary = room_def.get("secret", {})
+	if not sec.is_empty() and rng.randf() < float(sec.get("chance", 0.6)):
+		var found := false
+		for m: Dictionary in _members_snapshot:
+			if (m.get("secrets_found", []) as Array).has(String(sec.get("id", ""))):
+				found = true
+		if not found:
+			_add_object(Protocol.ObKind.SECRET, Vector2(float(sec["x"]), float(sec["y"])), 24.0, {"hold_sec": 2.0, "interactable": true, "secret_id": String(sec.get("id", "")), "name_ko": String(sec.get("name_ko", ""))})
+
+
+## 던파식 문: 격자에서 이웃 방이 있는 방향에만 놓인다. 전투 중엔 잠기고(비트 7) 클리어 뒤 열린다.
+func _setup_doors() -> void:
+	var dr: Dictionary = rules.get("dungeon_doors", {})
+	var positions := door_positions(room_def, rules)
+	for d: Dictionary in doors:
+		var dir := String(d.get("dir", "e"))
+		if not positions.has(dir):
+			continue
+		var o := _add_object(Protocol.ObKind.DOOR, positions[dir], float(dr.get("radius", 72)), {"dir": dir, "target": String(d.get("target", "")), "target_type": String(d.get("target_type", "combat")), "target_cleared": bool(d.get("target_cleared", false)), "locked": not explore, "inside": 0})
+		_refresh_door_state(o)
+
+
+func _refresh_door_state(o: Dictionary) -> void:
+	var st := Protocol.DOOR_DIRS.find(String(o.get("dir", "e")))
+	st |= maxi(Protocol.DOOR_TYPES.find(String(o.get("target_type", "combat"))), 0) << 2
+	if bool(o.get("target_cleared", false)):
+		st |= 1 << 6
+	if bool(o.get("locked", false)):
+		st |= 1 << 7
+	st |= clampi(int(o.get("inside", 0)), 0, 7) << 8
+	o["state"] = st
+
+
+## 방 정의의 경계·물·장애물을 피해서 네 방향 문 위치를 정한다 (서버·검수 도구 공용).
+static func door_positions(def: Dictionary, game_rules: Dictionary) -> Dictionary:
+	var b: Dictionary = def.get("bounds", {"x": 0, "y": 0, "w": 1200, "h": 800})
+	var rect := Rect2(float(b["x"]), float(b["y"]), float(b["w"]), float(b["h"]))
+	var margin := float(game_rules.get("dungeon_doors", {}).get("margin", 90))
+	var c := rect.get_center()
+	var out := {
+		"n": Vector2(c.x, rect.position.y + margin), "s": Vector2(c.x, rect.end.y - margin),
+		"e": Vector2(rect.end.x - margin, c.y), "w": Vector2(rect.position.x + margin, c.y),
+	}
+	for dir: String in out.keys():
+		var pos: Vector2 = out[dir]
+		var inward: Vector2 = (c - pos).normalized()
+		var guard := 0
+		while guard < 40 and _door_blocked(pos, def):
+			pos += inward * 20.0
+			guard += 1
+		out[dir] = pos
+	return out
+
+
+static func _door_blocked(pos: Vector2, def: Dictionary) -> bool:
+	for w: Dictionary in def.get("water", []):
+		var r := Rect2(float(w["x"]) - 40.0, float(w["y"]) - 40.0, float(w["w"]) + 80.0, float(w["h"]) + 80.0)
+		if r.has_point(pos):
+			return true
+	for o: Dictionary in def.get("obstacles", []):
+		if String(o.get("shape", "circle")) == "circle" and pos.distance_to(Vector2(float(o["x"]), float(o["y"]))) < float(o.get("r", 30)) + 70.0:
+			return true
+	return false
+
+
+## 들어온 문 앞 입장 위치 4개 (문에서 안쪽으로 entry_offset, 좌우로 부채꼴)
+static func entry_spawn_points(def: Dictionary, dir: String, game_rules: Dictionary) -> Array:
+	var positions := door_positions(def, game_rules)
+	var b: Dictionary = def.get("bounds", {"x": 0, "y": 0, "w": 1200, "h": 800})
+	var c := Rect2(float(b["x"]), float(b["y"]), float(b["w"]), float(b["h"])).get_center()
+	var door: Vector2 = positions.get(dir, c)
+	var inward: Vector2 = (c - door).normalized()
+	var side := Vector2(-inward.y, inward.x)
+	var base: Vector2 = door + inward * float(game_rules.get("dungeon_doors", {}).get("entry_offset", 120))
+	var rect := Rect2(float(b["x"]), float(b["y"]), float(b["w"]), float(b["h"])).grow(-40.0)
+	var out: Array = []
+	for k: float in [0.0, -1.0, 1.0, -2.0]:
+		var p := base + side * 44.0 * k + inward * 18.0 * absf(k)
+		# 장애물 안이면 장애물 중심 반대쪽으로 밀어낸다
+		for guard in 3:
+			for o: Dictionary in def.get("obstacles", []):
+				var oc := Vector2(float(o["x"]), float(o["y"]))
+				var need := float(o.get("r", 30)) + 26.0
+				var dist := p.distance_to(oc)
+				if dist < need:
+					p = oc + ((p - oc).normalized() if dist > 0.5 else inward) * need
+		p = Vector2(clampf(p.x, rect.position.x, rect.end.x), clampf(p.y, rect.position.y, rect.end.y))
+		out.append([p.x, p.y])
+	return out
+
+
+## 클리어된 방을 탐색 모드로 바꾼다: 적·투사체·목표 오브젝트를 치우고 문을 연다. 플레이어 위치는 그대로.
+func enter_explore() -> void:
+	explore = true
+	objective = "explore"
+	objective_done = false
+	outcome = Protocol.Outcome.NONE
+	pending_travel = ""
+	enemies.clear()
+	projectiles.clear()
+	boss = null
+	hazards = hazards.filter(func(h: Dictionary) -> bool: return not h.has("life"))
+	for oid: int in objects.keys().duplicate():
+		var o: Dictionary = objects[oid]
+		if int(o["kind"]) in [Protocol.ObKind.DOOR, Protocol.ObKind.SECRET, Protocol.ObKind.STRUCTURE, Protocol.ObKind.TRAP]:
+			continue
+		objects.erase(oid)
+	for o: Dictionary in objects.values():
+		if int(o["kind"]) == Protocol.ObKind.DOOR:
+			o["locked"] = false
+			o["progress"] = 0.0
+			_refresh_door_state(o)
+	for p: Dictionary in players.values():
+		if p["state"] == Protocol.EntState.DOWNED:
+			# 클리어 시점에 다운돼 있던 사람은 일어난다 (돌아온 체력은 원정 규칙이 정한다)
+			p["state"] = Protocol.EntState.ALIVE
+			p["hp"] = maxf(p["hp"], float(p["max_hp"]) * float(rules.get("return_from_death_hp_fraction", 0.5)))
+			p["down_t"] = 0.0
+	events.append({"k": "explore", "doors": doors.size()})
+
+
+## 문 집합 판정: 살아 있는 접속 인원이 전원이면 all_sec, 과반이면 majority_sec 뒤에 이동. 아니면 진행이 줄어든다.
+func _step_doors(dt: float) -> void:
+	if pending_travel != "":
+		return
+	var dr: Dictionary = rules.get("dungeon_doors", {})
+	var total := alive_connected_count()
+	for o: Dictionary in objects.values():
+		if int(o["kind"]) != Protocol.ObKind.DOOR or bool(o.get("locked", false)):
+			continue
+		var inside := 0
+		for p: Dictionary in players.values():
+			if p["state"] == Protocol.EntState.ALIVE and p["connected"] and (p["pos"] as Vector2).distance_to(o["pos"]) <= float(o["r"]):
+				inside += 1
+		o["inside"] = inside
+		var prog := float(o["progress"])
+		if total > 0 and inside >= total:
+			prog += dt / maxf(float(dr.get("all_sec", 3.0)), 0.1)
+		elif total > 0 and inside * 2 > total:
+			prog += dt / maxf(float(dr.get("majority_sec", 10.0)), 0.1)
+		else:
+			prog = maxf(prog - dt * 0.5, 0.0)
+		o["progress"] = clampf(prog, 0.0, 1.0)
+		_refresh_door_state(o)
+		if prog >= 1.0:
+			pending_travel = String(o["dir"])
+			events.append({"k": "door", "dir": pending_travel, "target": String(o.get("target", "")), "target_type": String(o.get("target_type", ""))})
+			return
 
 
 func _add_object(kind: int, pos: Vector2, r: float, extra: Dictionary) -> Dictionary:
@@ -229,6 +398,9 @@ func step(dt: float) -> Array:
 			if float(hz["life"]) <= 0.0:
 				hazards.remove_at(i)
 	_step_water(dt)
+	if explore:
+		_step_doors(dt)
+		return events
 	if boss != null:
 		boss.step(dt)
 	_step_waves(dt)
@@ -1128,7 +1300,7 @@ func _fire_procs(p: Dictionary, trigger: String, ctx: Dictionary) -> void:
 
 ## 플레이어 피해. source_id 는 원인 ID("e<id>", "p<id>", "hazard"), source_enemy 는 반격용.
 func _damage_player(p: Dictionary, amount: float, source_pos: Vector2, source_id: String, source_enemy: Dictionary = {}) -> void:
-	if p["state"] != Protocol.EntState.ALIVE:
+	if p["state"] != Protocol.EntState.ALIVE or explore:
 		return
 	if float(p["invuln_t"]) > 0.0 or float(p["protect_t"]) > 0.0:
 		events.append({"k": "evaded", "id": p["id"]})

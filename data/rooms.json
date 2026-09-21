@@ -3236,5 +3236,197 @@
    },
    "hold_sec": 1.5
   }
+ },
+ "willow_hall": {
+  "id": "willow_hall",
+  "name_ko": "버들강 샛길",
+  "region": "willow_river",
+  "objective": "explore",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1100,
+   "h": 720
+  },
+  "player_spawns": [
+   [
+    200,
+    360
+   ],
+   [
+    240,
+    320
+   ],
+   [
+    240,
+    400
+   ],
+   [
+    280,
+    360
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    900,
+    360
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 500,
+    "y": 220,
+    "r": 40,
+    "asset": "prop.willow.log"
+   },
+   {
+    "shape": "circle",
+    "x": 720,
+    "y": 520,
+    "r": 44,
+    "asset": "prop.willow.rock"
+   }
+  ],
+  "water": [],
+  "waves": {
+   "base_budget": 0,
+   "wave_count": 1
+  },
+  "enemy_pool": [],
+  "assets": {
+   "ground": "tile.willow.ground",
+   "wall": "tile.willow.wall",
+   "water": "tile.willow.water",
+   "bgm": "bgm.hub"
+  }
+ },
+ "swamp_hall": {
+  "id": "swamp_hall",
+  "name_ko": "습지 뿌리 다리",
+  "region": "black_sap_swamp",
+  "objective": "explore",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1100,
+   "h": 720
+  },
+  "player_spawns": [
+   [
+    200,
+    360
+   ],
+   [
+    240,
+    320
+   ],
+   [
+    240,
+    400
+   ],
+   [
+    280,
+    360
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    900,
+    360
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 520,
+    "y": 240,
+    "r": 40,
+    "asset": "prop.swamp.stump"
+   },
+   {
+    "shape": "circle",
+    "x": 700,
+    "y": 500,
+    "r": 46,
+    "asset": "prop.swamp.mushroom"
+   }
+  ],
+  "water": [],
+  "waves": {
+   "base_budget": 0,
+   "wave_count": 1
+  },
+  "enemy_pool": [],
+  "assets": {
+   "ground": "tile.swamp.ground",
+   "wall": "tile.swamp.wall",
+   "water": "tile.swamp.water",
+   "bgm": "bgm.hub"
+  }
+ },
+ "dam_hall": {
+  "id": "dam_hall",
+  "name_ko": "뿌리댐 통로",
+  "region": "ancient_root_dam",
+  "objective": "explore",
+  "bounds": {
+   "x": 0,
+   "y": 0,
+   "w": 1100,
+   "h": 720
+  },
+  "player_spawns": [
+   [
+    200,
+    360
+   ],
+   [
+    240,
+    320
+   ],
+   [
+    240,
+    400
+   ],
+   [
+    280,
+    360
+   ]
+  ],
+  "enemy_spawns": [
+   [
+    900,
+    360
+   ]
+  ],
+  "obstacles": [
+   {
+    "shape": "circle",
+    "x": 520,
+    "y": 240,
+    "r": 42,
+    "asset": "prop.dam.gear"
+   },
+   {
+    "shape": "circle",
+    "x": 720,
+    "y": 500,
+    "r": 48,
+    "asset": "prop.dam.timber"
+   }
+  ],
+  "water": [],
+  "waves": {
+   "base_budget": 0,
+   "wave_count": 1
+  },
+  "enemy_pool": [],
+  "assets": {
+   "ground": "tile.rootdam.ground",
+   "wall": "tile.rootdam.wall",
+   "water": "tile.rootdam.water",
+   "bgm": "bgm.hub"
+  }
  }
 }

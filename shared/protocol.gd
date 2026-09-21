@@ -2,8 +2,8 @@ extends Node
 ## 클라이언트와 서버가 공유하는 프로토콜 상수. 버전이 맞지 않으면 게임 상태를 보내기 전에 접속을 끊는다.
 
 const PROTOCOL_VERSION: int = 1
-const CONTENT_VERSION: String = "0.3.0"
-const BUILD_VERSION: String = "0.3.0-roguelike"
+const CONTENT_VERSION: String = "0.4.0"
+const BUILD_VERSION: String = "0.4.0-dungeon"
 const DEFAULT_PORT: int = 7777
 const MAX_PARTY_SIZE: int = 4
 
@@ -82,7 +82,10 @@ enum SNAP_TG { TYPE, X, Y, R, REMAINING, TOTAL, DX, DY, W }   # TYPE 0=원 1=직
 enum SNAP_PR { X, Y, VX, VY, R, KIND }                      # KIND 0=적 투사체 1=아군 투사체
 enum SNAP_OB { ID, KIND, X, Y, R, PROGRESS, STATE }          # 상호작용물. KIND 는 ObKind
 enum ObKind { GNAW_TREE, DEVICE, SLUICE_LEVER, HOLD_ZONE, STRUCTURE, TRAP, VOLLEY, WATER_ZONE, PILLAR, GATE, CLAW_LINK, HUSK, CORRIDOR, ROPE, DEBRIS, ANCHOR, PLATFORM, HAZARD, TURRET, DAM, ROOT_ZONE, FLOOD_ZONE, RAFT,
-	LANTERN, SEED, SPORE_NODE, RESONANCE_LOG, FIREFLY, VAT, CRACK, CHANNEL_PIECE, PARASITE, ECHO, VALVE, GAUGE, SECRET }
+	LANTERN, SEED, SPORE_NODE, RESONANCE_LOG, FIREFLY, VAT, CRACK, CHANNEL_PIECE, PARASITE, ECHO, VALVE, GAUGE, SECRET, DOOR }
+## DOOR 오브젝트 STATE 비트: 0-1 방향(DOOR_DIRS 인덱스), 2-5 목표 방 유형(DOOR_TYPES 인덱스), 6 목표 방 클리어됨, 7 잠김(전투 중), 8-10 문 안에 있는 인원
+const DOOR_DIRS := ["n", "e", "s", "w"]
+const DOOR_TYPES := ["combat", "elite", "boss", "treasure", "shop", "rest", "event", "start"]
 
 ## 플레이어/적 상태
 enum EntState { ALIVE, DOWNED, DEAD }

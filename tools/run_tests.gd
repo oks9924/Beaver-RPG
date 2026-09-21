@@ -548,6 +548,42 @@ func test_objectives_and_interactables() -> void:
 	check(victim["ai"] == Protocol.EnemyAI.ROOTED, "trap roots the enemy")
 
 
+## 테스트 보조: 탐색 중인 방에서 조건에 맞는 문(목표 유형)으로 전원을 세우고 집합 시간이 지나 이동할 때까지 돌린다.
+func _travel_through(inst: ExpeditionInstance, want_types: Array = [], want_uncleared: bool = true) -> String:
+	if inst.room == null or not inst.room.explore:
+		return ""
+	var pick: Dictionary = {}
+	for o: Dictionary in inst.room.objects.values():
+		if int(o["kind"]) != Protocol.ObKind.DOOR:
+			continue
+		if want_uncleared and bool(o.get("target_cleared", false)):
+			continue
+		if not want_types.is_empty() and not want_types.has(String(o.get("target_type", ""))):
+			continue
+		pick = o
+		break
+	if pick.is_empty():
+		return ""
+	for p: Dictionary in inst.room.players.values():
+		p["pos"] = pick["pos"]
+	var guard := 0
+	while inst.room != null and inst.room.explore and guard < 200:
+		inst.step(1.0 / 30.0, 2)
+		guard += 1
+	return String(pick.get("dir", ""))
+
+
+func _clear_current_room(inst: ExpeditionInstance, killer: String) -> void:
+	inst.room._all_spawned = true
+	inst.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
+	inst.room.wave_index = inst.room.wave_count
+	for e: Dictionary in inst.room.enemies.values():
+		inst.room._kill_enemy(e, inst.room.players[killer])
+	if not inst.room.objective in ["annihilate", "boss", "tutorial"]:
+		inst.room._objective_complete()   # 거점·장치·호위 방은 목표 달성으로 끝난다
+	inst.step(1.0 / 30.0, 2)
+
+
 func test_run_structure() -> void:
 	var a := ExpeditionInstance.new("exp_t", 4242)
 	var b := ExpeditionInstance.new("exp_t2", 4242)
@@ -556,26 +592,28 @@ func test_run_structure() -> void:
 		b.add_member(_make_session(10 + i))
 	a.start_run()
 	b.start_run()
-	check(a.run["layers"].size() >= 5 and a.state == Protocol.ExpState.IN_ROOM and String(a.run["layers"][0][0].get("region", "")) == "willow_river", "run starts in the first combat node")
-	var va: Array = []
-	var vb: Array = []
-	for layer: Array in a.run["layers"]:
-		for n: Dictionary in layer:
-			va.append(n["variant"])
-	for layer: Array in b.run["layers"]:
-		for n: Dictionary in layer:
-			vb.append(n["variant"])
-	check(va == vb, "same seed reproduces the same route (GEN-01)")
+	var ga: Dictionary = a.grid()
+	check(a.run["dungeons"].size() == 3 and a.state == Protocol.ExpState.IN_ROOM and String(ga.get("region", "")) == "willow_river", "run starts in the first region's start room (combat)")
+	check(ga["rooms"].size() >= 7 and ga["rooms"].size() <= 11 and ga["rooms"].has(ga["boss"]) and ga["rooms"].has(ga["start"]), "region grid has 7..11 rooms with start and boss cells (%d)" % ga["rooms"].size())
+	check(int(ga["rooms"][ga["start"]]["x"]) == 0 and int(ga["rooms"][ga["boss"]]["x"]) == int(ga["cols"]) - 1, "start in the left column, boss in the right column")
+	check(JSON.stringify(a.run["dungeons"]) == JSON.stringify(b.run["dungeons"]), "same seed reproduces the same dungeon (GEN-01)")
 	var c := ExpeditionInstance.new("exp_t3", 99)
 	c.add_member(_make_session(20))
 	c.start_run()
-	check(c.run_payload()["layers"].size() >= 5, "run payload has layers")
-	# 방 완료 → 보상 3지선다 → 전원 선택 → 다음 층(2노드) 경로 투표
-	a.room._all_spawned = true
-	a.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
-	for e: Dictionary in a.room.enemies.values():
-		a.room._kill_enemy(e, a.room.players["run0"])
-	a.step(1.0 / 30.0, 2)
+	var cp := c.run_payload()
+	check(cp.has("dungeon") and int(cp["dungeon"]["rooms_total"]) >= 7 and int(cp["regions_total"]) == 3, "run payload carries the grid and region count")
+	var hidden := 0
+	for k: String in cp["dungeon"]["rooms"].keys():
+		if String(cp["dungeon"]["rooms"][k]["type"]) == "?":
+			hidden += 1
+	check(hidden > 0 and String(cp["dungeon"]["rooms"][cp["dungeon"]["boss"]]["type"]) == "boss", "unrevealed rooms are hidden but the boss cell is always shown")
+	var locked_doors := 0
+	for o: Dictionary in a.room.objects.values():
+		if int(o["kind"]) == Protocol.ObKind.DOOR and bool(o.get("locked", false)):
+			locked_doors += 1
+	check(locked_doors >= 1 and locked_doors == (ga["rooms"][ga["start"]]["doors"] as Dictionary).size(), "combat room has one locked door per grid neighbour")
+	# 방 완료 → 보상 3지선다 → 전원 선택 → 같은 방 탐색 모드(문 열림)
+	_clear_current_room(a, "run0")
 	check(a.state == Protocol.ExpState.REWARD, "victory enters REWARD")
 	var opts0: Array = a.run["pending_rewards"]["run0"]
 	check(opts0.size() == 3, "three reward options offered")
@@ -583,56 +621,116 @@ func test_run_structure() -> void:
 	check(a.pick_reward("run0", 0), "pick reward")
 	check(a.state == Protocol.ExpState.REWARD, "waits for the other member")
 	check(a.pick_reward("run1", 1), "second pick")
-	check(a.state == Protocol.ExpState.ROUTE_VOTE and a.run["vote_nodes"].size() == 2, "after rewards, route vote with 2 nodes")
+	check(a.state == Protocol.ExpState.IN_ROOM and a.room != null and a.room.explore and a.is_safe_point(), "after rewards the cleared room becomes an explore room (safe point)")
+	check(bool(a.current_node()["cleared"]) and int(a.run["layer"]) == 1, "room marked cleared and depth advanced")
 	var rp0: Dictionary = a.run["players"]["run0"]
 	check(rp0["relics"].size() + rp0["upgrades"].size() == 1, "reward applied to run player")
 	var mods: Dictionary = a.member_mods("run0")["mods"]
 	check(mods.has("damage_mult"), "mods computed from relics")
-	# 투표 동률 → 시드 추첨, 결정 후 노드 진입
-	var n0: String = a.run["vote_nodes"][0]["id"]
-	var n1: String = a.run["vote_nodes"][1]["id"]
-	a.vote_route("run0", n0)
-	a.vote_route("run1", n1)
-	check(a.state in [Protocol.ExpState.IN_ROOM, Protocol.ExpState.NODE_MENU], "tie resolved by seeded draw and node entered")
-	# 이탈자는 보상·투표를 막지 않는다
+	var unlocked := 0
+	for o: Dictionary in a.room.objects.values():
+		if int(o["kind"]) == Protocol.ObKind.DOOR and not bool(o.get("locked", false)):
+			unlocked += 1
+	check(unlocked == locked_doors, "doors unlock after the clear")
+	# 문 집합: 한 명만 서 있으면(과반 아님) 진행되지 않고, 전원이 서면 3초 뒤 이동
+	var door: Dictionary = {}
+	for o: Dictionary in a.room.objects.values():
+		if int(o["kind"]) == Protocol.ObKind.DOOR:
+			door = o
+			break
+	a.room.players["run0"]["pos"] = door["pos"]
+	a.room.players["run1"]["pos"] = door["pos"] + Vector2(400, 0)
+	for i in 60:
+		a.step(1.0 / 30.0, 2)
+	check(a.room != null and a.room.explore and float(door["progress"]) == 0.0, "one of two at the door (not a majority) does not open it")
+	a.room.players["run1"]["pos"] = door["pos"]
+	for i in 30:
+		a.step(1.0 / 30.0, 2)
+	check(a.room != null and a.room.explore and float(door["progress"]) > 0.2 and float(door["progress"]) < 0.9, "all members at the door: progress runs on the 3 s timer")
+	var before_cell := String(a.run["cell"])
+	for i in 80:
+		a.step(1.0 / 30.0, 2)
+	check(String(a.run["cell"]) != before_cell and String(a.run["cell"]) == String(ga["rooms"][before_cell]["doors"][door["dir"]]), "party moved through the door to the neighbouring cell")
+	check(a.state in [Protocol.ExpState.IN_ROOM, Protocol.ExpState.NODE_MENU, Protocol.ExpState.REWARD], "neighbouring cell entered (combat, menu or treasure)")
+	if a.state == Protocol.ExpState.IN_ROOM:
+		check(not a.room.explore and a.room.entry_dir == ExpeditionInstance.DOOR_OPPOSITE[door["dir"]], "new combat room knows the entry door (%s)" % a.room.entry_dir)
+		check(a.room.entry_spawns.has("run0") and a.room.players["run0"]["pos"].distance_to(CombatRoom.door_positions(a.room.room_def, ContentDB.rules)[a.room.entry_dir]) < 260.0, "players spawn just inside the entry door")
+	# 되돌아가기: 클리어된 방은 탐색 모드로 다시 들어가고 적이 없다
+	var back := ExpeditionInstance.new("exp_back", 4242)
+	back.add_member(_make_session(5))
+	back.start_run()
+	_clear_current_room(back, "run5")
+	back.pick_reward("run5", 0)
+	var first_cell := String(back.run["cell"])
+	var d1 := _travel_through(back, ["combat", "elite"])
+	check(d1 != "" and String(back.run["cell"]) != first_cell, "travelled to an uncleared combat neighbour")
+	if back.state == Protocol.ExpState.IN_ROOM and not back.room.explore:
+		_clear_current_room(back, "run5")
+		back.pick_reward("run5", 0)
+		var came_from: String = ExpeditionInstance.DOOR_OPPOSITE[d1]
+		var d2 := ""
+		for o: Dictionary in back.room.objects.values():
+			if int(o["kind"]) == Protocol.ObKind.DOOR and String(o["dir"]) == came_from:
+				check(bool(o.get("target_cleared", false)), "door back to the cleared room is flagged cleared")
+				back.room.players["run5"]["pos"] = o["pos"]
+				d2 = came_from
+		for i in 200:
+			if back.room == null or not back.room.explore or String(back.run["cell"]) == first_cell:
+				break
+			back.step(1.0 / 30.0, 2)
+		check(String(back.run["cell"]) == first_cell and back.room.explore and back.room.enemies.is_empty(), "backtracking re-enters the cleared room in explore mode without enemies")
+	# 이탈자는 보상·문 이동을 막지 않는다
 	var d := ExpeditionInstance.new("exp_t4", 77)
 	d.add_member(_make_session(30))
 	d.add_member(_make_session(31))
 	d.start_run()
 	d.mark_disconnected("run31")
-	d.room._all_spawned = true
-	d.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
-	for e: Dictionary in d.room.enemies.values():
-		d.room._kill_enemy(e, d.room.players["run30"])
-	d.step(1.0 / 30.0, 2)
+	_clear_current_room(d, "run30")
 	d.pick_reward("run30", 0)
 	check(d.state != Protocol.ExpState.REWARD, "disconnected member's reward is defaulted so the party proceeds")
-	# 안전 지점 합류: 합류 묶음과 N 재산정
+	var moved := _travel_through(d)
+	check(moved != "", "a lone connected member counts as everyone at the door")
+	# 안전 지점 합류: 합류 묶음과 N 재산정 (탐색 중 합류하면 걷는 방에 바로 들어온다)
 	var e_inst := ExpeditionInstance.new("exp_t5", 500)
 	e_inst.add_member(_make_session(40))
 	e_inst.start_run()
-	e_inst.room._all_spawned = true
-	e_inst.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
-	for en: Dictionary in e_inst.room.enemies.values():
-		e_inst.room._kill_enemy(en, e_inst.room.players["run40"])
-	e_inst.step(1.0 / 30.0, 2)
+	_clear_current_room(e_inst, "run40")
 	check(e_inst.is_safe_point() and e_inst.can_join("run41") == "", "REWARD is a safe point for joining")
-	e_inst.add_member(_make_session(41))
-	check(e_inst.run["players"].has("run41"), "joiner gets a run player record")
 	e_inst.pick_reward("run40", 0)
-	if e_inst.state == Protocol.ExpState.ROUTE_VOTE:
-		e_inst.vote_route("run40", String(e_inst.run["vote_nodes"][0]["id"]))
-		e_inst.vote_route("run41", String(e_inst.run["vote_nodes"][0]["id"]))
-	if e_inst.state == Protocol.ExpState.NODE_MENU:
-		e_inst.node_action("run40", {"action": "continue"})
-		e_inst.node_action("run41", {"action": "continue"})
-		if e_inst.state == Protocol.ExpState.NODE_MENU:
-			e_inst.node_action("run40", {"action": "vote", "choice": String(ContentDB.events[String(e_inst.run["menu"]["variant"])]["choices"][0]["id"])})
-			e_inst.node_action("run41", {"action": "vote", "choice": String(ContentDB.events[String(e_inst.run["menu"]["variant"])]["choices"][0]["id"])})
-	if e_inst.state == Protocol.ExpState.ROUTE_VOTE:
-		e_inst.vote_route("run40", String(e_inst.run["vote_nodes"][0]["id"]))
-		e_inst.vote_route("run41", String(e_inst.run["vote_nodes"][0]["id"]))
-	check(e_inst.state == Protocol.ExpState.IN_ROOM and e_inst.n_locked == 2, "next room recalculates N with the joiner (state %d n %d)" % [e_inst.state, e_inst.n_locked])
+	check(e_inst.is_safe_point() and e_inst.can_join("run41") == "", "explore mode is a safe point for joining")
+	e_inst.add_member(_make_session(41))
+	check(e_inst.run["players"].has("run41") and e_inst.room.players.has("run41"), "joiner gets a run player record and stands in the explore room")
+	var guard := 0
+	while guard < 6 and not (e_inst.state == Protocol.ExpState.IN_ROOM and not e_inst.room.explore):
+		guard += 1
+		if e_inst.state == Protocol.ExpState.IN_ROOM and e_inst.room.explore:
+			if _travel_through(e_inst) == "":
+				break
+		elif e_inst.state == Protocol.ExpState.NODE_MENU:
+			e_inst.node_action("run40", {"action": "continue"})
+			e_inst.node_action("run41", {"action": "continue"})
+			if e_inst.state == Protocol.ExpState.NODE_MENU:
+				e_inst.node_action("run40", {"action": "vote", "choice": String(ContentDB.events[String(e_inst.run["menu"]["variant"])]["choices"][0]["id"])})
+				e_inst.node_action("run41", {"action": "vote", "choice": String(ContentDB.events[String(e_inst.run["menu"]["variant"])]["choices"][0]["id"])})
+		elif e_inst.state == Protocol.ExpState.REWARD:
+			e_inst.pick_reward("run40", 0)
+			e_inst.pick_reward("run41", 0)
+	check(e_inst.state == Protocol.ExpState.IN_ROOM and not e_inst.room.explore and e_inst.n_locked == 2, "next combat room recalculates N with the joiner (state %d n %d)" % [e_inst.state, e_inst.n_locked])
+	# 잘린 던전(테스트 설정): 방 1개면 클리어·보상 뒤 바로 완주
+	ExpeditionInstance.debug_route_layers = 1
+	var t1 := ExpeditionInstance.new("exp_t6", 12)
+	t1.add_member(_make_session(45))
+	t1.start_run()
+	check(t1.grid()["rooms"].size() == 1 and String(t1.grid()["boss"]) == "", "debug_route_layers=1 keeps only the start room")
+	_clear_current_room(t1, "run45")
+	t1.pick_reward("run45", 0)
+	check(t1.state == Protocol.ExpState.RESULT and t1.run_outcome == Protocol.Outcome.VICTORY, "truncated dungeon finishes the run after its last room")
+	ExpeditionInstance.debug_route_layers = -1
+	var t2 := ExpeditionInstance.new("exp_t7", 12)
+	t2.add_member(_make_session(46))
+	t2.start_run()
+	check(t2.room != null and t2.room.boss != null and String(t2.current_node()["type"]) == "boss", "debug_route_layers=-1 starts in the boss room")
+	ExpeditionInstance.debug_route_layers = 0
 
 
 func test_shop_event_checkpoint() -> void:
@@ -1081,17 +1179,17 @@ func test_build_kinds() -> void:
 
 
 func test_regions_and_enemies() -> void:
-	# 3지역 경로: 층이 이어지고 지역 보스 3개, 재현 가능
-	var layers: Array = ExpeditionInstance.build_route(4242, "willow_river", 3)
+	# 3지역 던전: 격자가 이어지고 지역 보스 3개, 재현 가능
+	var dungeons: Array = ExpeditionInstance.build_dungeon(4242, "willow_river", 3)
 	var bosses := 0
 	var regions := {}
-	for layer: Array in layers:
-		for node: Dictionary in layer:
-			regions[String(node.get("region", ""))] = true
+	for g: Dictionary in dungeons:
+		regions[String(g.get("region", ""))] = true
+		for node: Dictionary in g.get("rooms", {}).values():
 			if String(node["type"]) == "boss":
 				bosses += 1
-	check(bosses == 3 and regions.size() == 3, "route spans 3 regions with 3 bosses (bosses %d, regions %d)" % [bosses, regions.size()])
-	check(JSON.stringify(layers) == JSON.stringify(ExpeditionInstance.build_route(4242, "willow_river", 3)), "route reproducible for the same seed")
+	check(bosses == 3 and regions.size() == 3, "dungeon spans 3 regions with 3 bosses (bosses %d, regions %d)" % [bosses, regions.size()])
+	check(JSON.stringify(dungeons) == JSON.stringify(ExpeditionInstance.build_dungeon(4242, "willow_river", 3)), "dungeon reproducible for the same seed")
 	# 9종 적: 정의·자산·역할
 	for eid in ["shell_soldier", "spore_mushroom", "root_puppet", "reed_frog", "river_leech", "lantern_moth", "woodjaw_beetle", "gear_crab", "sap_totem"]:
 		var d := ContentDB.get_enemy_def(eid)

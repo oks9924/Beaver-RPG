@@ -259,7 +259,8 @@ func update_run(run: Dictionary, my_id: String) -> void:
 	var table: Array = run.get("xp_table", [])
 	var lvl := int(run.get("level", 1))
 	var next_xp: String = str(table[lvl]) if lvl < table.size() else "최대"
-	run_label.text = "런 레벨 %d (경험치 %d/%s) · 팀 목재 %d · 도토리 %d · 노드 %d/%d" % [lvl, int(run.get("xp", 0)), next_xp, int(run.get("team_wood", 0)), int(mine.get("acorns", 0)), (run.get("path", []) as Array).size(), (run.get("layers", []) as Array).size()]
+	var g: Dictionary = run.get("dungeon", {})
+	run_label.text = "런 레벨 %d (경험치 %d/%s) · 팀 목재 %d · 도토리 %d · 지역 %d/%d 방 %d/%d" % [lvl, int(run.get("xp", 0)), next_xp, int(run.get("team_wood", 0)), int(mine.get("acorns", 0)), int(run.get("region_index", 0)) + 1, int(run.get("regions_total", 1)), int(g.get("rooms_cleared", 0)), int(g.get("rooms_total", 0))]
 	run_label.text += "\n위험도 ×%.2f" % float(run.get("danger", 1.0))
 	if int(run.get("heat", 0)) > 0:
 		run_label.text += " · 서약 열기 %d" % int(run.get("heat", 0))
@@ -289,6 +290,7 @@ func update_objective(obj: Array, wood: int, boss_state: Dictionary) -> void:
 		"device": objective_label.text = "목표: 장치 가동 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
 		"escort": objective_label.text = "목표: 뗏목 호위 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
 		"boss": objective_label.text = "보스 체력 %d%%" % int(prog * 100)
+		"explore": objective_label.text = "탐색: 문 앞에 파티가 모이면 이동 (전원 3초 · 과반 10초) · 클리어한 방은 되돌아갈 수 있음"
 		_: objective_label.text = "목표: 섬멸 (처치 %d%%)" % int(prog * 100)
 	objective_label.text += "   팀 목재 %d (B: 엄폐 %d)" % [wood, int(ContentDB.rule("build_cost_wood", 3))]
 	boss_box.visible = not boss_state.is_empty()

@@ -85,7 +85,7 @@ for n, d in [("a1", a1), ("a2", a2), ("b1", b1), ("b2", b2)]:
     check(d.get("events", {}).get("reward_picks", 0) >= 1, f"{n} picked a room reward")
 check(a1.get("room_seed") != b1.get("room_seed"), "NET-05 two expeditions have different seeds")
 check(a1.get("room_seed") == a2.get("room_seed") and b1.get("room_seed") == b2.get("room_seed"), "party members share the same room seed")
-check(a1.get("events", {}).get("route_votes", 0) >= 1 and a2.get("events", {}).get("route_votes", 0) >= 1, "route vote happened after the first room")
+check(a1.get("events", {}).get("door_travels", 0) >= 1 and a2.get("events", {}).get("door_travels", 0) >= 1, "party walked through a dungeon door after the first room")
 ka = a1.get("events", {}).get("kills", 0) + a2.get("events", {}).get("kills", 0)
 kb = b1.get("events", {}).get("kills", 0) + b2.get("events", {}).get("kills", 0)
 check(ka > 0 and kb > 0, f"RUN-01 both parties killed enemies (A={ka}, B={kb})")

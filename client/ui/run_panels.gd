@@ -1,10 +1,9 @@
 class_name RunPanels
 extends Control
-## 원정 진행 패널: 보상 3지선다, 경로 투표, 사건/상점/휴식 노드. 제한시간과 기본 규칙을 표시한다 (4절·14절).
+## 원정 진행 패널: 보상 3지선다(보물 방 포함), 사건/상점/휴식 노드. 제한시간과 기본 규칙을 표시한다 (4절·14절). 경로는 던전 격자의 문으로 걸어서 고른다.
 
 signal reward_picked(index: int)
 signal reward_reroll()
-signal route_voted(node_id: String)
 signal node_action(payload: Dictionary)
 signal pause_requested()
 var pause_btn: Button
@@ -67,9 +66,13 @@ func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 	visible = true
 	_deadline = Time.get_unix_time_from_system() + float(p.get("deadline_in", 0))
 	var res: Dictionary = p.get("result", {})
-	title.text = "방 클리어 — 보상 선택"
+	var treasure := bool(p.get("treasure", false))
+	title.text = "보물 방 — 상자를 연다" if treasure else "방 클리어 — 보상 선택"
 	var ps: Dictionary = res.get("players", {}).get(my_id, {})
-	body.text = "소요 %s · 처치 %d · 내 피해 %d · 받은 피해 %d · 도토리 +%d · 경험치 +%d (런 레벨 %d)" % [UIKit.fmt_time(float(res.get("elapsed", 0))), int(res.get("stats", {}).get("enemies_killed", 0)), int(ps.get("damage_dealt", 0)), int(ps.get("damage_taken", 0)), int(ps.get("acorns_gained", 0)), int(res.get("xp_gained", 0)), int(res.get("level", 1))]
+	if treasure:
+		body.text = "옆길 보물 방: 희귀 이상 유물이 후보에 섞여 나옵니다. 각자 하나를 고르고 나면 문이 열립니다."
+	else:
+		body.text = "소요 %s · 처치 %d · 내 피해 %d · 받은 피해 %d · 도토리 +%d · 경험치 +%d (런 레벨 %d)" % [UIKit.fmt_time(float(res.get("elapsed", 0))), int(res.get("stats", {}).get("enemies_killed", 0)), int(ps.get("damage_dealt", 0)), int(ps.get("damage_taken", 0)), int(ps.get("acorns_gained", 0)), int(res.get("xp_gained", 0)), int(res.get("level", 1))]
 	if bool(res.get("par_bonus", false)):
 		body.text += "\n기록 보너스! 기준 %d초 안에 클리어 — 도토리·경험치 추가" % int(res.get("par_sec", 0))
 	_clear_buttons()
@@ -103,30 +106,7 @@ func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 		var rb := UIKit.button("다시 뽑기 (남은 %d회)" % rerolls, func() -> void: reward_reroll.emit())
 		rb.disabled = rerolls <= 0
 		buttons_box.add_child(rb)
-	footer.text = "개인 선택입니다. 시간이 끝나면 첫 번째 항목이 자동 선택됩니다. 유물·강화는 이번 원정에만 적용됩니다. 깊이 들어갈수록 희귀·전설이 자주 나옵니다."
-
-
-func show_route(p: Dictionary, my_id: String, party: Array) -> void:
-	_mode = "route"
-	_my_id = my_id
-	visible = true
-	_deadline = Time.get_unix_time_from_system() + float(p.get("deadline_in", 0))
-	title.text = "경로 선택 (지역 %d층)" % (int(p.get("layer", 0)) + 1)
-	body.text = "다음 목적지를 투표합니다. 목적지 유형과 알려진 위험을 보고 고르세요."
-	_clear_buttons()
-	var votes: Dictionary = p.get("votes", {})
-	var cards := UIKit.hbox(8)
-	for n: Dictionary in p.get("nodes", []):
-		var voters: PackedStringArray = []
-		for aid: String in votes.keys():
-			if votes[aid] == n["id"]:
-				voters.append(_nick(aid, party))
-		var ntype := String(n.get("type", ""))
-		var label := "%s\n%s%s" % [_node_type_ko(ntype), _node_name(n), ("\n[투표: %s]" % ", ".join(voters)) if not voters.is_empty() else ""]
-		var b := UIKit.card_button(label, "ui.card.route", {"combat": 0, "elite": 0, "event": 1, "shop": 2, "rest": 3, "boss": 4}.get(ntype, 0), Vector2(200, 128), func() -> void: route_voted.emit(String(n["id"])))
-		cards.add_child(b)
-	buttons_box.add_child(cards)
-	footer.text = String(p.get("rule", ""))
+	footer.text = "개인 선택입니다. 시간이 끝나면 첫 번째 항목이 자동 선택됩니다. 유물·강화는 이번 원정에만 적용됩니다. 깊이 들어갈수록 희귀·전설이 자주 나옵니다. 선택이 끝나면 같은 방에서 문으로 이동합니다."
 
 
 func show_menu(p: Dictionary, my_id: String, party: Array) -> void:
@@ -205,7 +185,7 @@ func _nick(aid: String, party: Array) -> String:
 
 
 static func _node_type_ko(t: String) -> String:
-	return {"combat": "전투", "event": "탐험·사건", "shop": "상점", "rest": "휴식", "boss": "지역 보스", "elite": "정예"}.get(t, t)
+	return {"combat": "전투", "event": "탐험·사건", "shop": "상점", "rest": "휴식", "boss": "지역 보스", "elite": "정예", "treasure": "보물"}.get(t, t)
 
 
 static func _node_name(n: Dictionary) -> String:

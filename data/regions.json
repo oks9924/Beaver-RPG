@@ -1,92 +1,9 @@
 {
- "_comment": "지역과 경로 템플릿 (10절). 원정은 willow_river → next 를 따라 3지역을 이어서 돈다. 같은 시드·콘텐츠 버전이면 경로·배치·보상 후보가 재현된다.",
+ "_comment": "지역과 던전 격자 템플릿 (10절, 던파식). 지역마다 cols×rows 격자에 시작 방(왼쪽 열)부터 보스 방(오른쪽 열)까지 주 경로를 깔고, 옆길에 정예·보물·상점·모닥불·사건 방을 붙인다. 원정은 willow_river → next 를 따라 3지역을 잇고, 같은 시드·콘텐츠 버전이면 격자·문·보상 후보가 재현된다.",
  "willow_river": {
   "id": "willow_river",
   "name_ko": "버들강 하류",
   "description_ko": "밝은 강변, 쓰러진 나무, 얕은 물. 기본 회피와 목재 엄폐, 간단한 수문을 배운다.",
-  "layers": [
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "annihilate"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "hold_point",
-      "device"
-     ]
-    },
-    {
-     "type": "event",
-     "pool": [
-      "fallen_branch",
-      "drifting_crate",
-      "chance_altar",
-      "blood_altar",
-      "cursed_crate",
-      "combat_altar"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "annihilate",
-      "willow_escort"
-     ]
-    },
-    {
-     "type": "shop",
-     "pool": [
-      "riverside_stall"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "elite",
-     "pool": [
-      "willow_elite"
-     ]
-    },
-    {
-     "type": "combat",
-     "pool": [
-      "device",
-      "hold_point"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "rest",
-     "pool": [
-      "campfire"
-     ]
-    },
-    {
-     "type": "combat",
-     "pool": [
-      "willow_escort",
-      "device"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "boss",
-     "pool": [
-      "ironclaw"
-     ]
-    }
-   ]
-  ],
   "boss": "ironclaw",
   "enemy_pool": [
    {
@@ -109,30 +26,48 @@
    "rest": "휴식",
    "boss": "지역 보스",
    "elite": "정예",
+   "treasure": "보물",
    "escort": "호위"
   },
-  "next": "black_sap_swamp"
- },
- "black_sap_swamp": {
-  "id": "black_sap_swamp",
-  "name_ko": "검은 수액 습지",
-  "description_ko": "보랏빛 수액, 버섯, 뿌리 다리. 이동 경로 관리와 둔화 구역, 위험·보상 선택.",
-  "next": "ancient_root_dam",
-  "layers": [
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "swamp_annihilate"
-     ]
-    }
+  "next": "black_sap_swamp",
+  "dungeon": {
+   "cols": 5,
+   "rows": 3,
+   "rooms_min": 9,
+   "rooms_max": 11,
+   "extra_door_chance": 0.3,
+   "start_pool": [
+    "annihilate"
    ],
-   [
+   "path_pool": [
+    "hold_point",
+    "device",
+    "willow_escort",
+    "annihilate"
+   ],
+   "side": [
     {
-     "type": "combat",
+     "type": "elite",
      "pool": [
-      "swamp_hold",
-      "swamp_device"
+      "willow_elite"
+     ]
+    },
+    {
+     "type": "treasure",
+     "pool": [
+      "treasure"
+     ]
+    },
+    {
+     "type": "shop",
+     "pool": [
+      "riverside_stall"
+     ]
+    },
+    {
+     "type": "rest",
+     "pool": [
+      "campfire"
      ]
     },
     {
@@ -145,61 +80,34 @@
       "cursed_crate",
       "combat_altar"
      ]
-    }
-   ],
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "swamp_escort",
-      "swamp_annihilate"
-     ]
     },
     {
-     "type": "shop",
+     "type": "event",
      "pool": [
-      "riverside_stall"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "elite",
-     "pool": [
-      "swamp_elite"
+      "fallen_branch",
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
      ]
     },
     {
      "type": "combat",
      "pool": [
-      "swamp_device",
-      "swamp_hold"
+      "annihilate",
+      "device"
      ]
     }
    ],
-   [
-    {
-     "type": "rest",
-     "pool": [
-      "campfire"
-     ]
-    },
-    {
-     "type": "combat",
-     "pool": [
-      "swamp_escort"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "boss",
-     "pool": [
-      "lantern_toad"
-     ]
-    }
-   ]
-  ],
+   "hall": "willow_hall"
+  }
+ },
+ "black_sap_swamp": {
+  "id": "black_sap_swamp",
+  "name_ko": "검은 수액 습지",
+  "description_ko": "보랏빛 수액, 버섯, 뿌리 다리. 이동 경로 관리와 둔화 구역, 위험·보상 선택.",
+  "next": "ancient_root_dam",
   "boss": "lantern_toad",
   "enemy_pool": [
    {
@@ -234,28 +142,47 @@
    "rest": "휴식",
    "boss": "지역 보스",
    "elite": "정예",
+   "treasure": "보물",
    "escort": "호위"
-  }
- },
- "ancient_root_dam": {
-  "id": "ancient_root_dam",
-  "name_ko": "고대 뿌리댐",
-  "description_ko": "나무 수문, 톱니 장치, 거대한 급류. 물길 전환과 분산 목표, 앞선 기믹의 결합.",
-  "layers": [
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "dam_annihilate"
-     ]
-    }
+  },
+  "dungeon": {
+   "cols": 5,
+   "rows": 3,
+   "rooms_min": 9,
+   "rooms_max": 11,
+   "extra_door_chance": 0.3,
+   "start_pool": [
+    "swamp_annihilate"
    ],
-   [
+   "path_pool": [
+    "swamp_hold",
+    "swamp_device",
+    "swamp_escort",
+    "swamp_annihilate"
+   ],
+   "side": [
     {
-     "type": "combat",
+     "type": "elite",
      "pool": [
-      "dam_hold",
-      "dam_device"
+      "swamp_elite"
+     ]
+    },
+    {
+     "type": "treasure",
+     "pool": [
+      "treasure"
+     ]
+    },
+    {
+     "type": "shop",
+     "pool": [
+      "riverside_stall"
+     ]
+    },
+    {
+     "type": "rest",
+     "pool": [
+      "campfire"
      ]
     },
     {
@@ -268,62 +195,33 @@
       "cursed_crate",
       "combat_altar"
      ]
-    }
-   ],
-   [
-    {
-     "type": "combat",
-     "pool": [
-      "dam_escort",
-      "dam_annihilate"
-     ]
     },
     {
-     "type": "shop",
+     "type": "event",
      "pool": [
-      "riverside_stall"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "elite",
-     "pool": [
-      "dam_elite"
+      "fallen_branch",
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
      ]
     },
     {
      "type": "combat",
      "pool": [
-      "dam_device",
-      "dam_hold"
+      "swamp_annihilate",
+      "swamp_device"
      ]
     }
    ],
-   [
-    {
-     "type": "rest",
-     "pool": [
-      "campfire"
-     ]
-    },
-    {
-     "type": "combat",
-     "pool": [
-      "dam_escort",
-      "dam_device"
-     ]
-    }
-   ],
-   [
-    {
-     "type": "boss",
-     "pool": [
-      "root_king"
-     ]
-    }
-   ]
-  ],
+   "hall": "swamp_hall"
+  }
+ },
+ "ancient_root_dam": {
+  "id": "ancient_root_dam",
+  "name_ko": "고대 뿌리댐",
+  "description_ko": "나무 수문, 톱니 장치, 거대한 급류. 물길 전환과 분산 목표, 앞선 기믹의 결합.",
   "boss": "root_king",
   "enemy_pool": [
    {
@@ -358,7 +256,80 @@
    "rest": "휴식",
    "boss": "지역 보스",
    "elite": "정예",
+   "treasure": "보물",
    "escort": "호위"
+  },
+  "dungeon": {
+   "cols": 5,
+   "rows": 3,
+   "rooms_min": 9,
+   "rooms_max": 11,
+   "extra_door_chance": 0.3,
+   "start_pool": [
+    "dam_annihilate"
+   ],
+   "path_pool": [
+    "dam_hold",
+    "dam_device",
+    "dam_escort",
+    "dam_annihilate"
+   ],
+   "side": [
+    {
+     "type": "elite",
+     "pool": [
+      "dam_elite"
+     ]
+    },
+    {
+     "type": "treasure",
+     "pool": [
+      "treasure"
+     ]
+    },
+    {
+     "type": "shop",
+     "pool": [
+      "riverside_stall"
+     ]
+    },
+    {
+     "type": "rest",
+     "pool": [
+      "campfire"
+     ]
+    },
+    {
+     "type": "event",
+     "pool": [
+      "fallen_branch",
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
+     ]
+    },
+    {
+     "type": "event",
+     "pool": [
+      "fallen_branch",
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
+     ]
+    },
+    {
+     "type": "combat",
+     "pool": [
+      "dam_annihilate",
+      "dam_device"
+     ]
+    }
+   ],
+   "hall": "dam_hall"
   }
  }
 }

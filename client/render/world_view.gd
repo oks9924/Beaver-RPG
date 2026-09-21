@@ -15,6 +15,7 @@ var sfx_volume: float = 0.8
 var flash_reduce: bool = false
 var _npc_sprites: Array = []
 var boss_state: Dictionary = {}
+var explore: bool = false          # 탐색 모드(클리어된 방): 문이 열려 있다
 var _object_tex: Dictionary = {}
 var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
 const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE: "ic_02", Protocol.ObKind.CLAW_LINK: "ic_03", Protocol.ObKind.CORRIDOR: "ic_04", Protocol.ObKind.ANCHOR: "ic_05",
@@ -416,6 +417,8 @@ func _draw_telegraphs() -> void:
 				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80, 16), Color(0, 0, 0, 0.6))
 				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80 * prog, 16), Color(1.0, 0.3, 0.2) if st == 1 else Color(0.9, 0.7, 0.3))
 				_draw_progress(L, c + Vector2(0, 14), prog, "압력 %d%%" % int(prog * 100))
+			Protocol.ObKind.DOOR:
+				_draw_door(L, c, r, prog, st)
 			Protocol.ObKind.SECRET:
 				if not _draw_frame(L, "prop.secret", 0, c + Vector2(0, 14), 64.0, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(Time.get_ticks_msec() / 250.0))):
 					_draw_tex(L, _object_tex["secret"], c, 56, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(Time.get_ticks_msec() / 250.0)))
@@ -582,6 +585,40 @@ func mechanic_result(mid: String, success: bool, started: bool = false) -> void:
 
 ## 장치 시트 프레임을 그린다. 진행 중이면 activation 을 진행률로, 끝났으면 success/failure 를 1회 재생 후 마지막 프레임 유지.
 ## 시트가 없으면 false 를 돌려 기존 도형 표시로 넘어간다.
+## 던파식 문: 통나무 아치 + 집합 반경. 잠기면 어둡게, 목표 방 유형과 인원 집합 상태를 글자로.
+func _draw_door(L: Node2D, c: Vector2, r: float, prog: float, st: int) -> void:
+	var dir: String = Protocol.DOOR_DIRS[st & 3]
+	var ttype: String = Protocol.DOOR_TYPES[clampi((st >> 2) & 15, 0, Protocol.DOOR_TYPES.size() - 1)]
+	var cleared := (st >> 6) & 1 == 1
+	var locked := (st >> 7) & 1 == 1
+	var inside := (st >> 8) & 7
+	var along: Vector2 = Vector2(1, 0) if dir in ["n", "s"] else Vector2(0, 1)
+	var wood := Color(0.45, 0.3, 0.15) if not locked else Color(0.3, 0.22, 0.14)
+	var glow := Color(0.95, 0.85, 0.5, 0.18 + 0.12 * sin(Time.get_ticks_msec() / 300.0)) if not locked else Color(0.2, 0.2, 0.2, 0.12)
+	L.draw_circle(c, r, glow)
+	L.draw_arc(c, r, 0, TAU, 40, Color(0.95, 0.85, 0.5, 0.7) if not locked else Color(0.4, 0.4, 0.4, 0.5), 2.0)
+	# 기둥 두 개와 가로대
+	for k: float in [-1.0, 1.0]:
+		var pc: Vector2 = c + along * 42.0 * k
+		L.draw_rect(Rect2(pc - Vector2(9, 40), Vector2(18, 56)), wood)
+		L.draw_rect(Rect2(pc - Vector2(9, 40), Vector2(18, 56)), Color(0.2, 0.12, 0.05), false, 2.0)
+	# 가로대(남북 문) 또는 세로 들보(동서 문)
+	if along.x != 0.0:
+		L.draw_rect(Rect2(c + Vector2(-51, -44), Vector2(102, 14)), wood)
+	else:
+		L.draw_rect(Rect2(c + Vector2(-7, -51), Vector2(14, 102)), wood)
+	if prog > 0.0 and prog < 1.0:
+		L.draw_arc(c, r - 6, -PI / 2, -PI / 2 + TAU * prog, 40, Color(0.6, 1.0, 0.6, 0.95), 4.0)
+	var font := AssetRegistry.get_font("font.ui.main")
+	var tname: String = {"combat": "전투", "elite": "정예", "boss": "보스", "treasure": "보물", "shop": "상점", "rest": "모닥불", "event": "사건", "start": "시작"}.get(ttype, ttype)
+	var label := "%s 문 → %s%s" % [{"n": "북", "e": "동", "s": "남", "w": "서"}.get(dir, dir), tname, " (클리어)" if cleared else ""]
+	if locked:
+		label = "잠김 — 방을 클리어하면 열림"
+	elif inside > 0:
+		label += "  모임 %d" % inside
+	L.draw_string(font, c + Vector2(-90, r + 16), label, HORIZONTAL_ALIGNMENT_CENTER, 180, 12, Color(1, 1, 0.85, 0.95) if not locked else Color(0.7, 0.7, 0.7, 0.8))
+
+
 func _draw_device(L: Node2D, kind: int, c: Vector2, progress: float, state: int, size: float) -> bool:
 	var key: String = MECHANIC_OF_KIND.get(kind, "")
 	if key == "":
