@@ -29,6 +29,7 @@ var boss_bar: TextureBar
 var boss_label: Label
 var boss_box: VBoxContainer
 var minimap: Minimap
+var dungeon_map: DungeonMap
 var tutorial_label: Label
 var skip_btn: Button
 signal chat_sent(text: String)
@@ -119,6 +120,11 @@ func _ready() -> void:
 	minimap.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
 	minimap.position = Vector2(-500, 12)
 	add_child(minimap)
+	# 던전 격자 지도: 화면 좌측 상단 구석 (접속 상태 줄 아래)
+	dungeon_map = DungeonMap.new()
+	dungeon_map.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	dungeon_map.position = Vector2(16, 40)
+	add_child(dungeon_map)
 	tutorial_label = UIKit.label("", 16, Color(0.7, 1.0, 0.8))
 	tutorial_label.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
 	tutorial_label.position = Vector2(-300, 150)

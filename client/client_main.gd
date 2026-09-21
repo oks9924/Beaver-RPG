@@ -378,9 +378,9 @@ func _on_message(type: int, p: Dictionary) -> void:
 			if p.has("run"):
 				run_state = p["run"]
 				hud.update_run(run_state, my_id)
-			hud.minimap.dungeon = run_state.get("dungeon", {})
-			hud.minimap.current_cell = String(p.get("cell", run_state.get("cell", "")))
-			hud.minimap.route_text = _dungeon_summary(run_state)
+			hud.dungeon_map.dungeon = run_state.get("dungeon", {})
+			hud.dungeon_map.current_cell = String(p.get("cell", run_state.get("cell", "")))
+			hud.dungeon_map.title = _dungeon_summary(run_state)
 			if bool(p.get("explore", false)):
 				hud.toast("%s 클리어 — 문 앞에 파티가 모이면 다음 방으로 (Tab: 지도)" % def.get("name_ko", "방") if same_room else "%s (탐색) — 문 앞에 파티가 모이면 이동" % def.get("name_ko", "방"), 3.0)
 			else:
@@ -401,9 +401,9 @@ func _on_message(type: int, p: Dictionary) -> void:
 		Protocol.S.RUN_STATE:
 			run_state = p
 			hud.update_run(run_state, my_id)
-			hud.minimap.dungeon = run_state.get("dungeon", {})
-			hud.minimap.current_cell = String(run_state.get("cell", ""))
-			hud.minimap.route_text = _dungeon_summary(run_state)
+			hud.dungeon_map.dungeon = run_state.get("dungeon", {})
+			hud.dungeon_map.current_cell = String(run_state.get("cell", ""))
+			hud.dungeon_map.title = _dungeon_summary(run_state)
 		Protocol.S.REWARD_OFFER:
 			run_panels.run_class = _my_class()
 			run_panels.show_reward(p, my_id, int(run_state.get("players", {}).get(my_id, {}).get("rerolls", 0)))
@@ -973,6 +973,7 @@ func _physics_process(dt: float) -> void:
 		if Input.is_action_just_pressed("map") and mode == "room":
 			_map_big = not _map_big
 			hud.minimap.big = _map_big
+			hud.dungeon_map.big = _map_big
 		if Input.is_action_just_pressed("ping") and mode == "room":
 			net.send(Protocol.C.MARK, {"x": world.get_global_mouse_position().x, "y": world.get_global_mouse_position().y})
 		if mode == "hub" and Input.is_action_just_pressed("interact") and not npc_panel.visible:
@@ -1055,6 +1056,7 @@ func _demo_tick(dt: float) -> void:
 					_demo_t = 0.0
 					_map_big = true
 					hud.minimap.big = true
+					hud.dungeon_map.big = true
 				elif _demo_t > 1.2:
 					_demo_step = 40
 					_screenshot("10_explore_doors.png")
