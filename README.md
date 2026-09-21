@@ -17,7 +17,7 @@ assets/      asset_manifest.json(ID↔파일), asset_registry.gd, placeholders/(
 tools/       lint_all, run_tests, test_boss, check_assets, check_routes, gen_placeholders, import_asset_pack
 tests/       integration/run_integration.sh (서버 + 다중 headless 클라이언트), run_party_matrix.sh (조합 검증), run_export_smoke.sh
 scripts/     run_server.sh, run_client.sh, build.sh, deploy.sh, stop_server.sh, backup/restore, systemd 유닛
-docs/        architecture.md, asset_plan.md, asset_request_v3.md, verification.md, deploy.md, playtest_checklist.md, playtest_notes.md
+docs/        architecture.md, asset_plan.md, asset_request_v3.md, verification.md, deploy.md, deploy_windows.md, playtest_checklist.md, playtest_notes.md
 ```
 
 ## 요구 사항
@@ -52,7 +52,7 @@ scripts/run_client.sh --connect=127.0.0.1:7777
 ```bash
 scripts/build.sh all      # build/windows/TailExpedition.exe, build/linux-server/, build/windows-server/
 ```
-GitHub Actions(`.github/workflows/build.yml`)가 push 마다 린트·에셋 검수·단위·통합 테스트를 돌리고, `v*` 태그에서 Windows 클라이언트 zip 과 서버 묶음을 Release 로 올린다. 서버 설치·운영은 `docs/deploy.md`.
+GitHub Actions(`.github/workflows/build.yml`)가 push 마다 린트·에셋 검수·단위·통합 테스트를 돌리고, `v*` 태그에서 Windows 클라이언트 zip 과 서버 묶음을 Release 로 올린다. 서버 설치·운영은 `docs/deploy.md`(Linux), `docs/deploy_windows.md`(Windows·AWS EC2).
 
 ## 테스트
 ```bash

@@ -1,5 +1,7 @@
 # 서버 운영 (Linux, systemd)
 
+Windows(AWS EC2) 절차는 `docs/deploy_windows.md`.
+
 ## 권장 구성
 - 개발은 GitHub 에서, 서버에는 빌드 결과물만 올린다. 서버에 Godot 편집기나 개발 도구를 두지 않는다.
 - 인스턴스 예: t3.small(2 vCPU, 2GB) 또는 t4g.small(arm64 빌드 필요 시 별도 export). 리전 ap-northeast-2. 보안 그룹에 **UDP 7777** 개방, SSH 는 내 IP 만.

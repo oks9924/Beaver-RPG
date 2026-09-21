@@ -36,6 +36,11 @@ for d in build/linux-server build/windows-server; do
   cp -f scripts/tail-expedition-server.service "$d/" 2>/dev/null || true
   echo "$VERSION" > "$d/VERSION"
 done
+# Windows 서버 묶음에는 시작·정지·서비스 등록·백업 스크립트를 같이 넣는다 (docs/deploy_windows.md).
+if [ -d build/windows-server ]; then
+  cp -f scripts/windows/*.bat scripts/windows/*.ps1 build/windows-server/
+  rm -f build/windows-server/backup.sh build/windows-server/tail-expedition-server.service
+fi
 [ -d build/windows ] && echo "$VERSION" > build/windows/VERSION
 echo "[build] done"
 ls -la build/*/ 2>/dev/null || true
