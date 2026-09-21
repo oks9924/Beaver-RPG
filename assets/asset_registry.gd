@@ -10,6 +10,7 @@ var manifest: Dictionary = {}
 var entries: Dictionary = {}          # id -> entry
 var _texture_cache: Dictionary = {}   # id -> Texture2D
 var _font_cache: Dictionary = {}
+var _frame_cache: Dictionary = {}     # "id#frame" -> Texture2D (상태 선택용 단일 프레임)
 var _audio_cache: Dictionary = {}
 var _fallback_texture: Texture2D
 var missing_ids: PackedStringArray = []   # 런타임에 대체 도형으로 그린 ID (AST-01 로그)
@@ -134,11 +135,36 @@ func get_sheet(id: String) -> Dictionary:
 		"fps": float(anim.get("fps", 1)),
 		"loop": bool(anim.get("loop", true)),
 		"event_frames": anim.get("event_frames", {}),
+		"mode": String(anim.get("mode", "loop" if bool(anim.get("loop", true)) else "one_shot")),
+		"hold_last": bool(anim.get("hold_last", false)),
+		"segments": anim.get("segments", {}),
 		"frame_size": Vector2(frame_size[0], frame_size[1]),
 		"anchor": Vector2(anchor[0], anchor[1]),
 		"render_size": Vector2(render[0], render[1]),
 		"is_fallback": tex == _fallback_texture,
 	}
+
+
+## 시트의 한 프레임만 잘라낸 텍스처 (타일 변형·소품 상태·UI 레이어처럼 "재생하지 않고 고르는" 용도). 캐시된다.
+func get_frame_texture(id: String, frame: int) -> Texture2D:
+	var key := "%s#%d" % [id, frame]
+	if _frame_cache.has(key):
+		return _frame_cache[key]
+	var sheet := get_sheet(id)
+	var tex: Texture2D = sheet["texture"]
+	var cols := int(sheet["hframes"])
+	if bool(sheet["is_fallback"]) or cols <= 1 or tex.get_image() == null:
+		_frame_cache[key] = tex
+		return tex
+	var fs: Vector2 = sheet["frame_size"]
+	var fi := clampi(frame, 0, cols - 1)
+	var img := tex.get_image()
+	if img.is_compressed():
+		img.decompress()
+	var region := img.get_region(Rect2i(int(fi * fs.x), 0, int(fs.x), int(fs.y)))
+	var out := ImageTexture.create_from_image(region)
+	_frame_cache[key] = out
+	return out
 
 
 func get_font(id: String) -> Font:

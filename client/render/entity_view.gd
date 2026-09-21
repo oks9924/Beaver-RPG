@@ -36,12 +36,17 @@ var _sheet: Dictionary = {}
 var _flash_t: float = 0.0
 var _last_pos: Vector2 = Vector2.ZERO
 var _fallback_only: bool = false
+var _hit_t: float = 0.0
+var _guard_t: float = 0.0
 var font: Font
 
 
 func _ready() -> void:
 	add_child(_sprite)
-	_guard.texture = AssetRegistry.get_sheet("vfx.log_shield")["texture"]
+	var gsheet := AssetRegistry.get_sheet("vfx.log_shield")
+	_guard.texture = gsheet["texture"]
+	_guard.hframes = int(gsheet["hframes"])
+	_guard.vframes = int(gsheet["vframes"])
 	_guard.visible = false
 	add_child(_guard)
 	font = AssetRegistry.get_font("font.ui.main")
@@ -51,6 +56,8 @@ func _ready() -> void:
 func _set_anim(name: String) -> void:
 	# 시트가 없는 동작은 가까운 동작으로 대체한다 (cast_q → cast → idle)
 	if not AssetRegistry.has(sprite_prefix + "." + name):
+		if name == "interact":
+			name = "cast"
 		if name.begins_with("cast_") and AssetRegistry.has(sprite_prefix + ".cast"):
 			name = "cast"
 		elif name in ["stagger", "exposed", "molt", "hit", "death", "down", "walk"] and not AssetRegistry.has(sprite_prefix + "." + name):
@@ -93,8 +100,12 @@ func _pick_anim() -> String:
 			Protocol.Action.IDLE:
 				if action_kind == Protocol.ACTION_KIND_CODES["whirl"]:
 					return "cast_r"
-			Protocol.Action.RESCUING, Protocol.Action.INTERACTING:
+				if _hit_t > 0.0 and state == Protocol.EntState.ALIVE:
+					return "hit"
+			Protocol.Action.RESCUING:
 				return "cast"
+			Protocol.Action.INTERACTING:
+				return "interact"
 			Protocol.Action.GRABBED:
 				return "hit"
 		return "walk" if moving else "idle"
@@ -109,18 +120,25 @@ func _pick_anim() -> String:
 			BossIronclaw.BS.STAGGER: return "stagger"
 			BossIronclaw.BS.EXPOSED: return "exposed"
 			BossIronclaw.BS.MOLT: return "molt"
-			BossIronclaw.BS.CHASE: return "walk" if moving else "idle"
+			BossIronclaw.BS.CHASE: return "hit" if _hit_t > 0.0 else ("walk" if moving else "idle")
 		return "idle"
 	match ai_state:
 		Protocol.EnemyAI.DEAD: return "death"
 		Protocol.EnemyAI.WINDUP, Protocol.EnemyAI.ATTACK: return "attack"
-		Protocol.EnemyAI.CHASE: return "walk"
+		Protocol.EnemyAI.CHASE, Protocol.EnemyAI.SEEK, Protocol.EnemyAI.RETREAT:
+			return "hit" if _hit_t > 0.0 else "walk"
 		Protocol.EnemyAI.STAGGER: return "hit"
+		Protocol.EnemyAI.IDLE, Protocol.EnemyAI.ROOTED:
+			if _hit_t > 0.0:
+				return "hit"
 	return "idle"
 
 
 func flash() -> void:
 	_flash_t = 0.12
+	# 피격 동작(2프레임)은 짧게 한 번만. 서버 상태가 바뀌면 그쪽이 우선한다.
+	if _hit_t <= 0.0:
+		_hit_t = 0.28
 
 
 func _process(dt: float) -> void:
@@ -143,6 +161,7 @@ func _process(dt: float) -> void:
 		var row := SimRules.dir_row(facing) if int(_sheet["vframes"]) == 4 else 0
 		_sprite.frame = row * int(_sheet["hframes"]) + int(frames[_frame_i])
 	_flash_t = maxf(_flash_t - dt, 0.0)
+	_hit_t = maxf(_hit_t - dt, 0.0)
 	var mod := Color.WHITE
 	if _flash_t > 0.0:
 		mod = Color(1.15, 0.85, 0.85) if (get_parent() != null and get_parent().get("flash_reduce") == true) else Color(1.6, 0.6, 0.6)
@@ -167,6 +186,9 @@ func _process(dt: float) -> void:
 		_guard.position = Vector2(0, -28)
 		var gs: Dictionary = AssetRegistry.get_sheet("vfx.log_shield")
 		_guard.scale = (gs["render_size"] as Vector2) / (gs["frame_size"] as Vector2)
+		if _guard.hframes > 1:
+			_guard_t += dt
+			_guard.frame = int(_guard_t * float(gs["fps"])) % _guard.hframes
 	queue_redraw()
 
 

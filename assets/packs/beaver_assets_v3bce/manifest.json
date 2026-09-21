@@ -1,0 +1,5662 @@
+{
+  "format_version": 2,
+  "pack_id": "beaver_assets_v3bce",
+  "pack_version": "3-BCE",
+  "status": "integration_draft",
+  "scope": "asset_request_v3.md B C D E",
+  "merge_mode": "animations_by_actor_id",
+  "dependencies": [
+    "beaver_assets v1",
+    "beaver_combat_v2 v2",
+    "beaver_assets_v3a"
+  ],
+  "directions": [
+    "all"
+  ],
+  "actors": {
+    "vfx_hammer_swing": {
+      "id": "vfx_hammer_swing",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_hammer_swing/default/all_00.png",
+            "assets/vfx_hammer_swing/default/all_01.png",
+            "assets/vfx_hammer_swing/default/all_02.png",
+            "assets/vfx_hammer_swing/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "short pale wood arc",
+            "broad curved sweep",
+            "wood dust at contact",
+            "few fading splinters"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_log_shield": {
+      "id": "vfx_log_shield",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/vfx_log_shield/default/all_00.png",
+            "assets/vfx_log_shield/default/all_01.png",
+            "assets/vfx_log_shield/default/all_02.png",
+            "assets/vfx_log_shield/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "grain glow low",
+            "grain glow rising",
+            "grain glow high",
+            "grain glow falling"
+          ],
+          "playback_mode": "loop"
+        }
+      }
+    },
+    "vfx_tail_shockwave": {
+      "id": "vfx_tail_shockwave",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        128
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_tail_shockwave/default/all_00.png",
+            "assets/vfx_tail_shockwave/default/all_01.png",
+            "assets/vfx_tail_shockwave/default/all_02.png",
+            "assets/vfx_tail_shockwave/default/all_03.png",
+            "assets/vfx_tail_shockwave/default/all_04.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            128
+          ],
+          "frame_labels": [
+            "tiny ground dust puff",
+            "small dust circle",
+            "wide ground dust ring",
+            "broken drifting ring",
+            "few dissipating dust wisps"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_great_tree": {
+      "id": "vfx_great_tree",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        256
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_great_tree/default/all_00.png",
+            "assets/vfx_great_tree/default/all_01.png",
+            "assets/vfx_great_tree/default/all_02.png",
+            "assets/vfx_great_tree/default/all_03.png",
+            "assets/vfx_great_tree/default/all_04.png",
+            "assets/vfx_great_tree/default/all_05.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            512,
+            512
+          ],
+          "anchor_px": [
+            256,
+            256
+          ],
+          "frame_labels": [
+            "short root shoots",
+            "roots spread",
+            "trunk grows",
+            "leaf canopy opens",
+            "sheltering canopy settles",
+            "stable active leafy canopy"
+          ],
+          "playback_mode": "state_sequence",
+          "segments": {
+            "grow": {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ],
+              "loop": false
+            },
+            "active": {
+              "indices": [
+                5
+              ],
+              "loop": true
+            }
+          }
+        }
+      }
+    },
+    "vfx_sling_shot": {
+      "id": "vfx_sling_shot",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_sling_shot/default/all_00.png",
+            "assets/vfx_sling_shot/default/all_01.png",
+            "assets/vfx_sling_shot/default/all_02.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "compact leaf burst",
+            "leaf fragments spread right",
+            "few fading leaf fragments"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_acorn_scatter": {
+      "id": "vfx_acorn_scatter",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        128
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_acorn_scatter/default/all_00.png",
+            "assets/vfx_acorn_scatter/default/all_01.png",
+            "assets/vfx_acorn_scatter/default/all_02.png",
+            "assets/vfx_acorn_scatter/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            128
+          ],
+          "frame_labels": [
+            "three close acorns",
+            "five acorns fan outward",
+            "wide fan of acorns and leaves",
+            "few fading leaf fragments"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_thorn_trap": {
+      "id": "vfx_thorn_trap",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_thorn_trap/default/all_00.png",
+            "assets/vfx_thorn_trap/default/all_01.png",
+            "assets/vfx_thorn_trap/default/all_02.png",
+            "assets/vfx_thorn_trap/default/all_03.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "coiled roots just placed",
+            "compact thorn coil waiting",
+            "same coil gently pulsing",
+            "thorn spikes snap upward"
+          ],
+          "playback_mode": "state_sequence",
+          "segments": {
+            "install": {
+              "indices": [
+                0
+              ],
+              "loop": false
+            },
+            "idle": {
+              "indices": [
+                1,
+                2
+              ],
+              "loop": true
+            },
+            "trigger": {
+              "indices": [
+                3
+              ],
+              "loop": false
+            }
+          }
+        }
+      }
+    },
+    "vfx_forest_volley": {
+      "id": "vfx_forest_volley",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        128
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_forest_volley/default/all_00.png",
+            "assets/vfx_forest_volley/default/all_01.png",
+            "assets/vfx_forest_volley/default/all_02.png",
+            "assets/vfx_forest_volley/default/all_03.png",
+            "assets/vfx_forest_volley/default/all_04.png",
+            "assets/vfx_forest_volley/default/all_05.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            128
+          ],
+          "frame_labels": [
+            "two descending pinecones",
+            "more descending pinecones",
+            "first pinecones land",
+            "many land with pale dust",
+            "impact leaf scatter",
+            "faint last dust and leaves"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_projectile_pinecone": {
+      "id": "vfx_projectile_pinecone",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        32,
+        32
+      ],
+      "anchor_px": [
+        16,
+        16
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 12,
+          "loop": true,
+          "frames": [
+            "assets/vfx_projectile_pinecone/default/all_00.png",
+            "assets/vfx_projectile_pinecone/default/all_01.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            32,
+            32
+          ],
+          "anchor_px": [
+            16,
+            16
+          ],
+          "frame_labels": [
+            "pinecone angled clockwise",
+            "pinecone tumbled slightly farther"
+          ],
+          "playback_mode": "loop"
+        }
+      }
+    },
+    "vfx_projectile_sap": {
+      "id": "vfx_projectile_sap",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        32,
+        32
+      ],
+      "anchor_px": [
+        16,
+        16
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 10,
+          "loop": true,
+          "frames": [
+            "assets/vfx_projectile_sap/default/all_00.png",
+            "assets/vfx_projectile_sap/default/all_01.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            32,
+            32
+          ],
+          "anchor_px": [
+            16,
+            16
+          ],
+          "frame_labels": [
+            "plump purple droplet",
+            "elongated purple droplet"
+          ],
+          "playback_mode": "loop"
+        }
+      }
+    },
+    "vfx_hit_spark": {
+      "id": "vfx_hit_spark",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_hit_spark/default/all_00.png",
+            "assets/vfx_hit_spark/default/all_01.png",
+            "assets/vfx_hit_spark/default/all_02.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "small tight splinter burst",
+            "wide pale woodchip starburst",
+            "few separated fading chips"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_rescue_ring": {
+      "id": "vfx_rescue_ring",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/vfx_rescue_ring/default/all_00.png",
+            "assets/vfx_rescue_ring/default/all_01.png",
+            "assets/vfx_rescue_ring/default/all_02.png",
+            "assets/vfx_rescue_ring/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "green leaf ring gentle phase one",
+            "green leaf ring phase two",
+            "green leaf ring phase three",
+            "green leaf ring phase four"
+          ],
+          "playback_mode": "loop"
+        }
+      }
+    },
+    "vfx_heal_burst": {
+      "id": "vfx_heal_burst",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_heal_burst/default/all_00.png",
+            "assets/vfx_heal_burst/default/all_01.png",
+            "assets/vfx_heal_burst/default/all_02.png",
+            "assets/vfx_heal_burst/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "small green sap bubbles",
+            "bubbles and leaves rise",
+            "full gentle green healing bloom",
+            "few drifting leaves"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_boss_rock_impact": {
+      "id": "vfx_boss_rock_impact",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        128
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_boss_rock_impact/default/all_00.png",
+            "assets/vfx_boss_rock_impact/default/all_01.png",
+            "assets/vfx_boss_rock_impact/default/all_02.png",
+            "assets/vfx_boss_rock_impact/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            128
+          ],
+          "frame_labels": [
+            "rock contacts ground",
+            "gray fragments erupt",
+            "fragments spread with pale dust",
+            "few settled chips"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_boss_ground_slam": {
+      "id": "vfx_boss_ground_slam",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        256
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/vfx_boss_ground_slam/default/all_00.png",
+            "assets/vfx_boss_ground_slam/default/all_01.png",
+            "assets/vfx_boss_ground_slam/default/all_02.png",
+            "assets/vfx_boss_ground_slam/default/all_03.png",
+            "assets/vfx_boss_ground_slam/default/all_04.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            512,
+            512
+          ],
+          "anchor_px": [
+            256,
+            256
+          ],
+          "frame_labels": [
+            "small central ground crack",
+            "cracks branch outward",
+            "water splash peaks",
+            "falling droplets and broken soil",
+            "quiet cracks with small mist"
+          ],
+          "playback_mode": "one_shot"
+        }
+      }
+    },
+    "vfx_whirlpool": {
+      "id": "vfx_whirlpool",
+      "category": "vfx",
+      "group": "B",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        256
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/vfx_whirlpool/default/all_00.png",
+            "assets/vfx_whirlpool/default/all_01.png",
+            "assets/vfx_whirlpool/default/all_02.png",
+            "assets/vfx_whirlpool/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            512,
+            512
+          ],
+          "anchor_px": [
+            256,
+            256
+          ],
+          "frame_labels": [
+            "water spiral phase one",
+            "water spiral phase two",
+            "water spiral phase three",
+            "water spiral phase four"
+          ],
+          "playback_mode": "loop"
+        }
+      }
+    },
+    "tile_willow_ground": {
+      "id": "tile_willow_ground",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/tile_willow_ground/default/all_00.png",
+            "assets/tile_willow_ground/default/all_01.png",
+            "assets/tile_willow_ground/default/all_02.png",
+            "assets/tile_willow_ground/default/all_03.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "small bright grass flecks",
+            "sparse dirt patch",
+            "tiny scattered pebbles",
+            "subtle clover flecks"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "tile_size": [
+        64,
+        64
+      ]
+    },
+    "tile_willow_wall": {
+      "id": "tile_willow_wall",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/tile_willow_wall/default/all_00.png",
+            "assets/tile_willow_wall/default/all_01.png",
+            "assets/tile_willow_wall/default/all_02.png",
+            "assets/tile_willow_wall/default/all_03.png",
+            "assets/tile_willow_wall/default/all_04.png",
+            "assets/tile_willow_wall/default/all_05.png",
+            "assets/tile_willow_wall/default/all_06.png",
+            "assets/tile_willow_wall/default/all_07.png",
+            "assets/tile_willow_wall/default/all_08.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "solid dense bank foliage",
+            "north bank edge",
+            "east bank edge",
+            "south bank edge",
+            "west bank edge",
+            "concave inner northwest corner",
+            "concave inner northeast corner",
+            "concave inner southeast corner",
+            "concave inner southwest corner"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "tile_size": [
+        64,
+        64
+      ]
+    },
+    "tile_willow_water": {
+      "id": "tile_willow_water",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 3,
+          "loop": true,
+          "frames": [
+            "assets/tile_willow_water/default/all_00.png",
+            "assets/tile_willow_water/default/all_01.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "quiet shallow ripples phase one",
+            "same shallow water ripples phase two"
+          ],
+          "playback_mode": "loop"
+        }
+      },
+      "tile_size": [
+        64,
+        64
+      ]
+    },
+    "tile_willow_shore": {
+      "id": "tile_willow_shore",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/tile_willow_shore/default/all_00.png",
+            "assets/tile_willow_shore/default/all_01.png",
+            "assets/tile_willow_shore/default/all_02.png",
+            "assets/tile_willow_shore/default/all_03.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "grass north water south",
+            "water west grass east",
+            "water north grass south",
+            "grass west water east"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "tile_size": [
+        64,
+        64
+      ]
+    },
+    "tile_willow_bridge": {
+      "id": "tile_willow_bridge",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/tile_willow_bridge/default/all_00.png",
+            "assets/tile_willow_bridge/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "horizontal east-west bridge",
+            "vertical north-south bridge"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "tile_size": [
+        64,
+        64
+      ]
+    },
+    "tile_hub_ground": {
+      "id": "tile_hub_ground",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/tile_hub_ground/default/all_00.png",
+            "assets/tile_hub_ground/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "packed village dirt",
+            "weathered wooden planks"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "tile_size": [
+        64,
+        64
+      ]
+    },
+    "prop_gnaw_tree": {
+      "id": "prop_gnaw_tree",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_gnaw_tree/default/all_00.png",
+            "assets/prop_gnaw_tree/default/all_01.png",
+            "assets/prop_gnaw_tree/default/all_02.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "intact slim willow trunk",
+            "trunk half gnawed near base",
+            "fallen trunk and stump with dropped wood"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_device": {
+      "id": "prop_device",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_device/default/all_00.png",
+            "assets/prop_device/default/all_01.png",
+            "assets/prop_device/default/all_02.png",
+            "assets/prop_device/default/all_03.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "bare frame no gears zero percent",
+            "one fitted gear one third complete",
+            "gears and pulley two thirds complete",
+            "completed wooden mechanism with gentle green indicator"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_lever": {
+      "id": "prop_lever",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_lever/default/all_00.png",
+            "assets/prop_lever/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "lever lowered",
+            "lever raised"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_sluice_gate": {
+      "id": "prop_sluice_gate",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_sluice_gate/default/all_00.png",
+            "assets/prop_sluice_gate/default/all_01.png",
+            "assets/prop_sluice_gate/default/all_02.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "closed vertical wooden gate",
+            "gate halfway lifted small flow",
+            "gate open clear water pouring underneath"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_log_cover": {
+      "id": "prop_log_cover",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_log_cover/default/all_00.png",
+            "assets/prop_log_cover/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "intact log barricade",
+            "broken log barricade"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_willow_log": {
+      "id": "prop_willow_log",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_willow_log/default/all_00.png",
+            "assets/prop_willow_log/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "broad fallen willow log",
+            "narrow forked fallen log"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_willow_rock": {
+      "id": "prop_willow_rock",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_willow_rock/default/all_00.png",
+            "assets/prop_willow_rock/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "round gray-green river boulder",
+            "flat cluster of smooth river stones"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_hold_point": {
+      "id": "prop_hold_point",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_hold_point/default/all_00.png",
+            "assets/prop_hold_point/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "drooping desaturated leaf flag inactive",
+            "upright bright green leaf flag active"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_campfire": {
+      "id": "prop_campfire",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 5,
+          "loop": true,
+          "frames": [
+            "assets/prop_campfire/default/all_00.png",
+            "assets/prop_campfire/default/all_01.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "flame leans slightly left",
+            "flame leans slightly right"
+          ],
+          "playback_mode": "loop"
+        }
+      }
+    },
+    "prop_stall": {
+      "id": "prop_stall",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_stall/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "merchant riverside stall"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_memory_tree": {
+      "id": "prop_memory_tree",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        512,
+        512
+      ],
+      "anchor_px": [
+        256,
+        424
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_memory_tree/default/all_00.png",
+            "assets/prop_memory_tree/default/all_01.png",
+            "assets/prop_memory_tree/default/all_02.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            512,
+            512
+          ],
+          "anchor_px": [
+            256,
+            424
+          ],
+          "frame_labels": [
+            "withered bare memory tree",
+            "same tree with fresh small green buds",
+            "same tree with glowing full leaves"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_workshop": {
+      "id": "prop_workshop",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_workshop/default/all_00.png",
+            "assets/prop_workshop/default/all_01.png",
+            "assets/prop_workshop/default/all_02.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "collapsed wooden workshop",
+            "same workshop repaired roof",
+            "same restored workshop with chimney smoke"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "prop_expedition_board": {
+      "id": "prop_expedition_board",
+      "category": "environment",
+      "group": "C",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        212
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/prop_expedition_board/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            212
+          ],
+          "frame_labels": [
+            "blank expedition noticeboard"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_skill_guardian_q": {
+      "id": "icon_skill_guardian_q",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_skill_guardian_q/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "통나무 방패"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_skill_guardian_e": {
+      "id": "icon_skill_guardian_e",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_skill_guardian_e/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "꼬리 내려치기"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_skill_guardian_r": {
+      "id": "icon_skill_guardian_r",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_skill_guardian_r/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "거목의 품"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_skill_ranger_q": {
+      "id": "icon_skill_ranger_q",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_skill_ranger_q/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "도토리 산탄"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_skill_ranger_e": {
+      "id": "icon_skill_ranger_e",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_skill_ranger_e/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "가시 덫"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_skill_ranger_r": {
+      "id": "icon_skill_ranger_r",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_skill_ranger_r/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "숲의 일제사격"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_heal": {
+      "id": "icon_heal",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_heal/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "회복"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_dodge": {
+      "id": "icon_dodge",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_dodge/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "회피"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_oak_heart": {
+      "id": "icon_relic_oak_heart",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_oak_heart/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "참나무 심장"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_sharp_incisors": {
+      "id": "icon_relic_sharp_incisors",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_sharp_incisors/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "날카로운 앞니"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_river_stone": {
+      "id": "icon_relic_river_stone",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_river_stone/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "강돌"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_quick_paws": {
+      "id": "icon_relic_quick_paws",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_quick_paws/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "빠른 발"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_sap_amber": {
+      "id": "icon_relic_sap_amber",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_sap_amber/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "수액 호박"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_hunters_tooth": {
+      "id": "icon_relic_hunters_tooth",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_hunters_tooth/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "사냥꾼 이빨"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_kin_bond": {
+      "id": "icon_relic_kin_bond",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_kin_bond/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "혈족의 끈"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_thorn_tail": {
+      "id": "icon_relic_thorn_tail",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_thorn_tail/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "가시 꼬리"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_heavy_paddle": {
+      "id": "icon_relic_heavy_paddle",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_heavy_paddle/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "무거운 노"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_relic_acorn_pouch": {
+      "id": "icon_relic_acorn_pouch",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_relic_acorn_pouch/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "도토리 주머니"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_status_slow": {
+      "id": "icon_status_slow",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_status_slow/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "둔화"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_status_bleed": {
+      "id": "icon_status_bleed",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_status_bleed/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "출혈"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_status_shield": {
+      "id": "icon_status_shield",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_status_shield/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "보호막"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_status_mark": {
+      "id": "icon_status_mark",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_status_mark/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "표식"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_status_stagger": {
+      "id": "icon_status_stagger",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_status_stagger/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "경직"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "icon_status_wet": {
+      "id": "icon_status_wet",
+      "category": "icon",
+      "group": "D",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/icon_status_wet/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "젖음"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "ui_panel": {
+      "id": "ui_panel",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        96,
+        96
+      ],
+      "anchor_px": [
+        48,
+        48
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_panel/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            96,
+            96
+          ],
+          "anchor_px": [
+            48,
+            48
+          ],
+          "frame_labels": [
+            "panel"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "nine_slice_margins": {
+        "left": 12,
+        "top": 12,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    "ui_button": {
+      "id": "ui_button",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        96,
+        48
+      ],
+      "anchor_px": [
+        48,
+        24
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_button/default/all_00.png",
+            "assets/ui_button/default/all_01.png",
+            "assets/ui_button/default/all_02.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            96,
+            48
+          ],
+          "anchor_px": [
+            48,
+            24
+          ],
+          "frame_labels": [
+            "normal",
+            "hover",
+            "pressed"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "nine_slice_margins": {
+        "left": 12,
+        "top": 12,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    "ui_card_reward": {
+      "id": "ui_card_reward",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        256,
+        352
+      ],
+      "anchor_px": [
+        128,
+        176
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_card_reward/default/all_00.png",
+            "assets/ui_card_reward/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            352
+          ],
+          "anchor_px": [
+            128,
+            176
+          ],
+          "frame_labels": [
+            "relic",
+            "upgrade"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "ui_card_route": {
+      "id": "ui_card_route",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        256,
+        160
+      ],
+      "anchor_px": [
+        128,
+        80
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_card_route/default/all_00.png",
+            "assets/ui_card_route/default/all_01.png",
+            "assets/ui_card_route/default/all_02.png",
+            "assets/ui_card_route/default/all_03.png",
+            "assets/ui_card_route/default/all_04.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            160
+          ],
+          "anchor_px": [
+            128,
+            80
+          ],
+          "frame_labels": [
+            "combat",
+            "event",
+            "shop",
+            "rest",
+            "boss"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "ui_bar_hp": {
+      "id": "ui_bar_hp",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        256,
+        24
+      ],
+      "anchor_px": [
+        128,
+        12
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_bar_hp/default/all_00.png",
+            "assets/ui_bar_hp/default/all_01.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            24
+          ],
+          "anchor_px": [
+            128,
+            12
+          ],
+          "frame_labels": [
+            "frame",
+            "fill"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "layer_indices": {
+        "frame": 0,
+        "fill": 1
+      },
+      "fill_rect_px": [
+        17,
+        8,
+        222,
+        9
+      ],
+      "layer_order_back_to_front": [
+        "fill",
+        "frame"
+      ]
+    },
+    "ui_bar_boss": {
+      "id": "ui_bar_boss",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        512,
+        32
+      ],
+      "anchor_px": [
+        256,
+        16
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_bar_boss/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            512,
+            32
+          ],
+          "anchor_px": [
+            256,
+            16
+          ],
+          "frame_labels": [
+            "frame"
+          ],
+          "playback_mode": "select_frame"
+        }
+      },
+      "layer_indices": {
+        "frame": 0
+      },
+      "suggested_fill_rect_px": [
+        80,
+        12,
+        354,
+        11
+      ]
+    },
+    "ui_title_logo": {
+      "id": "ui_title_logo",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        1024,
+        512
+      ],
+      "anchor_px": [
+        512,
+        256
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_title_logo/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            1024,
+            512
+          ],
+          "anchor_px": [
+            512,
+            256
+          ],
+          "frame_labels": [
+            "blank_logo"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "ui_app_icon": {
+      "id": "ui_app_icon",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        256,
+        256
+      ],
+      "anchor_px": [
+        128,
+        128
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_app_icon/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            256,
+            256
+          ],
+          "anchor_px": [
+            128,
+            128
+          ],
+          "frame_labels": [
+            "app_icon"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    },
+    "ui_frame_portrait": {
+      "id": "ui_frame_portrait",
+      "category": "ui",
+      "group": "E",
+      "frame_size": [
+        288,
+        288
+      ],
+      "anchor_px": [
+        144,
+        144
+      ],
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 1,
+          "loop": false,
+          "frames": [
+            "assets/ui_frame_portrait/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            288,
+            288
+          ],
+          "anchor_px": [
+            144,
+            144
+          ],
+          "frame_labels": [
+            "frame"
+          ],
+          "playback_mode": "select_frame"
+        }
+      }
+    }
+  },
+  "source_sheets": [
+    {
+      "extractor_version": 3,
+      "id": "vfx_hammer_swing",
+      "source_sheet": "source_sheets/vfx_hammer_swing.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_hammer_swing/default/all_00.png",
+          "index": 0,
+          "label": "short pale wood arc",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_hammer_swing/default/all_01.png",
+          "index": 1,
+          "label": "broad curved sweep",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_hammer_swing/default/all_02.png",
+          "index": 2,
+          "label": "wood dust at contact",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_hammer_swing/default/all_03.png",
+          "index": 3,
+          "label": "few fading splinters",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_log_shield",
+      "source_sheet": "source_sheets/vfx_log_shield.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_log_shield/default/all_00.png",
+          "index": 0,
+          "label": "grain glow low",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_log_shield/default/all_01.png",
+          "index": 1,
+          "label": "grain glow rising",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_log_shield/default/all_02.png",
+          "index": 2,
+          "label": "grain glow high",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_log_shield/default/all_03.png",
+          "index": 3,
+          "label": "grain glow falling",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_tail_shockwave",
+      "source_sheet": "source_sheets/vfx_tail_shockwave.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_tail_shockwave/default/all_00.png",
+          "index": 0,
+          "label": "tiny ground dust puff",
+          "source_cell": [
+            0,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_tail_shockwave/default/all_01.png",
+          "index": 1,
+          "label": "small dust circle",
+          "source_cell": [
+            418,
+            0,
+            407,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_tail_shockwave/default/all_02.png",
+          "index": 2,
+          "label": "wide ground dust ring",
+          "source_cell": [
+            825,
+            0,
+            429,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_tail_shockwave/default/all_03.png",
+          "index": 3,
+          "label": "broken drifting ring",
+          "source_cell": [
+            0,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_tail_shockwave/default/all_04.png",
+          "index": 4,
+          "label": "few dissipating dust wisps",
+          "source_cell": [
+            418,
+            627,
+            407,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_great_tree",
+      "source_sheet": "source_sheets/vfx_great_tree.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_great_tree/default/all_00.png",
+          "index": 0,
+          "label": "short root shoots",
+          "source_cell": [
+            0,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_great_tree/default/all_01.png",
+          "index": 1,
+          "label": "roots spread",
+          "source_cell": [
+            418,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_great_tree/default/all_02.png",
+          "index": 2,
+          "label": "trunk grows",
+          "source_cell": [
+            836,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_great_tree/default/all_03.png",
+          "index": 3,
+          "label": "leaf canopy opens",
+          "source_cell": [
+            0,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_great_tree/default/all_04.png",
+          "index": 4,
+          "label": "sheltering canopy settles",
+          "source_cell": [
+            418,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_great_tree/default/all_05.png",
+          "index": 5,
+          "label": "stable active leafy canopy",
+          "source_cell": [
+            836,
+            627,
+            418,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_sling_shot",
+      "source_sheet": "source_sheets/vfx_sling_shot.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_sling_shot/default/all_00.png",
+          "index": 0,
+          "label": "compact leaf burst",
+          "source_cell": [
+            0,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/vfx_sling_shot/default/all_01.png",
+          "index": 1,
+          "label": "leaf fragments spread right",
+          "source_cell": [
+            724,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/vfx_sling_shot/default/all_02.png",
+          "index": 2,
+          "label": "few fading leaf fragments",
+          "source_cell": [
+            1448,
+            0,
+            724,
+            724
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_acorn_scatter",
+      "source_sheet": "source_sheets/vfx_acorn_scatter.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_acorn_scatter/default/all_00.png",
+          "index": 0,
+          "label": "three close acorns",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_acorn_scatter/default/all_01.png",
+          "index": 1,
+          "label": "five acorns fan outward",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_acorn_scatter/default/all_02.png",
+          "index": 2,
+          "label": "wide fan of acorns and leaves",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_acorn_scatter/default/all_03.png",
+          "index": 3,
+          "label": "few fading leaf fragments",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_thorn_trap",
+      "source_sheet": "source_sheets/vfx_thorn_trap.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_thorn_trap/default/all_00.png",
+          "index": 0,
+          "label": "coiled roots just placed",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_thorn_trap/default/all_01.png",
+          "index": 1,
+          "label": "compact thorn coil waiting",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_thorn_trap/default/all_02.png",
+          "index": 2,
+          "label": "same coil gently pulsing",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_thorn_trap/default/all_03.png",
+          "index": 3,
+          "label": "thorn spikes snap upward",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_forest_volley",
+      "source_sheet": "source_sheets/vfx_forest_volley.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_forest_volley/default/all_00.png",
+          "index": 0,
+          "label": "two descending pinecones",
+          "source_cell": [
+            0,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_forest_volley/default/all_01.png",
+          "index": 1,
+          "label": "more descending pinecones",
+          "source_cell": [
+            418,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_forest_volley/default/all_02.png",
+          "index": 2,
+          "label": "first pinecones land",
+          "source_cell": [
+            836,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_forest_volley/default/all_03.png",
+          "index": 3,
+          "label": "many land with pale dust",
+          "source_cell": [
+            0,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_forest_volley/default/all_04.png",
+          "index": 4,
+          "label": "impact leaf scatter",
+          "source_cell": [
+            418,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_forest_volley/default/all_05.png",
+          "index": 5,
+          "label": "faint last dust and leaves",
+          "source_cell": [
+            836,
+            627,
+            418,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_projectile_pinecone",
+      "source_sheet": "source_sheets/vfx_projectile_pinecone.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_projectile_pinecone/default/all_00.png",
+          "index": 0,
+          "label": "pinecone angled clockwise",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/vfx_projectile_pinecone/default/all_01.png",
+          "index": 1,
+          "label": "pinecone tumbled slightly farther",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_projectile_sap",
+      "source_sheet": "source_sheets/vfx_projectile_sap.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_projectile_sap/default/all_00.png",
+          "index": 0,
+          "label": "plump purple droplet",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/vfx_projectile_sap/default/all_01.png",
+          "index": 1,
+          "label": "elongated purple droplet",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_hit_spark",
+      "source_sheet": "source_sheets/vfx_hit_spark.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_hit_spark/default/all_00.png",
+          "index": 0,
+          "label": "small tight splinter burst",
+          "source_cell": [
+            0,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/vfx_hit_spark/default/all_01.png",
+          "index": 1,
+          "label": "wide pale woodchip starburst",
+          "source_cell": [
+            724,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/vfx_hit_spark/default/all_02.png",
+          "index": 2,
+          "label": "few separated fading chips",
+          "source_cell": [
+            1448,
+            0,
+            724,
+            724
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_rescue_ring",
+      "source_sheet": "source_sheets/vfx_rescue_ring.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_rescue_ring/default/all_00.png",
+          "index": 0,
+          "label": "green leaf ring gentle phase one",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_rescue_ring/default/all_01.png",
+          "index": 1,
+          "label": "green leaf ring phase two",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_rescue_ring/default/all_02.png",
+          "index": 2,
+          "label": "green leaf ring phase three",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_rescue_ring/default/all_03.png",
+          "index": 3,
+          "label": "green leaf ring phase four",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_heal_burst",
+      "source_sheet": "source_sheets/vfx_heal_burst.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_heal_burst/default/all_00.png",
+          "index": 0,
+          "label": "small green sap bubbles",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_heal_burst/default/all_01.png",
+          "index": 1,
+          "label": "bubbles and leaves rise",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_heal_burst/default/all_02.png",
+          "index": 2,
+          "label": "full gentle green healing bloom",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_heal_burst/default/all_03.png",
+          "index": 3,
+          "label": "few drifting leaves",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_boss_rock_impact",
+      "source_sheet": "source_sheets/vfx_boss_rock_impact.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_boss_rock_impact/default/all_00.png",
+          "index": 0,
+          "label": "rock contacts ground",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_rock_impact/default/all_01.png",
+          "index": 1,
+          "label": "gray fragments erupt",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_rock_impact/default/all_02.png",
+          "index": 2,
+          "label": "fragments spread with pale dust",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_rock_impact/default/all_03.png",
+          "index": 3,
+          "label": "few settled chips",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_boss_ground_slam",
+      "source_sheet": "source_sheets/vfx_boss_ground_slam.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_boss_ground_slam/default/all_00.png",
+          "index": 0,
+          "label": "small central ground crack",
+          "source_cell": [
+            0,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_ground_slam/default/all_01.png",
+          "index": 1,
+          "label": "cracks branch outward",
+          "source_cell": [
+            418,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_ground_slam/default/all_02.png",
+          "index": 2,
+          "label": "water splash peaks",
+          "source_cell": [
+            836,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_ground_slam/default/all_03.png",
+          "index": 3,
+          "label": "falling droplets and broken soil",
+          "source_cell": [
+            0,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_boss_ground_slam/default/all_04.png",
+          "index": 4,
+          "label": "quiet cracks with small mist",
+          "source_cell": [
+            418,
+            627,
+            418,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "vfx_whirlpool",
+      "source_sheet": "source_sheets/vfx_whirlpool.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/vfx_whirlpool/default/all_00.png",
+          "index": 0,
+          "label": "water spiral phase one",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_whirlpool/default/all_01.png",
+          "index": 1,
+          "label": "water spiral phase two",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_whirlpool/default/all_02.png",
+          "index": 2,
+          "label": "water spiral phase three",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/vfx_whirlpool/default/all_03.png",
+          "index": 3,
+          "label": "water spiral phase four",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "tile_willow_ground",
+      "source_sheet": "source_sheets/tile_willow_ground.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        2508,
+        2508,
+        2508,
+        2508
+      ],
+      "frames": [
+        {
+          "path": "assets/tile_willow_ground/default/all_00.png",
+          "index": 0,
+          "label": "small bright grass flecks",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/tile_willow_ground/default/all_01.png",
+          "index": 1,
+          "label": "sparse dirt patch",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/tile_willow_ground/default/all_02.png",
+          "index": 2,
+          "label": "tiny scattered pebbles",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/tile_willow_ground/default/all_03.png",
+          "index": 3,
+          "label": "subtle clover flecks",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "tile_willow_wall",
+      "source_sheet": "source_sheets/tile_willow_wall.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/tile_willow_wall/default/all_00.png",
+          "index": 0,
+          "label": "solid dense bank foliage",
+          "source_cell": [
+            0,
+            0,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_01.png",
+          "index": 1,
+          "label": "north bank edge",
+          "source_cell": [
+            418,
+            0,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_02.png",
+          "index": 2,
+          "label": "east bank edge",
+          "source_cell": [
+            836,
+            0,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_03.png",
+          "index": 3,
+          "label": "south bank edge",
+          "source_cell": [
+            0,
+            418,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_04.png",
+          "index": 4,
+          "label": "west bank edge",
+          "source_cell": [
+            418,
+            418,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_05.png",
+          "index": 5,
+          "label": "concave inner northwest corner",
+          "source_cell": [
+            836,
+            418,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_06.png",
+          "index": 6,
+          "label": "concave inner northeast corner",
+          "source_cell": [
+            0,
+            836,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_07.png",
+          "index": 7,
+          "label": "concave inner southeast corner",
+          "source_cell": [
+            418,
+            836,
+            418,
+            418
+          ]
+        },
+        {
+          "path": "assets/tile_willow_wall/default/all_08.png",
+          "index": 8,
+          "label": "concave inner southwest corner",
+          "source_cell": [
+            836,
+            836,
+            418,
+            418
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "tile_willow_water",
+      "source_sheet": "source_sheets/tile_willow_water.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        3762,
+        3762
+      ],
+      "frames": [
+        {
+          "path": "assets/tile_willow_water/default/all_00.png",
+          "index": 0,
+          "label": "quiet shallow ripples phase one",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/tile_willow_water/default/all_01.png",
+          "index": 1,
+          "label": "same shallow water ripples phase two",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "tile_willow_shore",
+      "source_sheet": "source_sheets/tile_willow_shore.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        2508,
+        2508,
+        2508,
+        2508
+      ],
+      "frames": [
+        {
+          "path": "assets/tile_willow_shore/default/all_00.png",
+          "index": 0,
+          "label": "grass north water south",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/tile_willow_shore/default/all_01.png",
+          "index": 1,
+          "label": "water west grass east",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/tile_willow_shore/default/all_02.png",
+          "index": 2,
+          "label": "water north grass south",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/tile_willow_shore/default/all_03.png",
+          "index": 3,
+          "label": "grass west water east",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "tile_willow_bridge",
+      "source_sheet": "source_sheets/tile_willow_bridge.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/tile_willow_bridge/default/all_00.png",
+          "index": 0,
+          "label": "horizontal east-west bridge",
+          "source_cell": [
+            0,
+            0,
+            887,
+            887
+          ]
+        },
+        {
+          "path": "assets/tile_willow_bridge/default/all_01.png",
+          "index": 1,
+          "label": "vertical north-south bridge",
+          "source_cell": [
+            887,
+            0,
+            887,
+            887
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "tile_hub_ground",
+      "source_sheet": "source_sheets/tile_hub_ground.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        3762,
+        3762
+      ],
+      "frames": [
+        {
+          "path": "assets/tile_hub_ground/default/all_00.png",
+          "index": 0,
+          "label": "packed village dirt",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/tile_hub_ground/default/all_01.png",
+          "index": 1,
+          "label": "weathered wooden planks",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_gnaw_tree",
+      "source_sheet": "source_sheets/prop_gnaw_tree.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_gnaw_tree/default/all_00.png",
+          "index": 0,
+          "label": "intact slim willow trunk",
+          "source_cell": [
+            0,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_gnaw_tree/default/all_01.png",
+          "index": 1,
+          "label": "trunk half gnawed near base",
+          "source_cell": [
+            724,
+            0,
+            613,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_gnaw_tree/default/all_02.png",
+          "index": 2,
+          "label": "fallen trunk and stump with dropped wood",
+          "source_cell": [
+            1337,
+            0,
+            835,
+            724
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_device",
+      "source_sheet": "source_sheets/prop_device.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_device/default/all_00.png",
+          "index": 0,
+          "label": "bare frame no gears zero percent",
+          "source_cell": [
+            0,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/prop_device/default/all_01.png",
+          "index": 1,
+          "label": "one fitted gear one third complete",
+          "source_cell": [
+            627,
+            0,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/prop_device/default/all_02.png",
+          "index": 2,
+          "label": "gears and pulley two thirds complete",
+          "source_cell": [
+            0,
+            627,
+            627,
+            627
+          ]
+        },
+        {
+          "path": "assets/prop_device/default/all_03.png",
+          "index": 3,
+          "label": "completed wooden mechanism with gentle green indicator",
+          "source_cell": [
+            627,
+            627,
+            627,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_lever",
+      "source_sheet": "source_sheets/prop_lever.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        1,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_lever/default/all_00.png",
+          "index": 0,
+          "label": "lever lowered",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/prop_lever/default/all_01.png",
+          "index": 1,
+          "label": "lever raised",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_sluice_gate",
+      "source_sheet": "source_sheets/prop_sluice_gate.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_sluice_gate/default/all_00.png",
+          "index": 0,
+          "label": "closed vertical wooden gate",
+          "source_cell": [
+            0,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_sluice_gate/default/all_01.png",
+          "index": 1,
+          "label": "gate halfway lifted small flow",
+          "source_cell": [
+            724,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_sluice_gate/default/all_02.png",
+          "index": 2,
+          "label": "gate open clear water pouring underneath",
+          "source_cell": [
+            1448,
+            0,
+            724,
+            724
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_log_cover",
+      "source_sheet": "source_sheets/prop_log_cover.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_log_cover/default/all_00.png",
+          "index": 0,
+          "label": "intact log barricade",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/prop_log_cover/default/all_01.png",
+          "index": 1,
+          "label": "broken log barricade",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_willow_log",
+      "source_sheet": "source_sheets/prop_willow_log.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_willow_log/default/all_00.png",
+          "index": 0,
+          "label": "broad fallen willow log",
+          "source_cell": [
+            0,
+            0,
+            887,
+            887
+          ]
+        },
+        {
+          "path": "assets/prop_willow_log/default/all_01.png",
+          "index": 1,
+          "label": "narrow forked fallen log",
+          "source_cell": [
+            887,
+            0,
+            887,
+            887
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_willow_rock",
+      "source_sheet": "source_sheets/prop_willow_rock.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_willow_rock/default/all_00.png",
+          "index": 0,
+          "label": "round gray-green river boulder",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/prop_willow_rock/default/all_01.png",
+          "index": 1,
+          "label": "flat cluster of smooth river stones",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_hold_point",
+      "source_sheet": "source_sheets/prop_hold_point.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_hold_point/default/all_00.png",
+          "index": 0,
+          "label": "drooping desaturated leaf flag inactive",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/prop_hold_point/default/all_01.png",
+          "index": 1,
+          "label": "upright bright green leaf flag active",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_campfire",
+      "source_sheet": "source_sheets/prop_campfire.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_campfire/default/all_00.png",
+          "index": 0,
+          "label": "flame leans slightly left",
+          "source_cell": [
+            0,
+            0,
+            627,
+            1254
+          ]
+        },
+        {
+          "path": "assets/prop_campfire/default/all_01.png",
+          "index": 1,
+          "label": "flame leans slightly right",
+          "source_cell": [
+            627,
+            0,
+            627,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_stall",
+      "source_sheet": "source_sheets/prop_stall.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_stall/default/all_00.png",
+          "index": 0,
+          "label": "merchant riverside stall",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_memory_tree",
+      "source_sheet": "source_sheets/prop_memory_tree.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_memory_tree/default/all_00.png",
+          "index": 0,
+          "label": "withered bare memory tree",
+          "source_cell": [
+            0,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_memory_tree/default/all_01.png",
+          "index": 1,
+          "label": "same tree with fresh small green buds",
+          "source_cell": [
+            724,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_memory_tree/default/all_02.png",
+          "index": 2,
+          "label": "same tree with glowing full leaves",
+          "source_cell": [
+            1448,
+            0,
+            724,
+            724
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_workshop",
+      "source_sheet": "source_sheets/prop_workshop.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_workshop/default/all_00.png",
+          "index": 0,
+          "label": "collapsed wooden workshop",
+          "source_cell": [
+            0,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_workshop/default/all_01.png",
+          "index": 1,
+          "label": "same workshop repaired roof",
+          "source_cell": [
+            724,
+            0,
+            724,
+            724
+          ]
+        },
+        {
+          "path": "assets/prop_workshop/default/all_02.png",
+          "index": 2,
+          "label": "same restored workshop with chimney smoke",
+          "source_cell": [
+            1448,
+            0,
+            724,
+            724
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "prop_expedition_board",
+      "source_sheet": "source_sheets/prop_expedition_board.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/prop_expedition_board/default/all_00.png",
+          "index": 0,
+          "label": "blank expedition noticeboard",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_skill_guardian_q",
+      "source_sheet": "source_sheets/icon_skill_guardian_q.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_skill_guardian_q/default/all_00.png",
+          "index": 0,
+          "label": "통나무 방패",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_skill_guardian_e",
+      "source_sheet": "source_sheets/icon_skill_guardian_e.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_skill_guardian_e/default/all_00.png",
+          "index": 0,
+          "label": "꼬리 내려치기",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_skill_guardian_r",
+      "source_sheet": "source_sheets/icon_skill_guardian_r.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_skill_guardian_r/default/all_00.png",
+          "index": 0,
+          "label": "거목의 품",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_skill_ranger_q",
+      "source_sheet": "source_sheets/icon_skill_ranger_q.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_skill_ranger_q/default/all_00.png",
+          "index": 0,
+          "label": "도토리 산탄",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_skill_ranger_e",
+      "source_sheet": "source_sheets/icon_skill_ranger_e.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_skill_ranger_e/default/all_00.png",
+          "index": 0,
+          "label": "가시 덫",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_skill_ranger_r",
+      "source_sheet": "source_sheets/icon_skill_ranger_r.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_skill_ranger_r/default/all_00.png",
+          "index": 0,
+          "label": "숲의 일제사격",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_heal",
+      "source_sheet": "source_sheets/icon_heal.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_heal/default/all_00.png",
+          "index": 0,
+          "label": "회복",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_dodge",
+      "source_sheet": "source_sheets/icon_dodge.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_dodge/default/all_00.png",
+          "index": 0,
+          "label": "회피",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_oak_heart",
+      "source_sheet": "source_sheets/icon_relic_oak_heart.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_oak_heart/default/all_00.png",
+          "index": 0,
+          "label": "참나무 심장",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_sharp_incisors",
+      "source_sheet": "source_sheets/icon_relic_sharp_incisors.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_sharp_incisors/default/all_00.png",
+          "index": 0,
+          "label": "날카로운 앞니",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_river_stone",
+      "source_sheet": "source_sheets/icon_relic_river_stone.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_river_stone/default/all_00.png",
+          "index": 0,
+          "label": "강돌",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_quick_paws",
+      "source_sheet": "source_sheets/icon_relic_quick_paws.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_quick_paws/default/all_00.png",
+          "index": 0,
+          "label": "빠른 발",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_sap_amber",
+      "source_sheet": "source_sheets/icon_relic_sap_amber.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_sap_amber/default/all_00.png",
+          "index": 0,
+          "label": "수액 호박",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_hunters_tooth",
+      "source_sheet": "source_sheets/icon_relic_hunters_tooth.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_hunters_tooth/default/all_00.png",
+          "index": 0,
+          "label": "사냥꾼 이빨",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_kin_bond",
+      "source_sheet": "source_sheets/icon_relic_kin_bond.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_kin_bond/default/all_00.png",
+          "index": 0,
+          "label": "혈족의 끈",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_thorn_tail",
+      "source_sheet": "source_sheets/icon_relic_thorn_tail.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_thorn_tail/default/all_00.png",
+          "index": 0,
+          "label": "가시 꼬리",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_heavy_paddle",
+      "source_sheet": "source_sheets/icon_relic_heavy_paddle.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_heavy_paddle/default/all_00.png",
+          "index": 0,
+          "label": "무거운 노",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_relic_acorn_pouch",
+      "source_sheet": "source_sheets/icon_relic_acorn_pouch.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_relic_acorn_pouch/default/all_00.png",
+          "index": 0,
+          "label": "도토리 주머니",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_status_slow",
+      "source_sheet": "source_sheets/icon_status_slow.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_status_slow/default/all_00.png",
+          "index": 0,
+          "label": "둔화",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_status_bleed",
+      "source_sheet": "source_sheets/icon_status_bleed.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_status_bleed/default/all_00.png",
+          "index": 0,
+          "label": "출혈",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_status_shield",
+      "source_sheet": "source_sheets/icon_status_shield.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_status_shield/default/all_00.png",
+          "index": 0,
+          "label": "보호막",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_status_mark",
+      "source_sheet": "source_sheets/icon_status_mark.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_status_mark/default/all_00.png",
+          "index": 0,
+          "label": "표식",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_status_stagger",
+      "source_sheet": "source_sheets/icon_status_stagger.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_status_stagger/default/all_00.png",
+          "index": 0,
+          "label": "경직",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "icon_status_wet",
+      "source_sheet": "source_sheets/icon_status_wet.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/icon_status_wet/default/all_00.png",
+          "index": 0,
+          "label": "젖음",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_panel",
+      "source_sheet": "source_sheets/ui_panel.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_panel/default/all_00.png",
+          "index": 0,
+          "label": "panel",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_button",
+      "source_sheet": "source_sheets/ui_button.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_button/default/all_00.png",
+          "index": 0,
+          "label": "normal",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            418
+          ]
+        },
+        {
+          "path": "assets/ui_button/default/all_01.png",
+          "index": 1,
+          "label": "hover",
+          "source_cell": [
+            0,
+            418,
+            1254,
+            418
+          ]
+        },
+        {
+          "path": "assets/ui_button/default/all_02.png",
+          "index": 2,
+          "label": "pressed",
+          "source_cell": [
+            0,
+            836,
+            1254,
+            418
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_card_reward",
+      "source_sheet": "source_sheets/ui_card_reward.png",
+      "source_size": [
+        1497,
+        1051
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_card_reward/default/all_00.png",
+          "index": 0,
+          "label": "relic",
+          "source_cell": [
+            0,
+            0,
+            748,
+            1051
+          ]
+        },
+        {
+          "path": "assets/ui_card_reward/default/all_01.png",
+          "index": 1,
+          "label": "upgrade",
+          "source_cell": [
+            748,
+            0,
+            749,
+            1051
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_card_route",
+      "source_sheet": "source_sheets/ui_card_route.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_card_route/default/all_00.png",
+          "index": 0,
+          "label": "combat",
+          "source_cell": [
+            0,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/ui_card_route/default/all_01.png",
+          "index": 1,
+          "label": "event",
+          "source_cell": [
+            418,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/ui_card_route/default/all_02.png",
+          "index": 2,
+          "label": "shop",
+          "source_cell": [
+            836,
+            0,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/ui_card_route/default/all_03.png",
+          "index": 3,
+          "label": "rest",
+          "source_cell": [
+            0,
+            627,
+            418,
+            627
+          ]
+        },
+        {
+          "path": "assets/ui_card_route/default/all_04.png",
+          "index": 4,
+          "label": "boss",
+          "source_cell": [
+            418,
+            627,
+            418,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 4,
+      "id": "ui_bar_hp",
+      "source_sheet": "source_sheets/ui_bar_hp.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0,
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_bar_hp/default/all_00.png",
+          "index": 0,
+          "label": "frame",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            627
+          ]
+        },
+        {
+          "path": "assets/ui_bar_hp/default/all_01.png",
+          "index": 1,
+          "label": "fill",
+          "source_cell": [
+            0,
+            627,
+            1254,
+            627
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_bar_boss",
+      "source_sheet": "source_sheets/ui_bar_boss.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_bar_boss/default/all_00.png",
+          "index": 0,
+          "label": "frame",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_title_logo",
+      "source_sheet": "source_sheets/ui_title_logo.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_title_logo/default/all_00.png",
+          "index": 0,
+          "label": "blank_logo",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_app_icon",
+      "source_sheet": "source_sheets/ui_app_icon.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_app_icon/default/all_00.png",
+          "index": 0,
+          "label": "app_icon",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "extractor_version": 3,
+      "id": "ui_frame_portrait",
+      "source_sheet": "source_sheets/ui_frame_portrait.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_cell_edge_pixels": [
+        0
+      ],
+      "frames": [
+        {
+          "path": "assets/ui_frame_portrait/default/all_00.png",
+          "index": 0,
+          "label": "frame",
+          "source_cell": [
+            0,
+            0,
+            1254,
+            1254
+          ]
+        }
+      ]
+    }
+  ]
+}

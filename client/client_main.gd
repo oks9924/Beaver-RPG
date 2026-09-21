@@ -301,7 +301,8 @@ func _on_message(type: int, p: Dictionary) -> void:
 			room = {}
 			var b: Array = hub_info.get("bounds", [0, 0, 1600, 1000])
 			world.clear_entities()
-			world.setup(Rect2(b[0], b[1], b[2], b[3]), "tile.willow.ground", hub_info.get("obstacles", []), [])
+			world.setup(Rect2(b[0], b[1], b[2], b[3]), "tile.hub.ground" if AssetRegistry.status("tile.hub.ground") == "final" else "tile.willow.ground", _hub_obstacles(), [], "tile.willow.wall", "tile.willow.water")
+			world.set_decor(_hub_decor())
 			var you: Dictionary = p.get("you", {})
 			_pred_pos = Vector2(float(you.get("x", 800)), float(you.get("y", 600)))
 			_pending.clear()
@@ -330,7 +331,8 @@ func _on_message(type: int, p: Dictionary) -> void:
 			var b: Dictionary = def.get("bounds", {"x": 0, "y": 0, "w": 1200, "h": 800})
 			world.clear_entities()
 			world.set_npcs([])
-			world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(def.get("assets", {}).get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []))
+			var ra: Dictionary = def.get("assets", {})
+			world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(ra.get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []), String(ra.get("wall", "tile.willow.wall")), String(ra.get("water", "tile.willow.water")), String(ra.get("shore", "tile.willow.shore")))
 			_pending.clear()
 			_me_snapshot = PackedFloat32Array()
 			var spawns: Array = def.get("player_spawns", [[100, 100]])
@@ -410,7 +412,7 @@ func _on_room_event(ev: Dictionary) -> void:
 		"swing":
 			var pos := Vector2(float(ev.get("x", 0)), float(ev.get("y", 0)))
 			var f := Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0)))
-			world.spawn_effect("vfx.hammer_swing", pos + f * 40.0 + Vector2(0, -24), f.angle())
+			world.spawn_effect(_attack_vfx_of(String(ev.get("id", ""))), pos + f * 40.0 + Vector2(0, -24), f.angle())
 			world.play_sound("sfx.hammer_hit" if int(ev.get("hits", 0)) > 0 else "sfx.dodge")
 		"enemy_hit":
 			var key := "e:%d" % int(ev.get("eid", 0))
@@ -435,9 +437,17 @@ func _on_room_event(ev: Dictionary) -> void:
 		"skill":
 			var slot := String(ev.get("slot", ""))
 			var pos := Vector2(float(ev.get("x", 0)), float(ev.get("y", 0)))
-			if slot == "r":
-				world.spawn_effect("vfx.great_tree", pos + Vector2(0, -20))
+			var caster_class := _class_of(String(ev.get("id", "")))
+			if slot == "r" and caster_class == "guardian":
+				# 성장 5프레임 후 활성 프레임 유지. 보호 지속시간은 서버(직업 데이터)가 정한다
+				var dur := float(ContentDB.get_class_def("guardian").get("skills", {}).get("r", {}).get("effect", {}).get("duration_sec", 6.0))
+				world.spawn_effect("vfx.great_tree", pos + Vector2(0, -20), 0.0, dur)
 				world.play_sound("sfx.great_tree")
+			elif slot == "q" and caster_class == "pinecone":
+				var key := "p:" + String(ev.get("id", ""))
+				var f := (world.entities[key] as EntityView).facing if world.entities.has(key) else Vector2.RIGHT
+				world.spawn_effect("vfx.acorn_scatter", pos + f * 60.0 + Vector2(0, -20), f.angle())
+				world.play_sound("sfx.sling")
 			elif slot == "q":
 				world.play_sound("sfx.wood_block")
 		"dodge":
@@ -484,6 +494,7 @@ func _on_room_event(ev: Dictionary) -> void:
 		"objective_done":
 			hud.toast("목표 달성! 남은 적이 물러납니다", 2.5)
 		"trap":
+			world.spawn_effect("vfx.thorn_trap", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))), 0.0, 0.4, 104.0, 3)
 			world.play_sound("sfx.wood_block", 0.1)
 		"mark_burst":
 			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30))
@@ -495,8 +506,11 @@ func _on_room_event(ev: Dictionary) -> void:
 		"heal_zone":
 			world.spawn_effect("vfx.sap_bloom", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
 			world.play_sound("sfx.rescue", 0.1)
-		"healed":
-			if String(ev.get("id", "")) == my_id:
+		"healed", "heal":
+			var hk := "p:" + String(ev.get("id", ""))
+			if world.entities.has(hk):
+				world.spawn_effect("vfx.heal_burst", (world.entities[hk] as Node2D).position + Vector2(0, -30))
+			if String(ev.get("id", "")) == my_id and k == "healed":
 				hud.toast("회복 +%d" % int(ev.get("amount", 0)), 0.8)
 		"jet":
 			world.spawn_effect("vfx.torrent_valve", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))) * float(ev.get("len", 260)) * 0.5, Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))).angle())
@@ -553,6 +567,15 @@ func _on_room_event(ev: Dictionary) -> void:
 			pass
 		"boss_spawn":
 			hud.toast("철턱 가재가 나타났다!", 3.0)
+		"boss_slam":
+			var sc := Vector2(float(ev.get("x", 0)), float(ev.get("y", 0)))
+			var sr := float(ev.get("r", 100))
+			if bool(ev.get("leap", false)):
+				world.spawn_effect("vfx.boss_ground_slam", sc, 0.0, -1.0, sr * 2.4)
+			else:
+				world.spawn_effect("vfx.boss_rock_impact", sc, 0.0, -1.0, sr * 2.2)
+		"gnaw":
+			world.spawn_effect("prop.gnaw_tree", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, 16), 0.0, 2.5, 100.0, 2)
 		"mechanic_start":
 			world.mechanic_result(String(ev.get("id", "")), false, true)
 			hud.toast("[%s] %s — %s" % [ev.get("id", ""), ev.get("name", ""), ev.get("hint", "")], 5.0)
@@ -741,6 +764,42 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		hud.update_party(_room_players, party_list, my_id)
 		if not _me_snapshot.is_empty():
 			hud.update_me(_me_snapshot, ContentDB.get_class_def(_my_class()))
+
+
+func _class_of(pid: String) -> String:
+	for m: Dictionary in room.get("party", []):
+		if m.get("id", "") == pid:
+			return String(m.get("class_id", "guardian"))
+	return "guardian"
+
+
+func _attack_vfx_of(pid: String) -> String:
+	var cdef := ContentDB.get_class_def(_class_of(pid))
+	return String(cdef.get("attack", {}).get("assets", {}).get("vfx", "vfx.hammer_swing"))
+
+
+## 마을 장애물: 서버가 준 목록에 기억나무 성장 단계(프레임)와 표시 크기를 붙인다.
+func _hub_obstacles() -> Array:
+	var out: Array = []
+	var structures: Dictionary = hub_info.get("structures", {})
+	for ob: Dictionary in hub_info.get("obstacles", []):
+		var o := ob.duplicate()
+		if String(o.get("asset", "")) == "prop.hub.memory_tree":
+			o["frame"] = clampi(int(structures.get("memory_tree", {}).get("level", 0)), 0, 2)
+			o["size"] = 260
+		out.append(o)
+	return out
+
+
+## 마을 장식 소품(충돌 없음): 작업실은 복구 단계 프레임, 모집판·좌판은 NPC 옆.
+func _hub_decor() -> Array:
+	var structures: Dictionary = hub_info.get("structures", {})
+	var ws_level := clampi(int(structures.get("workshop", {}).get("level", 0)), 0, 2)
+	return [
+		{"asset": "prop.hub.workshop", "x": 1000, "y": 790, "frame": ws_level, "size": 170},
+		{"asset": "prop.hub.board", "x": 700, "y": 560, "frame": 0, "size": 110},
+		{"asset": "prop.stall", "x": 1250, "y": 470, "frame": 0, "size": 130},
+	]
 
 
 func _my_class() -> String:

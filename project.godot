@@ -12,7 +12,7 @@ config/version="0.1.0"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.4")
 run/low_processor_mode=false
-config/icon="res://assets/placeholders/app_icon.png"
+config/icon="res://assets/final/ui_app_icon.png"
 
 [autoload]
 

@@ -58,7 +58,7 @@ GitHub Actions(`.github/workflows/build.yml`)가 push 마다 린트·에셋 검�
 xvfb-run -a godot --path . --rendering-driver opengl3 --rendering-method gl_compatibility -- --connect=127.0.0.1:7777 --demo=demo1 --shots=./shots
 godot --headless --path . -- --tool=lint_all
 godot --headless --path . -- --tool=check_assets
-godot --headless --path . -- --tool=run_tests        # 단위 489개
+godot --headless --path . -- --tool=run_tests        # 단위 504개
 godot --headless --path . -- --tool=test_boss        # 보스 3종 × 기믹 5개 × 인원 1~4 (420개)
 godot --headless --path . -- --tool=check_routes     # 시드 100개 경로 점검 (GEN-01)
 tests/integration/run_integration.sh /path/to/godot  # 서버 + 다중 클라이언트 (42개)
@@ -68,7 +68,7 @@ tests/integration/run_export_smoke.sh /path/to/godot # export 실행 파일 왕�
 ```
 
 ## 에셋 교체
-모든 코드는 에셋 **ID** 만 참조한다. 팩 원본은 GitHub Release `assets-raw-v1` 에 있고 `tools/import_asset_pack.gd` 가 시트를 합성한다. 최종 파일을 같은 규격으로 만들어 `asset_manifest.json` 의 `final_path` 에 연결하거나, 배포본 실행 파일 옆 `asset_overrides/<id>.png` 로 두면 재빌드 없이 교체된다. 절차와 규격은 `docs/asset_plan.md`.
+모든 코드는 에셋 **ID** 만 참조한다. 팩 원본은 GitHub Release `assets-raw-v1`(v1·v2)·`assets-raw-v3`(v3 A~E) 에 있고 `tools/import_asset_pack.gd` 가 시트를 합성한다(최종 205 · 파생 89 · 임시 93). 최종 파일을 같은 규격으로 만들어 `asset_manifest.json` 의 `final_path` 에 연결하거나, 배포본 실행 파일 옆 `asset_overrides/<id>.png` 로 두면 재빌드 없이 교체된다. 절차와 규격은 `docs/asset_plan.md`.
 
 ## 구현된 것 / 아닌 것
 구현(단계 0·1): 전용 서버·설정, 주소 접속·버전 검사, 계정·재접속 토큰, 서버 정원과 원정 정원 분리, 접속자 0명·재시작 후에도 유지되는 공용 마을, 모집판(1~4인), 인원별 프로필 고정, 서버 판정 전투, 다운·구조·전멸, 끊김 유예와 슬롯 복귀, 영구 기록, 에셋 ID 분리, 테스트·export·CI·운영 스크립트.

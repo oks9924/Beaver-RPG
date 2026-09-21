@@ -2,7 +2,9 @@ class_name RoomHud
 extends Control
 ## 전투 HUD: 체력·보호막, 회피 충전, 스킬 쿨다운, 회복 도구, 파티 상태, 웨이브, 다운·구조 안내, 연결 상태.
 
-var hp_bar: ProgressBar
+var hp_bar: TextureBar
+var status_box: HBoxContainer
+var _status_icons: Dictionary = {}
 var hp_label: Label
 var shield_label: Label
 var dodge_label: Label
@@ -23,7 +25,7 @@ var chat_edit: LineEdit
 var run_label: Label
 var objective_label: Label
 var relic_label: Label
-var boss_bar: ProgressBar
+var boss_bar: TextureBar
 var boss_label: Label
 var boss_box: VBoxContainer
 var minimap: Minimap
@@ -42,15 +44,8 @@ func _ready() -> void:
 	var v := UIKit.vbox(4)
 	bl.add_child(v)
 	var hh := UIKit.hbox()
-	hp_bar = ProgressBar.new()
-	hp_bar.custom_minimum_size = Vector2(200, 18)
-	hp_bar.show_percentage = false
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.1, 0.08, 0.06)
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color(0.3, 0.85, 0.35)
-	hp_bar.add_theme_stylebox_override("background", bg)
-	hp_bar.add_theme_stylebox_override("fill", fill)
+	hp_bar = TextureBar.new()
+	hp_bar.setup("ui.bar.hp", Color(0.3, 0.85, 0.35), 220.0)
 	hp_label = UIKit.label("", 13)
 	shield_label = UIKit.label("", 12, Color(0.6, 0.85, 1.0))
 	hh.add_child(hp_bar)
@@ -77,8 +72,17 @@ func _ready() -> void:
 	sh.add_child(build_label)
 	dodge_label = UIKit.label("회피 ◆◆", 13, Color(0.6, 0.85, 1.0))
 	heal_label = UIKit.label("회복(1) x2", 13, Color(0.6, 1.0, 0.6))
+	sh.add_child(_small_icon("icon.dodge"))
 	sh.add_child(dodge_label)
+	sh.add_child(_small_icon("icon.heal"))
 	sh.add_child(heal_label)
+	status_box = UIKit.hbox(4)
+	for sid in ["slow", "bleed", "shield"]:
+		var ic := _small_icon("icon.status." + sid)
+		ic.visible = false
+		_status_icons[sid] = ic
+		status_box.add_child(ic)
+	sh.add_child(status_box)
 	v.add_child(sh)
 	add_child(bl)
 	var tr := UIKit.panel(Vector2(270, 0))
@@ -139,15 +143,8 @@ func _ready() -> void:
 	boss_box.custom_minimum_size = Vector2(520, 0)
 	boss_label = UIKit.label("", 15, Color(1.0, 0.8, 0.6))
 	boss_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	boss_bar = ProgressBar.new()
-	boss_bar.custom_minimum_size = Vector2(520, 16)
-	boss_bar.show_percentage = false
-	var bbg := StyleBoxFlat.new()
-	bbg.bg_color = Color(0.1, 0.05, 0.05)
-	var bfill := StyleBoxFlat.new()
-	bfill.bg_color = Color(0.85, 0.25, 0.2)
-	boss_bar.add_theme_stylebox_override("background", bbg)
-	boss_bar.add_theme_stylebox_override("fill", bfill)
+	boss_bar = TextureBar.new()
+	boss_bar.setup("ui.bar.boss", Color(0.85, 0.25, 0.2), 520.0)
 	boss_box.add_child(boss_label)
 	boss_box.add_child(boss_bar)
 	boss_box.visible = false
@@ -198,6 +195,10 @@ func update_me(me: PackedFloat32Array, cdef: Dictionary) -> void:
 	var charges := int(me[Protocol.SNAP_P.DODGE])
 	dodge_label.text = "회피 " + "◆".repeat(charges) + "◇".repeat(maxi(int(ContentDB.rule("dodge_charges", 2)) - charges, 0))
 	heal_label.text = "회복(1) x%d" % int(me[Protocol.SNAP_P.HEAL])
+	var bits := int(me[Protocol.SNAP_P.STATUS]) if me.size() > Protocol.SNAP_P.STATUS else 0
+	(_status_icons["slow"] as Control).visible = (bits & Protocol.ST_SLOW) != 0 or (bits & Protocol.ST_ROOT) != 0
+	(_status_icons["bleed"] as Control).visible = (bits & Protocol.ST_BLEED) != 0
+	(_status_icons["shield"] as Control).visible = me[Protocol.SNAP_P.SHIELD] > 0.0
 	if _icon_class != String(cdef.get("id", "")):
 		_icon_class = String(cdef.get("id", ""))
 		for k in ["q", "e", "r"]:
@@ -328,3 +329,12 @@ func set_build_hint(kind: String) -> void:
 func set_tutorial(text: String, index: int, total: int) -> void:
 	tutorial_label.text = ("튜토리얼 %d/%d — %s" % [index + 1, total, text]) if text != "" else ""
 	skip_btn.visible = text != ""
+
+
+func _small_icon(id: String) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = AssetRegistry.get_texture(id)
+	t.custom_minimum_size = Vector2(20, 20)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_SCALE
+	return t

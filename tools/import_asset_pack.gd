@@ -1,6 +1,7 @@
 extends SceneTree
-## 에셋팩(v1 beaver_assets, v2 beaver_combat_v2) 임포트 도구.
+## 에셋팩(v1 beaver_assets, v2 beaver_combat_v2, v3-A beaver_assets_v3a, v3-B~E beaver_assets_v3bce) 임포트 도구.
 ## 실행: godot --headless -s tools/import_asset_pack.gd -- --packs=<압축을 푼 폴더> [--only=char.guardian]
+## v3 는 v1·v2 위에 애니메이션 단위로 덮어쓴다(파생본 → 최종본). v3 팩이 없으면 v1·v2 만 처리한다.
 ## - 팩의 방향/프레임별 PNG 를 이 프로젝트의 시트 규격(행=down/up/left/right, 열=프레임)으로 합성해 assets/final/ 에 쓴다.
 ## - 팩에 없는 동작(이동·피격·다운·사망·시전 등)은 기본 자세에서 파생(bob/lean/tint/rotate/fade)하고 status="derived" 로 표시한다.
 ## - asset_manifest.json 의 해당 ID 에 final_path·규격·출처·제공/연결 상태를 기록한다. 코드는 계속 ID 만 참조한다.
@@ -14,6 +15,8 @@ const ANCHOR := [0.5, 0.828]                          # (64,106)/128 = (256,424)
 var packs_dir: String = ""
 var v1: Dictionary = {}
 var v2: Dictionary = {}
+var v3a: Dictionary = {}
+var v3b: Dictionary = {}
 var manifest: Dictionary = {}
 var made: int = 0
 var only: String = ""
@@ -33,6 +36,10 @@ func _init() -> void:
 		return
 	v1 = _read_json(packs_dir.path_join("beaver_assets/manifest.json"))
 	v2 = _read_json(packs_dir.path_join("beaver_combat_v2/manifest.json"))
+	if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v3a/manifest.json")):
+		v3a = _read_json(packs_dir.path_join("beaver_assets_v3a/manifest.json"))
+	if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v3bce/manifest.json")):
+		v3b = _read_json(packs_dir.path_join("beaver_assets_v3bce/manifest.json"))
 	var mj := JSON.new()
 	mj.parse(FileAccess.get_file_as_string(MANIFEST))
 	manifest = mj.data
@@ -268,8 +275,8 @@ func _emit(id: String, frames: Dictionary, frame_px: int, render_px: int, status
 	report.append("%s %s <- %s" % [status.to_upper().left(3), id, source.get("method", "")])
 
 
-func _src(pack: String, actor: String, state: String, method: String = "pack") -> Dictionary:
-	return {"pack": pack, "actor": actor, "animation": state, "method": method, "license": "project-internal (in-house generated art, see pack README)", "origin": "GitHub Release assets-raw-v1"}
+func _src(pack: String, actor: String, state: String, method: String = "pack", origin: String = "GitHub Release assets-raw-v1") -> Dictionary:
+	return {"pack": pack, "actor": actor, "animation": state, "method": method, "license": "project-internal (in-house generated art, see pack README)", "origin": origin}
 
 
 # ------------------------------------------------------------------ 매핑
@@ -381,11 +388,17 @@ func _run() -> void:
 		for state in ["activation", "success", "failure"]:
 			var fr := _pack_fixed(actor, state)
 			_emit("prop.mechanic.%s.%s" % [key, state], fr, D, 128, "final", _src("beaver_combat_v2", actor, state + "_fixed"), linked, "", ["all"])
+	_run_v3a()
+	_run_v3b()
 	# 팩 참조 문서 정보
 	manifest["packs"] = {
 		"beaver_assets_v1": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_에셋팩_v1.zip", "manifest": "assets/packs/beaver_assets_v1/manifest.json", "status": v1.get("status", ""), "note": "플레이어 5직업 기본 자세, 수호목수 이동·공격·Q/E/R, 적 12·보스 3 기본 자세"},
 		"beaver_combat_v2": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_전투애니메이션_v2.zip", "manifest": "assets/packs/beaver_combat_v2/manifest.json", "status": v2.get("status", ""), "note": "적 공격 12, 보스 패턴 4×3, 시전·약점 노출, 기믹 장치 15종 진행/성공/실패"},
 	}
+	if not v3a.is_empty():
+		manifest["packs"]["beaver_assets_v3a"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_A.zip", "manifest": "assets/packs/beaver_assets_v3a/manifest.json", "status": v3a.get("status", ""), "note": "요청서 v3 A: 사수 8동작, 수호목수 피격·다운·사망·갉기, 적 3종 이동·피격·사망(+멧돼지 돌진), 가재 이동·피격·사망·탈피·빈 껍질"}
+	if not v3b.is_empty():
+		manifest["packs"]["beaver_assets_v3bce"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_B-E.zip", "manifest": "assets/packs/beaver_assets_v3bce/manifest.json", "status": v3b.get("status", ""), "note": "요청서 v3 B~E: VFX 16, 버들강 타일 6·소품 13, 아이콘 24, UI 9"}
 	manifest["import_tool"] = "tools/import_asset_pack.gd"
 
 
@@ -422,3 +435,224 @@ func _emit_single(id: String, img: Image, status: String, source: Dictionary, li
 	e["verified"] = "not_run"
 	made += 1
 	report.append("%s %s <- %s" % [status.to_upper().left(3), id, source.get("method", "")])
+
+
+# ------------------------------------------------------------------ v3 (assets-raw-v3)
+
+const V3_ORIGIN := "GitHub Release assets-raw-v3"
+
+
+## 방향 없는 팩 애니메이션(<state>_all / default_all) 을 읽는다: {"all": [Image...], "_fps", "_loop", "_hold", "_mode", "_segments", "_labels", "_w", "_h"}
+func _pack_strip(pack: Dictionary, root: String, actor_id: String, anim_name: String) -> Dictionary:
+	var actor: Dictionary = pack.get("actors", {}).get(actor_id, {})
+	var anim: Dictionary = actor.get("animations", {}).get(anim_name, {})
+	if anim.is_empty():
+		return {}
+	var imgs: Array = []
+	for rel: String in anim["frames"]:
+		var img := Image.new()
+		if img.load(packs_dir.path_join(root).path_join(rel)) != OK:
+			printerr("missing frame " + rel)
+			return {}
+		if img.get_format() != Image.FORMAT_RGBA8:
+			img.convert(Image.FORMAT_RGBA8)
+		imgs.append(img)
+	var fs: Array = anim.get("frame_size", actor.get("frame_size", [imgs[0].get_width(), imgs[0].get_height()]))
+	var ap: Array = anim.get("anchor_px", actor.get("anchor_px", [float(fs[0]) * 0.5, float(fs[1]) * 0.5]))
+	return {"all": imgs, "_fps": float(anim.get("fps", 8)), "_loop": bool(anim.get("loop", false)), "_hold": bool(anim.get("hold_last_frame", false)),
+		"_mode": String(anim.get("playback_mode", "loop" if bool(anim.get("loop", false)) else "one_shot")), "_segments": anim.get("segments", {}), "_labels": anim.get("frame_labels", []),
+		"_contact": int(anim.get("visual_contact_frame", -1)), "_w": int(fs[0]), "_h": int(fs[1]), "_anchor": [float(ap[0]) / float(fs[0]), float(ap[1]) / float(fs[1])], "_actor": actor}
+
+
+func _compose_strip(imgs: Array, w: int, h: int) -> Image:
+	var sheet := Image.create(w * imgs.size(), h, false, Image.FORMAT_RGBA8)
+	sheet.fill(Color(0, 0, 0, 0))
+	for c in imgs.size():
+		var img: Image = imgs[c]
+		if img.get_width() != w or img.get_height() != h:
+			img = img.duplicate()
+			img.resize(w, h, Image.INTERPOLATE_LANCZOS)
+		sheet.blit_rect(img, Rect2i(0, 0, w, h), Vector2i(c * w, 0))
+	return sheet
+
+
+## 방향 없는 시트(열 = 프레임) 를 쓰고 매니페스트를 갱신한다. anim_extra 는 animation 에 합쳐지고 (mode/segments/hold_last), entry_extra 는 항목에 합쳐진다.
+func _emit_strip(id: String, strip: Dictionary, w: int, h: int, render: Array, status: String, source: Dictionary, linked: bool, type_: String = "sprite_sheet", entry_extra: Dictionary = {}, anchor: Array = []) -> void:
+	if only != "" and not id.begins_with(only):
+		return
+	if strip.is_empty():
+		report.append("SKIP %s (no frames)" % id)
+		return
+	var imgs: Array = strip["all"]
+	var sheet := _compose_strip(imgs, w, h)
+	var file := OUT_DIR + id.replace(".", "_") + ".png"
+	if sheet.save_png(ProjectSettings.globalize_path(file)) != OK:
+		report.append("FAIL %s save" % id)
+		return
+	var e := _entry(id)
+	e["type"] = type_
+	e["status"] = status
+	e["final_path"] = file
+	e["frame_size"] = [w, h]
+	e["source_size"] = [w * imgs.size(), h]
+	e["columns"] = imgs.size()
+	e["rows"] = 1
+	e["directions"] = ["all"]
+	var ev := {}
+	if int(strip.get("_contact", -1)) >= 0:
+		ev["hit"] = int(strip["_contact"])
+	var anim := {"name": id.get_slice(".", id.get_slice_count(".") - 1), "frames": range(imgs.size()), "fps": float(strip.get("_fps", 8.0)), "loop": bool(strip.get("_loop", false)), "event_frames": ev,
+		"mode": String(strip.get("_mode", "one_shot")), "hold_last": bool(strip.get("_hold", false))}
+	if not (strip.get("_segments", {}) as Dictionary).is_empty():
+		anim["segments"] = strip["_segments"]
+	if not (strip.get("_labels", []) as Array).is_empty():
+		anim["frame_labels"] = strip["_labels"]
+	e["animation"] = anim
+	e["anchor"] = anchor if not anchor.is_empty() else strip.get("_anchor", [0.5, 0.5])
+	e["render_size"] = render
+	e["source"] = source
+	e["provided"] = status == "final"
+	e["linked"] = linked
+	e["verified"] = "not_run"
+	e["placeholder_kept"] = e.get("path", "") != ""
+	for k in entry_extra.keys():
+		e[k] = entry_extra[k]
+	made += 1
+	report.append("%s %s <- %s (%d frames)" % [status.to_upper().left(3), id, source.get("method", ""), imgs.size()])
+
+
+## n×n 모자이크 (64px 타일 변형을 시드로 섞어 반복 무늬를 줄인다). rotate=true 면 90° 회전도 섞는다.
+func _mosaic(imgs: Array, n: int, seed_: int, rotate: bool) -> Image:
+	var t: int = imgs[0].get_width()
+	var out := Image.create(t * n, t * n, false, Image.FORMAT_RGBA8)
+	out.fill(Color(0, 0, 0, 0))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_
+	for y in n:
+		for x in n:
+			var img: Image = imgs[rng.randi_range(0, imgs.size() - 1)]
+			if rotate:
+				img = img.duplicate()
+				for k in rng.randi_range(0, 3):
+					img.rotate_90(CLOCKWISE)
+			out.blit_rect(img, Rect2i(0, 0, t, t), Vector2i(x * t, y * t))
+	return out
+
+
+func _run_v3a() -> void:
+	if v3a.is_empty():
+		report.append("SKIP v3a (pack not found)")
+		return
+	const R := "beaver_assets_v3a"
+	const P := 128
+	const B := 256
+	# 솔방울사수: v1 에 대기만 있었고 나머지는 파생본이었다 → 전부 최종본으로
+	var ranger := {"walk": ["walk", -1], "attack": ["attack", 2], "cast_q": ["cast_q", 2], "cast_e": ["cast_e", 3], "cast_r": ["cast_r", 2], "hit": ["hit", -1], "down": ["down", -1], "death": ["death", -1]}
+	for our: String in ranger.keys():
+		var fr := _pack_frames(v3a, R, "player_ranger", ranger[our][0])
+		if not fr.is_empty() and int(ranger[our][1]) >= 0:
+			fr["_contact"] = int(ranger[our][1])
+		_emit("char.pinecone.%s" % our, fr, P, 112, "final", _src(R, "player_ranger", ranger[our][0], "pack", V3_ORIGIN), true, "hit.player_default")
+	for st in ["hit", "down", "death", "interact"]:
+		_emit("char.guardian.%s" % st, _pack_frames(v3a, R, "player_guardian", st), P, 112, "final", _src(R, "player_guardian", st, "pack", V3_ORIGIN), true, "hit.player_default")
+	var enemies := {"sap_snail": "enemy_sap_slug", "thorn_boar": "enemy_thorn_boar", "black_bird": "enemy_black_crow"}
+	for eid: String in enemies.keys():
+		var actor: String = enemies[eid]
+		for st in ["walk", "hit", "death"]:
+			_emit("enemy.%s.%s" % [eid, st], _pack_frames(v3a, R, actor, st), P, 100, "final", _src(R, actor, st, "pack", V3_ORIGIN), true, "hit.%s_body" % eid)
+	# 멧돼지 지속 돌진 보행: 서버 상태에 별도 '돌진 중' 이 없어 아직 미연결 (attack = v2 tusk_charge 예고·접촉)
+	_emit("enemy.thorn_boar.charge", _pack_frames(v3a, R, "enemy_thorn_boar", "charge"), P, 100, "final", _src(R, "enemy_thorn_boar", "charge", "pack", V3_ORIGIN), false, "hit.thorn_boar_body")
+	for st in ["walk", "hit", "death", "molt"]:
+		var fr := _pack_frames(v3a, R, "boss_ironclaw", st)
+		if st == "molt":
+			fr["_loop"] = false
+		_emit("boss.ironclaw.%s" % st, fr, B, 240, "final", _src(R, "boss_ironclaw", st, "pack (512→256)", V3_ORIGIN), true, "hit.boss_ironclaw")
+	# 빈 껍질: 256×256 단일 프레임 예외 (IC-04 가짜 위치 오브젝트)
+	var husk := _pack_strip(v3a, R, "boss_ironclaw", "husk_all")
+	if not husk.is_empty():
+		_emit_strip("prop.boss.husk", husk, 256, 256, [180, 180], "final", _src(R, "boss_ironclaw", "husk_all", "pack", V3_ORIGIN), true, "texture")
+
+
+func _run_v3b() -> void:
+	if v3b.is_empty():
+		report.append("SKIP v3bce (pack not found)")
+		return
+	const R := "beaver_assets_v3bce"
+	# --- B: VFX (기존 render_size 유지, 없으면 표)
+	var vfx_render := {"hammer_swing": 180, "log_shield": 110, "tail_shockwave": 220, "great_tree": 460, "sling_shot": 64, "acorn_scatter": 170, "thorn_trap": 104, "forest_volley": 220,
+		"projectile_pinecone": 24, "projectile_sap": 24, "hit_spark": 64, "rescue_ring": 110, "heal_burst": 110, "boss_rock_impact": 200, "boss_ground_slam": 380, "whirlpool": 420}
+	for key: String in vfx_render.keys():
+		var strip := _pack_strip(v3b, R, "vfx_" + key, "default_all")
+		if strip.is_empty():
+			report.append("SKIP vfx_%s" % key)
+			continue
+		var id := "vfx." + key
+		var rs: int = int(vfx_render[key])
+		var linked := not key in ["whirlpool"]   # 소용돌이는 IC-05 발판 아래 루프로 연결
+		_emit_strip(id, strip, int(strip["_w"]), int(strip["_h"]), [rs, rs], "final", _src(R, "vfx_" + key, "default_all", "pack", V3_ORIGIN), true, "sprite_sheet", {}, [0.5, 0.5])
+	# --- C: 타일. 바닥은 4변형을 4×4 모자이크로 합쳐 반복 무늬를 줄인다 (ground Sprite2D 가 통째로 반복).
+	var g := _pack_strip(v3b, R, "tile_willow_ground", "default_all")
+	if not g.is_empty():
+		_emit_single("tile.willow.ground", _mosaic(g["all"], 4, 11, false), "final", _src(R, "tile_willow_ground", "default_all", "pack: 4 variants → 4×4 seeded mosaic", V3_ORIGIN), true)
+		_entry("tile.willow.ground")["layer"] = "ground"
+	var hub := _pack_strip(v3b, R, "tile_hub_ground", "default_all")
+	if not hub.is_empty():
+		_emit_single("tile.hub.ground", _mosaic([hub["all"][0]], 4, 5, true), "final", _src(R, "tile_hub_ground", "default_all[0]", "pack: frame 0 → 4×4 rotated mosaic", V3_ORIGIN), true)
+		_entry("tile.hub.ground")["layer"] = "ground"
+		_emit_strip("tile.hub.planks", {"all": [hub["all"][1]], "_fps": 1.0, "_mode": "select_frame"}, 64, 64, [64, 64], "final", _src(R, "tile_hub_ground", "default_all[1]", "pack", V3_ORIGIN), false, "texture")
+	for t in [["tile.willow.wall", "tile_willow_wall", true, "collision"], ["tile.willow.water", "tile_willow_water", true, "hazard"], ["tile.willow.shore", "tile_willow_shore", true, "ground"], ["tile.willow.bridge", "tile_willow_bridge", false, "ground"]]:
+		var strip := _pack_strip(v3b, R, t[1], "default_all")
+		_emit_strip(t[0], strip, 64, 64, [64, 64], "final", _src(R, t[1], "default_all", "pack", V3_ORIGIN), bool(t[2]), "texture", {"layer": t[3]}, [0.0, 0.0])
+	# --- C: 소품 (상태 = 프레임 선택; 코드가 frame index 를 고른다)
+	var props := {"prop.gnaw_tree": ["prop_gnaw_tree", 84, true], "prop.device": ["prop_device", 76, true], "prop.lever": ["prop_lever", 60, true], "prop.sluice_gate": ["prop_sluice_gate", 120, true],
+		"prop.log_cover": ["prop_log_cover", 72, true], "prop.willow.log": ["prop_willow_log", 96, true], "prop.willow.rock": ["prop_willow_rock", 96, true], "prop.hold_point": ["prop_hold_point", 90, true],
+		"prop.campfire": ["prop_campfire", 96, true], "prop.stall": ["prop_stall", 120, true], "prop.hub.memory_tree": ["prop_memory_tree", 260, true], "prop.hub.workshop": ["prop_workshop", 150, true], "prop.hub.board": ["prop_expedition_board", 110, true]}
+	for id: String in props.keys():
+		var strip := _pack_strip(v3b, R, props[id][0], "default_all")
+		var rs: int = int(props[id][1])
+		_emit_strip(id, strip, int(strip.get("_w", 256)), int(strip.get("_h", 256)), [rs, rs], "final", _src(R, props[id][0], "default_all", "pack", V3_ORIGIN), bool(props[id][2]), "sprite_sheet", {"hitbox_ref": "obstacle"} if id in ["prop.willow.log", "prop.willow.rock", "prop.gnaw_tree"] else {})
+	# --- D: 아이콘 (64×64 단일)
+	var icons := {"icon.skill.guardian.q": "icon_skill_guardian_q", "icon.skill.guardian.e": "icon_skill_guardian_e", "icon.skill.guardian.r": "icon_skill_guardian_r",
+		"icon.skill.pinecone.q": "icon_skill_ranger_q", "icon.skill.pinecone.e": "icon_skill_ranger_e", "icon.skill.pinecone.r": "icon_skill_ranger_r", "icon.heal": "icon_heal", "icon.dodge": "icon_dodge"}
+	for r in ["oak_heart", "sharp_incisors", "river_stone", "quick_paws", "sap_amber", "hunters_tooth", "kin_bond", "thorn_tail", "heavy_paddle", "acorn_pouch"]:
+		icons["icon.relic." + r] = "icon_relic_" + r
+	for st in ["slow", "bleed", "shield", "mark", "stagger", "wet"]:
+		icons["icon.status." + st] = "icon_status_" + st
+	for id: String in icons.keys():
+		var strip := _pack_strip(v3b, R, icons[id], "default_all")
+		if strip.is_empty():
+			report.append("SKIP " + id)
+			continue
+		var linked := not id.begins_with("icon.status.mark") and not id.begins_with("icon.status.stagger") and not id.begins_with("icon.status.wet")
+		_emit_single(id, strip["all"][0], "final", _src(R, icons[id], "default_all", "pack", V3_ORIGIN), linked)
+	# --- E: UI
+	var panel := _pack_strip(v3b, R, "ui_panel", "default_all")
+	if not panel.is_empty():
+		_emit_strip("ui.panel.default", panel, 96, 96, [96, 96], "final", _src(R, "ui_panel", "default_all", "pack", V3_ORIGIN), true, "nine_slice", {"nine_slice_margin": 12})
+	var btn := _pack_strip(v3b, R, "ui_button", "default_all")
+	if not btn.is_empty():
+		for i in 3:
+			var bid: String = ["ui.button.default", "ui.button.hover", "ui.button.pressed"][i]
+			_emit_strip(bid, {"all": [btn["all"][i]], "_fps": 1.0, "_mode": "select_frame"}, 96, 48, [96, 48], "final", _src(R, "ui_button", "default_all[%d]" % i, "pack", V3_ORIGIN), true, "nine_slice", {"nine_slice_margin": 12})
+	var reward := _pack_strip(v3b, R, "ui_card_reward", "default_all")
+	_emit_strip("ui.card.reward", reward, 256, 352, [200, 275], "final", _src(R, "ui_card_reward", "default_all", "pack", V3_ORIGIN), true, "sprite_sheet", {"frame_labels": ["relic", "upgrade"]}, [0.0, 0.0])
+	var route := _pack_strip(v3b, R, "ui_card_route", "default_all")
+	_emit_strip("ui.card.route", route, 256, 160, [208, 130], "final", _src(R, "ui_card_route", "default_all", "pack", V3_ORIGIN), true, "sprite_sheet", {"frame_labels": ["combat", "event", "shop", "rest", "boss"]}, [0.0, 0.0])
+	var hp := _pack_strip(v3b, R, "ui_bar_hp", "default_all")
+	if not hp.is_empty():
+		var a: Dictionary = hp["_actor"]
+		_emit_strip("ui.bar.hp", hp, 256, 24, [256, 24], "final", _src(R, "ui_bar_hp", "default_all", "pack", V3_ORIGIN), true, "sprite_sheet", {"frame_labels": ["frame", "fill"], "fill_rect_px": a.get("fill_rect_px", [17, 8, 222, 9]), "layer_order_back_to_front": ["fill", "frame"]}, [0.0, 0.0])
+	var bb := _pack_strip(v3b, R, "ui_bar_boss", "default_all")
+	if not bb.is_empty():
+		var a: Dictionary = bb["_actor"]
+		_emit_strip("ui.bar.boss", bb, 512, 32, [512, 32], "final", _src(R, "ui_bar_boss", "default_all", "pack", V3_ORIGIN), true, "sprite_sheet", {"frame_labels": ["frame"], "fill_rect_px": a.get("suggested_fill_rect_px", [80, 12, 354, 11])}, [0.0, 0.0])
+	var logo := _pack_strip(v3b, R, "ui_title_logo", "default_all")
+	if not logo.is_empty():
+		_emit_single("ui.title.logo", logo["all"][0], "final", _src(R, "ui_title_logo", "default_all", "pack (문양·리본만, 제목은 폰트)", V3_ORIGIN), true)
+	var app := _pack_strip(v3b, R, "ui_app_icon", "default_all")
+	if not app.is_empty():
+		_emit_single("ui.app_icon", app["all"][0], "final", _src(R, "ui_app_icon", "default_all", "pack", V3_ORIGIN), true)
+		_entry("ui.app_icon")["type"] = "icon"
+	var pf := _pack_strip(v3b, R, "ui_frame_portrait", "default_all")
+	if not pf.is_empty():
+		_emit_single("ui.frame.portrait", pf["all"][0], "final", _src(R, "ui_frame_portrait", "default_all", "pack", V3_ORIGIN), true)

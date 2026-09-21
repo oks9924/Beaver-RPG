@@ -6,6 +6,19 @@
 - 해석 순서: **`asset_overrides/<id>.<ext>`(실행 파일 옆, 재빌드 없이 교체)** → `final_path` → `path`(임시) → 런타임 대체 도형(자홍/검정 체크, 경고 로그).
 - 상태: `placeholder`(생성한 임시 도형) · `final`(확정) · `derived`(팩 프레임을 가공한 파생) · `planned`(ID 만 예약, 파일 없음).
 
+## 에셋팩 v3 연결 (2026-09-21, Release `assets-raw-v3`)
+두 팩(`beaver_assets_v3a` 361장, `beaver_assets_v3bce` 158장)을 `tools/import_asset_pack.gd` 의 `_run_v3a/_run_v3b` 가 v1·v2 위에 **애니메이션 단위로** 덮어쓴다. 현황: 최종 205 · 파생 89 · 임시 93 · 예정 5 (총 392, `check_assets` 문제 0).
+
+| 묶음 | 연결 방식 (코드) |
+|---|---|
+| A 캐릭터 동작 (사수 8, 수호목수 4, 적 3종×3+돌진, 가재 4+빈 껍질) | 4방향 시트로 합성. `EntityView` 가 `interact`(갉기), 피격 2프레임(`flash()` 뒤 0.28초), 이동·사망·탈피를 상태별로 고른다. `husk_all` 은 256px 단일 텍스처 `prop.boss.husk` |
+| B VFX 16 | `direction: all` 스트립. `animation.mode`(one_shot / loop / select_frame / state_sequence)·`hold_last`·`segments` 를 매니페스트에 보존. `WorldView.spawn_effect` 가 모드별로 재생하고, 덫은 설치[0]→대기[1,2]→서버 발동 이벤트에 [3], 거목은 성장 후 활성 프레임을 보호 시간 동안 유지 |
+| C 타일 6·소품 13 | 바닥 4변형은 4×4 시드 모자이크 1장. 강둑 9장은 방 경계 바깥 2줄 링, 물가 4장은 물 사각형 네 변, 물 2프레임은 0.5초 교대(`AssetRegistry.get_frame_texture`). 소품은 열=상태 시트이고 `_draw_frame` 이 서버 진행률·상태로 프레임을 고른다. 마을 소품은 복구 단계 프레임 |
+| D 아이콘 24 | 스킬·회복·회피·유물 10·상태 6. HUD 가 직업 데이터의 아이콘 ID 를 읽고, 둔화/출혈/보호막 상태 아이콘 행을 표시 |
+| E UI 9 | 패널·버튼 3상태(12px 9-slice, `UIKit.theme`), 보상·경로 카드(`UIKit.card_button`), 체력바·보스바(`TextureBar`: 채움 뒤 + 틀 앞, `fill_rect_px` 클리핑), 로고(로그인), 초상 틀(NPC 대화), 앱 아이콘(project.godot) |
+
+미연결: `enemy.thorn_boar.charge`(서버에 지속 돌진 상태 없음), `icon.status.mark/stagger/wet`(플레이어 스냅샷에 그 상태 없음), `tile.willow.bridge`, `tile.hub.planks`. 남은 임시·파생 항목과 보정 요청은 `docs/asset_request_v4.md`.
+
 ## 에셋 레지스트리 현황 (2026-09-20, 팩 v1·v2 연결 후)
 - 상태: `placeholder`(생성한 임시 도형) · `final`(팩에서 받은 확정 프레임) · `derived`(팩 프레임을 가공해 이 환경에서 만든 파생 동작·아이콘) · `planned`(ID 만 예약).
 - 매니페스트 항목마다 `provided`(제공됨) / `linked`(연결됨: 코드가 이 ID 를 실제로 그림) / `verified`(검증됨: `screen` = 실제 화면에서 확인, `check` = 검수 도구만 통과, `not_run`) 를 기록한다. `source` 에 원본 팩·액터·동작·가공 방법을 남긴다.

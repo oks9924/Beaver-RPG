@@ -23,7 +23,21 @@ func _ready() -> void:
 	_portrait.custom_minimum_size = Vector2(96, 96)
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_SCALE
-	h.add_child(_portrait)
+	var holder := Control.new()
+	holder.custom_minimum_size = Vector2(112, 112)
+	_portrait.position = Vector2(8, 8)
+	_portrait.size = Vector2(96, 96)
+	holder.add_child(_portrait)
+	if AssetRegistry.status("ui.frame.portrait") == "final":
+		var frame := TextureRect.new()
+		frame.texture = AssetRegistry.get_texture("ui.frame.portrait")
+		frame.position = Vector2.ZERO
+		frame.size = Vector2(112, 112)
+		frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		frame.stretch_mode = TextureRect.STRETCH_SCALE
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		holder.add_child(frame)
+	h.add_child(holder)
 	var tv := UIKit.vbox(4)
 	_title = UIKit.label("", 18, Color(0.98, 0.85, 0.45))
 	_lines = UIKit.label("", 14)

@@ -66,12 +66,14 @@ func show_reward(p: Dictionary, my_id: String) -> void:
 	var options: Array = p.get("options", [])
 	if options.is_empty() or bool(p.get("picked", false)):
 		buttons_box.add_child(UIKit.label("선택 완료. 다른 파티원을 기다리는 중...", 14))
+	var cards := UIKit.hbox(10)
 	for i in options.size():
 		var o: Dictionary = options[i]
-		var kind_ko: String = {"relic": "유물", "upgrade": "스킬 강화", "acorns": "도토리"}.get(String(o.get("kind", "")), "")
-		var b := UIKit.button("[%s] %s — %s" % [kind_ko, o.get("name_ko", ""), o.get("desc_ko", "")], func() -> void: reward_picked.emit(i))
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		buttons_box.add_child(b)
+		var kind: String = String(o.get("kind", ""))
+		var kind_ko: String = {"relic": "유물", "upgrade": "스킬 강화", "acorns": "도토리"}.get(kind, "")
+		var b := UIKit.card_button("[%s]\n%s\n\n%s" % [kind_ko, o.get("name_ko", ""), o.get("desc_ko", "")], "ui.card.reward", 0 if kind == "relic" else 1, Vector2(196, 270), func() -> void: reward_picked.emit(i))
+		cards.add_child(b)
+	buttons_box.add_child(cards)
 	footer.text = "개인 선택입니다. 시간이 끝나면 첫 번째 항목이 자동 선택됩니다. 유물·강화는 이번 원정에만 적용됩니다."
 
 
@@ -84,15 +86,17 @@ func show_route(p: Dictionary, my_id: String, party: Array) -> void:
 	body.text = "다음 목적지를 투표합니다. 목적지 유형과 알려진 위험을 보고 고르세요."
 	_clear_buttons()
 	var votes: Dictionary = p.get("votes", {})
+	var cards := UIKit.hbox(8)
 	for n: Dictionary in p.get("nodes", []):
 		var voters: PackedStringArray = []
 		for aid: String in votes.keys():
 			if votes[aid] == n["id"]:
 				voters.append(_nick(aid, party))
-		var label := "%s — %s%s" % [_node_type_ko(String(n.get("type", ""))), _node_name(n), ("   [투표: %s]" % ", ".join(voters)) if not voters.is_empty() else ""]
-		var b := UIKit.button(label, func() -> void: route_voted.emit(String(n["id"])))
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		buttons_box.add_child(b)
+		var ntype := String(n.get("type", ""))
+		var label := "%s\n%s%s" % [_node_type_ko(ntype), _node_name(n), ("\n[투표: %s]" % ", ".join(voters)) if not voters.is_empty() else ""]
+		var b := UIKit.card_button(label, "ui.card.route", {"combat": 0, "elite": 0, "event": 1, "shop": 2, "rest": 3, "boss": 4}.get(ntype, 0), Vector2(200, 128), func() -> void: route_voted.emit(String(n["id"])))
+		cards.add_child(b)
+	buttons_box.add_child(cards)
 	footer.text = String(p.get("rule", ""))
 
 
@@ -122,6 +126,7 @@ func show_menu(p: Dictionary, my_id: String, party: Array) -> void:
 			footer.text = "파티 투표로 결정합니다. 동률이면 시드 추첨. 효과는 이번 원정에만 적용됩니다."
 		"shop":
 			title.text = "상점: %s" % data.get("name_ko", "")
+			buttons_box.add_child(UIKit.frame_icon("prop.stall", 0, 96))
 			body.text = "내 도토리: %d · 팀 목재: %d" % [int(mine.get("acorns", 0)), int(run.get("team_wood", 0))]
 			for it: Dictionary in data.get("items", []):
 				var b := UIKit.button("%s — %d 도토리" % [it.get("name_ko", ""), int(it.get("cost", 0))], func() -> void: node_action.emit({"action": "buy", "item": String(it["id"])}))
@@ -135,6 +140,7 @@ func show_menu(p: Dictionary, my_id: String, party: Array) -> void:
 		"rest":
 			title.text = String(data.get("name_ko", "휴식"))
 			body.text = String(data.get("text_ko", ""))
+			buttons_box.add_child(UIKit.frame_icon("prop.campfire", int(Time.get_ticks_msec() / 400) % 2, 96))
 			var done: Array = p.get("done", [])
 			buttons_box.add_child(UIKit.button("계속 (%d/%d 준비)" % [done.size(), party.size()], func() -> void: node_action.emit({"action": "continue"})))
 			footer.text = ""

@@ -1,0 +1,12 @@
+{
+  "actors": 6,
+  "animations": 105,
+  "frame_pngs": 361,
+  "unique_paths": 361,
+  "unique_frame_hashes": 361,
+  "source_sheets": 27,
+  "issues": [],
+  "godot_runtime_tested": false,
+  "project_importer_tested": false,
+  "browser_runtime_tested": false
+}

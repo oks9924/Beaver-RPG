@@ -62,11 +62,17 @@ static func theme() -> Theme:
 	btn.content_margin_top = 6
 	btn.content_margin_bottom = 6
 	t.set_stylebox("normal", "Button", btn)
-	var btn_h := btn.duplicate()
-	btn_h.modulate_color = Color(1.15, 1.15, 1.0)
+	var btn_h: StyleBoxTexture = btn.duplicate()
+	if AssetRegistry.status("ui.button.hover") == "final":
+		btn_h.texture = AssetRegistry.get_texture("ui.button.hover")
+	else:
+		btn_h.modulate_color = Color(1.15, 1.15, 1.0)
 	t.set_stylebox("hover", "Button", btn_h)
-	var btn_p := btn.duplicate()
-	btn_p.modulate_color = Color(0.8, 0.8, 0.7)
+	var btn_p: StyleBoxTexture = btn.duplicate()
+	if AssetRegistry.status("ui.button.pressed") == "final":
+		btn_p.texture = AssetRegistry.get_texture("ui.button.pressed")
+	else:
+		btn_p.modulate_color = Color(0.8, 0.8, 0.7)
 	t.set_stylebox("pressed", "Button", btn_p)
 	var btn_d := btn.duplicate()
 	btn_d.modulate_color = Color(0.5, 0.5, 0.5)
@@ -126,3 +132,45 @@ static func center(child: Control) -> CenterContainer:
 static func fmt_time(sec: float) -> String:
 	var s := int(sec)
 	return "%d:%02d" % [s / 60, s % 60]
+
+
+## 시트의 한 프레임을 배경으로 쓰는 카드 버튼 (보상·경로 카드). 시트가 없으면 일반 버튼.
+static func card_button(text: String, sheet_id: String, frame: int, size: Vector2, cb: Callable) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.pressed.connect(cb)
+	var sheet := AssetRegistry.get_sheet(sheet_id)
+	if bool(sheet["is_fallback"]) or AssetRegistry.status(sheet_id) != "final":
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		return b
+	var sb := StyleBoxTexture.new()
+	sb.texture = AssetRegistry.get_frame_texture(sheet_id, frame)
+	for side in ["left", "right", "top", "bottom"]:
+		sb.set("texture_margin_" + side, 28)
+	sb.content_margin_left = 22
+	sb.content_margin_right = 22
+	sb.content_margin_top = 26
+	sb.content_margin_bottom = 20
+	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var sbx: StyleBoxTexture = sb.duplicate()
+		if st == "hover":
+			sbx.modulate_color = Color(1.12, 1.12, 1.05)
+		elif st == "pressed":
+			sbx.modulate_color = Color(0.85, 0.85, 0.8)
+		elif st == "disabled":
+			sbx.modulate_color = Color(0.55, 0.55, 0.55)
+		b.add_theme_stylebox_override(st, sbx)
+	b.custom_minimum_size = size
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.add_theme_font_size_override("font_size", 13)
+	return b
+
+
+static func frame_icon(sheet_id: String, frame: int, px: int) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = AssetRegistry.get_frame_texture(sheet_id, frame)
+	t.custom_minimum_size = Vector2(px, px)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	return t

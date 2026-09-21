@@ -1,0 +1,1463 @@
+{
+  "pack_id": "beaver_assets_v3bce",
+  "status": "passed_static_checks",
+  "required_asset_ids": 68,
+  "asset_ids": 68,
+  "frame_count": 158,
+  "frames_by_group": {
+    "B": 64,
+    "C": 53,
+    "D": 24,
+    "E": 17
+  },
+  "source_sheet_count": 68,
+  "passed_check_count": 799,
+  "errors": [],
+  "checks": [
+    "68 required IDs match the detailed B-E request",
+    "vfx_hammer_swing frame count",
+    "required animation metadata vfx_hammer_swing",
+    "animation conventions vfx_hammer_swing",
+    "RGBA and size assets/vfx_hammer_swing/default/all_00.png",
+    "real transparency assets/vfx_hammer_swing/default/all_00.png",
+    "unique frame assets/vfx_hammer_swing/default/all_00.png",
+    "RGBA and size assets/vfx_hammer_swing/default/all_01.png",
+    "real transparency assets/vfx_hammer_swing/default/all_01.png",
+    "unique frame assets/vfx_hammer_swing/default/all_01.png",
+    "RGBA and size assets/vfx_hammer_swing/default/all_02.png",
+    "real transparency assets/vfx_hammer_swing/default/all_02.png",
+    "unique frame assets/vfx_hammer_swing/default/all_02.png",
+    "RGBA and size assets/vfx_hammer_swing/default/all_03.png",
+    "real transparency assets/vfx_hammer_swing/default/all_03.png",
+    "unique frame assets/vfx_hammer_swing/default/all_03.png",
+    "vfx_log_shield frame count",
+    "required animation metadata vfx_log_shield",
+    "animation conventions vfx_log_shield",
+    "RGBA and size assets/vfx_log_shield/default/all_00.png",
+    "real transparency assets/vfx_log_shield/default/all_00.png",
+    "unique frame assets/vfx_log_shield/default/all_00.png",
+    "RGBA and size assets/vfx_log_shield/default/all_01.png",
+    "real transparency assets/vfx_log_shield/default/all_01.png",
+    "unique frame assets/vfx_log_shield/default/all_01.png",
+    "RGBA and size assets/vfx_log_shield/default/all_02.png",
+    "real transparency assets/vfx_log_shield/default/all_02.png",
+    "unique frame assets/vfx_log_shield/default/all_02.png",
+    "RGBA and size assets/vfx_log_shield/default/all_03.png",
+    "real transparency assets/vfx_log_shield/default/all_03.png",
+    "unique frame assets/vfx_log_shield/default/all_03.png",
+    "vfx_tail_shockwave frame count",
+    "required animation metadata vfx_tail_shockwave",
+    "animation conventions vfx_tail_shockwave",
+    "RGBA and size assets/vfx_tail_shockwave/default/all_00.png",
+    "real transparency assets/vfx_tail_shockwave/default/all_00.png",
+    "unique frame assets/vfx_tail_shockwave/default/all_00.png",
+    "RGBA and size assets/vfx_tail_shockwave/default/all_01.png",
+    "real transparency assets/vfx_tail_shockwave/default/all_01.png",
+    "unique frame assets/vfx_tail_shockwave/default/all_01.png",
+    "RGBA and size assets/vfx_tail_shockwave/default/all_02.png",
+    "real transparency assets/vfx_tail_shockwave/default/all_02.png",
+    "unique frame assets/vfx_tail_shockwave/default/all_02.png",
+    "RGBA and size assets/vfx_tail_shockwave/default/all_03.png",
+    "real transparency assets/vfx_tail_shockwave/default/all_03.png",
+    "unique frame assets/vfx_tail_shockwave/default/all_03.png",
+    "RGBA and size assets/vfx_tail_shockwave/default/all_04.png",
+    "real transparency assets/vfx_tail_shockwave/default/all_04.png",
+    "unique frame assets/vfx_tail_shockwave/default/all_04.png",
+    "vfx_great_tree frame count",
+    "required animation metadata vfx_great_tree",
+    "animation conventions vfx_great_tree",
+    "RGBA and size assets/vfx_great_tree/default/all_00.png",
+    "real transparency assets/vfx_great_tree/default/all_00.png",
+    "unique frame assets/vfx_great_tree/default/all_00.png",
+    "RGBA and size assets/vfx_great_tree/default/all_01.png",
+    "real transparency assets/vfx_great_tree/default/all_01.png",
+    "unique frame assets/vfx_great_tree/default/all_01.png",
+    "RGBA and size assets/vfx_great_tree/default/all_02.png",
+    "real transparency assets/vfx_great_tree/default/all_02.png",
+    "unique frame assets/vfx_great_tree/default/all_02.png",
+    "RGBA and size assets/vfx_great_tree/default/all_03.png",
+    "real transparency assets/vfx_great_tree/default/all_03.png",
+    "unique frame assets/vfx_great_tree/default/all_03.png",
+    "RGBA and size assets/vfx_great_tree/default/all_04.png",
+    "real transparency assets/vfx_great_tree/default/all_04.png",
+    "unique frame assets/vfx_great_tree/default/all_04.png",
+    "RGBA and size assets/vfx_great_tree/default/all_05.png",
+    "real transparency assets/vfx_great_tree/default/all_05.png",
+    "unique frame assets/vfx_great_tree/default/all_05.png",
+    "segment range vfx_great_tree",
+    "segment range vfx_great_tree",
+    "vfx_sling_shot frame count",
+    "required animation metadata vfx_sling_shot",
+    "animation conventions vfx_sling_shot",
+    "RGBA and size assets/vfx_sling_shot/default/all_00.png",
+    "real transparency assets/vfx_sling_shot/default/all_00.png",
+    "unique frame assets/vfx_sling_shot/default/all_00.png",
+    "RGBA and size assets/vfx_sling_shot/default/all_01.png",
+    "real transparency assets/vfx_sling_shot/default/all_01.png",
+    "unique frame assets/vfx_sling_shot/default/all_01.png",
+    "RGBA and size assets/vfx_sling_shot/default/all_02.png",
+    "real transparency assets/vfx_sling_shot/default/all_02.png",
+    "unique frame assets/vfx_sling_shot/default/all_02.png",
+    "vfx_acorn_scatter frame count",
+    "required animation metadata vfx_acorn_scatter",
+    "animation conventions vfx_acorn_scatter",
+    "RGBA and size assets/vfx_acorn_scatter/default/all_00.png",
+    "real transparency assets/vfx_acorn_scatter/default/all_00.png",
+    "unique frame assets/vfx_acorn_scatter/default/all_00.png",
+    "RGBA and size assets/vfx_acorn_scatter/default/all_01.png",
+    "real transparency assets/vfx_acorn_scatter/default/all_01.png",
+    "unique frame assets/vfx_acorn_scatter/default/all_01.png",
+    "RGBA and size assets/vfx_acorn_scatter/default/all_02.png",
+    "real transparency assets/vfx_acorn_scatter/default/all_02.png",
+    "unique frame assets/vfx_acorn_scatter/default/all_02.png",
+    "RGBA and size assets/vfx_acorn_scatter/default/all_03.png",
+    "real transparency assets/vfx_acorn_scatter/default/all_03.png",
+    "unique frame assets/vfx_acorn_scatter/default/all_03.png",
+    "vfx_thorn_trap frame count",
+    "required animation metadata vfx_thorn_trap",
+    "animation conventions vfx_thorn_trap",
+    "RGBA and size assets/vfx_thorn_trap/default/all_00.png",
+    "real transparency assets/vfx_thorn_trap/default/all_00.png",
+    "unique frame assets/vfx_thorn_trap/default/all_00.png",
+    "RGBA and size assets/vfx_thorn_trap/default/all_01.png",
+    "real transparency assets/vfx_thorn_trap/default/all_01.png",
+    "unique frame assets/vfx_thorn_trap/default/all_01.png",
+    "RGBA and size assets/vfx_thorn_trap/default/all_02.png",
+    "real transparency assets/vfx_thorn_trap/default/all_02.png",
+    "unique frame assets/vfx_thorn_trap/default/all_02.png",
+    "RGBA and size assets/vfx_thorn_trap/default/all_03.png",
+    "real transparency assets/vfx_thorn_trap/default/all_03.png",
+    "unique frame assets/vfx_thorn_trap/default/all_03.png",
+    "segment range vfx_thorn_trap",
+    "segment range vfx_thorn_trap",
+    "segment range vfx_thorn_trap",
+    "vfx_forest_volley frame count",
+    "required animation metadata vfx_forest_volley",
+    "animation conventions vfx_forest_volley",
+    "RGBA and size assets/vfx_forest_volley/default/all_00.png",
+    "real transparency assets/vfx_forest_volley/default/all_00.png",
+    "unique frame assets/vfx_forest_volley/default/all_00.png",
+    "RGBA and size assets/vfx_forest_volley/default/all_01.png",
+    "real transparency assets/vfx_forest_volley/default/all_01.png",
+    "unique frame assets/vfx_forest_volley/default/all_01.png",
+    "RGBA and size assets/vfx_forest_volley/default/all_02.png",
+    "real transparency assets/vfx_forest_volley/default/all_02.png",
+    "unique frame assets/vfx_forest_volley/default/all_02.png",
+    "RGBA and size assets/vfx_forest_volley/default/all_03.png",
+    "real transparency assets/vfx_forest_volley/default/all_03.png",
+    "unique frame assets/vfx_forest_volley/default/all_03.png",
+    "RGBA and size assets/vfx_forest_volley/default/all_04.png",
+    "real transparency assets/vfx_forest_volley/default/all_04.png",
+    "unique frame assets/vfx_forest_volley/default/all_04.png",
+    "RGBA and size assets/vfx_forest_volley/default/all_05.png",
+    "real transparency assets/vfx_forest_volley/default/all_05.png",
+    "unique frame assets/vfx_forest_volley/default/all_05.png",
+    "vfx_projectile_pinecone frame count",
+    "required animation metadata vfx_projectile_pinecone",
+    "animation conventions vfx_projectile_pinecone",
+    "RGBA and size assets/vfx_projectile_pinecone/default/all_00.png",
+    "real transparency assets/vfx_projectile_pinecone/default/all_00.png",
+    "unique frame assets/vfx_projectile_pinecone/default/all_00.png",
+    "RGBA and size assets/vfx_projectile_pinecone/default/all_01.png",
+    "real transparency assets/vfx_projectile_pinecone/default/all_01.png",
+    "unique frame assets/vfx_projectile_pinecone/default/all_01.png",
+    "vfx_projectile_sap frame count",
+    "required animation metadata vfx_projectile_sap",
+    "animation conventions vfx_projectile_sap",
+    "RGBA and size assets/vfx_projectile_sap/default/all_00.png",
+    "real transparency assets/vfx_projectile_sap/default/all_00.png",
+    "unique frame assets/vfx_projectile_sap/default/all_00.png",
+    "RGBA and size assets/vfx_projectile_sap/default/all_01.png",
+    "real transparency assets/vfx_projectile_sap/default/all_01.png",
+    "unique frame assets/vfx_projectile_sap/default/all_01.png",
+    "vfx_hit_spark frame count",
+    "required animation metadata vfx_hit_spark",
+    "animation conventions vfx_hit_spark",
+    "RGBA and size assets/vfx_hit_spark/default/all_00.png",
+    "real transparency assets/vfx_hit_spark/default/all_00.png",
+    "unique frame assets/vfx_hit_spark/default/all_00.png",
+    "RGBA and size assets/vfx_hit_spark/default/all_01.png",
+    "real transparency assets/vfx_hit_spark/default/all_01.png",
+    "unique frame assets/vfx_hit_spark/default/all_01.png",
+    "RGBA and size assets/vfx_hit_spark/default/all_02.png",
+    "real transparency assets/vfx_hit_spark/default/all_02.png",
+    "unique frame assets/vfx_hit_spark/default/all_02.png",
+    "vfx_rescue_ring frame count",
+    "required animation metadata vfx_rescue_ring",
+    "animation conventions vfx_rescue_ring",
+    "RGBA and size assets/vfx_rescue_ring/default/all_00.png",
+    "real transparency assets/vfx_rescue_ring/default/all_00.png",
+    "unique frame assets/vfx_rescue_ring/default/all_00.png",
+    "RGBA and size assets/vfx_rescue_ring/default/all_01.png",
+    "real transparency assets/vfx_rescue_ring/default/all_01.png",
+    "unique frame assets/vfx_rescue_ring/default/all_01.png",
+    "RGBA and size assets/vfx_rescue_ring/default/all_02.png",
+    "real transparency assets/vfx_rescue_ring/default/all_02.png",
+    "unique frame assets/vfx_rescue_ring/default/all_02.png",
+    "RGBA and size assets/vfx_rescue_ring/default/all_03.png",
+    "real transparency assets/vfx_rescue_ring/default/all_03.png",
+    "unique frame assets/vfx_rescue_ring/default/all_03.png",
+    "vfx_heal_burst frame count",
+    "required animation metadata vfx_heal_burst",
+    "animation conventions vfx_heal_burst",
+    "RGBA and size assets/vfx_heal_burst/default/all_00.png",
+    "real transparency assets/vfx_heal_burst/default/all_00.png",
+    "unique frame assets/vfx_heal_burst/default/all_00.png",
+    "RGBA and size assets/vfx_heal_burst/default/all_01.png",
+    "real transparency assets/vfx_heal_burst/default/all_01.png",
+    "unique frame assets/vfx_heal_burst/default/all_01.png",
+    "RGBA and size assets/vfx_heal_burst/default/all_02.png",
+    "real transparency assets/vfx_heal_burst/default/all_02.png",
+    "unique frame assets/vfx_heal_burst/default/all_02.png",
+    "RGBA and size assets/vfx_heal_burst/default/all_03.png",
+    "real transparency assets/vfx_heal_burst/default/all_03.png",
+    "unique frame assets/vfx_heal_burst/default/all_03.png",
+    "vfx_boss_rock_impact frame count",
+    "required animation metadata vfx_boss_rock_impact",
+    "animation conventions vfx_boss_rock_impact",
+    "RGBA and size assets/vfx_boss_rock_impact/default/all_00.png",
+    "real transparency assets/vfx_boss_rock_impact/default/all_00.png",
+    "unique frame assets/vfx_boss_rock_impact/default/all_00.png",
+    "RGBA and size assets/vfx_boss_rock_impact/default/all_01.png",
+    "real transparency assets/vfx_boss_rock_impact/default/all_01.png",
+    "unique frame assets/vfx_boss_rock_impact/default/all_01.png",
+    "RGBA and size assets/vfx_boss_rock_impact/default/all_02.png",
+    "real transparency assets/vfx_boss_rock_impact/default/all_02.png",
+    "unique frame assets/vfx_boss_rock_impact/default/all_02.png",
+    "RGBA and size assets/vfx_boss_rock_impact/default/all_03.png",
+    "real transparency assets/vfx_boss_rock_impact/default/all_03.png",
+    "unique frame assets/vfx_boss_rock_impact/default/all_03.png",
+    "vfx_boss_ground_slam frame count",
+    "required animation metadata vfx_boss_ground_slam",
+    "animation conventions vfx_boss_ground_slam",
+    "RGBA and size assets/vfx_boss_ground_slam/default/all_00.png",
+    "real transparency assets/vfx_boss_ground_slam/default/all_00.png",
+    "unique frame assets/vfx_boss_ground_slam/default/all_00.png",
+    "RGBA and size assets/vfx_boss_ground_slam/default/all_01.png",
+    "real transparency assets/vfx_boss_ground_slam/default/all_01.png",
+    "unique frame assets/vfx_boss_ground_slam/default/all_01.png",
+    "RGBA and size assets/vfx_boss_ground_slam/default/all_02.png",
+    "real transparency assets/vfx_boss_ground_slam/default/all_02.png",
+    "unique frame assets/vfx_boss_ground_slam/default/all_02.png",
+    "RGBA and size assets/vfx_boss_ground_slam/default/all_03.png",
+    "real transparency assets/vfx_boss_ground_slam/default/all_03.png",
+    "unique frame assets/vfx_boss_ground_slam/default/all_03.png",
+    "RGBA and size assets/vfx_boss_ground_slam/default/all_04.png",
+    "real transparency assets/vfx_boss_ground_slam/default/all_04.png",
+    "unique frame assets/vfx_boss_ground_slam/default/all_04.png",
+    "vfx_whirlpool frame count",
+    "required animation metadata vfx_whirlpool",
+    "animation conventions vfx_whirlpool",
+    "RGBA and size assets/vfx_whirlpool/default/all_00.png",
+    "real transparency assets/vfx_whirlpool/default/all_00.png",
+    "unique frame assets/vfx_whirlpool/default/all_00.png",
+    "RGBA and size assets/vfx_whirlpool/default/all_01.png",
+    "real transparency assets/vfx_whirlpool/default/all_01.png",
+    "unique frame assets/vfx_whirlpool/default/all_01.png",
+    "RGBA and size assets/vfx_whirlpool/default/all_02.png",
+    "real transparency assets/vfx_whirlpool/default/all_02.png",
+    "unique frame assets/vfx_whirlpool/default/all_02.png",
+    "RGBA and size assets/vfx_whirlpool/default/all_03.png",
+    "real transparency assets/vfx_whirlpool/default/all_03.png",
+    "unique frame assets/vfx_whirlpool/default/all_03.png",
+    "tile_willow_ground frame count",
+    "required animation metadata tile_willow_ground",
+    "animation conventions tile_willow_ground",
+    "RGBA and size assets/tile_willow_ground/default/all_00.png",
+    "unique frame assets/tile_willow_ground/default/all_00.png",
+    "RGBA and size assets/tile_willow_ground/default/all_01.png",
+    "unique frame assets/tile_willow_ground/default/all_01.png",
+    "RGBA and size assets/tile_willow_ground/default/all_02.png",
+    "unique frame assets/tile_willow_ground/default/all_02.png",
+    "RGBA and size assets/tile_willow_ground/default/all_03.png",
+    "unique frame assets/tile_willow_ground/default/all_03.png",
+    "static selection does not loop tile_willow_ground",
+    "tile_willow_wall frame count",
+    "required animation metadata tile_willow_wall",
+    "animation conventions tile_willow_wall",
+    "RGBA and size assets/tile_willow_wall/default/all_00.png",
+    "real transparency assets/tile_willow_wall/default/all_00.png",
+    "unique frame assets/tile_willow_wall/default/all_00.png",
+    "RGBA and size assets/tile_willow_wall/default/all_01.png",
+    "real transparency assets/tile_willow_wall/default/all_01.png",
+    "unique frame assets/tile_willow_wall/default/all_01.png",
+    "RGBA and size assets/tile_willow_wall/default/all_02.png",
+    "real transparency assets/tile_willow_wall/default/all_02.png",
+    "unique frame assets/tile_willow_wall/default/all_02.png",
+    "RGBA and size assets/tile_willow_wall/default/all_03.png",
+    "real transparency assets/tile_willow_wall/default/all_03.png",
+    "unique frame assets/tile_willow_wall/default/all_03.png",
+    "RGBA and size assets/tile_willow_wall/default/all_04.png",
+    "real transparency assets/tile_willow_wall/default/all_04.png",
+    "unique frame assets/tile_willow_wall/default/all_04.png",
+    "RGBA and size assets/tile_willow_wall/default/all_05.png",
+    "real transparency assets/tile_willow_wall/default/all_05.png",
+    "unique frame assets/tile_willow_wall/default/all_05.png",
+    "RGBA and size assets/tile_willow_wall/default/all_06.png",
+    "real transparency assets/tile_willow_wall/default/all_06.png",
+    "unique frame assets/tile_willow_wall/default/all_06.png",
+    "RGBA and size assets/tile_willow_wall/default/all_07.png",
+    "real transparency assets/tile_willow_wall/default/all_07.png",
+    "unique frame assets/tile_willow_wall/default/all_07.png",
+    "RGBA and size assets/tile_willow_wall/default/all_08.png",
+    "real transparency assets/tile_willow_wall/default/all_08.png",
+    "unique frame assets/tile_willow_wall/default/all_08.png",
+    "static selection does not loop tile_willow_wall",
+    "tile_willow_water frame count",
+    "required animation metadata tile_willow_water",
+    "animation conventions tile_willow_water",
+    "RGBA and size assets/tile_willow_water/default/all_00.png",
+    "unique frame assets/tile_willow_water/default/all_00.png",
+    "RGBA and size assets/tile_willow_water/default/all_01.png",
+    "unique frame assets/tile_willow_water/default/all_01.png",
+    "tile_willow_shore frame count",
+    "required animation metadata tile_willow_shore",
+    "animation conventions tile_willow_shore",
+    "RGBA and size assets/tile_willow_shore/default/all_00.png",
+    "unique frame assets/tile_willow_shore/default/all_00.png",
+    "RGBA and size assets/tile_willow_shore/default/all_01.png",
+    "unique frame assets/tile_willow_shore/default/all_01.png",
+    "RGBA and size assets/tile_willow_shore/default/all_02.png",
+    "unique frame assets/tile_willow_shore/default/all_02.png",
+    "RGBA and size assets/tile_willow_shore/default/all_03.png",
+    "unique frame assets/tile_willow_shore/default/all_03.png",
+    "static selection does not loop tile_willow_shore",
+    "tile_willow_bridge frame count",
+    "required animation metadata tile_willow_bridge",
+    "animation conventions tile_willow_bridge",
+    "RGBA and size assets/tile_willow_bridge/default/all_00.png",
+    "real transparency assets/tile_willow_bridge/default/all_00.png",
+    "unique frame assets/tile_willow_bridge/default/all_00.png",
+    "RGBA and size assets/tile_willow_bridge/default/all_01.png",
+    "real transparency assets/tile_willow_bridge/default/all_01.png",
+    "unique frame assets/tile_willow_bridge/default/all_01.png",
+    "static selection does not loop tile_willow_bridge",
+    "tile_hub_ground frame count",
+    "required animation metadata tile_hub_ground",
+    "animation conventions tile_hub_ground",
+    "RGBA and size assets/tile_hub_ground/default/all_00.png",
+    "unique frame assets/tile_hub_ground/default/all_00.png",
+    "RGBA and size assets/tile_hub_ground/default/all_01.png",
+    "unique frame assets/tile_hub_ground/default/all_01.png",
+    "static selection does not loop tile_hub_ground",
+    "prop_gnaw_tree frame count",
+    "required animation metadata prop_gnaw_tree",
+    "animation conventions prop_gnaw_tree",
+    "RGBA and size assets/prop_gnaw_tree/default/all_00.png",
+    "real transparency assets/prop_gnaw_tree/default/all_00.png",
+    "unique frame assets/prop_gnaw_tree/default/all_00.png",
+    "RGBA and size assets/prop_gnaw_tree/default/all_01.png",
+    "real transparency assets/prop_gnaw_tree/default/all_01.png",
+    "unique frame assets/prop_gnaw_tree/default/all_01.png",
+    "RGBA and size assets/prop_gnaw_tree/default/all_02.png",
+    "real transparency assets/prop_gnaw_tree/default/all_02.png",
+    "unique frame assets/prop_gnaw_tree/default/all_02.png",
+    "static selection does not loop prop_gnaw_tree",
+    "prop_device frame count",
+    "required animation metadata prop_device",
+    "animation conventions prop_device",
+    "RGBA and size assets/prop_device/default/all_00.png",
+    "real transparency assets/prop_device/default/all_00.png",
+    "unique frame assets/prop_device/default/all_00.png",
+    "RGBA and size assets/prop_device/default/all_01.png",
+    "real transparency assets/prop_device/default/all_01.png",
+    "unique frame assets/prop_device/default/all_01.png",
+    "RGBA and size assets/prop_device/default/all_02.png",
+    "real transparency assets/prop_device/default/all_02.png",
+    "unique frame assets/prop_device/default/all_02.png",
+    "RGBA and size assets/prop_device/default/all_03.png",
+    "real transparency assets/prop_device/default/all_03.png",
+    "unique frame assets/prop_device/default/all_03.png",
+    "static selection does not loop prop_device",
+    "prop_lever frame count",
+    "required animation metadata prop_lever",
+    "animation conventions prop_lever",
+    "RGBA and size assets/prop_lever/default/all_00.png",
+    "real transparency assets/prop_lever/default/all_00.png",
+    "unique frame assets/prop_lever/default/all_00.png",
+    "RGBA and size assets/prop_lever/default/all_01.png",
+    "real transparency assets/prop_lever/default/all_01.png",
+    "unique frame assets/prop_lever/default/all_01.png",
+    "static selection does not loop prop_lever",
+    "prop_sluice_gate frame count",
+    "required animation metadata prop_sluice_gate",
+    "animation conventions prop_sluice_gate",
+    "RGBA and size assets/prop_sluice_gate/default/all_00.png",
+    "real transparency assets/prop_sluice_gate/default/all_00.png",
+    "unique frame assets/prop_sluice_gate/default/all_00.png",
+    "RGBA and size assets/prop_sluice_gate/default/all_01.png",
+    "real transparency assets/prop_sluice_gate/default/all_01.png",
+    "unique frame assets/prop_sluice_gate/default/all_01.png",
+    "RGBA and size assets/prop_sluice_gate/default/all_02.png",
+    "real transparency assets/prop_sluice_gate/default/all_02.png",
+    "unique frame assets/prop_sluice_gate/default/all_02.png",
+    "static selection does not loop prop_sluice_gate",
+    "prop_log_cover frame count",
+    "required animation metadata prop_log_cover",
+    "animation conventions prop_log_cover",
+    "RGBA and size assets/prop_log_cover/default/all_00.png",
+    "real transparency assets/prop_log_cover/default/all_00.png",
+    "unique frame assets/prop_log_cover/default/all_00.png",
+    "RGBA and size assets/prop_log_cover/default/all_01.png",
+    "real transparency assets/prop_log_cover/default/all_01.png",
+    "unique frame assets/prop_log_cover/default/all_01.png",
+    "static selection does not loop prop_log_cover",
+    "prop_willow_log frame count",
+    "required animation metadata prop_willow_log",
+    "animation conventions prop_willow_log",
+    "RGBA and size assets/prop_willow_log/default/all_00.png",
+    "real transparency assets/prop_willow_log/default/all_00.png",
+    "unique frame assets/prop_willow_log/default/all_00.png",
+    "RGBA and size assets/prop_willow_log/default/all_01.png",
+    "real transparency assets/prop_willow_log/default/all_01.png",
+    "unique frame assets/prop_willow_log/default/all_01.png",
+    "static selection does not loop prop_willow_log",
+    "prop_willow_rock frame count",
+    "required animation metadata prop_willow_rock",
+    "animation conventions prop_willow_rock",
+    "RGBA and size assets/prop_willow_rock/default/all_00.png",
+    "real transparency assets/prop_willow_rock/default/all_00.png",
+    "unique frame assets/prop_willow_rock/default/all_00.png",
+    "RGBA and size assets/prop_willow_rock/default/all_01.png",
+    "real transparency assets/prop_willow_rock/default/all_01.png",
+    "unique frame assets/prop_willow_rock/default/all_01.png",
+    "static selection does not loop prop_willow_rock",
+    "prop_hold_point frame count",
+    "required animation metadata prop_hold_point",
+    "animation conventions prop_hold_point",
+    "RGBA and size assets/prop_hold_point/default/all_00.png",
+    "real transparency assets/prop_hold_point/default/all_00.png",
+    "unique frame assets/prop_hold_point/default/all_00.png",
+    "RGBA and size assets/prop_hold_point/default/all_01.png",
+    "real transparency assets/prop_hold_point/default/all_01.png",
+    "unique frame assets/prop_hold_point/default/all_01.png",
+    "static selection does not loop prop_hold_point",
+    "prop_campfire frame count",
+    "required animation metadata prop_campfire",
+    "animation conventions prop_campfire",
+    "RGBA and size assets/prop_campfire/default/all_00.png",
+    "real transparency assets/prop_campfire/default/all_00.png",
+    "unique frame assets/prop_campfire/default/all_00.png",
+    "RGBA and size assets/prop_campfire/default/all_01.png",
+    "real transparency assets/prop_campfire/default/all_01.png",
+    "unique frame assets/prop_campfire/default/all_01.png",
+    "prop_stall frame count",
+    "required animation metadata prop_stall",
+    "animation conventions prop_stall",
+    "RGBA and size assets/prop_stall/default/all_00.png",
+    "real transparency assets/prop_stall/default/all_00.png",
+    "unique frame assets/prop_stall/default/all_00.png",
+    "static selection does not loop prop_stall",
+    "prop_memory_tree frame count",
+    "required animation metadata prop_memory_tree",
+    "animation conventions prop_memory_tree",
+    "RGBA and size assets/prop_memory_tree/default/all_00.png",
+    "real transparency assets/prop_memory_tree/default/all_00.png",
+    "unique frame assets/prop_memory_tree/default/all_00.png",
+    "RGBA and size assets/prop_memory_tree/default/all_01.png",
+    "real transparency assets/prop_memory_tree/default/all_01.png",
+    "unique frame assets/prop_memory_tree/default/all_01.png",
+    "RGBA and size assets/prop_memory_tree/default/all_02.png",
+    "real transparency assets/prop_memory_tree/default/all_02.png",
+    "unique frame assets/prop_memory_tree/default/all_02.png",
+    "static selection does not loop prop_memory_tree",
+    "prop_workshop frame count",
+    "required animation metadata prop_workshop",
+    "animation conventions prop_workshop",
+    "RGBA and size assets/prop_workshop/default/all_00.png",
+    "real transparency assets/prop_workshop/default/all_00.png",
+    "unique frame assets/prop_workshop/default/all_00.png",
+    "RGBA and size assets/prop_workshop/default/all_01.png",
+    "real transparency assets/prop_workshop/default/all_01.png",
+    "unique frame assets/prop_workshop/default/all_01.png",
+    "RGBA and size assets/prop_workshop/default/all_02.png",
+    "real transparency assets/prop_workshop/default/all_02.png",
+    "unique frame assets/prop_workshop/default/all_02.png",
+    "static selection does not loop prop_workshop",
+    "prop_expedition_board frame count",
+    "required animation metadata prop_expedition_board",
+    "animation conventions prop_expedition_board",
+    "RGBA and size assets/prop_expedition_board/default/all_00.png",
+    "real transparency assets/prop_expedition_board/default/all_00.png",
+    "unique frame assets/prop_expedition_board/default/all_00.png",
+    "static selection does not loop prop_expedition_board",
+    "icon_skill_guardian_q frame count",
+    "required animation metadata icon_skill_guardian_q",
+    "animation conventions icon_skill_guardian_q",
+    "RGBA and size assets/icon_skill_guardian_q/default/all_00.png",
+    "real transparency assets/icon_skill_guardian_q/default/all_00.png",
+    "unique frame assets/icon_skill_guardian_q/default/all_00.png",
+    "static selection does not loop icon_skill_guardian_q",
+    "icon_skill_guardian_e frame count",
+    "required animation metadata icon_skill_guardian_e",
+    "animation conventions icon_skill_guardian_e",
+    "RGBA and size assets/icon_skill_guardian_e/default/all_00.png",
+    "real transparency assets/icon_skill_guardian_e/default/all_00.png",
+    "unique frame assets/icon_skill_guardian_e/default/all_00.png",
+    "static selection does not loop icon_skill_guardian_e",
+    "icon_skill_guardian_r frame count",
+    "required animation metadata icon_skill_guardian_r",
+    "animation conventions icon_skill_guardian_r",
+    "RGBA and size assets/icon_skill_guardian_r/default/all_00.png",
+    "real transparency assets/icon_skill_guardian_r/default/all_00.png",
+    "unique frame assets/icon_skill_guardian_r/default/all_00.png",
+    "static selection does not loop icon_skill_guardian_r",
+    "icon_skill_ranger_q frame count",
+    "required animation metadata icon_skill_ranger_q",
+    "animation conventions icon_skill_ranger_q",
+    "RGBA and size assets/icon_skill_ranger_q/default/all_00.png",
+    "real transparency assets/icon_skill_ranger_q/default/all_00.png",
+    "unique frame assets/icon_skill_ranger_q/default/all_00.png",
+    "static selection does not loop icon_skill_ranger_q",
+    "icon_skill_ranger_e frame count",
+    "required animation metadata icon_skill_ranger_e",
+    "animation conventions icon_skill_ranger_e",
+    "RGBA and size assets/icon_skill_ranger_e/default/all_00.png",
+    "real transparency assets/icon_skill_ranger_e/default/all_00.png",
+    "unique frame assets/icon_skill_ranger_e/default/all_00.png",
+    "static selection does not loop icon_skill_ranger_e",
+    "icon_skill_ranger_r frame count",
+    "required animation metadata icon_skill_ranger_r",
+    "animation conventions icon_skill_ranger_r",
+    "RGBA and size assets/icon_skill_ranger_r/default/all_00.png",
+    "real transparency assets/icon_skill_ranger_r/default/all_00.png",
+    "unique frame assets/icon_skill_ranger_r/default/all_00.png",
+    "static selection does not loop icon_skill_ranger_r",
+    "icon_heal frame count",
+    "required animation metadata icon_heal",
+    "animation conventions icon_heal",
+    "RGBA and size assets/icon_heal/default/all_00.png",
+    "real transparency assets/icon_heal/default/all_00.png",
+    "unique frame assets/icon_heal/default/all_00.png",
+    "static selection does not loop icon_heal",
+    "icon_dodge frame count",
+    "required animation metadata icon_dodge",
+    "animation conventions icon_dodge",
+    "RGBA and size assets/icon_dodge/default/all_00.png",
+    "real transparency assets/icon_dodge/default/all_00.png",
+    "unique frame assets/icon_dodge/default/all_00.png",
+    "static selection does not loop icon_dodge",
+    "icon_relic_oak_heart frame count",
+    "required animation metadata icon_relic_oak_heart",
+    "animation conventions icon_relic_oak_heart",
+    "RGBA and size assets/icon_relic_oak_heart/default/all_00.png",
+    "real transparency assets/icon_relic_oak_heart/default/all_00.png",
+    "unique frame assets/icon_relic_oak_heart/default/all_00.png",
+    "static selection does not loop icon_relic_oak_heart",
+    "icon_relic_sharp_incisors frame count",
+    "required animation metadata icon_relic_sharp_incisors",
+    "animation conventions icon_relic_sharp_incisors",
+    "RGBA and size assets/icon_relic_sharp_incisors/default/all_00.png",
+    "real transparency assets/icon_relic_sharp_incisors/default/all_00.png",
+    "unique frame assets/icon_relic_sharp_incisors/default/all_00.png",
+    "static selection does not loop icon_relic_sharp_incisors",
+    "icon_relic_river_stone frame count",
+    "required animation metadata icon_relic_river_stone",
+    "animation conventions icon_relic_river_stone",
+    "RGBA and size assets/icon_relic_river_stone/default/all_00.png",
+    "real transparency assets/icon_relic_river_stone/default/all_00.png",
+    "unique frame assets/icon_relic_river_stone/default/all_00.png",
+    "static selection does not loop icon_relic_river_stone",
+    "icon_relic_quick_paws frame count",
+    "required animation metadata icon_relic_quick_paws",
+    "animation conventions icon_relic_quick_paws",
+    "RGBA and size assets/icon_relic_quick_paws/default/all_00.png",
+    "real transparency assets/icon_relic_quick_paws/default/all_00.png",
+    "unique frame assets/icon_relic_quick_paws/default/all_00.png",
+    "static selection does not loop icon_relic_quick_paws",
+    "icon_relic_sap_amber frame count",
+    "required animation metadata icon_relic_sap_amber",
+    "animation conventions icon_relic_sap_amber",
+    "RGBA and size assets/icon_relic_sap_amber/default/all_00.png",
+    "real transparency assets/icon_relic_sap_amber/default/all_00.png",
+    "unique frame assets/icon_relic_sap_amber/default/all_00.png",
+    "static selection does not loop icon_relic_sap_amber",
+    "icon_relic_hunters_tooth frame count",
+    "required animation metadata icon_relic_hunters_tooth",
+    "animation conventions icon_relic_hunters_tooth",
+    "RGBA and size assets/icon_relic_hunters_tooth/default/all_00.png",
+    "real transparency assets/icon_relic_hunters_tooth/default/all_00.png",
+    "unique frame assets/icon_relic_hunters_tooth/default/all_00.png",
+    "static selection does not loop icon_relic_hunters_tooth",
+    "icon_relic_kin_bond frame count",
+    "required animation metadata icon_relic_kin_bond",
+    "animation conventions icon_relic_kin_bond",
+    "RGBA and size assets/icon_relic_kin_bond/default/all_00.png",
+    "real transparency assets/icon_relic_kin_bond/default/all_00.png",
+    "unique frame assets/icon_relic_kin_bond/default/all_00.png",
+    "static selection does not loop icon_relic_kin_bond",
+    "icon_relic_thorn_tail frame count",
+    "required animation metadata icon_relic_thorn_tail",
+    "animation conventions icon_relic_thorn_tail",
+    "RGBA and size assets/icon_relic_thorn_tail/default/all_00.png",
+    "real transparency assets/icon_relic_thorn_tail/default/all_00.png",
+    "unique frame assets/icon_relic_thorn_tail/default/all_00.png",
+    "static selection does not loop icon_relic_thorn_tail",
+    "icon_relic_heavy_paddle frame count",
+    "required animation metadata icon_relic_heavy_paddle",
+    "animation conventions icon_relic_heavy_paddle",
+    "RGBA and size assets/icon_relic_heavy_paddle/default/all_00.png",
+    "real transparency assets/icon_relic_heavy_paddle/default/all_00.png",
+    "unique frame assets/icon_relic_heavy_paddle/default/all_00.png",
+    "static selection does not loop icon_relic_heavy_paddle",
+    "icon_relic_acorn_pouch frame count",
+    "required animation metadata icon_relic_acorn_pouch",
+    "animation conventions icon_relic_acorn_pouch",
+    "RGBA and size assets/icon_relic_acorn_pouch/default/all_00.png",
+    "real transparency assets/icon_relic_acorn_pouch/default/all_00.png",
+    "unique frame assets/icon_relic_acorn_pouch/default/all_00.png",
+    "static selection does not loop icon_relic_acorn_pouch",
+    "icon_status_slow frame count",
+    "required animation metadata icon_status_slow",
+    "animation conventions icon_status_slow",
+    "RGBA and size assets/icon_status_slow/default/all_00.png",
+    "real transparency assets/icon_status_slow/default/all_00.png",
+    "unique frame assets/icon_status_slow/default/all_00.png",
+    "static selection does not loop icon_status_slow",
+    "icon_status_bleed frame count",
+    "required animation metadata icon_status_bleed",
+    "animation conventions icon_status_bleed",
+    "RGBA and size assets/icon_status_bleed/default/all_00.png",
+    "real transparency assets/icon_status_bleed/default/all_00.png",
+    "unique frame assets/icon_status_bleed/default/all_00.png",
+    "static selection does not loop icon_status_bleed",
+    "icon_status_shield frame count",
+    "required animation metadata icon_status_shield",
+    "animation conventions icon_status_shield",
+    "RGBA and size assets/icon_status_shield/default/all_00.png",
+    "real transparency assets/icon_status_shield/default/all_00.png",
+    "unique frame assets/icon_status_shield/default/all_00.png",
+    "static selection does not loop icon_status_shield",
+    "icon_status_mark frame count",
+    "required animation metadata icon_status_mark",
+    "animation conventions icon_status_mark",
+    "RGBA and size assets/icon_status_mark/default/all_00.png",
+    "real transparency assets/icon_status_mark/default/all_00.png",
+    "unique frame assets/icon_status_mark/default/all_00.png",
+    "static selection does not loop icon_status_mark",
+    "icon_status_stagger frame count",
+    "required animation metadata icon_status_stagger",
+    "animation conventions icon_status_stagger",
+    "RGBA and size assets/icon_status_stagger/default/all_00.png",
+    "real transparency assets/icon_status_stagger/default/all_00.png",
+    "unique frame assets/icon_status_stagger/default/all_00.png",
+    "static selection does not loop icon_status_stagger",
+    "icon_status_wet frame count",
+    "required animation metadata icon_status_wet",
+    "animation conventions icon_status_wet",
+    "RGBA and size assets/icon_status_wet/default/all_00.png",
+    "real transparency assets/icon_status_wet/default/all_00.png",
+    "unique frame assets/icon_status_wet/default/all_00.png",
+    "static selection does not loop icon_status_wet",
+    "ui_panel frame count",
+    "required animation metadata ui_panel",
+    "animation conventions ui_panel",
+    "RGBA and size assets/ui_panel/default/all_00.png",
+    "real transparency assets/ui_panel/default/all_00.png",
+    "unique frame assets/ui_panel/default/all_00.png",
+    "static selection does not loop ui_panel",
+    "ui_button frame count",
+    "required animation metadata ui_button",
+    "animation conventions ui_button",
+    "RGBA and size assets/ui_button/default/all_00.png",
+    "real transparency assets/ui_button/default/all_00.png",
+    "unique frame assets/ui_button/default/all_00.png",
+    "RGBA and size assets/ui_button/default/all_01.png",
+    "real transparency assets/ui_button/default/all_01.png",
+    "unique frame assets/ui_button/default/all_01.png",
+    "RGBA and size assets/ui_button/default/all_02.png",
+    "real transparency assets/ui_button/default/all_02.png",
+    "unique frame assets/ui_button/default/all_02.png",
+    "static selection does not loop ui_button",
+    "ui_card_reward frame count",
+    "required animation metadata ui_card_reward",
+    "animation conventions ui_card_reward",
+    "RGBA and size assets/ui_card_reward/default/all_00.png",
+    "real transparency assets/ui_card_reward/default/all_00.png",
+    "unique frame assets/ui_card_reward/default/all_00.png",
+    "RGBA and size assets/ui_card_reward/default/all_01.png",
+    "real transparency assets/ui_card_reward/default/all_01.png",
+    "unique frame assets/ui_card_reward/default/all_01.png",
+    "static selection does not loop ui_card_reward",
+    "ui_card_route frame count",
+    "required animation metadata ui_card_route",
+    "animation conventions ui_card_route",
+    "RGBA and size assets/ui_card_route/default/all_00.png",
+    "real transparency assets/ui_card_route/default/all_00.png",
+    "unique frame assets/ui_card_route/default/all_00.png",
+    "RGBA and size assets/ui_card_route/default/all_01.png",
+    "real transparency assets/ui_card_route/default/all_01.png",
+    "unique frame assets/ui_card_route/default/all_01.png",
+    "RGBA and size assets/ui_card_route/default/all_02.png",
+    "real transparency assets/ui_card_route/default/all_02.png",
+    "unique frame assets/ui_card_route/default/all_02.png",
+    "RGBA and size assets/ui_card_route/default/all_03.png",
+    "real transparency assets/ui_card_route/default/all_03.png",
+    "unique frame assets/ui_card_route/default/all_03.png",
+    "RGBA and size assets/ui_card_route/default/all_04.png",
+    "real transparency assets/ui_card_route/default/all_04.png",
+    "unique frame assets/ui_card_route/default/all_04.png",
+    "static selection does not loop ui_card_route",
+    "ui_bar_hp frame count",
+    "required animation metadata ui_bar_hp",
+    "animation conventions ui_bar_hp",
+    "RGBA and size assets/ui_bar_hp/default/all_00.png",
+    "real transparency assets/ui_bar_hp/default/all_00.png",
+    "unique frame assets/ui_bar_hp/default/all_00.png",
+    "RGBA and size assets/ui_bar_hp/default/all_01.png",
+    "real transparency assets/ui_bar_hp/default/all_01.png",
+    "unique frame assets/ui_bar_hp/default/all_01.png",
+    "static selection does not loop ui_bar_hp",
+    "ui_bar_boss frame count",
+    "required animation metadata ui_bar_boss",
+    "animation conventions ui_bar_boss",
+    "RGBA and size assets/ui_bar_boss/default/all_00.png",
+    "real transparency assets/ui_bar_boss/default/all_00.png",
+    "unique frame assets/ui_bar_boss/default/all_00.png",
+    "static selection does not loop ui_bar_boss",
+    "ui_title_logo frame count",
+    "required animation metadata ui_title_logo",
+    "animation conventions ui_title_logo",
+    "RGBA and size assets/ui_title_logo/default/all_00.png",
+    "real transparency assets/ui_title_logo/default/all_00.png",
+    "unique frame assets/ui_title_logo/default/all_00.png",
+    "static selection does not loop ui_title_logo",
+    "ui_app_icon frame count",
+    "required animation metadata ui_app_icon",
+    "animation conventions ui_app_icon",
+    "RGBA and size assets/ui_app_icon/default/all_00.png",
+    "real transparency assets/ui_app_icon/default/all_00.png",
+    "unique frame assets/ui_app_icon/default/all_00.png",
+    "static selection does not loop ui_app_icon",
+    "ui_frame_portrait frame count",
+    "required animation metadata ui_frame_portrait",
+    "animation conventions ui_frame_portrait",
+    "RGBA and size assets/ui_frame_portrait/default/all_00.png",
+    "real transparency assets/ui_frame_portrait/default/all_00.png",
+    "unique frame assets/ui_frame_portrait/default/all_00.png",
+    "static selection does not loop ui_frame_portrait",
+    "158 individual PNGs across B/C/D/E",
+    "68 source sheets",
+    "source decodes RGB/RGBA icon_status_bleed.png",
+    "source decodes RGB/RGBA prop_workshop.png",
+    "source decodes RGB/RGBA prop_hold_point.png",
+    "source decodes RGB/RGBA tile_willow_shore.png",
+    "source decodes RGB/RGBA icon_relic_thorn_tail.png",
+    "source decodes RGB/RGBA prop_log_cover.png",
+    "source decodes RGB/RGBA ui_button.png",
+    "source decodes RGB/RGBA prop_willow_log.png",
+    "source decodes RGB/RGBA prop_sluice_gate.png",
+    "source decodes RGB/RGBA icon_skill_guardian_e.png",
+    "source decodes RGB/RGBA prop_stall.png",
+    "source decodes RGB/RGBA prop_device.png",
+    "source decodes RGB/RGBA ui_app_icon.png",
+    "source decodes RGB/RGBA icon_dodge.png",
+    "source decodes RGB/RGBA icon_skill_ranger_e.png",
+    "source decodes RGB/RGBA prop_memory_tree.png",
+    "source decodes RGB/RGBA prop_lever.png",
+    "source decodes RGB/RGBA ui_panel.png",
+    "source decodes RGB/RGBA icon_status_stagger.png",
+    "source decodes RGB/RGBA icon_relic_acorn_pouch.png",
+    "source decodes RGB/RGBA vfx_whirlpool.png",
+    "source decodes RGB/RGBA vfx_boss_ground_slam.png",
+    "source decodes RGB/RGBA vfx_boss_rock_impact.png",
+    "source decodes RGB/RGBA icon_relic_river_stone.png",
+    "source decodes RGB/RGBA vfx_projectile_pinecone.png",
+    "source decodes RGB/RGBA icon_status_slow.png",
+    "source decodes RGB/RGBA icon_status_mark.png",
+    "source decodes RGB/RGBA icon_relic_oak_heart.png",
+    "source decodes RGB/RGBA icon_relic_heavy_paddle.png",
+    "source decodes RGB/RGBA tile_willow_water.png",
+    "source decodes RGB/RGBA ui_bar_hp.png",
+    "source decodes RGB/RGBA vfx_sling_shot.png",
+    "source decodes RGB/RGBA vfx_hit_spark.png",
+    "source decodes RGB/RGBA icon_skill_ranger_q.png",
+    "source decodes RGB/RGBA vfx_great_tree.png",
+    "source decodes RGB/RGBA icon_status_wet.png",
+    "source decodes RGB/RGBA icon_relic_sap_amber.png",
+    "source decodes RGB/RGBA icon_status_shield.png",
+    "source decodes RGB/RGBA ui_bar_boss.png",
+    "source decodes RGB/RGBA ui_card_reward.png",
+    "source decodes RGB/RGBA vfx_tail_shockwave.png",
+    "source decodes RGB/RGBA prop_expedition_board.png",
+    "source decodes RGB/RGBA tile_willow_bridge.png",
+    "source decodes RGB/RGBA icon_relic_kin_bond.png",
+    "source decodes RGB/RGBA ui_card_route.png",
+    "source decodes RGB/RGBA icon_relic_hunters_tooth.png",
+    "source decodes RGB/RGBA tile_willow_wall.png",
+    "source decodes RGB/RGBA vfx_thorn_trap.png",
+    "source decodes RGB/RGBA vfx_heal_burst.png",
+    "source decodes RGB/RGBA icon_skill_guardian_q.png",
+    "source decodes RGB/RGBA icon_heal.png",
+    "source decodes RGB/RGBA tile_willow_ground.png",
+    "source decodes RGB/RGBA vfx_projectile_sap.png",
+    "source decodes RGB/RGBA icon_skill_guardian_r.png",
+    "source decodes RGB/RGBA vfx_hammer_swing.png",
+    "source decodes RGB/RGBA icon_relic_quick_paws.png",
+    "source decodes RGB/RGBA prop_campfire.png",
+    "source decodes RGB/RGBA vfx_log_shield.png",
+    "source decodes RGB/RGBA prop_gnaw_tree.png",
+    "source decodes RGB/RGBA vfx_acorn_scatter.png",
+    "source decodes RGB/RGBA icon_skill_ranger_r.png",
+    "source decodes RGB/RGBA prop_willow_rock.png",
+    "source decodes RGB/RGBA tile_hub_ground.png",
+    "source decodes RGB/RGBA ui_frame_portrait.png",
+    "source decodes RGB/RGBA vfx_forest_volley.png",
+    "source decodes RGB/RGBA vfx_rescue_ring.png",
+    "source decodes RGB/RGBA icon_relic_sharp_incisors.png",
+    "source decodes RGB/RGBA ui_title_logo.png",
+    "no actor ID collisions with beaver_assets",
+    "no actor ID collisions with beaver_combat_v2",
+    "no actor ID collisions with beaver_assets_v3a",
+    "open transparent central area ui_bar_hp",
+    "open transparent central area ui_bar_boss",
+    "open transparent central area ui_frame_portrait",
+    "HP fill stays within declared 17,8,222,9 rect"
+  ],
+  "alpha_inspection": [
+    {
+      "path": "assets/vfx_hammer_swing/default/all_00.png",
+      "alpha_zero_ratio": 0.89447
+    },
+    {
+      "path": "assets/vfx_hammer_swing/default/all_01.png",
+      "alpha_zero_ratio": 0.71246
+    },
+    {
+      "path": "assets/vfx_hammer_swing/default/all_02.png",
+      "alpha_zero_ratio": 0.84045
+    },
+    {
+      "path": "assets/vfx_hammer_swing/default/all_03.png",
+      "alpha_zero_ratio": 0.97333
+    },
+    {
+      "path": "assets/vfx_log_shield/default/all_00.png",
+      "alpha_zero_ratio": 0.65314
+    },
+    {
+      "path": "assets/vfx_log_shield/default/all_01.png",
+      "alpha_zero_ratio": 0.54297
+    },
+    {
+      "path": "assets/vfx_log_shield/default/all_02.png",
+      "alpha_zero_ratio": 0.43011
+    },
+    {
+      "path": "assets/vfx_log_shield/default/all_03.png",
+      "alpha_zero_ratio": 0.61322
+    },
+    {
+      "path": "assets/vfx_tail_shockwave/default/all_00.png",
+      "alpha_zero_ratio": 0.88762
+    },
+    {
+      "path": "assets/vfx_tail_shockwave/default/all_01.png",
+      "alpha_zero_ratio": 0.78142
+    },
+    {
+      "path": "assets/vfx_tail_shockwave/default/all_02.png",
+      "alpha_zero_ratio": 0.65672
+    },
+    {
+      "path": "assets/vfx_tail_shockwave/default/all_03.png",
+      "alpha_zero_ratio": 0.78856
+    },
+    {
+      "path": "assets/vfx_tail_shockwave/default/all_04.png",
+      "alpha_zero_ratio": 0.89636
+    },
+    {
+      "path": "assets/vfx_great_tree/default/all_00.png",
+      "alpha_zero_ratio": 0.90177
+    },
+    {
+      "path": "assets/vfx_great_tree/default/all_01.png",
+      "alpha_zero_ratio": 0.82836
+    },
+    {
+      "path": "assets/vfx_great_tree/default/all_02.png",
+      "alpha_zero_ratio": 0.79596
+    },
+    {
+      "path": "assets/vfx_great_tree/default/all_03.png",
+      "alpha_zero_ratio": 0.69504
+    },
+    {
+      "path": "assets/vfx_great_tree/default/all_04.png",
+      "alpha_zero_ratio": 0.672
+    },
+    {
+      "path": "assets/vfx_great_tree/default/all_05.png",
+      "alpha_zero_ratio": 0.66108
+    },
+    {
+      "path": "assets/vfx_sling_shot/default/all_00.png",
+      "alpha_zero_ratio": 0.77771
+    },
+    {
+      "path": "assets/vfx_sling_shot/default/all_01.png",
+      "alpha_zero_ratio": 0.82642
+    },
+    {
+      "path": "assets/vfx_sling_shot/default/all_02.png",
+      "alpha_zero_ratio": 0.93115
+    },
+    {
+      "path": "assets/vfx_acorn_scatter/default/all_00.png",
+      "alpha_zero_ratio": 0.79042
+    },
+    {
+      "path": "assets/vfx_acorn_scatter/default/all_01.png",
+      "alpha_zero_ratio": 0.81444
+    },
+    {
+      "path": "assets/vfx_acorn_scatter/default/all_02.png",
+      "alpha_zero_ratio": 0.79132
+    },
+    {
+      "path": "assets/vfx_acorn_scatter/default/all_03.png",
+      "alpha_zero_ratio": 0.94164
+    },
+    {
+      "path": "assets/vfx_thorn_trap/default/all_00.png",
+      "alpha_zero_ratio": 0.72791
+    },
+    {
+      "path": "assets/vfx_thorn_trap/default/all_01.png",
+      "alpha_zero_ratio": 0.75024
+    },
+    {
+      "path": "assets/vfx_thorn_trap/default/all_02.png",
+      "alpha_zero_ratio": 0.70685
+    },
+    {
+      "path": "assets/vfx_thorn_trap/default/all_03.png",
+      "alpha_zero_ratio": 0.62347
+    },
+    {
+      "path": "assets/vfx_forest_volley/default/all_00.png",
+      "alpha_zero_ratio": 0.9118
+    },
+    {
+      "path": "assets/vfx_forest_volley/default/all_01.png",
+      "alpha_zero_ratio": 0.86104
+    },
+    {
+      "path": "assets/vfx_forest_volley/default/all_02.png",
+      "alpha_zero_ratio": 0.89156
+    },
+    {
+      "path": "assets/vfx_forest_volley/default/all_03.png",
+      "alpha_zero_ratio": 0.80699
+    },
+    {
+      "path": "assets/vfx_forest_volley/default/all_04.png",
+      "alpha_zero_ratio": 0.84828
+    },
+    {
+      "path": "assets/vfx_forest_volley/default/all_05.png",
+      "alpha_zero_ratio": 0.90829
+    },
+    {
+      "path": "assets/vfx_projectile_pinecone/default/all_00.png",
+      "alpha_zero_ratio": 0.64453
+    },
+    {
+      "path": "assets/vfx_projectile_pinecone/default/all_01.png",
+      "alpha_zero_ratio": 0.69629
+    },
+    {
+      "path": "assets/vfx_projectile_sap/default/all_00.png",
+      "alpha_zero_ratio": 0.70508
+    },
+    {
+      "path": "assets/vfx_projectile_sap/default/all_01.png",
+      "alpha_zero_ratio": 0.7041
+    },
+    {
+      "path": "assets/vfx_hit_spark/default/all_00.png",
+      "alpha_zero_ratio": 0.87427
+    },
+    {
+      "path": "assets/vfx_hit_spark/default/all_01.png",
+      "alpha_zero_ratio": 0.72339
+    },
+    {
+      "path": "assets/vfx_hit_spark/default/all_02.png",
+      "alpha_zero_ratio": 0.92944
+    },
+    {
+      "path": "assets/vfx_rescue_ring/default/all_00.png",
+      "alpha_zero_ratio": 0.77167
+    },
+    {
+      "path": "assets/vfx_rescue_ring/default/all_01.png",
+      "alpha_zero_ratio": 0.70715
+    },
+    {
+      "path": "assets/vfx_rescue_ring/default/all_02.png",
+      "alpha_zero_ratio": 0.67657
+    },
+    {
+      "path": "assets/vfx_rescue_ring/default/all_03.png",
+      "alpha_zero_ratio": 0.74982
+    },
+    {
+      "path": "assets/vfx_heal_burst/default/all_00.png",
+      "alpha_zero_ratio": 0.91437
+    },
+    {
+      "path": "assets/vfx_heal_burst/default/all_01.png",
+      "alpha_zero_ratio": 0.76678
+    },
+    {
+      "path": "assets/vfx_heal_burst/default/all_02.png",
+      "alpha_zero_ratio": 0.51947
+    },
+    {
+      "path": "assets/vfx_heal_burst/default/all_03.png",
+      "alpha_zero_ratio": 0.82965
+    },
+    {
+      "path": "assets/vfx_boss_rock_impact/default/all_00.png",
+      "alpha_zero_ratio": 0.78119
+    },
+    {
+      "path": "assets/vfx_boss_rock_impact/default/all_01.png",
+      "alpha_zero_ratio": 0.66415
+    },
+    {
+      "path": "assets/vfx_boss_rock_impact/default/all_02.png",
+      "alpha_zero_ratio": 0.7256
+    },
+    {
+      "path": "assets/vfx_boss_rock_impact/default/all_03.png",
+      "alpha_zero_ratio": 0.89221
+    },
+    {
+      "path": "assets/vfx_boss_ground_slam/default/all_00.png",
+      "alpha_zero_ratio": 0.89864
+    },
+    {
+      "path": "assets/vfx_boss_ground_slam/default/all_01.png",
+      "alpha_zero_ratio": 0.71663
+    },
+    {
+      "path": "assets/vfx_boss_ground_slam/default/all_02.png",
+      "alpha_zero_ratio": 0.57306
+    },
+    {
+      "path": "assets/vfx_boss_ground_slam/default/all_03.png",
+      "alpha_zero_ratio": 0.71151
+    },
+    {
+      "path": "assets/vfx_boss_ground_slam/default/all_04.png",
+      "alpha_zero_ratio": 0.80324
+    },
+    {
+      "path": "assets/vfx_whirlpool/default/all_00.png",
+      "alpha_zero_ratio": 0.56793
+    },
+    {
+      "path": "assets/vfx_whirlpool/default/all_01.png",
+      "alpha_zero_ratio": 0.58658
+    },
+    {
+      "path": "assets/vfx_whirlpool/default/all_02.png",
+      "alpha_zero_ratio": 0.56939
+    },
+    {
+      "path": "assets/vfx_whirlpool/default/all_03.png",
+      "alpha_zero_ratio": 0.58063
+    },
+    {
+      "path": "assets/tile_willow_ground/default/all_00.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_ground/default/all_01.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_ground/default/all_02.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_ground/default/all_03.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_00.png",
+      "alpha_zero_ratio": 0.36768
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_01.png",
+      "alpha_zero_ratio": 0.45776
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_02.png",
+      "alpha_zero_ratio": 0.57202
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_03.png",
+      "alpha_zero_ratio": 0.55054
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_04.png",
+      "alpha_zero_ratio": 0.56934
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_05.png",
+      "alpha_zero_ratio": 0.55762
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_06.png",
+      "alpha_zero_ratio": 0.55396
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_07.png",
+      "alpha_zero_ratio": 0.54785
+    },
+    {
+      "path": "assets/tile_willow_wall/default/all_08.png",
+      "alpha_zero_ratio": 0.56152
+    },
+    {
+      "path": "assets/tile_willow_water/default/all_00.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_water/default/all_01.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_shore/default/all_00.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_shore/default/all_01.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_shore/default/all_02.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_shore/default/all_03.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_willow_bridge/default/all_00.png",
+      "alpha_zero_ratio": 0.604
+    },
+    {
+      "path": "assets/tile_willow_bridge/default/all_01.png",
+      "alpha_zero_ratio": 0.61743
+    },
+    {
+      "path": "assets/tile_hub_ground/default/all_00.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/tile_hub_ground/default/all_01.png",
+      "alpha_zero_ratio": 0.0
+    },
+    {
+      "path": "assets/prop_gnaw_tree/default/all_00.png",
+      "alpha_zero_ratio": 0.77972
+    },
+    {
+      "path": "assets/prop_gnaw_tree/default/all_01.png",
+      "alpha_zero_ratio": 0.80418
+    },
+    {
+      "path": "assets/prop_gnaw_tree/default/all_02.png",
+      "alpha_zero_ratio": 0.7627
+    },
+    {
+      "path": "assets/prop_device/default/all_00.png",
+      "alpha_zero_ratio": 0.67812
+    },
+    {
+      "path": "assets/prop_device/default/all_01.png",
+      "alpha_zero_ratio": 0.65909
+    },
+    {
+      "path": "assets/prop_device/default/all_02.png",
+      "alpha_zero_ratio": 0.62181
+    },
+    {
+      "path": "assets/prop_device/default/all_03.png",
+      "alpha_zero_ratio": 0.61407
+    },
+    {
+      "path": "assets/prop_lever/default/all_00.png",
+      "alpha_zero_ratio": 0.81378
+    },
+    {
+      "path": "assets/prop_lever/default/all_01.png",
+      "alpha_zero_ratio": 0.78728
+    },
+    {
+      "path": "assets/prop_sluice_gate/default/all_00.png",
+      "alpha_zero_ratio": 0.5257
+    },
+    {
+      "path": "assets/prop_sluice_gate/default/all_01.png",
+      "alpha_zero_ratio": 0.49269
+    },
+    {
+      "path": "assets/prop_sluice_gate/default/all_02.png",
+      "alpha_zero_ratio": 0.45215
+    },
+    {
+      "path": "assets/prop_log_cover/default/all_00.png",
+      "alpha_zero_ratio": 0.6161
+    },
+    {
+      "path": "assets/prop_log_cover/default/all_01.png",
+      "alpha_zero_ratio": 0.63611
+    },
+    {
+      "path": "assets/prop_willow_log/default/all_00.png",
+      "alpha_zero_ratio": 0.65167
+    },
+    {
+      "path": "assets/prop_willow_log/default/all_01.png",
+      "alpha_zero_ratio": 0.74307
+    },
+    {
+      "path": "assets/prop_willow_rock/default/all_00.png",
+      "alpha_zero_ratio": 0.61034
+    },
+    {
+      "path": "assets/prop_willow_rock/default/all_01.png",
+      "alpha_zero_ratio": 0.69667
+    },
+    {
+      "path": "assets/prop_hold_point/default/all_00.png",
+      "alpha_zero_ratio": 0.77266
+    },
+    {
+      "path": "assets/prop_hold_point/default/all_01.png",
+      "alpha_zero_ratio": 0.74722
+    },
+    {
+      "path": "assets/prop_campfire/default/all_00.png",
+      "alpha_zero_ratio": 0.69916
+    },
+    {
+      "path": "assets/prop_campfire/default/all_01.png",
+      "alpha_zero_ratio": 0.70177
+    },
+    {
+      "path": "assets/prop_stall/default/all_00.png",
+      "alpha_zero_ratio": 0.59929
+    },
+    {
+      "path": "assets/prop_memory_tree/default/all_00.png",
+      "alpha_zero_ratio": 0.80054
+    },
+    {
+      "path": "assets/prop_memory_tree/default/all_01.png",
+      "alpha_zero_ratio": 0.75961
+    },
+    {
+      "path": "assets/prop_memory_tree/default/all_02.png",
+      "alpha_zero_ratio": 0.65134
+    },
+    {
+      "path": "assets/prop_workshop/default/all_00.png",
+      "alpha_zero_ratio": 0.69432
+    },
+    {
+      "path": "assets/prop_workshop/default/all_01.png",
+      "alpha_zero_ratio": 0.66531
+    },
+    {
+      "path": "assets/prop_workshop/default/all_02.png",
+      "alpha_zero_ratio": 0.62328
+    },
+    {
+      "path": "assets/prop_expedition_board/default/all_00.png",
+      "alpha_zero_ratio": 0.63368
+    },
+    {
+      "path": "assets/icon_skill_guardian_q/default/all_00.png",
+      "alpha_zero_ratio": 0.40942
+    },
+    {
+      "path": "assets/icon_skill_guardian_e/default/all_00.png",
+      "alpha_zero_ratio": 0.49365
+    },
+    {
+      "path": "assets/icon_skill_guardian_r/default/all_00.png",
+      "alpha_zero_ratio": 0.45532
+    },
+    {
+      "path": "assets/icon_skill_ranger_q/default/all_00.png",
+      "alpha_zero_ratio": 0.68726
+    },
+    {
+      "path": "assets/icon_skill_ranger_e/default/all_00.png",
+      "alpha_zero_ratio": 0.51636
+    },
+    {
+      "path": "assets/icon_skill_ranger_r/default/all_00.png",
+      "alpha_zero_ratio": 0.64868
+    },
+    {
+      "path": "assets/icon_heal/default/all_00.png",
+      "alpha_zero_ratio": 0.52393
+    },
+    {
+      "path": "assets/icon_dodge/default/all_00.png",
+      "alpha_zero_ratio": 0.4812
+    },
+    {
+      "path": "assets/icon_relic_oak_heart/default/all_00.png",
+      "alpha_zero_ratio": 0.52295
+    },
+    {
+      "path": "assets/icon_relic_sharp_incisors/default/all_00.png",
+      "alpha_zero_ratio": 0.53931
+    },
+    {
+      "path": "assets/icon_relic_river_stone/default/all_00.png",
+      "alpha_zero_ratio": 0.5
+    },
+    {
+      "path": "assets/icon_relic_quick_paws/default/all_00.png",
+      "alpha_zero_ratio": 0.49414
+    },
+    {
+      "path": "assets/icon_relic_sap_amber/default/all_00.png",
+      "alpha_zero_ratio": 0.43726
+    },
+    {
+      "path": "assets/icon_relic_hunters_tooth/default/all_00.png",
+      "alpha_zero_ratio": 0.70972
+    },
+    {
+      "path": "assets/icon_relic_kin_bond/default/all_00.png",
+      "alpha_zero_ratio": 0.72461
+    },
+    {
+      "path": "assets/icon_relic_thorn_tail/default/all_00.png",
+      "alpha_zero_ratio": 0.58545
+    },
+    {
+      "path": "assets/icon_relic_heavy_paddle/default/all_00.png",
+      "alpha_zero_ratio": 0.73413
+    },
+    {
+      "path": "assets/icon_relic_acorn_pouch/default/all_00.png",
+      "alpha_zero_ratio": 0.45801
+    },
+    {
+      "path": "assets/icon_status_slow/default/all_00.png",
+      "alpha_zero_ratio": 0.46362
+    },
+    {
+      "path": "assets/icon_status_bleed/default/all_00.png",
+      "alpha_zero_ratio": 0.71704
+    },
+    {
+      "path": "assets/icon_status_shield/default/all_00.png",
+      "alpha_zero_ratio": 0.48682
+    },
+    {
+      "path": "assets/icon_status_mark/default/all_00.png",
+      "alpha_zero_ratio": 0.44458
+    },
+    {
+      "path": "assets/icon_status_stagger/default/all_00.png",
+      "alpha_zero_ratio": 0.66089
+    },
+    {
+      "path": "assets/icon_status_wet/default/all_00.png",
+      "alpha_zero_ratio": 0.53979
+    },
+    {
+      "path": "assets/ui_panel/default/all_00.png",
+      "alpha_zero_ratio": 0.00033
+    },
+    {
+      "path": "assets/ui_button/default/all_00.png",
+      "alpha_zero_ratio": 0.07227
+    },
+    {
+      "path": "assets/ui_button/default/all_01.png",
+      "alpha_zero_ratio": 0.07313
+    },
+    {
+      "path": "assets/ui_button/default/all_02.png",
+      "alpha_zero_ratio": 0.07248
+    },
+    {
+      "path": "assets/ui_card_reward/default/all_00.png",
+      "alpha_zero_ratio": 0.07977
+    },
+    {
+      "path": "assets/ui_card_reward/default/all_01.png",
+      "alpha_zero_ratio": 0.07866
+    },
+    {
+      "path": "assets/ui_card_route/default/all_00.png",
+      "alpha_zero_ratio": 0.1208
+    },
+    {
+      "path": "assets/ui_card_route/default/all_01.png",
+      "alpha_zero_ratio": 0.10688
+    },
+    {
+      "path": "assets/ui_card_route/default/all_02.png",
+      "alpha_zero_ratio": 0.12195
+    },
+    {
+      "path": "assets/ui_card_route/default/all_03.png",
+      "alpha_zero_ratio": 0.11719
+    },
+    {
+      "path": "assets/ui_card_route/default/all_04.png",
+      "alpha_zero_ratio": 0.1064
+    },
+    {
+      "path": "assets/ui_bar_hp/default/all_00.png",
+      "alpha_zero_ratio": 0.3042
+    },
+    {
+      "path": "assets/ui_bar_hp/default/all_01.png",
+      "alpha_zero_ratio": 0.67676
+    },
+    {
+      "path": "assets/ui_bar_boss/default/all_00.png",
+      "alpha_zero_ratio": 0.43915
+    },
+    {
+      "path": "assets/ui_title_logo/default/all_00.png",
+      "alpha_zero_ratio": 0.39132
+    },
+    {
+      "path": "assets/ui_app_icon/default/all_00.png",
+      "alpha_zero_ratio": 0.28973
+    },
+    {
+      "path": "assets/ui_frame_portrait/default/all_00.png",
+      "alpha_zero_ratio": 0.61504
+    }
+  ],
+  "not_run": [
+    "Godot project importer",
+    "project check_assets",
+    "gameplay server/client runtime",
+    "browser preview runtime"
+  ],
+  "integration_review": [
+    "Tile seams and engine terrain rules",
+    "Final VFX world scale and attachments",
+    "Prop interaction origins across states",
+    "9-slice and HUD behavior at actual viewport sizes"
+  ]
+}

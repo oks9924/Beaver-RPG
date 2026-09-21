@@ -19,6 +19,16 @@ func _ready() -> void:
 	var panel := UIKit.panel(Vector2(460, 0))
 	var v := UIKit.vbox(10)
 	panel.add_child(v)
+	if AssetRegistry.status("ui.title.logo") == "final":
+		var logo := TextureRect.new()
+		logo.texture = AssetRegistry.get_texture("ui.title.logo")
+		logo.custom_minimum_size = Vector2(420, 150)
+		logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		v.add_child(logo)
+		var tl := UIKit.label("꼬리원정대", 30, Color(0.98, 0.9, 0.6))
+		tl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		v.add_child(tl)
 	v.add_child(UIKit.label("계정 로그인 / 생성", 24, Color(0.98, 0.85, 0.45)))
 	info_label = UIKit.label("", 13, Color(0.7, 0.75, 0.7))
 	info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

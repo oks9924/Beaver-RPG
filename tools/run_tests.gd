@@ -60,6 +60,8 @@ func _ready() -> void:
 	test_difficulty_tutorial_pause()
 	print("-- test_snapshot_codec")
 	test_snapshot_codec()
+	print("-- test_v3_pack_assets")
+	test_v3_pack_assets()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -1430,3 +1432,66 @@ func test_snapshot_codec() -> void:
 	var hub := {"hub": 1, "p": [["acc1", 10.5, 20.5, 0.5, 0.5, "guardian", 1]]}
 	check(SnapshotCodec.decode(SnapshotCodec.encode(hub)) == hub, "codec round-trips a generic (hub) snapshot")
 	check(SnapshotCodec.decode(PackedByteArray()).is_empty(), "codec tolerates an empty packet")
+
+
+func test_v3_pack_assets() -> void:
+	# v3-A: 사수 8동작·수호목수 4동작·적 3종 이동/피격/사망·가재 4동작이 최종본이고 열 수가 요청서와 같다
+	var expect := {"char.pinecone.walk": 4, "char.pinecone.attack": 4, "char.pinecone.cast_q": 4, "char.pinecone.cast_e": 4, "char.pinecone.cast_r": 4, "char.pinecone.hit": 2, "char.pinecone.down": 2, "char.pinecone.death": 4,
+		"char.guardian.hit": 2, "char.guardian.down": 2, "char.guardian.death": 4, "char.guardian.interact": 4,
+		"enemy.sap_snail.walk": 4, "enemy.sap_snail.hit": 2, "enemy.sap_snail.death": 4, "enemy.thorn_boar.walk": 4, "enemy.thorn_boar.charge": 4, "enemy.black_bird.death": 4,
+		"boss.ironclaw.walk": 4, "boss.ironclaw.hit": 2, "boss.ironclaw.death": 6, "boss.ironclaw.molt": 4}
+	var ok := true
+	for id: String in expect.keys():
+		var e := AssetRegistry.entry(id)
+		var sheet := AssetRegistry.get_sheet(id)
+		if String(e.get("status", "")) != "final" or int(sheet["hframes"]) != int(expect[id]) or int(sheet["vframes"]) != 4 or bool(sheet["is_fallback"]):
+			ok = false
+			failures.append("v3a sheet %s: status=%s cols=%d rows=%d" % [id, e.get("status", ""), int(sheet["hframes"]), int(sheet["vframes"])])
+	check(ok, "v3-A character sheets are final with requested frame counts (4 directions)")
+	check(AssetRegistry.entry("char.pinecone.attack").get("animation", {}).get("event_frames", {}).get("hit", -1) == 2 and AssetRegistry.entry("char.pinecone.cast_e").get("animation", {}).get("event_frames", {}).get("hit", -1) == 3, "ranger visual contact frames: attack/Q/R 2, E 3")
+	var husk := AssetRegistry.get_sheet("prop.boss.husk")
+	check(AssetRegistry.status("prop.boss.husk") == "final" and husk["frame_size"] == Vector2(256, 256) and int(husk["hframes"]) == 1, "husk_all is a 256x256 single frame (size exception honoured)")
+	check(not bool(AssetRegistry.get_sheet("boss.ironclaw.molt")["loop"]), "boss molt is one-shot (held by boss state), not auto-looping")
+	# v3-B: VFX 프레임 수·재생 모드
+	var vfx := {"vfx.hammer_swing": [4, "one_shot"], "vfx.log_shield": [4, "loop"], "vfx.tail_shockwave": [5, "one_shot"], "vfx.great_tree": [6, "state_sequence"], "vfx.thorn_trap": [4, "state_sequence"], "vfx.forest_volley": [6, "one_shot"],
+		"vfx.projectile_pinecone": [2, "loop"], "vfx.hit_spark": [3, "one_shot"], "vfx.rescue_ring": [4, "loop"], "vfx.heal_burst": [4, "one_shot"], "vfx.boss_ground_slam": [5, "one_shot"], "vfx.whirlpool": [4, "loop"]}
+	ok = true
+	for id: String in vfx.keys():
+		var sheet := AssetRegistry.get_sheet(id)
+		if AssetRegistry.status(id) != "final" or int(sheet["hframes"]) != int(vfx[id][0]) or String(sheet["mode"]) != String(vfx[id][1]):
+			ok = false
+			failures.append("v3b vfx %s: cols=%d mode=%s" % [id, int(sheet["hframes"]), sheet["mode"]])
+	check(ok, "v3-B VFX sheets are final with requested frame counts and playback modes")
+	var trap: Dictionary = AssetRegistry.get_sheet("vfx.thorn_trap")["segments"]
+	check(not bool(AssetRegistry.get_sheet("vfx.thorn_trap")["loop"]) and _ints(trap.get("idle", {}).get("indices", [])) == [1, 2] and _ints(trap.get("trigger", {}).get("indices", [])) == [3], "thorn trap: whole strip does not loop; idle segment [1,2], trigger [3]")
+	check(bool(AssetRegistry.get_sheet("vfx.great_tree")["hold_last"]), "great tree holds its last (active) frame")
+	# v3-C: 타일·소품
+	check(int(AssetRegistry.get_sheet("tile.willow.wall")["hframes"]) == 9 and int(AssetRegistry.get_sheet("tile.willow.water")["hframes"]) == 2 and int(AssetRegistry.get_sheet("tile.willow.shore")["hframes"]) == 4, "willow wall 9 / water 2 / shore 4 tiles")
+	check(AssetRegistry.get_sheet("tile.willow.ground")["frame_size"] == Vector2(256, 256) and AssetRegistry.status("tile.willow.ground") == "final", "willow ground is a 256px mosaic of the 4 variants")
+	var props := {"prop.gnaw_tree": 3, "prop.device": 4, "prop.lever": 2, "prop.sluice_gate": 3, "prop.log_cover": 2, "prop.hold_point": 2, "prop.campfire": 2, "prop.hub.memory_tree": 3, "prop.hub.workshop": 3, "prop.hub.board": 1, "prop.stall": 1}
+	ok = true
+	for id: String in props.keys():
+		if AssetRegistry.status(id) != "final" or int(AssetRegistry.get_sheet(id)["hframes"]) != int(props[id]):
+			ok = false
+			failures.append("v3c prop %s cols=%d" % [id, int(AssetRegistry.get_sheet(id)["hframes"])])
+	check(ok, "v3-C props are final state strips with requested frame counts")
+	var ft := AssetRegistry.get_frame_texture("prop.gnaw_tree", 2)
+	check(ft != null and ft.get_width() == 256 and ft.get_height() == 256 and ft != AssetRegistry.get_frame_texture("prop.gnaw_tree", 0), "get_frame_texture cuts a single 256px frame and distinguishes frames")
+	# v3-D/E: 아이콘·UI
+	ok = true
+	for id in ["icon.skill.guardian.q", "icon.skill.pinecone.r", "icon.heal", "icon.dodge", "icon.relic.oak_heart", "icon.status.slow", "ui.panel.default", "ui.button.default", "ui.button.hover", "ui.button.pressed", "ui.card.reward", "ui.card.route", "ui.bar.hp", "ui.bar.boss", "ui.title.logo", "ui.app_icon", "ui.frame.portrait"]:
+		if AssetRegistry.status(id) != "final":
+			ok = false
+			failures.append("v3de %s status=%s" % [id, AssetRegistry.status(id)])
+	check(ok, "v3-D/E icons and UI entries are final")
+	var hp := AssetRegistry.entry("ui.bar.hp")
+	check(_ints(hp.get("fill_rect_px", [])) == [17, 8, 222, 9] and int(AssetRegistry.get_sheet("ui.bar.hp")["hframes"]) == 2, "hp bar keeps frame/fill layers and the declared fill rect")
+	check(int(AssetRegistry.entry("ui.panel.default").get("nine_slice_margin", 0)) == 12 and int(AssetRegistry.entry("ui.button.hover").get("nine_slice_margin", 0)) == 12, "panel/button 9-slice margins are 12px")
+	check(int(AssetRegistry.get_sheet("ui.card.route")["hframes"]) == 5 and int(AssetRegistry.get_sheet("ui.card.reward")["hframes"]) == 2, "route card 5 variants, reward card 2 variants")
+
+
+func _ints(a: Array) -> Array:
+	var out: Array = []
+	for v in a:
+		out.append(int(v))
+	return out

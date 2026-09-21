@@ -23,7 +23,15 @@ const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE
 const MECHANIC_ID_OF_KEY := {"ic_01": "IC-01", "ic_02": "IC-02", "ic_03": "IC-03", "ic_04": "IC-04", "ic_05": "IC-05", "tf_01": "TF-01", "tf_02": "TF-02", "tf_03": "TF-03", "tf_04": "TF-04", "tf_05": "TF-05", "rk_01": "RK-01", "rk_02": "RK-02", "rk_03": "RK-03", "rk_04": "RK-04", "rk_05": "RK-05"}
 var camera := Camera2D.new()
 var _ground := Sprite2D.new()
+var _terrain := Node2D.new()          # 강둑 링·물가 경계 (바닥 위, 물 위, 엔티티 아래)
 var _water_rects: Array = []
+var _water_sprites: Array = []
+var _water_asset: String = "tile.willow.water"
+var _wall_asset: String = "tile.willow.wall"
+var _shore_asset: String = "tile.willow.shore"
+var _water_frame: int = 0
+var _water_t: float = 0.0
+var _decor_sprites: Array = []
 var _obstacles: Array = []
 var _obstacle_sprites: Array = []
 var _effects: Node2D = Node2D.new()
@@ -40,6 +48,8 @@ func _ready() -> void:
 	_ground.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_ground.region_enabled = true
 	add_child(_ground)
+	add_child(_terrain)
+	_terrain.draw.connect(_draw_terrain)
 	add_child(_telegraph_layer)
 	_telegraph_layer.draw.connect(_draw_telegraphs)
 	add_child(_effects)
@@ -57,40 +67,141 @@ func _ready() -> void:
 		_object_tex[kind_asset[0]] = AssetRegistry.get_texture(kind_asset[1])
 
 
-func setup(area_bounds: Rect2, ground_asset: String, obstacles: Array, water: Array) -> void:
+func setup(area_bounds: Rect2, ground_asset: String, obstacles: Array, water: Array, wall_asset: String = "tile.willow.wall", water_asset: String = "tile.willow.water", shore_asset: String = "tile.willow.shore") -> void:
 	bounds = area_bounds
+	_wall_asset = wall_asset
+	_water_asset = water_asset
+	_shore_asset = shore_asset
 	_ground.texture = AssetRegistry.get_texture(ground_asset)
 	_ground.region_rect = Rect2(Vector2.ZERO, bounds.size)
 	_ground.position = bounds.position
 	for s: Node in _obstacle_sprites:
 		s.queue_free()
 	_obstacle_sprites.clear()
+	_water_sprites.clear()
+	set_decor([])
 	_obstacles = obstacles
+	var oi := 0
 	for ob: Dictionary in obstacles:
-		var spr := Sprite2D.new()
-		spr.texture = AssetRegistry.get_texture(String(ob.get("asset", "prop.willow.rock")))
+		var spr := _prop_sprite(String(ob.get("asset", "prop.willow.rock")), int(ob.get("frame", oi)), float(ob.get("size", float(ob.get("r", 40)) * 2.4)))
 		spr.position = Vector2(float(ob["x"]), float(ob["y"]))
-		var r := float(ob.get("r", 40))
-		spr.scale = Vector2.ONE * (r * 2.4 / maxf(spr.texture.get_width(), 1))
-		spr.offset = Vector2(0, -12)
 		add_child(spr)
 		_obstacle_sprites.append(spr)
+		oi += 1
 	_water_rects = water
 	for w: Dictionary in water:
 		var ws := Sprite2D.new()
 		ws.centered = false
-		ws.texture = AssetRegistry.get_texture("tile.willow.water")
+		ws.texture = AssetRegistry.get_frame_texture(_water_asset, 0)
 		ws.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 		ws.region_enabled = true
 		ws.region_rect = Rect2(0, 0, float(w["w"]), float(w["h"]))
-		ws.position = Vector2(float(w["x"]), float(w["y"]))
-		add_child(ws)
+		# 바닥 스프라이트의 자식으로 두어 물가 경계(_terrain) 아래에 그린다
+		ws.position = Vector2(float(w["x"]), float(w["y"])) - bounds.position
+		_ground.add_child(ws)
 		_obstacle_sprites.append(ws)
+		_water_sprites.append(ws)
+	_terrain.queue_redraw()
 	camera.limit_left = int(bounds.position.x) - 200
 	camera.limit_top = int(bounds.position.y) - 200
 	camera.limit_right = int(bounds.end.x) + 200
 	camera.limit_bottom = int(bounds.end.y) + 200
 	queue_redraw()
+
+
+## 시트 프레임 하나를 보여주는 소품 스프라이트. frame 은 상태/변형 인덱스(열 수로 감싼다). size 는 월드 px 폭.
+func _prop_sprite(asset: String, frame: int, size: float) -> Sprite2D:
+	var spr := Sprite2D.new()
+	var sheet := AssetRegistry.get_sheet(asset)
+	spr.texture = sheet["texture"]
+	spr.hframes = maxi(int(sheet["hframes"]), 1)
+	spr.vframes = maxi(int(sheet["vframes"]), 1)
+	spr.frame = frame % spr.hframes if not bool(sheet["is_fallback"]) else 0
+	var fs: Vector2 = sheet["frame_size"]
+	if bool(sheet["is_fallback"]):
+		spr.hframes = 1
+		spr.vframes = 1
+		fs = spr.texture.get_size()
+	spr.scale = Vector2.ONE * (size / maxf(fs.x, 1.0))
+	var anchor: Vector2 = sheet["anchor"] if not bool(sheet["is_fallback"]) else Vector2(0.5, 0.7)
+	spr.offset = Vector2(fs.x * (0.5 - anchor.x), fs.y * (0.5 - anchor.y))
+	return spr
+
+
+## 충돌 없는 장식 소품 (마을 작업실·모집판·좌판 등). [{asset, x, y, frame, size}]
+func set_decor(list: Array) -> void:
+	for d: Node in _decor_sprites:
+		d.queue_free()
+	_decor_sprites.clear()
+	for d: Dictionary in list:
+		var spr := _prop_sprite(String(d.get("asset", "")), int(d.get("frame", 0)), float(d.get("size", 120)))
+		spr.position = Vector2(float(d.get("x", 0)), float(d.get("y", 0)))
+		add_child(spr)
+		_decor_sprites.append(spr)
+
+
+func _wall_ring_available() -> bool:
+	var sheet := AssetRegistry.get_sheet(_wall_asset)
+	return int(sheet["hframes"]) >= 9 and not bool(sheet["is_fallback"])
+
+
+func _tile(L: Node2D, tex: Texture2D, idx: int, pos: Vector2, t: float) -> void:
+	L.draw_texture_rect_region(tex, Rect2(pos, Vector2(t, t)), Rect2(idx * 64.0, 0.0, 64.0, 64.0))
+
+
+## 강둑 링(9장: 0 전체, 1~4 북/동/남/서 경계, 5~8 안쪽 NW/NE/SE/SW 모서리) 과 물가 경계(4장: 풀↑물↓, 물←풀→, 물↑풀↓, 풀←물→)
+func _draw_terrain() -> void:
+	var L := _terrain
+	const T := 64.0
+	if _wall_ring_available():
+		var tex: Texture2D = AssetRegistry.get_sheet(_wall_asset)["texture"]
+		var x0 := floorf(bounds.position.x / T) * T
+		var y0 := floorf(bounds.position.y / T) * T
+		var x1 := ceilf(bounds.end.x / T) * T
+		var y1 := ceilf(bounds.end.y / T) * T
+		# 강둑 타일의 투명 여백 아래에 어두운 수풀 바탕을 깐다 (바닥 안쪽은 덮지 않는다)
+		var dark := Color(0.13, 0.19, 0.08)
+		L.draw_rect(Rect2(x0 - 2 * T, y0 - 2 * T, (x1 - x0) + 4 * T, 2 * T), dark)
+		L.draw_rect(Rect2(x0 - 2 * T, y1, (x1 - x0) + 4 * T, 2 * T), dark)
+		L.draw_rect(Rect2(x0 - 2 * T, y0, 2 * T, y1 - y0), dark)
+		L.draw_rect(Rect2(x1, y0, 2 * T, y1 - y0), dark)
+		var x := x0
+		while x < x1:
+			_tile(L, tex, 0, Vector2(x, y0 - 2 * T), T)
+			_tile(L, tex, 0, Vector2(x, y1 + T), T)
+			_tile(L, tex, 3, Vector2(x, y0 - T), T)   # 위쪽 강둑: 남쪽 경계가 보인다
+			_tile(L, tex, 1, Vector2(x, y1), T)       # 아래쪽 강둑: 북쪽 경계
+			x += T
+		var y := y0
+		while y < y1:
+			_tile(L, tex, 0, Vector2(x0 - 2 * T, y), T)
+			_tile(L, tex, 0, Vector2(x1 + T, y), T)
+			_tile(L, tex, 2, Vector2(x0 - T, y), T)   # 왼쪽 강둑: 동쪽 경계
+			_tile(L, tex, 4, Vector2(x1, y), T)       # 오른쪽 강둑: 서쪽 경계
+			y += T
+		for c in [Vector2(x0 - 2 * T, y0 - 2 * T), Vector2(x1 + T, y0 - 2 * T), Vector2(x0 - 2 * T, y1 + T), Vector2(x1 + T, y1 + T), Vector2(x0 - 2 * T, y0 - T), Vector2(x0 - T, y0 - 2 * T), Vector2(x1, y0 - 2 * T), Vector2(x1 + T, y0 - T), Vector2(x0 - 2 * T, y1), Vector2(x0 - T, y1 + T), Vector2(x1, y1 + T), Vector2(x1 + T, y1)]:
+			_tile(L, tex, 0, c, T)
+		_tile(L, tex, 7, Vector2(x0 - T, y0 - T), T)   # 안쪽 SE 모서리
+		_tile(L, tex, 8, Vector2(x1, y0 - T), T)       # 안쪽 SW
+		_tile(L, tex, 5, Vector2(x1, y1), T)           # 안쪽 NW
+		_tile(L, tex, 6, Vector2(x0 - T, y1), T)       # 안쪽 NE
+	var shore := AssetRegistry.get_sheet(_shore_asset)
+	if int(shore["hframes"]) >= 4 and not bool(shore["is_fallback"]):
+		var stex: Texture2D = shore["texture"]
+		for w: Dictionary in _water_rects:
+			var wr := Rect2(float(w["x"]), float(w["y"]), float(w["w"]), float(w["h"]))
+			if wr.size.x < 2 * T or wr.size.y < 2 * T:
+				continue
+			var x := wr.position.x
+			while x + T <= wr.end.x + 0.01:
+				_tile(L, stex, 0, Vector2(x, wr.position.y), T)
+				_tile(L, stex, 2, Vector2(x, wr.end.y - T), T)
+				x += T
+			var y := wr.position.y + T
+			while y + T <= wr.end.y - T + 0.01:
+				_tile(L, stex, 3, Vector2(wr.position.x, y), T)
+				_tile(L, stex, 1, Vector2(wr.end.x - T, y), T)
+				y += T
 
 
 func clear_entities() -> void:
@@ -127,8 +238,9 @@ func party_color(index: int) -> Color:
 
 
 func _draw() -> void:
-	# 경계 벽: 타일 ID 로 색을 가져오지 않고 단순 선으로 표시 (임시)
-	draw_rect(bounds.grow(4), Color(0.25, 0.18, 0.1), false, 8.0)
+	# 경계 벽: 강둑 타일이 없는 지역(습지·뿌리댐 임시 타일)은 단순 선으로 표시
+	if not _wall_ring_available():
+		draw_rect(bounds.grow(4), Color(0.25, 0.18, 0.1), false, 8.0)
 
 
 func _process(dt: float) -> void:
@@ -136,6 +248,16 @@ func _process(dt: float) -> void:
 	for mid: String in _mechanic_fx.keys():
 		if not bool(_mechanic_fx[mid].get("active", false)):
 			_mechanic_fx[mid]["t"] = float(_mechanic_fx[mid]["t"]) + dt
+	# 물 2프레임 잔물결
+	if not _water_sprites.is_empty():
+		_water_t += dt
+		var wf := int(_water_t * 2.0) % 2
+		if wf != _water_frame:
+			_water_frame = wf
+			var tex := AssetRegistry.get_frame_texture(_water_asset, wf)
+			for ws: Sprite2D in _water_sprites:
+				if is_instance_valid(ws):
+					ws.texture = tex
 	var i := _effects.get_child_count() - 1
 	while i >= 0:
 		var fx: Node2D = _effects.get_child(i)
@@ -146,9 +268,23 @@ func _process(dt: float) -> void:
 			fx.queue_free()
 		else:
 			var spr := fx as Sprite2D
+			var fixed := int(fx.get_meta("frame", -1))
+			var looping := bool(fx.get_meta("loop", false))
+			var hold := bool(fx.get_meta("hold", false))
+			var fps := float(fx.get_meta("fps", 8.0))
 			if spr != null and spr.hframes > 1:
-				spr.frame = mini(int(t / life * spr.hframes), spr.hframes - 1)
-			fx.modulate.a = ally_vfx_alpha * (1.0 - t / life * 0.5)
+				if fixed >= 0:
+					spr.frame = clampi(fixed, 0, spr.hframes - 1)
+				elif looping:
+					spr.frame = int(t * fps) % spr.hframes
+				elif hold:
+					spr.frame = mini(int(t * fps), spr.hframes - 1)
+				else:
+					spr.frame = mini(int(t / life * spr.hframes), spr.hframes - 1)
+			if fixed >= 0 or looping or hold:
+				fx.modulate.a = ally_vfx_alpha * clampf((life - t) / 0.35, 0.0, 1.0)
+			else:
+				fx.modulate.a = ally_vfx_alpha * (1.0 - t / life * 0.5)
 		i -= 1
 
 
@@ -165,6 +301,7 @@ func _draw_telegraphs() -> void:
 			col = Color(0.2, 0.5, 1.0, 0.45)
 		L.draw_rect(rect, col)
 		L.draw_rect(rect, Color(0.4, 0.7, 1.0, 0.8), false, 2.0)
+		_draw_frame(L, "prop.sluice_gate", clampi(st, 0, 2), Vector2(rect.position.x + rect.size.x * 0.5, rect.position.y + 10.0), 120.0)
 		if st == 2:
 			for i in 6:
 				var y := rect.position.y + rect.size.y * (i + 0.5) / 6.0
@@ -189,13 +326,17 @@ func _draw_telegraphs() -> void:
 				var zc := Color(0.4, 0.9, 0.5, 0.18) if st == 1 else (Color(0.95, 0.4, 0.3, 0.2) if st == 2 else Color(0.9, 0.85, 0.4, 0.14))
 				L.draw_circle(c, r, zc)
 				L.draw_arc(c, r, 0, TAU, 48, Color(0.95, 0.9, 0.5, 0.9), 3.0)
+				_draw_frame(L, "prop.hold_point", 1 if st == 1 else 0, c + Vector2(0, 20), 90.0)
 				if prog > 0.0:
 					L.draw_arc(c, r + 8, -PI / 2, -PI / 2 + TAU * prog, 48, Color(0.5, 1.0, 0.6, 0.95), 6.0)
 			Protocol.ObKind.VOLLEY:
 				L.draw_circle(c, r, Color(0.5, 0.9, 0.4, 0.2))
 				L.draw_arc(c, r, 0, TAU, 40, Color(0.6, 1.0, 0.5, 0.9), 2.0)
+				_draw_frame(L, "vfx.forest_volley", int(prog * 6.0), c, r * 2.2, Color(1, 1, 1, 0.9))
 			Protocol.ObKind.TRAP:
-				_draw_tex(L, _object_tex["trap"], c, r * 2.0, Color(1, 1, 1, 0.9 if st == 1 else 0.5))
+				# 설치 [0] → 대기 [1,2] 반복. 발동 [3] 은 서버 trap 이벤트에서 1회 표시한다 (자동 순환 금지)
+				if not _draw_frame(L, "vfx.thorn_trap", 0 if st == 0 else 1 + int(Time.get_ticks_msec() / 260) % 2, c, r * 2.0, Color(1, 1, 1, 0.95 if st == 1 else 0.6)):
+					_draw_tex(L, _object_tex["trap"], c, r * 2.0, Color(1, 1, 1, 0.9 if st == 1 else 0.5))
 			Protocol.ObKind.LANTERN:
 				if not _draw_device(L, kind, c, prog, st, 130):
 					L.draw_circle(c, 16, Color(1.0, 0.85, 0.4) if st == 1 else Color(0.4, 0.35, 0.3))
@@ -280,7 +421,9 @@ func _draw_telegraphs() -> void:
 				L.draw_arc(c, r * (0.6 + 0.4 * fmod(prog * 3.0, 1.0)), 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.5), 2.0)
 				L.draw_arc(c, r, 0, TAU, 48, Color(0.5, 1.0, 0.6, 0.9), 2.0)
 			Protocol.ObKind.STRUCTURE:
-				_draw_tex(L, _object_tex["structure"], c + Vector2(0, -8), 72, [Color.WHITE, Color(1.0, 0.75, 0.6), Color(0.75, 1.0, 0.8)][clampi(st, 0, 2)])
+				var scol: Color = [Color.WHITE, Color(1.0, 0.75, 0.6), Color(0.75, 1.0, 0.8)][clampi(st, 0, 2)]
+				if not _draw_frame(L, "prop.log_cover", 0 if prog > 0.5 else 1, c + Vector2(0, 16), 84.0, scol):
+					_draw_tex(L, _object_tex["structure"], c + Vector2(0, -8), 72, scol)
 				if st == 1:
 					for i in 6:
 						var a := i * TAU / 6.0
@@ -290,13 +433,17 @@ func _draw_telegraphs() -> void:
 				L.draw_rect(Rect2(c.x - 20, c.y - 44, 40, 5), Color(0, 0, 0, 0.6))
 				L.draw_rect(Rect2(c.x - 20, c.y - 44, 40 * prog, 5), Color(0.8, 0.6, 0.3))
 			Protocol.ObKind.GNAW_TREE:
-				_draw_tex(L, _object_tex["gnaw_tree"], c + Vector2(0, -20), 84, Color.WHITE)
+				if not _draw_frame(L, "prop.gnaw_tree", 0 if prog < 0.34 else 1, c + Vector2(0, 16), 100.0):
+					_draw_tex(L, _object_tex["gnaw_tree"], c + Vector2(0, -20), 84, Color.WHITE)
 				_draw_progress(L, c, prog, "F 갉기")
 			Protocol.ObKind.DEVICE:
-				_draw_tex(L, _object_tex["device"], c + Vector2(0, -10), 76, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
+				if not _draw_frame(L, "prop.device", 3 if st >= 1 else mini(int(prog * 3.0), 2), c + Vector2(0, 16), 88.0):
+					_draw_tex(L, _object_tex["device"], c + Vector2(0, -10), 76, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog if st == 0 else 1.0, "F 가동" if st == 0 else "가동 완료")
 			Protocol.ObKind.SLUICE_LEVER:
-				_draw_tex(L, _object_tex["lever"], c + Vector2(0, -10), 60, Color.WHITE)
+				var lever_up := water_zone.size() >= 5 and int(water_zone[4]) > 0
+				if not _draw_frame(L, "prop.lever", 1 if lever_up else 0, c + Vector2(0, 14), 64.0):
+					_draw_tex(L, _object_tex["lever"], c + Vector2(0, -10), 60, Color.WHITE)
 				_draw_progress(L, c, prog, "F 수문")
 			Protocol.ObKind.PILLAR:
 				if not _draw_device(L, kind, c, prog, st, 150):
@@ -340,6 +487,8 @@ func _draw_telegraphs() -> void:
 					_draw_tex(L, _object_tex["anchor"], c + Vector2(0, -20), 80, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog, "F 고정 (줄·잔해 먼저)" if st == 0 else "고정됨")
 			Protocol.ObKind.PLATFORM:
+				if st != 2:
+					_draw_frame(L, "vfx.whirlpool", int(Time.get_ticks_msec() / 160) % 4, c, r * 3.2, Color(1, 1, 1, 0.75))
 				var pc := Color(0.9, 0.8, 0.4, 0.25) if st == 2 else Color(0.6, 0.5, 0.3, 0.2)
 				L.draw_circle(c, r, pc)
 				L.draw_arc(c, r, 0, TAU, 48, Color(1.0, 0.85, 0.4, 0.9) if st == 2 else Color(0.8, 0.7, 0.5, 0.8), 3.0)
@@ -383,8 +532,9 @@ func _draw_telegraphs() -> void:
 	# 투사체
 	for pr: PackedFloat32Array in projectiles:
 		var c := Vector2(pr[Protocol.SNAP_PR.X], pr[Protocol.SNAP_PR.Y])
-		var tex: Texture2D = _object_tex["proj_player"] if int(pr[Protocol.SNAP_PR.KIND]) == 1 else _object_tex["proj_enemy"]
-		_draw_tex(L, tex, c, pr[Protocol.SNAP_PR.R] * 3.0, Color.WHITE)
+		var ally := int(pr[Protocol.SNAP_PR.KIND]) == 1
+		if not _draw_frame(L, "vfx.projectile_pinecone" if ally else "vfx.projectile_sap", int(Time.get_ticks_msec() / 90) % 2, c, pr[Protocol.SNAP_PR.R] * 3.0):
+			_draw_tex(L, _object_tex["proj_player"] if ally else _object_tex["proj_enemy"], c, pr[Protocol.SNAP_PR.R] * 3.0, Color.WHITE)
 
 
 ## 서버 기믹 이벤트를 기억해 장치 시트의 성공/실패 연출을 고른다 (자동 순환하지 않는다)
@@ -430,6 +580,23 @@ func _draw_device(L: Node2D, kind: int, c: Vector2, progress: float, state: int,
 	return true
 
 
+## 시트의 프레임 하나를 앵커 기준으로 그린다 (상태 선택형 소품·루프 VFX). 시트가 없으면 false.
+func _draw_frame(L: Node2D, id: String, frame: int, c: Vector2, size: float, col: Color = Color.WHITE) -> bool:
+	var sheet := AssetRegistry.get_sheet(id)
+	if bool(sheet.get("is_fallback", false)):
+		return false
+	var tex: Texture2D = sheet["texture"]
+	var cols := maxi(int(sheet["hframes"]), 1)
+	var fi := clampi(frame, 0, cols - 1)
+	var fs: Vector2 = sheet["frame_size"]
+	var sc := size / fs.x
+	var anchor: Vector2 = sheet["anchor"]
+	L.draw_set_transform(c - Vector2(fs.x * anchor.x, fs.y * anchor.y) * sc, 0.0, Vector2(sc, sc))
+	L.draw_texture_rect_region(tex, Rect2(Vector2.ZERO, fs), Rect2(Vector2(fi * fs.x, 0), fs), col)
+	L.draw_set_transform(Vector2.ZERO)
+	return true
+
+
 func _draw_tex(L: Node2D, tex: Texture2D, c: Vector2, size: float, col: Color) -> void:
 	if tex == null:
 		return
@@ -446,7 +613,9 @@ func _draw_progress(L: Node2D, c: Vector2, prog: float, label: String) -> void:
 	L.draw_string(font, c + Vector2(-40, 44), label, HORIZONTAL_ALIGNMENT_CENTER, 80, 12, Color(1, 1, 0.85, 0.9))
 
 
-func spawn_effect(asset_id: String, pos: Vector2, rotation_: float = 0.0, life: float = -1.0) -> void:
+## 짧은 이펙트. 재생 규칙은 시트 메타(loop / hold_last / one_shot)를 따르고, frame>=0 이면 그 프레임만 고정 표시한다.
+## size>0 이면 월드 px 폭을 강제한다 (보스 강타 반경 등).
+func spawn_effect(asset_id: String, pos: Vector2, rotation_: float = 0.0, life: float = -1.0, size: float = -1.0, frame: int = -1) -> void:
 	var sheet := AssetRegistry.get_sheet(asset_id)
 	var spr := Sprite2D.new()
 	spr.texture = sheet["texture"]
@@ -454,12 +623,29 @@ func spawn_effect(asset_id: String, pos: Vector2, rotation_: float = 0.0, life: 
 	spr.vframes = int(sheet["vframes"])
 	var fs: Vector2 = sheet["frame_size"]
 	var rs: Vector2 = sheet["render_size"]
-	spr.scale = rs / fs if not bool(sheet.get("is_fallback", false)) else Vector2(0.5, 0.5)
+	var fallback := bool(sheet.get("is_fallback", false))
+	if fallback:
+		spr.hframes = 1
+		spr.vframes = 1
+		spr.scale = Vector2(0.5, 0.5)
+	else:
+		spr.scale = (Vector2.ONE * (size / fs.x)) if size > 0.0 else rs / fs
+		var anchor: Vector2 = sheet["anchor"]
+		spr.offset = Vector2(fs.x * (0.5 - anchor.x), fs.y * (0.5 - anchor.y))
 	spr.position = pos
 	spr.rotation = rotation_
-	var fps := float(sheet["fps"])
-	spr.set_meta("life", life if life > 0.0 else (spr.hframes / maxf(fps, 1.0)))
+	var fps := maxf(float(sheet["fps"]), 1.0)
+	var looping := bool(sheet["loop"])
+	var hold := bool(sheet.get("hold_last", false))
+	var default_life := spr.hframes / fps
+	if frame >= 0 or looping:
+		default_life = 1.0
+	spr.set_meta("life", life if life > 0.0 else default_life)
 	spr.set_meta("t", 0.0)
+	spr.set_meta("fps", fps)
+	spr.set_meta("loop", looping)
+	spr.set_meta("hold", hold)
+	spr.set_meta("frame", frame)
 	_effects.add_child(spr)
 
 
