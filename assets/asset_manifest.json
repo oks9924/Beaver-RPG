@@ -123,7 +123,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -131,12 +131,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v1",
+				"pack": "beaver_assets_v6",
 				"actor": "player_guardian",
 				"animation": "walk",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v1"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -188,7 +188,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -196,12 +196,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v1",
+				"pack": "beaver_assets_v6",
 				"actor": "player_guardian",
 				"animation": "attack",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v1"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -573,7 +573,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -581,12 +581,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v4",
+				"pack": "beaver_assets_v6",
 				"actor": "player_berserker",
 				"animation": "walk",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v4"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -638,7 +638,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -646,12 +646,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v4",
+				"pack": "beaver_assets_v6",
 				"actor": "player_berserker",
 				"animation": "attack",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v4"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -1023,7 +1023,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -1031,12 +1031,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v3a",
+				"pack": "beaver_assets_v6",
 				"actor": "player_ranger",
 				"animation": "walk",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v3"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -1088,7 +1088,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -1096,12 +1096,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v3a",
+				"pack": "beaver_assets_v6",
 				"actor": "player_ranger",
 				"animation": "attack",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v3"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -1473,7 +1473,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -1481,12 +1481,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v4",
+				"pack": "beaver_assets_v6",
 				"actor": "player_shaman",
 				"animation": "walk",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v4"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -1538,7 +1538,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -1546,12 +1546,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v4",
+				"pack": "beaver_assets_v6",
 				"actor": "player_shaman",
 				"animation": "attack",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v4"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -1923,7 +1923,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -1931,12 +1931,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v4",
+				"pack": "beaver_assets_v6",
 				"actor": "player_engineer",
 				"animation": "walk",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v4"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -1988,7 +1988,7 @@
 			},
 			"anchor": [
 				0.5,
-				0.828
+				0.82
 			],
 			"render_size": [
 				112,
@@ -1996,12 +1996,12 @@
 			],
 			"hitbox_ref": "hit.player_default",
 			"source": {
-				"pack": "beaver_assets_v4",
+				"pack": "beaver_assets_v6",
 				"actor": "player_engineer",
 				"animation": "attack",
-				"method": "pack",
+				"method": "rigid_cutout",
 				"license": "project-internal (in-house generated art, see pack README)",
-				"origin": "GitHub Release assets-raw-v4"
+				"origin": "beaver_assets_v6.zip"
 			},
 			"placeholder": {
 				"shape": "beaver",
@@ -21721,6 +21721,12 @@
 			"manifest": "assets/packs/beaver_assets_v3bce/manifest.json",
 			"status": "integration_draft",
 			"note": "요청서 v3 B~E: VFX 16, 버들강 타일 6·소품 13, 아이콘 24, UI 9"
+		},
+		"beaver_assets_v6": {
+			"root": "GitHub Release assets-raw-v6 / beaver_assets_v6.zip",
+			"manifest": "assets/packs/beaver_assets_v6/manifest.json",
+			"status": "applied",
+			"note": "5직업 걷기·공격 시트 10장 교체 (고정 몸체 컷아웃, 앵커 0.82)"
 		}
 	},
 	"import_tool": "tools/import_asset_pack.gd"

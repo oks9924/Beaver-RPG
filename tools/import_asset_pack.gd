@@ -21,6 +21,7 @@ var v4: Dictionary = {}
 var v4_audio: Dictionary = {}
 var v5: Dictionary = {}
 var v5_audio: Dictionary = {}
+var v6_dir: String = ""   # 걷기·공격 교체 팩(완성 시트 10장). 다른 팩을 다시 임포트한 뒤 마지막에 덮어쓴다
 var manifest: Dictionary = {}
 var made: int = 0
 var only: String = ""
@@ -52,6 +53,8 @@ func _init() -> void:
 		v5 = _read_json(packs_dir.path_join("beaver_assets_v5/manifest.json"))
 		if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v5/audio_manifest.json")):
 			v5_audio = _read_json(packs_dir.path_join("beaver_assets_v5/audio_manifest.json"))
+	if DirAccess.dir_exists_absolute(packs_dir.path_join("beaver_assets_v6/project_files/assets/final")):
+		v6_dir = packs_dir.path_join("beaver_assets_v6")
 	var mj := JSON.new()
 	mj.parse(FileAccess.get_file_as_string(MANIFEST))
 	manifest = mj.data
@@ -404,11 +407,14 @@ func _run() -> void:
 	_run_v3b()
 	_run_v4()
 	_run_v5()
+	_run_v6()
 	# 팩 참조 문서 정보
 	manifest["packs"] = {
 		"beaver_assets_v1": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_에셋팩_v1.zip", "manifest": "assets/packs/beaver_assets_v1/manifest.json", "status": v1.get("status", ""), "note": "플레이어 5직업 기본 자세, 수호목수 이동·공격·Q/E/R, 적 12·보스 3 기본 자세"},
 		"beaver_combat_v2": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_전투애니메이션_v2.zip", "manifest": "assets/packs/beaver_combat_v2/manifest.json", "status": v2.get("status", ""), "note": "적 공격 12, 보스 패턴 4×3, 시전·약점 노출, 기믹 장치 15종 진행/성공/실패"},
 	}
+	if v6_dir != "":
+		manifest["packs"]["beaver_assets_v6"] = {"root": "GitHub Release assets-raw-v6 / beaver_assets_v6.zip", "manifest": "assets/packs/beaver_assets_v6/manifest.json", "status": "applied", "note": "5직업 걷기·공격 시트 10장 교체 (고정 몸체 컷아웃, 앵커 0.82)"}
 	if not v3a.is_empty():
 		manifest["packs"]["beaver_assets_v3a"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_A.zip", "manifest": "assets/packs/beaver_assets_v3a/manifest.json", "status": v3a.get("status", ""), "note": "요청서 v3 A: 사수 8동작, 수호목수 피격·다운·사망·갉기, 적 3종 이동·피격·사망(+멧돼지 돌진), 가재 이동·피격·사망·탈피·빈 껍질"}
 	if not v4.is_empty():
@@ -876,3 +882,37 @@ func _audio_id(key: String) -> String:
 		if key.begins_with(prefix):
 			return prefix.trim_suffix("_") + "." + key.substr(prefix.length())
 	return key.replace("_", ".")
+
+
+const V6_ORIGIN := "beaver_assets_v6.zip"
+const V6_IDS := ["char.guardian.walk", "char.guardian.attack", "char.sawtooth.walk", "char.sawtooth.attack", "char.pinecone.walk", "char.pinecone.attack",
+	"char.sapshaman.walk", "char.sapshaman.attack", "char.hydro.walk", "char.hydro.attack"]
+
+
+## v6: 이미 조립된 512×512 시트를 기존 final_path 위에 복사하고 앵커·출처만 바꾼다 (fps·타격 이벤트·render_size·히트박스 보존).
+## v1/v3a/v4 의 같은 ID 를 먼저 만든 뒤 마지막에 실행해야 구버전으로 되돌아가지 않는다.
+func _run_v6() -> void:
+	if v6_dir == "":
+		report.append("SKIP v6 (pack not found)")
+		return
+	var src_dir := v6_dir.path_join("project_files/assets/final")
+	for e: Dictionary in manifest["assets"]:
+		if not V6_IDS.has(String(e.get("id", ""))):
+			continue
+		var dst := String(e.get("final_path", ""))
+		var src := src_dir.path_join(dst.get_file())
+		if dst == "" or not FileAccess.file_exists(src):
+			report.append("SKIP %s (v6 sheet missing: %s)" % [e["id"], src])
+			continue
+		var img := Image.load_from_file(src)
+		if img == null or img.get_width() != 512 or img.get_height() != 512:
+			report.append("SKIP %s (v6 sheet must be 512x512)" % e["id"])
+			continue
+		DirAccess.copy_absolute(src, ProjectSettings.globalize_path(dst))
+		e["anchor"] = [0.5, 0.82]
+		var old_src: Dictionary = e.get("source", {})
+		e["source"] = {"pack": "beaver_assets_v6", "actor": old_src.get("actor", ""), "animation": old_src.get("animation", ""), "method": "rigid_cutout",
+			"license": "project-internal (in-house generated art, see pack README)", "origin": V6_ORIGIN}
+		made += 1
+	report.append("v6: replaced %d walk/attack sheets" % V6_IDS.size())
+

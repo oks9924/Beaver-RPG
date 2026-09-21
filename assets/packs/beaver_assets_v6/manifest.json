@@ -1,0 +1,1398 @@
+{
+  "format_version": 2,
+  "pack_id": "beaver_assets_v6",
+  "pack_version": "6",
+  "status": "integration_draft",
+  "scope": "Five classes: walk and attack replacement only",
+  "merge_mode": "animations_by_actor_id",
+  "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+  ],
+  "actors": {
+    "player_guardian": {
+      "id": "player_guardian",
+      "name_ko": "수호목수",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        105
+      ],
+      "animations": {
+        "walk_down": {
+          "state": "walk",
+          "direction": "down",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_guardian/walk/down_00.png",
+            "assets/player_guardian/walk/down_01.png",
+            "assets/player_guardian/walk/down_02.png",
+            "assets/player_guardian/walk/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_up": {
+          "state": "walk",
+          "direction": "up",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_guardian/walk/up_00.png",
+            "assets/player_guardian/walk/up_01.png",
+            "assets/player_guardian/walk/up_02.png",
+            "assets/player_guardian/walk/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_left": {
+          "state": "walk",
+          "direction": "left",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_guardian/walk/left_00.png",
+            "assets/player_guardian/walk/left_01.png",
+            "assets/player_guardian/walk/left_02.png",
+            "assets/player_guardian/walk/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_right": {
+          "state": "walk",
+          "direction": "right",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_guardian/walk/right_00.png",
+            "assets/player_guardian/walk/right_01.png",
+            "assets/player_guardian/walk/right_02.png",
+            "assets/player_guardian/walk/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_down": {
+          "state": "attack",
+          "direction": "down",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_guardian/attack/down_00.png",
+            "assets/player_guardian/attack/down_01.png",
+            "assets/player_guardian/attack/down_02.png",
+            "assets/player_guardian/attack/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_up": {
+          "state": "attack",
+          "direction": "up",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_guardian/attack/up_00.png",
+            "assets/player_guardian/attack/up_01.png",
+            "assets/player_guardian/attack/up_02.png",
+            "assets/player_guardian/attack/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_left": {
+          "state": "attack",
+          "direction": "left",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_guardian/attack/left_00.png",
+            "assets/player_guardian/attack/left_01.png",
+            "assets/player_guardian/attack/left_02.png",
+            "assets/player_guardian/attack/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_right": {
+          "state": "attack",
+          "direction": "right",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_guardian/attack/right_00.png",
+            "assets/player_guardian/attack/right_01.png",
+            "assets/player_guardian/attack/right_02.png",
+            "assets/player_guardian/attack/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        }
+      }
+    },
+    "player_berserker": {
+      "id": "player_berserker",
+      "name_ko": "톱니전사",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        105
+      ],
+      "animations": {
+        "walk_down": {
+          "state": "walk",
+          "direction": "down",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_berserker/walk/down_00.png",
+            "assets/player_berserker/walk/down_01.png",
+            "assets/player_berserker/walk/down_02.png",
+            "assets/player_berserker/walk/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_up": {
+          "state": "walk",
+          "direction": "up",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_berserker/walk/up_00.png",
+            "assets/player_berserker/walk/up_01.png",
+            "assets/player_berserker/walk/up_02.png",
+            "assets/player_berserker/walk/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_left": {
+          "state": "walk",
+          "direction": "left",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_berserker/walk/left_00.png",
+            "assets/player_berserker/walk/left_01.png",
+            "assets/player_berserker/walk/left_02.png",
+            "assets/player_berserker/walk/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_right": {
+          "state": "walk",
+          "direction": "right",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_berserker/walk/right_00.png",
+            "assets/player_berserker/walk/right_01.png",
+            "assets/player_berserker/walk/right_02.png",
+            "assets/player_berserker/walk/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_down": {
+          "state": "attack",
+          "direction": "down",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_berserker/attack/down_00.png",
+            "assets/player_berserker/attack/down_01.png",
+            "assets/player_berserker/attack/down_02.png",
+            "assets/player_berserker/attack/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_up": {
+          "state": "attack",
+          "direction": "up",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_berserker/attack/up_00.png",
+            "assets/player_berserker/attack/up_01.png",
+            "assets/player_berserker/attack/up_02.png",
+            "assets/player_berserker/attack/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_left": {
+          "state": "attack",
+          "direction": "left",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_berserker/attack/left_00.png",
+            "assets/player_berserker/attack/left_01.png",
+            "assets/player_berserker/attack/left_02.png",
+            "assets/player_berserker/attack/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_right": {
+          "state": "attack",
+          "direction": "right",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_berserker/attack/right_00.png",
+            "assets/player_berserker/attack/right_01.png",
+            "assets/player_berserker/attack/right_02.png",
+            "assets/player_berserker/attack/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        }
+      }
+    },
+    "player_ranger": {
+      "id": "player_ranger",
+      "name_ko": "솔방울사수",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        105
+      ],
+      "animations": {
+        "walk_down": {
+          "state": "walk",
+          "direction": "down",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_ranger/walk/down_00.png",
+            "assets/player_ranger/walk/down_01.png",
+            "assets/player_ranger/walk/down_02.png",
+            "assets/player_ranger/walk/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_up": {
+          "state": "walk",
+          "direction": "up",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_ranger/walk/up_00.png",
+            "assets/player_ranger/walk/up_01.png",
+            "assets/player_ranger/walk/up_02.png",
+            "assets/player_ranger/walk/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_left": {
+          "state": "walk",
+          "direction": "left",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_ranger/walk/left_00.png",
+            "assets/player_ranger/walk/left_01.png",
+            "assets/player_ranger/walk/left_02.png",
+            "assets/player_ranger/walk/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_right": {
+          "state": "walk",
+          "direction": "right",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_ranger/walk/right_00.png",
+            "assets/player_ranger/walk/right_01.png",
+            "assets/player_ranger/walk/right_02.png",
+            "assets/player_ranger/walk/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_down": {
+          "state": "attack",
+          "direction": "down",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_ranger/attack/down_00.png",
+            "assets/player_ranger/attack/down_01.png",
+            "assets/player_ranger/attack/down_02.png",
+            "assets/player_ranger/attack/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_up": {
+          "state": "attack",
+          "direction": "up",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_ranger/attack/up_00.png",
+            "assets/player_ranger/attack/up_01.png",
+            "assets/player_ranger/attack/up_02.png",
+            "assets/player_ranger/attack/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_left": {
+          "state": "attack",
+          "direction": "left",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_ranger/attack/left_00.png",
+            "assets/player_ranger/attack/left_01.png",
+            "assets/player_ranger/attack/left_02.png",
+            "assets/player_ranger/attack/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_right": {
+          "state": "attack",
+          "direction": "right",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_ranger/attack/right_00.png",
+            "assets/player_ranger/attack/right_01.png",
+            "assets/player_ranger/attack/right_02.png",
+            "assets/player_ranger/attack/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        }
+      }
+    },
+    "player_shaman": {
+      "id": "player_shaman",
+      "name_ko": "수액주술사",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        105
+      ],
+      "animations": {
+        "walk_down": {
+          "state": "walk",
+          "direction": "down",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_shaman/walk/down_00.png",
+            "assets/player_shaman/walk/down_01.png",
+            "assets/player_shaman/walk/down_02.png",
+            "assets/player_shaman/walk/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_up": {
+          "state": "walk",
+          "direction": "up",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_shaman/walk/up_00.png",
+            "assets/player_shaman/walk/up_01.png",
+            "assets/player_shaman/walk/up_02.png",
+            "assets/player_shaman/walk/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_left": {
+          "state": "walk",
+          "direction": "left",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_shaman/walk/left_00.png",
+            "assets/player_shaman/walk/left_01.png",
+            "assets/player_shaman/walk/left_02.png",
+            "assets/player_shaman/walk/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_right": {
+          "state": "walk",
+          "direction": "right",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_shaman/walk/right_00.png",
+            "assets/player_shaman/walk/right_01.png",
+            "assets/player_shaman/walk/right_02.png",
+            "assets/player_shaman/walk/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_down": {
+          "state": "attack",
+          "direction": "down",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_shaman/attack/down_00.png",
+            "assets/player_shaman/attack/down_01.png",
+            "assets/player_shaman/attack/down_02.png",
+            "assets/player_shaman/attack/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_up": {
+          "state": "attack",
+          "direction": "up",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_shaman/attack/up_00.png",
+            "assets/player_shaman/attack/up_01.png",
+            "assets/player_shaman/attack/up_02.png",
+            "assets/player_shaman/attack/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_left": {
+          "state": "attack",
+          "direction": "left",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_shaman/attack/left_00.png",
+            "assets/player_shaman/attack/left_01.png",
+            "assets/player_shaman/attack/left_02.png",
+            "assets/player_shaman/attack/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_right": {
+          "state": "attack",
+          "direction": "right",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_shaman/attack/right_00.png",
+            "assets/player_shaman/attack/right_01.png",
+            "assets/player_shaman/attack/right_02.png",
+            "assets/player_shaman/attack/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        }
+      }
+    },
+    "player_engineer": {
+      "id": "player_engineer",
+      "name_ko": "수압공학자",
+      "category": "characters",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        105
+      ],
+      "animations": {
+        "walk_down": {
+          "state": "walk",
+          "direction": "down",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_engineer/walk/down_00.png",
+            "assets/player_engineer/walk/down_01.png",
+            "assets/player_engineer/walk/down_02.png",
+            "assets/player_engineer/walk/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_up": {
+          "state": "walk",
+          "direction": "up",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_engineer/walk/up_00.png",
+            "assets/player_engineer/walk/up_01.png",
+            "assets/player_engineer/walk/up_02.png",
+            "assets/player_engineer/walk/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_left": {
+          "state": "walk",
+          "direction": "left",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_engineer/walk/left_00.png",
+            "assets/player_engineer/walk/left_01.png",
+            "assets/player_engineer/walk/left_02.png",
+            "assets/player_engineer/walk/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "walk_right": {
+          "state": "walk",
+          "direction": "right",
+          "label_ko": "이동",
+          "fps": 8,
+          "loop": true,
+          "frames": [
+            "assets/player_engineer/walk/right_00.png",
+            "assets/player_engineer/walk/right_01.png",
+            "assets/player_engineer/walk/right_02.png",
+            "assets/player_engineer/walk/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_down": {
+          "state": "attack",
+          "direction": "down",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_engineer/attack/down_00.png",
+            "assets/player_engineer/attack/down_01.png",
+            "assets/player_engineer/attack/down_02.png",
+            "assets/player_engineer/attack/down_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_up": {
+          "state": "attack",
+          "direction": "up",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_engineer/attack/up_00.png",
+            "assets/player_engineer/attack/up_01.png",
+            "assets/player_engineer/attack/up_02.png",
+            "assets/player_engineer/attack/up_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_left": {
+          "state": "attack",
+          "direction": "left",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_engineer/attack/left_00.png",
+            "assets/player_engineer/attack/left_01.png",
+            "assets/player_engineer/attack/left_02.png",
+            "assets/player_engineer/attack/left_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        },
+        "attack_right": {
+          "state": "attack",
+          "direction": "right",
+          "label_ko": "기본 공격",
+          "fps": 8,
+          "loop": false,
+          "frames": [
+            "assets/player_engineer/attack/right_00.png",
+            "assets/player_engineer/attack/right_01.png",
+            "assets/player_engineer/attack/right_02.png",
+            "assets/player_engineer/attack/right_03.png"
+          ],
+          "hold_last_frame": false,
+          "visual_contact_frame": 2,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            105
+          ]
+        }
+      }
+    }
+  },
+  "runtime_sheets": {
+    "char.guardian.walk": {
+      "file": "sheets/char.guardian.walk.png",
+      "project_file": "project_files/assets/final/char_guardian_walk.png",
+      "final_path": "res://assets/final/char_guardian_walk.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "walk",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": true,
+        "event_frames": {}
+      }
+    },
+    "char.guardian.attack": {
+      "file": "sheets/char.guardian.attack.png",
+      "project_file": "project_files/assets/final/char_guardian_attack.png",
+      "final_path": "res://assets/final/char_guardian_attack.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "attack",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": false,
+        "event_frames": {
+          "hit": 2
+        }
+      }
+    },
+    "char.sawtooth.walk": {
+      "file": "sheets/char.sawtooth.walk.png",
+      "project_file": "project_files/assets/final/char_sawtooth_walk.png",
+      "final_path": "res://assets/final/char_sawtooth_walk.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "walk",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": true,
+        "event_frames": {}
+      }
+    },
+    "char.sawtooth.attack": {
+      "file": "sheets/char.sawtooth.attack.png",
+      "project_file": "project_files/assets/final/char_sawtooth_attack.png",
+      "final_path": "res://assets/final/char_sawtooth_attack.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "attack",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": false,
+        "event_frames": {
+          "hit": 2
+        }
+      }
+    },
+    "char.pinecone.walk": {
+      "file": "sheets/char.pinecone.walk.png",
+      "project_file": "project_files/assets/final/char_pinecone_walk.png",
+      "final_path": "res://assets/final/char_pinecone_walk.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "walk",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": true,
+        "event_frames": {}
+      }
+    },
+    "char.pinecone.attack": {
+      "file": "sheets/char.pinecone.attack.png",
+      "project_file": "project_files/assets/final/char_pinecone_attack.png",
+      "final_path": "res://assets/final/char_pinecone_attack.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "attack",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": false,
+        "event_frames": {
+          "hit": 2
+        }
+      }
+    },
+    "char.sapshaman.walk": {
+      "file": "sheets/char.sapshaman.walk.png",
+      "project_file": "project_files/assets/final/char_sapshaman_walk.png",
+      "final_path": "res://assets/final/char_sapshaman_walk.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "walk",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": true,
+        "event_frames": {}
+      }
+    },
+    "char.sapshaman.attack": {
+      "file": "sheets/char.sapshaman.attack.png",
+      "project_file": "project_files/assets/final/char_sapshaman_attack.png",
+      "final_path": "res://assets/final/char_sapshaman_attack.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "attack",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": false,
+        "event_frames": {
+          "hit": 2
+        }
+      }
+    },
+    "char.hydro.walk": {
+      "file": "sheets/char.hydro.walk.png",
+      "project_file": "project_files/assets/final/char_hydro_walk.png",
+      "final_path": "res://assets/final/char_hydro_walk.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "walk",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": true,
+        "event_frames": {}
+      }
+    },
+    "char.hydro.attack": {
+      "file": "sheets/char.hydro.attack.png",
+      "project_file": "project_files/assets/final/char_hydro_attack.png",
+      "final_path": "res://assets/final/char_hydro_attack.png",
+      "frame_size": [
+        128,
+        128
+      ],
+      "source_size": [
+        512,
+        512
+      ],
+      "columns": 4,
+      "rows": 4,
+      "directions": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "anchor": [
+        0.5,
+        0.82
+      ],
+      "animation": {
+        "name": "attack",
+        "frames": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fps": 8,
+        "loop": false,
+        "event_frames": {
+          "hit": 2
+        }
+      }
+    }
+  },
+  "production": {
+    "method": "one rigid body layer per direction; transformed limb layers; right mirrors left",
+    "frame_generation": "No independent frame redraws",
+    "runtime_verification": "NOT_RUN"
+  }
+}

@@ -1,0 +1,1745 @@
+{
+  "result": "PASS",
+  "errors": [],
+  "frame_count": 160,
+  "sheet_count": 10,
+  "directions": [
+    "down",
+    "up",
+    "left",
+    "right"
+  ],
+  "walk_fps": 8,
+  "walk_cycle_seconds": 0.5,
+  "anchor": [
+    0.5,
+    0.82
+  ],
+  "walk_last_visible_foot_y_threshold_5": 104,
+  "fixed_body_evidence": "Each direction uses one sources/rig/<class>/<direction>/body.png for every walk and attack frame; arms may occlude it. See tools/rebuild_sheets.py.",
+  "runtime_verification": "NOT_RUN",
+  "godot_check_assets": "NOT_RUN",
+  "room_density_4p_screenshot": "NOT_CAPTURED",
+  "rows": [
+    {
+      "id": "char.guardian.walk",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          31,
+          22,
+          104,
+          105
+        ],
+        [
+          31,
+          22,
+          104,
+          105
+        ],
+        [
+          31,
+          22,
+          104,
+          105
+        ],
+        [
+          31,
+          22,
+          104,
+          105
+        ]
+      ],
+      "widths": [
+        73,
+        73,
+        73,
+        73
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        629,
+        664,
+        551,
+        739
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.guardian.walk",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          22,
+          22,
+          106,
+          105
+        ],
+        [
+          22,
+          22,
+          106,
+          105
+        ],
+        [
+          22,
+          22,
+          106,
+          105
+        ],
+        [
+          22,
+          22,
+          106,
+          105
+        ]
+      ],
+      "widths": [
+        84,
+        84,
+        84,
+        84
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        736,
+        660,
+        488,
+        849
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.guardian.walk",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          17,
+          22,
+          104,
+          105
+        ],
+        [
+          17,
+          22,
+          104,
+          105
+        ],
+        [
+          17,
+          22,
+          104,
+          105
+        ],
+        [
+          17,
+          22,
+          104,
+          105
+        ]
+      ],
+      "widths": [
+        87,
+        87,
+        87,
+        87
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        734,
+        677,
+        572,
+        792
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.guardian.walk",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          24,
+          22,
+          111,
+          105
+        ],
+        [
+          24,
+          22,
+          111,
+          105
+        ],
+        [
+          24,
+          22,
+          111,
+          105
+        ],
+        [
+          24,
+          22,
+          111,
+          105
+        ]
+      ],
+      "widths": [
+        87,
+        87,
+        87,
+        87
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        734,
+        677,
+        572,
+        792
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.guardian.attack",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          33,
+          22,
+          104,
+          105
+        ],
+        [
+          33,
+          22,
+          104,
+          105
+        ],
+        [
+          16,
+          22,
+          104,
+          105
+        ],
+        [
+          31,
+          22,
+          104,
+          105
+        ]
+      ],
+      "widths": [
+        71,
+        71,
+        88,
+        73
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1140,
+        1343,
+        1259,
+        1286
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.guardian.attack",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          22,
+          22,
+          94,
+          105
+        ],
+        [
+          22,
+          22,
+          99,
+          105
+        ],
+        [
+          22,
+          22,
+          120,
+          105
+        ],
+        [
+          22,
+          22,
+          106,
+          105
+        ]
+      ],
+      "widths": [
+        72,
+        77,
+        98,
+        84
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1060,
+        1491,
+        1400,
+        1367
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.guardian.attack",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          3,
+          22,
+          104,
+          105
+        ],
+        [
+          15,
+          22,
+          104,
+          105
+        ],
+        [
+          27,
+          22,
+          104,
+          105
+        ],
+        [
+          17,
+          22,
+          104,
+          105
+        ]
+      ],
+      "widths": [
+        101,
+        89,
+        77,
+        87
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1603,
+        1739,
+        1717,
+        1645
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.guardian.attack",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          24,
+          22,
+          125,
+          105
+        ],
+        [
+          24,
+          22,
+          113,
+          105
+        ],
+        [
+          24,
+          22,
+          101,
+          105
+        ],
+        [
+          24,
+          22,
+          111,
+          105
+        ]
+      ],
+      "widths": [
+        101,
+        89,
+        77,
+        87
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1603,
+        1739,
+        1717,
+        1645
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sawtooth.walk",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          25,
+          22,
+          109,
+          105
+        ],
+        [
+          25,
+          22,
+          109,
+          105
+        ],
+        [
+          25,
+          22,
+          109,
+          105
+        ],
+        [
+          25,
+          22,
+          109,
+          105
+        ]
+      ],
+      "widths": [
+        84,
+        84,
+        84,
+        84
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1245,
+        1151,
+        1050,
+        1311
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sawtooth.walk",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          29,
+          22,
+          102,
+          105
+        ],
+        [
+          28,
+          22,
+          102,
+          105
+        ],
+        [
+          27,
+          22,
+          102,
+          105
+        ],
+        [
+          28,
+          22,
+          102,
+          105
+        ]
+      ],
+      "widths": [
+        73,
+        74,
+        75,
+        74
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1024,
+        995,
+        811,
+        1139
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sawtooth.walk",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        92,
+        92,
+        92,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        970,
+        829,
+        720,
+        989
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sawtooth.walk",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        92,
+        92,
+        92,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        970,
+        829,
+        720,
+        989
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sawtooth.attack",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          37,
+          22,
+          109,
+          105
+        ],
+        [
+          33,
+          22,
+          109,
+          105
+        ],
+        [
+          14,
+          22,
+          109,
+          105
+        ],
+        [
+          25,
+          22,
+          109,
+          105
+        ]
+      ],
+      "widths": [
+        72,
+        76,
+        95,
+        84
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1172,
+        1402,
+        1231,
+        1278
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sawtooth.attack",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          28,
+          22,
+          95,
+          105
+        ],
+        [
+          28,
+          22,
+          97,
+          105
+        ],
+        [
+          28,
+          22,
+          112,
+          105
+        ],
+        [
+          28,
+          22,
+          102,
+          105
+        ]
+      ],
+      "widths": [
+        67,
+        69,
+        84,
+        74
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        757,
+        989,
+        977,
+        951
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sawtooth.attack",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          15,
+          22,
+          110,
+          105
+        ],
+        [
+          17,
+          22,
+          110,
+          105
+        ],
+        [
+          29,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        95,
+        93,
+        81,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1497,
+        1731,
+        1671,
+        1515
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sawtooth.attack",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          18,
+          22,
+          113,
+          105
+        ],
+        [
+          18,
+          22,
+          111,
+          105
+        ],
+        [
+          18,
+          22,
+          99,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        95,
+        93,
+        81,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1497,
+        1731,
+        1671,
+        1515
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.pinecone.walk",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          22,
+          22,
+          95,
+          105
+        ],
+        [
+          22,
+          22,
+          95,
+          105
+        ],
+        [
+          22,
+          22,
+          95,
+          105
+        ],
+        [
+          22,
+          22,
+          95,
+          105
+        ]
+      ],
+      "widths": [
+        73,
+        73,
+        73,
+        73
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1206,
+        1238,
+        1136,
+        1319
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.pinecone.walk",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          28,
+          22,
+          99,
+          105
+        ],
+        [
+          26,
+          22,
+          99,
+          105
+        ],
+        [
+          24,
+          22,
+          99,
+          105
+        ],
+        [
+          26,
+          22,
+          99,
+          105
+        ]
+      ],
+      "widths": [
+        71,
+        73,
+        75,
+        73
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        980,
+        1011,
+        858,
+        1122
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.pinecone.walk",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        92,
+        92,
+        92,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        996,
+        909,
+        806,
+        1032
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.pinecone.walk",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        92,
+        92,
+        92,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        996,
+        909,
+        806,
+        1032
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.pinecone.attack",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          22,
+          22,
+          99,
+          105
+        ],
+        [
+          22,
+          22,
+          106,
+          105
+        ],
+        [
+          22,
+          22,
+          95,
+          105
+        ],
+        [
+          22,
+          22,
+          95,
+          105
+        ]
+      ],
+      "widths": [
+        77,
+        84,
+        73,
+        73
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1534,
+        1788,
+        1484,
+        1508
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.pinecone.attack",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          31,
+          22,
+          97,
+          105
+        ],
+        [
+          32,
+          22,
+          98,
+          105
+        ],
+        [
+          22,
+          22,
+          103,
+          105
+        ],
+        [
+          26,
+          22,
+          99,
+          105
+        ]
+      ],
+      "widths": [
+        66,
+        66,
+        81,
+        73
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1148,
+        1640,
+        1288,
+        1197
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.pinecone.attack",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          20,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          17,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        90,
+        92,
+        93,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1360,
+        1605,
+        1259,
+        1303
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.pinecone.attack",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          18,
+          22,
+          108,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ],
+        [
+          18,
+          22,
+          111,
+          105
+        ],
+        [
+          18,
+          22,
+          110,
+          105
+        ]
+      ],
+      "widths": [
+        90,
+        92,
+        93,
+        92
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1360,
+        1605,
+        1259,
+        1303
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sapshaman.walk",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          15,
+          22,
+          111,
+          105
+        ],
+        [
+          15,
+          22,
+          111,
+          105
+        ],
+        [
+          15,
+          22,
+          111,
+          105
+        ],
+        [
+          15,
+          22,
+          111,
+          105
+        ]
+      ],
+      "widths": [
+        96,
+        96,
+        96,
+        96
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1191,
+        1168,
+        1052,
+        1279
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sapshaman.walk",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          27,
+          22,
+          108,
+          105
+        ],
+        [
+          26,
+          22,
+          108,
+          105
+        ],
+        [
+          24,
+          22,
+          108,
+          105
+        ],
+        [
+          26,
+          22,
+          108,
+          105
+        ]
+      ],
+      "widths": [
+        81,
+        82,
+        84,
+        82
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1101,
+        1085,
+        963,
+        1202
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sapshaman.walk",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          15,
+          22,
+          115,
+          105
+        ],
+        [
+          15,
+          22,
+          115,
+          105
+        ],
+        [
+          15,
+          22,
+          115,
+          105
+        ],
+        [
+          15,
+          22,
+          115,
+          105
+        ]
+      ],
+      "widths": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        721,
+        687,
+        590,
+        793
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sapshaman.walk",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          13,
+          22,
+          113,
+          105
+        ],
+        [
+          13,
+          22,
+          113,
+          105
+        ],
+        [
+          13,
+          22,
+          113,
+          105
+        ],
+        [
+          13,
+          22,
+          113,
+          105
+        ]
+      ],
+      "widths": [
+        100,
+        100,
+        100,
+        100
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        721,
+        687,
+        590,
+        793
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.sapshaman.attack",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          11,
+          22,
+          111,
+          105
+        ],
+        [
+          15,
+          22,
+          111,
+          105
+        ],
+        [
+          21,
+          16,
+          111,
+          105
+        ],
+        [
+          15,
+          22,
+          111,
+          105
+        ]
+      ],
+      "widths": [
+        100,
+        96,
+        90,
+        96
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        2055,
+        2271,
+        2271,
+        2055
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sapshaman.attack",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          26,
+          22,
+          111,
+          105
+        ],
+        [
+          26,
+          22,
+          108,
+          105
+        ],
+        [
+          26,
+          19,
+          107,
+          105
+        ],
+        [
+          26,
+          22,
+          108,
+          105
+        ]
+      ],
+      "widths": [
+        85,
+        82,
+        81,
+        82
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1327,
+        1599,
+        1599,
+        1327
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sapshaman.attack",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          10,
+          22,
+          115,
+          105
+        ],
+        [
+          15,
+          22,
+          115,
+          105
+        ],
+        [
+          18,
+          22,
+          115,
+          105
+        ],
+        [
+          15,
+          22,
+          115,
+          105
+        ]
+      ],
+      "widths": [
+        105,
+        100,
+        97,
+        100
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        2003,
+        2076,
+        2076,
+        2003
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.sapshaman.attack",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          13,
+          22,
+          118,
+          105
+        ],
+        [
+          13,
+          22,
+          113,
+          105
+        ],
+        [
+          13,
+          22,
+          110,
+          105
+        ],
+        [
+          13,
+          22,
+          113,
+          105
+        ]
+      ],
+      "widths": [
+        105,
+        100,
+        97,
+        100
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        2003,
+        2076,
+        2076,
+        2003
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.hydro.walk",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          28,
+          22,
+          112,
+          105
+        ],
+        [
+          28,
+          22,
+          112,
+          105
+        ],
+        [
+          28,
+          22,
+          112,
+          105
+        ],
+        [
+          28,
+          22,
+          112,
+          105
+        ]
+      ],
+      "widths": [
+        84,
+        84,
+        84,
+        84
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1284,
+        1284,
+        1197,
+        1380
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.hydro.walk",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          28,
+          22,
+          112,
+          105
+        ],
+        [
+          26,
+          22,
+          112,
+          105
+        ],
+        [
+          24,
+          22,
+          112,
+          105
+        ],
+        [
+          26,
+          22,
+          112,
+          105
+        ]
+      ],
+      "widths": [
+        84,
+        86,
+        88,
+        86
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1164,
+        1200,
+        1068,
+        1296
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.hydro.walk",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          15,
+          22,
+          114,
+          105
+        ],
+        [
+          15,
+          22,
+          114,
+          105
+        ],
+        [
+          15,
+          22,
+          114,
+          105
+        ],
+        [
+          15,
+          22,
+          114,
+          105
+        ]
+      ],
+      "widths": [
+        99,
+        99,
+        99,
+        99
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        904,
+        786,
+        680,
+        944
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.hydro.walk",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          14,
+          22,
+          113,
+          105
+        ],
+        [
+          14,
+          22,
+          113,
+          105
+        ],
+        [
+          14,
+          22,
+          113,
+          105
+        ],
+        [
+          14,
+          22,
+          113,
+          105
+        ]
+      ],
+      "widths": [
+        99,
+        99,
+        99,
+        99
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        904,
+        786,
+        680,
+        944
+      ],
+      "walk_upper_head_region_changed_pixels": 0
+    },
+    {
+      "id": "char.hydro.attack",
+      "direction": "down",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          31,
+          22,
+          112,
+          105
+        ],
+        [
+          29,
+          22,
+          112,
+          105
+        ],
+        [
+          24,
+          22,
+          112,
+          105
+        ],
+        [
+          28,
+          22,
+          112,
+          105
+        ]
+      ],
+      "widths": [
+        81,
+        83,
+        88,
+        84
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        960,
+        1063,
+        1009,
+        1008
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.hydro.attack",
+      "direction": "up",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          26,
+          22,
+          112,
+          105
+        ],
+        [
+          26,
+          22,
+          112,
+          105
+        ],
+        [
+          26,
+          22,
+          112,
+          105
+        ],
+        [
+          26,
+          22,
+          112,
+          105
+        ]
+      ],
+      "widths": [
+        86,
+        86,
+        86,
+        86
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        616,
+        783,
+        736,
+        701
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.hydro.attack",
+      "direction": "left",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          20,
+          22,
+          114,
+          105
+        ],
+        [
+          16,
+          22,
+          114,
+          105
+        ],
+        [
+          10,
+          22,
+          114,
+          105
+        ],
+        [
+          15,
+          22,
+          114,
+          105
+        ]
+      ],
+      "widths": [
+        94,
+        98,
+        104,
+        99
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1246,
+        1375,
+        1315,
+        1299
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    },
+    {
+      "id": "char.hydro.attack",
+      "direction": "right",
+      "alpha_bounding_boxes_threshold_5": [
+        [
+          14,
+          22,
+          108,
+          105
+        ],
+        [
+          14,
+          22,
+          112,
+          105
+        ],
+        [
+          14,
+          22,
+          118,
+          105
+        ],
+        [
+          14,
+          22,
+          113,
+          105
+        ]
+      ],
+      "widths": [
+        94,
+        98,
+        104,
+        99
+      ],
+      "changed_pixels_0_1_2_3_0": [
+        1246,
+        1375,
+        1315,
+        1299
+      ],
+      "walk_upper_head_region_changed_pixels": null
+    }
+  ]
+}
