@@ -29,6 +29,7 @@ var _dropped: bool = false
 var _drop_pending: bool = false
 var _run: Dictionary = {}
 var _bought: bool = false
+var _recreate_step: int = 0   # hub_only --recreate: 0 생성 전 → 1 생성 → 2 나가기 → 3 다시 생성
 
 
 func start(net: NetClient, launch_args: Dictionary) -> void:
@@ -213,7 +214,14 @@ func _on_message(type: int, p: Dictionary) -> void:
 			_timer = 0.0
 		Protocol.S.LEAVE_EXPEDITION:
 			_log("left expedition (%s)" % p.get("reason", ""))
-			_phase = "returning"
+			if scenario == "hub_only" and args.has("recreate") and _recreate_step == 2:
+				# 마을에 선 채로 파티를 나갔으니 ENTER_HUB 없이 바로 새 원정을 만든다 (BAD_STATE 회귀 검사)
+				_recreate_step = 3
+				_phase = "joining"
+				_timer = 0.0
+				client.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": "guardian"})
+			else:
+				_phase = "returning"
 		Protocol.S.RUN_STATE:
 			_run = p
 		Protocol.S.REWARD_OFFER:
@@ -252,7 +260,9 @@ func _on_message(type: int, p: Dictionary) -> void:
 			var code := String(p.get("error", ""))
 			result["last_error"] = p
 			_count("error:" + code)
-			if args.has("expect_join_error") and String(args["expect_join_error"]) == code:
+			if args.has("recreate"):
+				_fail("recreate scenario got server error %s at step %d" % [code, _recreate_step])
+			elif args.has("expect_join_error") and String(args["expect_join_error"]) == code:
 				_log("got expected error %s" % code)
 				result["expected_error_seen"] = true
 				if scenario == "hub_only":
@@ -291,6 +301,7 @@ func _physics_process(dt: float) -> void:
 		"room": _phase_room()
 		"result": _phase_result()
 		"phase": pass
+		"leaving": pass
 		"returning": pass
 		"done": pass
 
@@ -298,6 +309,12 @@ func _physics_process(dt: float) -> void:
 func _phase_hub() -> void:
 	match scenario:
 		"hub_only":
+			if args.has("recreate") and _recreate_step == 0 and _timer > 0.5:
+				_recreate_step = 1
+				_phase = "joining"
+				_timer = 0.0
+				client.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": "guardian"})
+				return
 			if _timer > float(args.get("wait", 3.0)):
 				if args.has("join"):
 					var target := _resolve_join_target(String(args["join"]))
@@ -357,6 +374,18 @@ func _resolve_join_target(spec: String) -> String:
 
 func _phase_party() -> void:
 	if _timer < 0.3:
+		return
+	if scenario == "hub_only" and args.has("recreate"):
+		if _recreate_step == 1:
+			_recreate_step = 2
+			_phase = "leaving"
+			_timer = 0.0
+			client.send(Protocol.C.BOARD_LEAVE)
+		elif _recreate_step == 3:
+			_count("recreate_ok")
+			_log("create → leave → create succeeded")
+			_phase = "done"
+			client.send(Protocol.C.LOGOUT)
 		return
 	var members: Array = _party.get("members", [])
 	var me_ready := false

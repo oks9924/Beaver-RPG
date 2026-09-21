@@ -31,6 +31,8 @@ var party_box: VBoxContainer
 var party_members: VBoxContainer
 var ready_btn: Button
 var start_btn: Button
+var create_btn: Button
+var tutorial_btn: Button
 var chat_log: RichTextLabel
 var chat_edit: LineEdit
 var _my_ready: bool = false
@@ -213,8 +215,10 @@ func _ready() -> void:
 		pact_grid.add_child(b)
 	rv.add_child(pact_grid)
 	_refresh_pacts()
-	rv.add_child(UIKit.button("새 원정 만들기 (공개)", func() -> void: create_requested.emit()))
-	rv.add_child(UIKit.button("튜토리얼 (혼자 · 5분)", func() -> void: tutorial_requested.emit()))
+	create_btn = UIKit.button("새 원정 만들기 (공개)", func() -> void: create_requested.emit())
+	tutorial_btn = UIKit.button("튜토리얼 (혼자 · 5분)", func() -> void: tutorial_requested.emit())
+	rv.add_child(create_btn)
+	rv.add_child(tutorial_btn)
 	party_box = UIKit.vbox(6)
 	party_box.visible = false
 	party_box.add_child(UIKit.label("내 파티", 17, Color(0.8, 0.9, 1.0)))
@@ -432,6 +436,10 @@ func show_board(list: Array, my_expedition: String) -> void:
 
 func show_party(party: Dictionary, my_id: String) -> void:
 	party_box.visible = not party.is_empty()
+	# 파티에 있는 동안은 새 원정·튜토리얼을 만들 수 없다 (먼저 파티 나가기)
+	create_btn.disabled = not party.is_empty()
+	tutorial_btn.disabled = not party.is_empty()
+	create_btn.tooltip_text = "먼저 파티에서 나가야 새 원정을 만들 수 있습니다." if not party.is_empty() else ""
 	for c: Node in party_members.get_children():
 		c.queue_free()
 	if party.is_empty():

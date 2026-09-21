@@ -65,6 +65,7 @@ stop_server
 start_server
 bot p_after persist_check --nick=a1 --login_only --timeout=30; wait_all
 bot p_c4 persist_check --nick=c4 --login_only --timeout=30; wait_all
+bot rc hub_only --recreate --timeout=40; wait_all
 stop_server
 
 python3 - "$OUT" <<'PY'
@@ -108,6 +109,8 @@ check(c["badver"].get("ok"), f"CLIENT-01 version mismatch rejected before game s
 check(c["c4"]["events"].get("reconnected_to_room", 0) >= 1 and c["c4"].get("reconnect_party_size") == 4, f"NET-03 dropped client rejoined the same expedition slot (party size {c['c4'].get('reconnect_party_size')})")
 pb, pa, pc4 = load("p_before"), load("p_after"), load("p_c4")
 check(pb.get("ok") and pb["events"].get("enter_hub", 0) == 1, "NET-04 login works with 0 players online after all clients left")
+rc = load("rc")
+check(rc.get("ok") and rc["events"].get("recreate_ok", 0) == 1, f"HUB-01 create → leave party → create again works without BAD_STATE: {rc.get('errors')} {rc.get('last_error')}")
 check(pa.get("ok"), f"SAVE-02 login works after server restart: {pa.get('errors')}")
 wb, wa = pb.get("hub_info", {}), pa.get("hub_info", {})
 check(wb.get("world_id") and wb.get("world_id") == wa.get("world_id"), f"SAVE-02 same world id after restart ({wb.get('world_id')} -> {wa.get('world_id')})")

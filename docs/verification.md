@@ -144,6 +144,7 @@ Release `assets-raw-v1` 의 두 팩(160 + 720 프레임)을 `tools/import_asset_
 | NET-01 | 4클라이언트가 같은 원정 시드·N=4 를 봄. 5번째는 마을 접속 후 `PARTY_FULL`, 6번째도 마을 이용 가능, 정원(6) 초과 7번째는 `SERVER_FULL` | 통과 |
 | NET-03 | 전투 중 연결을 끊은 클라이언트가 재로그인 후 같은 원정 슬롯으로 복귀(파티 4명 유지) | 통과(같은 PC) |
 | NET-04 | 모든 클라이언트 종료 후 새 로그인 성공, 서버 재시작 후 같은 `world_id` 와 `boot_count+1` | 통과 |
+| HUB-01 | 마을에 선 채로 원정 생성 → 파티 나가기 → 다시 생성 (BAD_STATE 회귀, 봇 `hub_only --recreate`) | 통과 |
 | NET-05 | 동시 원정 2개의 시드가 다르고 각 결과가 자기 파티 처치 수만 셈 | 통과 |
 | AUTH-01 | 잘못된 비밀번호 `BAD_CREDENTIALS`, 중복 로그인 `ALREADY_ONLINE`, 토큰 재사용 거부(단위) | 통과 |
 | CLIENT-01(일부) | 프로토콜 버전 불일치 시 게임 상태 전 `VERSION_MISMATCH` 와 요구 버전 안내. Linux export 실행 파일로 서버·클라이언트 왕복 확인, export 본에서 에셋 8종·폰트·효과음 로드 | 통과 / **Windows 실기 미검증** |

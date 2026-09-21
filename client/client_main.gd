@@ -436,6 +436,8 @@ func _on_message(type: int, p: Dictionary) -> void:
 			room = {}
 			run_state = {}
 			run_panels.hide_panel()
+			hub_screen.show_party({}, my_id)   # 마을에 선 채로 파티를 나가면 ENTER_HUB 가 오지 않으므로 여기서 파티 창을 닫는다
+			hub_screen.show_board(hub_screen._board, "")
 		Protocol.S.ERROR:
 			var code := String(p.get("error", ""))
 			var text := UIKit.error_text(code, p)

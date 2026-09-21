@@ -30,6 +30,7 @@ static func error_text(code: String, payload: Dictionary = {}) -> String:
 		Protocol.ERR_PARTY_FULL: return "이 원정은 이미 4명이 가득 찼습니다."
 		Protocol.ERR_EXPEDITION_LIMIT: return "서버의 동시 원정 수가 상한(%s)에 도달했습니다. 진행 중인 원정이 끝나면 다시 시도하세요." % payload.get("max", "?")
 		Protocol.ERR_NO_EXPEDITION: return "원정을 찾을 수 없습니다."
+		Protocol.ERR_BAD_STATE: return "지금 상태에서는 할 수 없는 동작입니다. %s" % String(payload.get("message", ""))
 		Protocol.ERR_ALREADY_IN_EXPEDITION: return "이미 원정에 참가 중입니다."
 		Protocol.ERR_NOT_READY: return "모든 파티원이 준비 완료여야 출정할 수 있습니다."
 		Protocol.ERR_TOKEN_EXPIRED: return "저장된 접속 정보가 만료되었습니다. 다시 로그인하세요."

@@ -397,10 +397,10 @@ func _finish_login(s: Session, account: Dictionary, token: String, is_new: bool)
 	Net.send_to_peer(s.peer_id, Protocol.S.AUTH_RESULT, {"ok": true, "account": _public_account(account), "token": token, "new_account": is_new, "server": _server_info()})
 	_log(1, "%s logged in (%s) online=%d/%d" % [s.nickname, aid, _online_count(), max_online])
 	if reserved != null:
+		if reserved.state == Protocol.ExpState.PREPARING:
+			_enter_hub(s)   # 준비 중 파티는 마을에 서 있으므로 먼저 마을에 넣는다 (_enter_hub 는 원정 ID 를 지우므로 그 뒤에 다시 잇는다)
 		reserved.mark_reconnected(s)
 		_log(1, "%s reconnected to expedition %s (state %d)" % [s.nickname, reserved.id, reserved.state])
-		if reserved.state == Protocol.ExpState.PREPARING:
-			_enter_hub(s)
 		_flush_outbox(reserved)
 		_broadcast_party(reserved)
 		return
@@ -430,8 +430,11 @@ func _handle_logout(s: Session) -> void:
 # ------------------------------------------------------------------ 원정 모집판
 
 func _handle_board_create(s: Session, payload: Dictionary) -> void:
+	if expeditions.get_for_session(s) != null:
+		_err(s, Protocol.ERR_ALREADY_IN_EXPEDITION)
+		return
 	if s.location != Protocol.Location.HUB:
-		_err(s, Protocol.ERR_BAD_STATE)
+		_err(s, Protocol.ERR_BAD_STATE, {"message": "not in hub"})
 		return
 	var class_id := String(payload.get("class_id", s.class_id))
 	if not ContentDB.is_class_playable(class_id):
@@ -452,8 +455,11 @@ func _handle_board_create(s: Session, payload: Dictionary) -> void:
 
 
 func _handle_board_join(s: Session, payload: Dictionary) -> void:
+	if expeditions.get_for_session(s) != null:
+		_err(s, Protocol.ERR_ALREADY_IN_EXPEDITION)
+		return
 	if s.location != Protocol.Location.HUB:
-		_err(s, Protocol.ERR_BAD_STATE)
+		_err(s, Protocol.ERR_BAD_STATE, {"message": "not in hub"})
 		return
 	var class_id := String(payload.get("class_id", s.class_id))
 	if ContentDB.is_class_playable(class_id):
@@ -498,7 +504,9 @@ func _handle_board_leave(s: Session) -> void:
 	if inst.state != Protocol.ExpState.CLOSED:
 		_broadcast_party(inst)
 	Net.send_to_peer(s.peer_id, Protocol.S.LEAVE_EXPEDITION, {"reason": "left"})
-	if not hub.has(s.account_id):
+	if hub.has(s.account_id):
+		s.location = Protocol.Location.HUB   # 준비 중 파티는 마을에 서 있었다. 위치를 되돌리지 않으면 다음 원정 생성이 BAD_STATE 가 된다
+	else:
 		_enter_hub(s)
 	_broadcast_board()
 
