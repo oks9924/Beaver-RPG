@@ -16,6 +16,8 @@ var flash_reduce: bool = false
 var _npc_sprites: Array = []
 var boss_state: Dictionary = {}
 var explore: bool = false          # 탐색 모드(클리어된 방): 문이 열려 있다
+var ground_items: Dictionary = {}  # gid -> {pos, from, rarity, base, name, slot, enh, t} 바닥에 떨어진 장비 (이벤트로 갱신)
+var local_pos: Vector2 = Vector2.ZERO   # 내 캐릭터 위치 (가까운 일반 장비 이름표 표시용)
 var _object_tex: Dictionary = {}
 var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
 const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE: "ic_02", Protocol.ObKind.CLAW_LINK: "ic_03", Protocol.ObKind.CORRIDOR: "ic_04", Protocol.ObKind.ANCHOR: "ic_05",
@@ -258,6 +260,8 @@ func _draw() -> void:
 
 func _process(dt: float) -> void:
 	_telegraph_layer.queue_redraw()
+	for gi: Dictionary in ground_items.values():
+		gi["t"] = float(gi["t"]) + dt
 	for mid: String in _mechanic_fx.keys():
 		if not bool(_mechanic_fx[mid].get("active", false)):
 			_mechanic_fx[mid]["t"] = float(_mechanic_fx[mid]["t"]) + dt
@@ -573,6 +577,7 @@ func _draw_telegraphs() -> void:
 		var ally := int(pr[Protocol.SNAP_PR.KIND]) == 1
 		if not _draw_frame(L, "vfx.projectile_pinecone" if ally else "vfx.projectile_sap", int(Time.get_ticks_msec() / 90) % 2, c, pr[Protocol.SNAP_PR.R] * 3.0):
 			_draw_tex(L, _object_tex["proj_player"] if ally else _object_tex["proj_enemy"], c, pr[Protocol.SNAP_PR.R] * 3.0, Color.WHITE)
+	_draw_ground_items(L)
 
 
 ## 서버 기믹 이벤트를 기억해 장치 시트의 성공/실패 연출을 고른다 (자동 순환하지 않는다)
@@ -782,3 +787,97 @@ func nearest_npc(pos: Vector2, max_d: float) -> Dictionary:
 			best_d = d
 			best = n
 	return best
+
+
+# ------------------------------------------------------------------ 바닥 장비 (Hero Siege 식: 등급 색 빛기둥 + 아이콘 + 이름표)
+
+func set_ground_items(list: Array) -> void:
+	ground_items.clear()
+	for e: Dictionary in list:
+		_add_ground(e, false)
+
+
+func ground_spawn(e: Dictionary) -> void:
+	_add_ground(e, true)
+
+
+func _add_ground(e: Dictionary, animate: bool) -> void:
+	var pos := Vector2(float(e.get("x", 0)), float(e.get("y", 0)))
+	var from := Vector2(float(e.get("fx", pos.x)), float(e.get("fy", pos.y))) if animate else pos
+	ground_items[int(e.get("gid", 0))] = {"pos": pos, "from": from, "rarity": String(e.get("rarity", "common")), "base": String(e.get("base", "")),
+		"name": String(e.get("name", "")), "slot": String(e.get("slot", "")), "enh": int(e.get("enh", 0)), "t": 0.0 if animate else 9.0}
+
+
+func ground_remove(gid: int) -> Dictionary:
+	var gi: Dictionary = ground_items.get(gid, {})
+	ground_items.erase(gid)
+	return gi
+
+
+## 살아 있는 적이 r 안에 있으면 true (자동 공격 판단용)
+func enemy_within(pos: Vector2, r: float) -> bool:
+	for key: String in entities.keys():
+		if not key.begins_with("e:"):
+			continue
+		var ev: EntityView = entities[key]
+		if ev.ai_state == Protocol.EnemyAI.DEAD or ev.boss_state == BossIronclaw.BS.DEAD:
+			continue
+		if ev.position.distance_to(pos) <= r:
+			return true
+	return false
+
+
+func _draw_ground_items(L: Node2D) -> void:
+	if ground_items.is_empty():
+		return
+	var font := AssetRegistry.get_font("font.ui.main")
+	var now := Time.get_ticks_msec() / 1000.0
+	for gid: int in ground_items.keys():
+		var gi: Dictionary = ground_items[gid]
+		var rarity := String(gi["rarity"])
+		var ri := Equipment.rarity_index(rarity)
+		var col := Equipment.rarity_color(rarity)
+		var t := float(gi["t"])
+		var k := clampf(t / 0.55, 0.0, 1.0)
+		var c: Vector2 = (gi["from"] as Vector2).lerp(gi["pos"], k)
+		var hop := -70.0 * sin(PI * k)   # 시체에서 튀어나와 포물선으로 떨어진다
+		var phase := now * 2.5 + float(gid)
+		# 바닥 빛 웅덩이
+		L.draw_set_transform(c, 0.0, Vector2(1.0, 0.45))
+		L.draw_circle(Vector2.ZERO, 16.0 + 4.0 * ri, Color(col, 0.22 + 0.08 * sin(phase)))
+		L.draw_arc(Vector2.ZERO, 18.0 + 4.0 * ri, 0.0, TAU, 32, Color(col, 0.75), 2.0)
+		L.draw_set_transform(Vector2.ZERO)
+		# 빛기둥: 고급 이상. 등급이 높을수록 굵고 길고 밝다
+		if ri >= 1 and k >= 1.0:
+			var h := 80.0 + 30.0 * ri
+			var w := 8.0 + 4.0 * ri
+			var pulse := 0.7 + 0.3 * sin(phase)
+			for si in 8:
+				var f := float(si) / 8.0
+				var seg_w := w * (1.0 + f * 1.4)
+				L.draw_rect(Rect2(c.x - seg_w * 0.5, c.y - h * (f + 0.125), seg_w, h * 0.125 + 1.0), Color(col.lightened(0.15), (0.75 - 0.06 * (4 - ri)) * (1.0 - f) * pulse))
+			if ri >= 3:
+				for si in 6:
+					var a := phase * 0.8 + si * TAU / 6.0
+					var sp := c + Vector2(cos(a) * (14.0 + 6.0 * ri), -30.0 - 25.0 * (0.5 + 0.5 * sin(a * 1.7 + si)))
+					L.draw_circle(sp, 2.0 if ri == 3 else 2.6, Color(1.0, 0.98, 0.85, 0.85))
+			if ri >= 4:
+				L.draw_arc(c, 26.0 + 6.0 * sin(phase * 1.3), 0.0, TAU, 40, Color(col, 0.55), 2.0)
+		# 아이콘 (등급이 높을수록 조금 크다)
+		var size := 26.0 + 3.0 * ri
+		var bob := sin(now * 2.0 + float(gid)) * 3.0
+		var ic := c + Vector2(0.0, -20.0 + bob + hop)
+		var icon_id := "icon.gear." + String(gi["base"])
+		if AssetRegistry.has(icon_id) and AssetRegistry.status(icon_id) == "final":
+			_draw_tex(L, AssetRegistry.get_texture(icon_id), ic, size, Color.WHITE)
+		else:
+			L.draw_circle(ic, size * 0.4, col)
+		# 이름표: 고급 이상은 항상, 일반은 가까이 갔을 때만
+		if ri >= 1 or local_pos.distance_to(c) < 140.0:
+			var label := String(gi["name"]) + ((" +%d" % int(gi["enh"])) if int(gi["enh"]) > 0 else "")
+			_text(L, font, ic + Vector2(-100.0, -size * 0.5 - 6.0), label, HORIZONTAL_ALIGNMENT_CENTER, 200.0, 14, col.lightened(0.25) if ri > 0 else Color(0.95, 0.95, 0.9))
+		# 착지 파동 (희귀 이상)
+		if ri >= 2 and t > 0.5 and t < 1.2:
+			var q := (t - 0.5) / 0.7
+			L.draw_arc(c, 10.0 + 60.0 * q, 0.0, TAU, 40, Color(col, 0.85 * (1.0 - q)), 3.0 * (1.0 - q) + 1.0)
+

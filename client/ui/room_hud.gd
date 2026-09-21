@@ -34,6 +34,13 @@ var minimap: Minimap
 var dungeon_map: DungeonMap
 var tutorial_label: Label
 var skip_btn: Button
+var detail_panel: PanelContainer
+var extra_label: Label
+var boss_hint: Label
+var bag_label: Label
+var _chat_panel: PanelContainer
+const CHAT_H_SMALL := 44
+const CHAT_H_BIG := 130
 signal chat_sent(text: String)
 signal skip_tutorial()
 
@@ -71,7 +78,7 @@ func _ready() -> void:
 		skill_boxes[k] = {"icon": icon, "label": lbl}
 	resource_label = UIKit.label("", 13, Color(1.0, 0.85, 0.5))
 	sh.add_child(resource_label)
-	build_label = UIKit.label("B 통나무 엄폐 · G 바꾸기", 11, Color(0.75, 0.7, 0.6))
+	build_label = UIKit.label("B 엄폐(3) · G", 11, Color(0.75, 0.7, 0.6))
 	sh.add_child(build_label)
 	dodge_label = UIKit.label("회피 ◆◆", 13, Color(0.6, 0.85, 1.0))
 	heal_label = UIKit.label("회복(1) x2", 13, Color(0.6, 1.0, 0.6))
@@ -79,6 +86,8 @@ func _ready() -> void:
 	sh.add_child(dodge_label)
 	sh.add_child(_small_icon("icon.heal"))
 	sh.add_child(heal_label)
+	bag_label = UIKit.label("가방 0/60 (I)", 12, Color(0.85, 0.8, 0.7))
+	sh.add_child(bag_label)
 	status_box = UIKit.hbox(4)
 	for sid in ["slow", "bleed", "shield"]:
 		var ic := _small_icon("icon.status." + sid)
@@ -88,38 +97,51 @@ func _ready() -> void:
 	sh.add_child(status_box)
 	v.add_child(sh)
 	add_child(bl)
-	# 우측 끝: 파티 초상 세로 카드 (체력 바 위, 초상, 이름). 정보 패널은 그 왼쪽.
+	# 우측 끝: 파티 초상 세로 카드 (체력 바 위, 초상, 이름)
 	party_portraits = PartyPortraits.new()
 	party_portraits.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
 	party_portraits.position = Vector2(-100, 12)
 	add_child(party_portraits)
-	var tr := UIKit.panel(Vector2(270, 0))
-	tr.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
-	tr.position = Vector2(-386, 12)
-	var pv := UIKit.vbox(4)
-	tr.add_child(pv)
+	# 상단 중앙 한 줄: 웨이브·적 수·목표, 둘째 줄에 런 정보. 자세한 내용(방 이름·시드·유물)은 Tab 상세 패널로
+	var top := UIKit.panel(Vector2(560, 0))
+	top.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
+	top.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	top.position = Vector2(-280, 8)
+	var pv := UIKit.vbox(0)
+	top.add_child(pv)
+	var l1 := UIKit.hbox(12)
+	l1.alignment = BoxContainer.ALIGNMENT_CENTER
 	wave_label = UIKit.label("", 15, Color(0.98, 0.85, 0.45))
-	pv.add_child(wave_label)
+	l1.add_child(wave_label)
+	objective_label = UIKit.label("", 14, Color(0.6, 1.0, 0.6))
+	l1.add_child(objective_label)
+	pv.add_child(l1)
+	run_label = UIKit.label("", 12, Color(0.85, 0.82, 0.72))
+	run_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pv.add_child(run_label)
+	add_child(top)
 	party_label = UIKit.label("", 13)
 	party_label.visible = false
-	pv.add_child(party_label)
-	room_label = UIKit.label("", 11, Color(0.7, 0.7, 0.65))
+	# Tab 상세 패널 (큰 지도와 함께 열림): 방 이름·시드·유물·서약 등
+	detail_panel = UIKit.panel(Vector2(300, 0))
+	detail_panel.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
+	detail_panel.position = Vector2(-416, 12)
+	detail_panel.visible = false
+	var dv := UIKit.vbox(4)
+	detail_panel.add_child(dv)
+	room_label = UIKit.label("", 12, Color(0.8, 0.8, 0.75))
 	room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	room_label.custom_minimum_size = Vector2(230, 0)
-	pv.add_child(room_label)
-	objective_label = UIKit.label("", 13, Color(0.6, 1.0, 0.6))
-	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective_label.custom_minimum_size = Vector2(230, 0)
-	pv.add_child(objective_label)
-	run_label = UIKit.label("", 12, Color(0.9, 0.85, 0.7))
-	run_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	run_label.custom_minimum_size = Vector2(230, 0)
-	pv.add_child(run_label)
-	relic_label = UIKit.label("", 11, Color(0.8, 0.75, 0.6))
+	room_label.custom_minimum_size = Vector2(270, 0)
+	dv.add_child(room_label)
+	extra_label = UIKit.label("", 12, Color(0.9, 0.85, 0.7))
+	extra_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	extra_label.custom_minimum_size = Vector2(270, 0)
+	dv.add_child(extra_label)
+	relic_label = UIKit.label("", 12, Color(0.8, 0.75, 0.6))
 	relic_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	relic_label.custom_minimum_size = Vector2(230, 0)
-	pv.add_child(relic_label)
-	add_child(tr)
+	relic_label.custom_minimum_size = Vector2(270, 0)
+	dv.add_child(relic_label)
+	add_child(detail_panel)
 	conn_label = UIKit.label("", 12, Color(0.9, 0.9, 0.8))
 	conn_label.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
 	conn_label.position = Vector2(12, 12)
@@ -161,6 +183,9 @@ func _ready() -> void:
 	boss_bar.setup("ui.bar.boss", Color(0.85, 0.25, 0.2), 520.0)
 	boss_box.add_child(boss_label)
 	boss_box.add_child(boss_bar)
+	boss_hint = UIKit.label("", 14, Color(1.0, 0.9, 0.6))
+	boss_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	boss_box.add_child(boss_hint)
 	boss_box.visible = false
 	add_child(boss_box)
 	toast_label = UIKit.label("", 26, Color(1.0, 0.95, 0.7))
@@ -169,13 +194,15 @@ func _ready() -> void:
 	toast_label.custom_minimum_size = Vector2(500, 0)
 	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(toast_label)
-	var cb := UIKit.panel(Vector2(320, 110))
-	cb.set_anchors_and_offsets_preset(PRESET_BOTTOM_RIGHT)
-	cb.position = Vector2(-332, -122)
+	# 하단 우측 채팅: 평소 2줄 반투명, Enter 로 입력창을 잡으면 커진다
+	_chat_panel = UIKit.panel(Vector2(320, 0))
+	_chat_panel.set_anchors_and_offsets_preset(PRESET_BOTTOM_RIGHT)
+	_chat_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_chat_panel.position = Vector2(-332, -12)
 	var cv := UIKit.vbox(2)
-	cb.add_child(cv)
+	_chat_panel.add_child(cv)
 	chat_log = RichTextLabel.new()
-	chat_log.custom_minimum_size = Vector2(290, 60)
+	chat_log.custom_minimum_size = Vector2(290, CHAT_H_SMALL)
 	chat_log.scroll_following = true
 	cv.add_child(chat_log)
 	chat_edit = UIKit.line_edit("파티 채팅 (Enter)")
@@ -184,8 +211,27 @@ func _ready() -> void:
 			chat_sent.emit(t)
 		chat_edit.text = ""
 		chat_edit.release_focus())
+	chat_edit.focus_entered.connect(func() -> void: _set_chat_expanded(true))
+	chat_edit.focus_exited.connect(func() -> void: _set_chat_expanded(false))
 	cv.add_child(chat_edit)
-	add_child(cb)
+	add_child(_chat_panel)
+	_set_chat_expanded(false)
+
+
+func _set_chat_expanded(on: bool) -> void:
+	chat_log.custom_minimum_size = Vector2(290, CHAT_H_BIG if on else CHAT_H_SMALL)
+	_chat_panel.modulate = Color(1, 1, 1, 1.0 if on else 0.8)
+	_chat_panel.reset_size()
+
+
+## Tab(큰 지도)과 함께 상세 패널(방 이름·시드·유물)을 보인다
+func set_details(on: bool) -> void:
+	detail_panel.visible = on
+
+
+func set_bag(count: int, cap: int) -> void:
+	bag_label.text = "가방 %d/%d (I)" % [count, cap]
+	bag_label.modulate = Color(1.0, 0.6, 0.5) if count >= cap else Color.WHITE
 
 
 func toast(text: String, sec: float = 2.5) -> void:
@@ -263,7 +309,7 @@ func update_party(snapshot_players: Array, party: Array, my_id: String) -> void:
 
 
 func update_wave(wave: Array, enemies_alive: int) -> void:
-	wave_label.text = "웨이브 %d / %d   적 %d" % [int(wave[0]), int(wave[1]), enemies_alive]
+	wave_label.text = "웨이브 %d/%d · 적 %d" % [int(wave[0]), int(wave[1]), enemies_alive]
 
 
 func update_room(room: Dictionary) -> void:
@@ -280,14 +326,17 @@ func update_run(run: Dictionary, my_id: String) -> void:
 	var lvl := int(run.get("level", 1))
 	var next_xp: String = str(table[lvl]) if lvl < table.size() else "최대"
 	var g: Dictionary = run.get("dungeon", {})
-	run_label.text = "런 레벨 %d (경험치 %d/%s) · 팀 목재 %d · 도토리 %d · 지역 %d/%d 방 %d/%d" % [lvl, int(run.get("xp", 0)), next_xp, int(run.get("team_wood", 0)), int(mine.get("acorns", 0)), int(run.get("region_index", 0)) + 1, int(run.get("regions_total", 1)), int(g.get("rooms_cleared", 0)), int(g.get("rooms_total", 0))]
-	run_label.text += "\n위험도 ×%.2f" % float(run.get("danger", 1.0))
+	run_label.text = "Lv %d · 목재 %d · 도토리 %d · 지역 %d/%d 방 %d/%d · 위험 ×%.2f" % [lvl, int(run.get("team_wood", 0)), int(mine.get("acorns", 0)), int(run.get("region_index", 0)) + 1, int(run.get("regions_total", 1)), int(g.get("rooms_cleared", 0)), int(g.get("rooms_total", 0)), float(run.get("danger", 1.0))]
 	if int(run.get("heat", 0)) > 0:
-		run_label.text += " · 서약 열기 %d" % int(run.get("heat", 0))
+		run_label.text += " · 열기 %d" % int(run.get("heat", 0))
 	if int(run.get("curse_rooms", 0)) > 0:
-		run_label.text += " · 저주 %d방 남음 (받는 피해 증가)" % int(run.get("curse_rooms", 0))
+		run_label.text += " · 저주 %d방" % int(run.get("curse_rooms", 0))
+	var extra: PackedStringArray = ["경험치 %d/%s" % [int(run.get("xp", 0)), next_xp]]
 	if int(run.get("bonus_shards", 0)) > 0:
-		run_label.text += " · 약속된 기억 조각 +%d" % int(run.get("bonus_shards", 0))
+		extra.append("약속된 기억 조각 +%d" % int(run.get("bonus_shards", 0)))
+	if int(run.get("curse_rooms", 0)) > 0:
+		extra.append("저주: 받는 피해 증가 (%d방 남음)" % int(run.get("curse_rooms", 0)))
+	extra_label.text = " · ".join(extra)
 	var names: PackedStringArray = []
 	for rid: String in mine.get("relics", []):
 		names.append(String(ContentDB.relics.get(rid, {}).get("name_ko", rid)))
@@ -306,13 +355,13 @@ func update_objective(obj: Array, wood: int, boss_state: Dictionary) -> void:
 	var prog := float(obj[1])
 	var done := int(obj[2]) == 1
 	match kind:
-		"hold_point": objective_label.text = "목표: 거점 유지 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
-		"device": objective_label.text = "목표: 장치 가동 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
-		"escort": objective_label.text = "목표: 뗏목 호위 %d%%%s" % [int(prog * 100), " · 완료" if done else ""]
-		"boss": objective_label.text = "보스 체력 %d%%" % int(prog * 100)
-		"explore": objective_label.text = "탐색: 문 앞에 파티가 모이면 이동 (전원 3초 · 과반 10초) · 클리어한 방은 되돌아갈 수 있음"
-		_: objective_label.text = "목표: 섬멸 (처치 %d%%)" % int(prog * 100)
-	objective_label.text += "   팀 목재 %d (B: 엄폐 %d)" % [wood, int(ContentDB.rule("build_cost_wood", 3))]
+		"hold_point": objective_label.text = "거점 유지 %d%%%s" % [int(prog * 100), " ✓" if done else ""]
+		"device": objective_label.text = "장치 가동 %d%%%s" % [int(prog * 100), " ✓" if done else ""]
+		"escort": objective_label.text = "뗏목 호위 %d%%%s" % [int(prog * 100), " ✓" if done else ""]
+		"boss": objective_label.text = "보스 %d%%" % int(prog * 100)
+		"explore": objective_label.text = "탐색 · 문 앞에 모이면 이동"
+		_: objective_label.text = "섬멸 %d%%" % int(prog * 100)
+	build_label.text = build_label.text.get_slice(" · 목재", 0) + " · 목재 %d" % wood
 	boss_box.visible = not boss_state.is_empty()
 	if not boss_state.is_empty():
 		boss_bar.max_value = float(boss_state.get("max_hp", 1))
@@ -336,9 +385,7 @@ func update_objective(obj: Array, wood: int, boss_state: Dictionary) -> void:
 			hint_built = "경직! 집중 공격"
 		if int(boss_state.get("f", 0)) & 8: tags.append("탈피 중")
 		boss_label.text = "%s  %d / %d  ·  단계 %d  ·  %s" % [bdef.get("name_ko", ""), int(boss_state.get("hp", 0)), int(boss_state.get("max_hp", 0)), int(boss_state.get("phase", 0)) + 1, " · ".join(tags)]
-		var hint := hint_built
-		if hint != "":
-			objective_label.text += "\n" + hint
+		boss_hint.text = hint_built
 
 
 func update_conn(state: int, ping: int) -> void:
@@ -352,7 +399,7 @@ func add_chat(from: String, text: String) -> void:
 
 func set_build_hint(kind: String) -> void:
 	var bk: Dictionary = ContentDB.rules.get("build_kinds", {}).get(kind, {})
-	build_label.text = "B %s(%d) · G 바꾸기" % [bk.get("name_ko", kind), int(bk.get("cost_wood", 3))]
+	build_label.text = "B %s(%d) · G" % [bk.get("name_ko", kind), int(bk.get("cost_wood", 3))]
 
 
 func set_tutorial(text: String, index: int, total: int) -> void:

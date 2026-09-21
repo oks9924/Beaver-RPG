@@ -2,6 +2,7 @@
  "_comment": "공통 전투 규칙 출발값 (5절, 14절). 미검증 초기값이며 플레이 테스트 후 조정한다.",
  "content_version": "0.3.0",
  "dodge_charges": 2,
+ "auto_attack_range": 300,
  "dodge_recharge_sec": 4.0,
  "dodge_invuln_sec": 0.2,
  "dodge_duration_sec": 0.22,

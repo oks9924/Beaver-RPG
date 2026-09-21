@@ -31,6 +31,7 @@ var _prev_pred: Vector2 = Vector2.ZERO    # 직전 물리 틱의 예측 위치. 
 var _prev_btn: int = 0
 var selected_class: String = "guardian"
 var npc_panel := NpcPanel.new()
+var run_inventory := RunInventory.new()
 var settings_panel := SettingsPanel.new()
 var selected_difficulty: String = "normal"
 var selected_pacts: Dictionary = {}
@@ -60,6 +61,7 @@ var _demo_shots_pending: Array = []   # [[절대 초, 파일명]]
 var _demo_attack_shot: bool = false
 var _demo_force_btn: int = 0
 var _demo_hold_until: float = 0.0
+var _demo_flee_until: float = 0.0   # 데모: 버린 장비에서 물러나는 동안
 
 
 func _ready() -> void:
@@ -136,6 +138,9 @@ func _ready() -> void:
 	run_panels.node_action.connect(func(p: Dictionary) -> void: net.send(Protocol.C.NODE_ACTION, p))
 	npc_panel.name = "NpcPanel"
 	root.add_child(npc_panel)
+	hud.add_child(run_inventory)   # 전투 HUD(전체 화면 Control) 기준으로 가운데 정렬
+	run_inventory.drop_requested.connect(func(uid: String) -> void: net.send(Protocol.C.GEAR_ACTION, {"action": "drop", "uid": uid}))
+	run_inventory.give_requested.connect(func(uid: String, to: String) -> void: net.send(Protocol.C.GEAR_ACTION, {"action": "give", "uid": uid, "to": to}))
 	settings_panel.setup(settings)
 	settings_panel.name = "SettingsPanel"
 	root.add_child(settings_panel)
@@ -175,7 +180,7 @@ func _setup_input_map() -> void:
 	var binds := {
 		"move_up": [KEY_W, KEY_UP], "move_down": [KEY_S, KEY_DOWN], "move_left": [KEY_A, KEY_LEFT], "move_right": [KEY_D, KEY_RIGHT],
 		"dodge": [KEY_SPACE], "skill_q": [KEY_Q], "skill_e": [KEY_E], "skill_r": [KEY_R], "interact": [KEY_F], "heal": [KEY_1], "build_place": [KEY_B],
-		"build": [KEY_B], "build_cycle": [KEY_G], "map": [KEY_TAB], "dev_overlay": [KEY_F3], "chat": [KEY_ENTER], "fullscreen": [KEY_F11],
+		"build": [KEY_B], "build_cycle": [KEY_G], "map": [KEY_TAB], "dev_overlay": [KEY_F3], "chat": [KEY_ENTER], "fullscreen": [KEY_F11], "inventory": [KEY_I],
 	}
 	var custom: Dictionary = settings.data.get("keybinds", {})
 	for action: String in binds.keys():
@@ -380,6 +385,9 @@ func _on_message(type: int, p: Dictionary) -> void:
 				hud.minimap.bounds = Rect2(b["x"], b["y"], b["w"], b["h"])
 				hud.minimap.pings.clear()
 			world.explore = bool(p.get("explore", false))
+			world.set_ground_items(p.get("ground_items", []))
+			run_inventory.visible = false
+			_refresh_bag()
 			hud.update_room(room)
 			hud.set_tutorial("", 0, 1)
 			if p.has("run"):
@@ -431,6 +439,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			if mode == "hub":
 				hub_screen.show_progression(hub_info, net.account)
 				hub_screen.on_gear_result(p.get("gear_result", {}))
+			_refresh_bag()
 		Protocol.S.LEAVE_EXPEDITION:
 			party = {}
 			room = {}
@@ -485,6 +494,20 @@ func _on_room_event(ev: Dictionary) -> void:
 			world.play_sound("sfx.snail_hit")
 		"enemy_died":
 			world.play_sound("sfx.snail_death")
+		"drop":
+			world.ground_spawn(ev)
+			var ri := Equipment.rarity_index(String(ev.get("rarity", "common")))
+			if ri >= 2:
+				world.play_sound("sfx.enhance.success", 0.15)
+			if ri >= 3:
+				hud.toast("[%s] %s 드랍!" % [Equipment.rarity_name(String(ev.get("rarity", ""))), ev.get("name", "")], 2.5)
+		"pickup":
+			var gi := world.ground_remove(int(ev.get("gid", 0)))
+			if not gi.is_empty():
+				world.spawn_effect("vfx.rescue_ring", gi["pos"], 0.0, 0.35)
+			if ev.get("by", "") == my_id:
+				world.play_sound("sfx.ui_click", 0.1)
+				hud.toast("[%s] %s 획득" % [Equipment.rarity_name(String(ev.get("rarity", ""))), ev.get("name", "")], 2.0)
 		"hit":
 			var key := "p:" + String(ev.get("id", ""))
 			if world.entities.has(key):
@@ -953,6 +976,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			hub_screen.chat_edit.grab_focus()
 		elif mode in ["room", "result"]:
 			hud.chat_edit.grab_focus()
+	if event.is_action_pressed("inventory") and mode == "room" and not _text_focused():
+		run_inventory.toggle(net.account, room.get("party", []), my_id)
 
 
 func _text_focused() -> bool:
@@ -988,12 +1013,18 @@ func _physics_process(dt: float) -> void:
 			_map_big = not _map_big
 			hud.minimap.big = _map_big
 			hud.dungeon_map.big = _map_big
+			hud.set_details(_map_big)
 		if Input.is_action_just_pressed("ping") and mode == "room":
 			net.send(Protocol.C.MARK, {"x": world.get_global_mouse_position().x, "y": world.get_global_mouse_position().y})
 		if mode == "hub" and Input.is_action_just_pressed("interact") and not npc_panel.visible:
 			var npc := world.nearest_npc(_pred_pos, float(ContentDB.rule("hub_talk_range", 90.0)))
 			if not npc.is_empty():
 				net.send(Protocol.C.NPC_TALK, {"npc": npc.get("id", "")})
+	# 자동 공격: 설정이 켜져 있고, 이동 키를 안 누르고, 살아 있는 적이 가까이 있으면 마우스 방향으로 계속 기본 공격 (스킬·상호작용 입력이 있으면 그쪽이 우선)
+	if mode == "room" and not demo and bool(settings.data.get("auto_attack", true)) and not _text_focused() and mv.length_squared() < 0.01 and not world.explore and not run_inventory.visible \
+			and (btn & (Protocol.BTN_Q | Protocol.BTN_E | Protocol.BTN_R | Protocol.BTN_INTERACT | Protocol.BTN_HEAL | Protocol.BTN_BUILD)) == 0 \
+			and world.enemy_within(_pred_pos, float(ContentDB.rule("auto_attack_range", 300.0))):
+		btn |= Protocol.BTN_ATTACK
 	var aim: Vector2 = demo_in["aim"] if demo else (world.get_global_mouse_position() - _pred_pos + Vector2(0, 24))
 	_seq += 1
 	net.send_input(_seq, mv, aim, btn)
@@ -1129,6 +1160,39 @@ func _demo_tick(dt: float) -> void:
 			elif _demo_step == 7 and _demo_t > 12.0:
 				_demo_step = 8
 				_screenshot("06_room_late.png")
+			elif _demo_step == 8 and _demo_t > 13.0 and (not ((net.account.get("progression", {}) as Dictionary).get("inventory", []) as Array).is_empty() or _demo_t > 40.0):
+				# 가방(I) 캡처 → 주운 장비 하나를 버리고 물러나 바닥 장비 캡처 → 등급별 연출 미리보기 캡처
+				run_inventory.toggle(net.account, room.get("party", []), my_id)
+				_demo_flee_until = _demo_t + 100.0   # 아직 도망 안 함 (아래에서 다시 정한다)
+				_demo_step = 9
+			elif _demo_step == 9 and _demo_t > 13.6:
+				_screenshot("24_bag_open.png")
+				_demo_step = 10
+			elif _demo_step == 10 and _demo_t > 14.2:
+				run_inventory.visible = false
+				var inv: Array = (net.account.get("progression", {}) as Dictionary).get("inventory", [])
+				if not inv.is_empty():
+					net.send(Protocol.C.GEAR_ACTION, {"action": "drop", "uid": String(inv[0].get("uid", ""))})
+				_demo_flee_until = _demo_t + 1.0
+				var t_now := Time.get_ticks_msec() / 1000.0
+				_demo_shots_pending.append([t_now + 0.7, "23_ground_drop.png"])
+				_demo_step = 11
+			elif _demo_step == 11 and _demo_t > _demo_flee_until + 0.6:
+				# 등급별 연출 미리보기: 서버 드랍이 아니라 화면에만 놓는 가짜 바닥 장비 5개 (캡처용)
+				var bases := ["bark_vest", "river_pebble", "guardian_hammer", "moss_cloak", "resin_ring"]
+				var names := ["나무껍질 조끼", "강돌 부적", "나무망치", "이끼 망토", "송진 반지"]
+				var order: Array = Equipment.rarity_order()
+				for i in order.size():
+					var gx := clampf(_pred_pos.x - 200.0 + 100.0 * i, world.bounds.position.x + 60.0, world.bounds.end.x - 60.0)
+					var gy := clampf(_pred_pos.y - 150.0, world.bounds.position.y + 160.0, world.bounds.end.y - 60.0)
+					world.ground_spawn({"gid": 9000 + i, "x": gx, "y": gy, "fx": gx, "fy": gy - 30.0, "rarity": String(order[i]), "base": bases[i], "name": names[i], "slot": "armor", "enh": i})
+				var t_now2 := Time.get_ticks_msec() / 1000.0
+				_demo_shots_pending.append([t_now2 + 1.0, "23b_ground_rarities.png"])
+				_demo_step = 12
+			elif _demo_step == 12 and _demo_t > _demo_flee_until + 2.4:
+				for i in 5:
+					world.ground_remove(9000 + i)
+				_demo_step = 14
 		"phase":
 			if _demo_step < 20:
 				_demo_step = 20
@@ -1231,6 +1295,9 @@ func _demo_input() -> Dictionary:
 			mv = Vector2.ZERO
 		else:
 			_demo_force_btn = 0
+	if _demo_t <= _demo_flee_until:
+		mv = Vector2.LEFT
+		btn = 0
 	return {"mv": mv, "btn": btn, "aim": aim}
 
 
@@ -1249,6 +1316,7 @@ func _process(dt: float) -> void:
 	var mine: EntityView = world.entities.get("p:" + my_id, null)
 	if mine != null:
 		mine.position = _render_pos()
+	world.local_pos = _render_pos()
 	world.camera.position = _render_pos()
 	world.camera.offset = world.camera.offset.lerp(Vector2.ZERO, 0.2)
 	if overlay.visible:
@@ -1293,3 +1361,12 @@ func _dungeon_summary(run: Dictionary) -> String:
 	if g.is_empty():
 		return ""
 	return "%s (지역 %d/%d) · 방 %d/%d 클리어 · 보스: %s" % [g.get("region_name", ""), int(run.get("region_index", 0)) + 1, int(run.get("regions_total", 1)), int(g.get("rooms_cleared", 0)), int(g.get("rooms_total", 0)), "처치" if bool(g.get("rooms", {}).get(String(g.get("boss", "")), {}).get("cleared", false)) else "오른쪽 끝"]
+
+
+func _refresh_bag() -> void:
+	var prog: Dictionary = net.account.get("progression", {})
+	var inv: Array = prog.get("inventory", [])
+	hud.set_bag(inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60)))
+	if run_inventory.visible:
+		run_inventory.refresh(net.account, room.get("party", []), my_id)
+

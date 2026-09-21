@@ -19,6 +19,7 @@ var data: Dictionary = {
 	"fullscreen": false,
 	"show_dev_overlay": false,
 	"flash_reduce": false,
+	"auto_attack": true,   # 가만히 서 있고 적이 가까우면 마우스 방향으로 계속 기본 공격
 	"keybinds": {},        # action -> physical keycode (재설정한 키만)
 	"last_class": "guardian",
 	"last_difficulty": "normal",
