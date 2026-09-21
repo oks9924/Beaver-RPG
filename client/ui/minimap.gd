@@ -52,4 +52,5 @@ func _draw() -> void:
 		var p: Vector2 = Vector2((pg[0].x - bounds.position.x) * sx, (pg[0].y - bounds.position.y) * sy)
 		draw_arc(p, 6.0 + 4.0 * sin(float(pg[1]) * 6.0), 0, TAU, 16, Color(1.0, 0.9, 0.3), 2.0)
 	if big and route_text != "":
-		draw_string(AssetRegistry.get_font("font.ui.main"), Vector2(0, h + 18), route_text, HORIZONTAL_ALIGNMENT_LEFT, w + 200, 12, Color(0.95, 0.92, 0.85))
+		draw_string_outline(AssetRegistry.get_font("font.ui.main"), Vector2(0, h + 18), route_text, HORIZONTAL_ALIGNMENT_LEFT, w + 200, 14, 3, Color(0.05, 0.03, 0.01, 0.9))
+		draw_string(AssetRegistry.get_font("font.ui.main"), Vector2(0, h + 18), route_text, HORIZONTAL_ALIGNMENT_LEFT, w + 200, 14, Color(0.95, 0.92, 0.85))

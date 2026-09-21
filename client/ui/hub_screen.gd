@@ -42,6 +42,7 @@ var records_label: Label
 var quest_label: Label
 var summary_label: Label
 var menu_panel: PanelContainer
+var _menu_scroll: ScrollContainer
 var _menu_tabs: Dictionary = {}
 var _menu_tab_buttons: Dictionary = {}
 var _menu_current: String = ""
@@ -121,7 +122,7 @@ func _ready() -> void:
 		var pdef: Dictionary = ContentDB.pacts[pid]
 		var b := Button.new()
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_font_size_override("font_size", 11)
+		b.add_theme_font_size_override("font_size", 14)
 		b.tooltip_text = String(pdef.get("desc_ko", ""))
 		b.pressed.connect(func() -> void: _cycle_pact(pid))
 		_pact_buttons[pid] = b
@@ -185,6 +186,8 @@ func _build_menu() -> void:
 	menu_panel = UIKit.panel(Vector2(760, 440))
 	menu_panel.visible = false
 	menu_panel.set_anchors_and_offsets_preset(PRESET_CENTER)
+	menu_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	menu_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	menu_panel.position = Vector2(-380, -230)
 	var mv := UIKit.vbox(6)
 	menu_panel.add_child(mv)
@@ -197,6 +200,7 @@ func _build_menu() -> void:
 		head.add_child(b)
 	mv.add_child(head)
 	var body := ScrollContainer.new()
+	_menu_scroll = body
 	body.custom_minimum_size = Vector2(740, 340)
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -206,17 +210,26 @@ func _build_menu() -> void:
 	body.add_child(pages)
 	# 내실 · 마을 복구
 	village_box = UIKit.vbox(4)
-	village_box.add_child(UIKit.label("기억 조각으로 마을 시설을 복구하면 모든 원정에 영구 보너스가 붙습니다.", 12, Color(0.7, 0.7, 0.65)))
+	var intro_1 := UIKit.label("기억 조각으로 마을 시설을 복구하면 모든 원정에 영구 보너스가 붙습니다.", 12, Color(0.7, 0.7, 0.65))
+	intro_1.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro_1.custom_minimum_size = Vector2(700, 0)
+	village_box.add_child(intro_1)
 	_menu_tabs["village"] = village_box
 	pages.add_child(village_box)
 	# 장비 (영구): 장착 슬롯 + 창고
 	gear_box = UIKit.vbox(4)
-	gear_box.add_child(UIKit.label("장비는 원정에서 드랍되어 마을 창고에 남습니다. 무기는 직업마다 따로 장착하고, 갑옷 1개·장신구 2개는 공용입니다. 등급이 오를수록 부가 속성이 한 줄씩 늘고 전설은 고유 특성을 갖습니다.", 12, Color(0.7, 0.7, 0.65)))
+	var intro_2 := UIKit.label("장비는 원정에서 드랍되어 마을 창고에 남습니다. 무기는 직업마다 따로 장착하고, 갑옷 1개·장신구 2개는 공용입니다. 등급이 오를수록 부가 속성이 한 줄씩 늘고 전설은 고유 특성을 갖습니다.", 12, Color(0.7, 0.7, 0.65))
+	intro_2.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro_2.custom_minimum_size = Vector2(700, 0)
+	gear_box.add_child(intro_2)
 	_menu_tabs["gear"] = gear_box
 	pages.add_child(gear_box)
 	# 숙련 · 특성
 	mastery_box = UIKit.vbox(4)
-	mastery_box.add_child(UIKit.label("직업별 숙련 경험치는 원정 완료 시 쌓이며, 특성은 직업마다 하나만 켤 수 있습니다.", 12, Color(0.7, 0.7, 0.65)))
+	var intro_3 := UIKit.label("직업별 숙련 경험치는 원정 완료 시 쌓이며, 특성은 직업마다 하나만 켤 수 있습니다.", 12, Color(0.7, 0.7, 0.65))
+	intro_3.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro_3.custom_minimum_size = Vector2(700, 0)
+	mastery_box.add_child(intro_3)
 	_menu_tabs["mastery"] = mastery_box
 	pages.add_child(mastery_box)
 	# 도감 · 기록
@@ -237,7 +250,10 @@ func _build_menu() -> void:
 	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	quest_label.custom_minimum_size = Vector2(700, 0)
 	qbox.add_child(quest_label)
-	qbox.add_child(UIKit.label("퀘스트 수락·완료는 마을 NPC 에게 다가가 F 키로 대화하세요. 대화할 때마다 목록이 갱신됩니다.", 12, Color(0.7, 0.7, 0.65)))
+	var intro_4 := UIKit.label("퀘스트 수락·완료는 마을 NPC 에게 다가가 F 키로 대화하세요. 대화할 때마다 목록이 갱신됩니다.", 12, Color(0.7, 0.7, 0.65))
+	intro_4.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro_4.custom_minimum_size = Vector2(700, 0)
+	qbox.add_child(intro_4)
 	_menu_tabs["quest"] = qbox
 	pages.add_child(qbox)
 	var foot := UIKit.hbox(6)
@@ -535,7 +551,7 @@ func _refresh_gear() -> void:
 	# 제작 도안: 처음부터 열린 고급 3종 + 보스 처치로 해금되는 희귀·영웅
 	gear_box.add_child(UIKit.label("제작 (송진 대장장이의 작업대) — 수액 결정 + 기억 조각 %d" % int(prog.get("memory_shards", 0)), 14, Color(1.0, 0.9, 0.7)))
 	var cgrid := GridContainer.new()
-	cgrid.columns = 3
+	cgrid.columns = 2
 	cgrid.add_theme_constant_override("h_separation", 6)
 	cgrid.add_theme_constant_override("v_separation", 4)
 	var mats := Equipment.material_count(prog)
@@ -546,9 +562,12 @@ func _refresh_gear() -> void:
 		var cb := Button.new()
 		cb.text = "%s  (결정 %d · 조각 %d)" % [r.get("name_ko", rid), int(cost.get("sap_crystal", 0)), int(cost.get("memory_shards", 0))]
 		cb.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		cb.add_theme_font_size_override("font_size", 12)
+		cb.add_theme_font_size_override("font_size", 14)
 		cb.add_theme_color_override("font_color", Equipment.rarity_color(String(r.get("rarity", "uncommon"))))
 		cb.tooltip_text = String(r.get("desc_ko", "")) + ("" if unlocked else "\n잠김: %s 처치 시 해금" % ContentDB.bosses.get(String(r.get("unlock", {}).get("boss", "")), {}).get("name_ko", "지역 보스"))
+		cb.custom_minimum_size = Vector2(340, 0)
+		cb.clip_text = true
+		cb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		cb.disabled = not unlocked or mats < int(cost.get("sap_crystal", 0)) or int(prog.get("memory_shards", 0)) < int(cost.get("memory_shards", 0))
 		if not unlocked:
 			cb.text = "🔒 " + cb.text
@@ -588,7 +607,7 @@ func _gear_detail(prog: Dictionary, equipped_uids: Array) -> Control:
 		var ai := i - affix_start
 		if ai >= 0 and ai < (it.get("affixes", []) as Array).size() and rcost > 0:
 			var rb := UIKit.button("재감정 (%d)" % rcost, func() -> void: gear_action.emit("reforge", uid, ai))
-			rb.add_theme_font_size_override("font_size", 11)
+			rb.add_theme_font_size_override("font_size", 14)
 			rb.disabled = mats < rcost
 			rb.tooltip_text = "이 줄을 같은 등급 계층 안에서 다시 굴립니다 (수액 결정 %d)" % rcost
 			h.add_child(rb)
@@ -639,6 +658,12 @@ func demo_equip_first() -> bool:
 	return false
 
 
+## 데모/검증용: 메뉴 내용을 맨 아래로 스크롤 (제작 섹션 촬영)
+func demo_scroll_bottom() -> void:
+	if _menu_scroll != null:
+		_menu_scroll.scroll_vertical = 100000
+
+
 ## 데모/검증용: 고른 장비를 강화한다
 func demo_enhance_selected() -> void:
 	if _gear_selected != "":
@@ -662,10 +687,12 @@ func _item_button(it: Dictionary, equipped: bool) -> Button:
 	var b := Button.new()
 	b.text = "%s[%s] %s  (%s · 지역 %d)" % ["● " if equipped else "", Equipment.rarity_name(rarity), it.get("name_ko", Equipment.display_name(it)), slot_ko, int(it.get("level", 1))]
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	b.add_theme_font_size_override("font_size", 12)
+	b.add_theme_font_size_override("font_size", 14)
 	b.add_theme_color_override("font_color", Equipment.rarity_color(rarity))
 	b.tooltip_text = "\n".join(Equipment.describe(it))
 	b.custom_minimum_size = Vector2(340, 0)
+	b.clip_text = true
+	b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	# 아이콘(icon.gear.<base>)은 v5 팩이 들어오면 자동으로 붙는다 (docs/asset_request_v5.md)
 	var icon_id := "icon.gear." + String(it.get("base", ""))
 	if AssetRegistry.has(icon_id) and AssetRegistry.status(icon_id) == "final":

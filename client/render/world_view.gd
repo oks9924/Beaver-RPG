@@ -616,7 +616,7 @@ func _draw_door(L: Node2D, c: Vector2, r: float, prog: float, st: int) -> void:
 		label = "잠김 — 방을 클리어하면 열림"
 	elif inside > 0:
 		label += "  모임 %d" % inside
-	L.draw_string(font, c + Vector2(-90, r + 16), label, HORIZONTAL_ALIGNMENT_CENTER, 180, 12, Color(1, 1, 0.85, 0.95) if not locked else Color(0.7, 0.7, 0.7, 0.8))
+	_text(L, font, c + Vector2(-90, r + 16), label, HORIZONTAL_ALIGNMENT_CENTER, 180, 12, Color(1, 1, 0.85, 0.95) if not locked else Color(0.7, 0.7, 0.7, 0.8))
 
 
 func _draw_device(L: Node2D, kind: int, c: Vector2, progress: float, state: int, size: float) -> bool:
@@ -678,11 +678,18 @@ func _draw_tex(L: Node2D, tex: Texture2D, c: Vector2, size: float, col: Color) -
 	L.draw_set_transform(Vector2.ZERO)
 
 
+## 외곽선 있는 월드 글자 (가독성)
+static func _text(L: Node2D, font: Font, pos: Vector2, text: String, align: int, width: float, size: int, col: Color) -> void:
+	var sz := maxi(size, 14)
+	L.draw_string_outline(font, pos, text, align, width, sz, 4, Color(0.05, 0.03, 0.01, 0.9))
+	L.draw_string(font, pos, text, align, width, sz, col)
+
+
 func _draw_progress(L: Node2D, c: Vector2, prog: float, label: String) -> void:
 	if prog > 0.0 and prog < 1.0:
 		L.draw_arc(c, 30, -PI / 2, -PI / 2 + TAU * prog, 32, Color(0.6, 1.0, 0.6, 0.95), 4.0)
 	var font := AssetRegistry.get_font("font.ui.main")
-	L.draw_string(font, c + Vector2(-40, 44), label, HORIZONTAL_ALIGNMENT_CENTER, 80, 12, Color(1, 1, 0.85, 0.9))
+	_text(L, font, c + Vector2(-40, 44), label, HORIZONTAL_ALIGNMENT_CENTER, 80, 12, Color(1, 1, 0.85, 0.9))
 
 
 ## 짧은 이펙트. 재생 규칙은 시트 메타(loop / hold_last / one_shot)를 따르고, frame>=0 이면 그 프레임만 고정 표시한다.

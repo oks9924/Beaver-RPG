@@ -200,10 +200,12 @@ func _draw() -> void:
 		var ac := affix_color if affix_color.a > 0.0 else Color(1.0, 0.8, 0.3)
 		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(ac, 0.9), 3.0)
 		draw_arc(Vector2.ZERO, 36, 0, TAU, 32, Color(ac, 0.35), 6.0)
-		draw_string(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 13, Color(ac, 1.0).lightened(0.3))
+		draw_string_outline(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, 4, Color(0.05, 0.03, 0.01, 0.9))
+		draw_string(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Color(ac, 1.0).lightened(0.3))
 	if is_player and state == Protocol.EntState.DOWNED:
 		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1, 0.35, 0.2, 0.8), 3.0)
 		var t := "%.0f" % down_t
+		draw_string_outline(font, Vector2(-10, -72), t, HORIZONTAL_ALIGNMENT_CENTER, 20, 14, 4, Color(0.05, 0.03, 0.01, 0.9))
 		draw_string(font, Vector2(-10, -72), t, HORIZONTAL_ALIGNMENT_CENTER, 20, 14, Color(1, 0.6, 0.4))
 	var w := 44.0 if is_player else (120.0 if boss_state >= 0 else 36.0)
 	var y := -70.0 if is_player else (-150.0 if boss_state >= 0 else -60.0)
@@ -217,4 +219,5 @@ func _draw() -> void:
 	if rescue_t > 0.0:
 		draw_rect(Rect2(-w / 2, y + 8, w * clampf(rescue_t / 3.0, 0.0, 1.0), 4), Color(0.6, 1.0, 0.6))
 	if is_player and display_name != "":
-		draw_string(font, Vector2(-60, y - 8), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 13, Color(1, 1, 1) if not is_local else Color(1, 0.95, 0.6))
+		draw_string_outline(font, Vector2(-60, y - 8), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 14, 4, Color(0.05, 0.03, 0.01, 0.9))
+		draw_string(font, Vector2(-60, y - 8), display_name, HORIZONTAL_ALIGNMENT_CENTER, 120, 14, Color(1, 1, 1) if not is_local else Color(1, 0.95, 0.6))

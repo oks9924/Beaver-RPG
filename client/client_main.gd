@@ -159,7 +159,7 @@ func _ready() -> void:
 		demo = true
 		_shots_dir = String(launch_args.get("shots", "user://shots"))
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_shots_dir) if _shots_dir.begins_with("user://") else _shots_dir)
-		overlay.visible = true
+		overlay.visible = launch_args.has("overlay")   # 캡처에는 개발 정보를 기본으로 숨긴다 (--overlay 로 표시)
 	if launch_args.has("zoom"):
 		world.camera.zoom = Vector2.ONE * clampf(float(launch_args["zoom"]), 0.25, 4.0)
 	if launch_args.has("connect"):
@@ -383,7 +383,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			hud.dungeon_map.current_cell = String(p.get("cell", run_state.get("cell", "")))
 			hud.dungeon_map.title = _dungeon_summary(run_state)
 			if bool(p.get("explore", false)):
-				hud.toast("%s 클리어 — 문 앞에 파티가 모이면 다음 방으로 (Tab: 지도)" % def.get("name_ko", "방") if same_room else "%s (탐색) — 문 앞에 파티가 모이면 이동" % def.get("name_ko", "방"), 3.0)
+				hud.toast("방 클리어! 문 앞에 모이면 이동 (Tab: 지도)" if same_room else "%s — 문 앞에 모이면 이동" % def.get("name_ko", "방"), 3.0)
 			else:
 				hud.toast("%s — 기준 인원 %d" % [def.get("name_ko", "전투방"), int(p.get("n", 1))], 3.0)
 			run_panels.hide_panel()
@@ -557,7 +557,7 @@ func _on_room_event(ev: Dictionary) -> void:
 			hud.toast("장치 가동!", 1.5)
 			world.play_sound("sfx.rescue")
 		"explore":
-			hud.toast("방 클리어! 문이 열렸습니다 — 문 앞에 모이면 이동 (전원 3초 · 과반 10초)", 4.0)
+			hud.toast("문이 열렸습니다 — 전원 3초 · 과반 10초", 4.0)
 		"door":
 			hud.toast("%s 문 통과" % {"n": "북", "e": "동", "s": "남", "w": "서"}.get(String(ev.get("dir", "")), "?"), 1.5)
 		"objective_done":
@@ -1025,9 +1025,9 @@ func _demo_tick(dt: float) -> void:
 			if _demo_step == 0 and _demo_t > 1.0:
 				_demo_step = 50
 				_screenshot("02_hub.png")
-			elif _demo_step >= 50 and _demo_step <= 63 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
+			elif _demo_step >= 50 and _demo_step <= 65 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
 				# 메뉴 탭을 차례로 열어 찍는다 (열기 → 다음 틱에 촬영). 장비 탭은 창고 첫 항목을 장착해 본 뒤 한 번 더 찍는다.
-				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
+				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced", "scroll"], ["gear", "02c4_menu_gear_craft"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
 				var ti: int = (_demo_step - 50) / 2
 				var entry: Array = tabs[ti]
 				if (_demo_step - 50) % 2 == 0:
@@ -1038,11 +1038,13 @@ func _demo_tick(dt: float) -> void:
 						hub_screen.demo_equip_first()
 					elif entry.size() > 2 and String(entry[2]) == "enhance":
 						hub_screen.demo_enhance_selected()
+					elif entry.size() > 2 and String(entry[2]) == "scroll":
+						hub_screen.demo_scroll_bottom()
 				_demo_step += 1
-			elif _demo_step == 64 and _demo_t > 7.0:
+			elif _demo_step == 66 and _demo_t > 7.8:
 				_demo_step = 11
 				hub_screen.close_menu()
-			elif _demo_step == 11 and _demo_t > 7.3 and party.is_empty():
+			elif _demo_step == 11 and _demo_t > 8.1 and party.is_empty():
 				_demo_step = 2
 				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class})
 			elif _demo_step == 2 and not party.is_empty() and _demo_t > 2.2:

@@ -50,6 +50,16 @@ static func theme() -> Theme:
 	var font := AssetRegistry.get_font("font.ui.main")
 	t.default_font = font
 	t.default_font_size = 16
+	# 가독성: 모든 글자에 어두운 외곽선을 준다 (나무결 패널·전장 위에서도 읽힌다)
+	var outline := Color(0.08, 0.05, 0.02, 0.92)
+	for cls: String in ["Label", "Button", "RichTextLabel", "LineEdit", "OptionButton", "CheckBox", "PopupMenu"]:
+		t.set_color("font_outline_color", cls, outline)
+		t.set_constant("outline_size", cls, OUTLINE_PX)
+	t.set_color("default_color", "RichTextLabel", Color(0.97, 0.95, 0.9))
+	t.set_color("font_color", "Button", Color(0.98, 0.96, 0.9))
+	t.set_color("font_hover_color", "Button", Color(1.0, 0.98, 0.85))
+	t.set_color("font_disabled_color", "Button", Color(0.75, 0.72, 0.65))
+	t.set_color("font_color", "Label", Color(0.97, 0.95, 0.9))
 	var panel_tex := AssetRegistry.get_texture("ui.panel.default")
 	var sb := StyleBoxTexture.new()
 	sb.texture = panel_tex
@@ -58,10 +68,11 @@ static func theme() -> Theme:
 	sb.texture_margin_right = m
 	sb.texture_margin_top = m
 	sb.texture_margin_bottom = m
-	sb.content_margin_left = 14
-	sb.content_margin_right = 14
-	sb.content_margin_top = 10
-	sb.content_margin_bottom = 10
+	sb.content_margin_left = 16
+	sb.content_margin_right = 16
+	sb.content_margin_top = 12
+	sb.content_margin_bottom = 12
+	sb.modulate_color = Color(0.86, 0.84, 0.8)   # 패널을 살짝 어둡게 해 밝은 글자와 대비를 키운다
 	t.set_stylebox("panel", "PanelContainer", sb)
 	var btn := StyleBoxTexture.new()
 	btn.texture = AssetRegistry.get_texture("ui.button.default")
@@ -91,11 +102,23 @@ static func theme() -> Theme:
 	return t
 
 
+## 가독성 규칙: 글자 크기 하한(FONT_MIN)과 흐린 색 보정(너무 어두운 회색은 밝게). 외곽선은 테마가 준다.
+const FONT_MIN := 14
+const OUTLINE_PX := 3
+
+
+static func readable_color(c: Color) -> Color:
+	# 명도가 낮은(회색) 안내 글자는 밝게 끌어올린다. 색상 계열은 유지.
+	if c.v < 0.82:
+		return c.lerp(Color(1.0, 0.98, 0.92), 0.35)
+	return c
+
+
 static func label(text: String, size: int = 16, color: Color = Color(0.95, 0.92, 0.85)) -> Label:
 	var l := Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", color)
+	l.add_theme_font_size_override("font_size", maxi(size, FONT_MIN))
+	l.add_theme_color_override("font_color", readable_color(color))
 	return l
 
 

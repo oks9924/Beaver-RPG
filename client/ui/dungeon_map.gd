@@ -26,7 +26,7 @@ func size_px() -> Vector2:
 	var gap := 4.0
 	var cols := int(dungeon.get("cols", 5))
 	var rows := int(dungeon.get("rows", 3))
-	var top := 18.0 if title != "" else 0.0
+	var top := 20.0 if title != "" else 0.0
 	return Vector2(cols * (cell + gap) + 4.0, rows * (cell + gap) + top + 4.0)
 
 
@@ -39,10 +39,12 @@ func _draw() -> void:
 	var font := AssetRegistry.get_font("font.ui.main")
 	var sz := size_px()
 	var gw := sz.x + 4.0
-	var top := 18.0 if title != "" else 0.0
-	draw_rect(Rect2(Vector2(-4, -4), Vector2(gw + 4, rows * (cell + gap) + top + 8)), Color(0.05, 0.08, 0.05, 0.7))
+	var top := 20.0 if title != "" else 0.0
+	var title_w := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 8.0 if title != "" else 0.0
+	draw_rect(Rect2(Vector2(-4, -4), Vector2(maxf(gw + 4, title_w), rows * (cell + gap) + top + 8)), Color(0.05, 0.08, 0.05, 0.7))
 	if title != "":
-		draw_string(font, Vector2(2, 12), title, HORIZONTAL_ALIGNMENT_LEFT, gw + 220, 12, Color(0.95, 0.92, 0.85))
+		draw_string_outline(font, Vector2(2, 12), title, HORIZONTAL_ALIGNMENT_LEFT, gw + 220, 14, 3, Color(0.05, 0.03, 0.01, 0.9))
+		draw_string(font, Vector2(2, 12), title, HORIZONTAL_ALIGNMENT_LEFT, gw + 220, 14, Color(0.95, 0.92, 0.85))
 	var origin := Vector2(2, top + 2)
 	var rooms: Dictionary = dungeon.get("rooms", {})
 	for k: String in rooms.keys():
@@ -63,4 +65,5 @@ func _draw() -> void:
 			var dv: Vector2 = {"n": Vector2(0, -1), "s": Vector2(0, 1), "e": Vector2(1, 0), "w": Vector2(-1, 0)}.get(d, Vector2.ZERO)
 			draw_line(c + dv * cell * 0.5, c + dv * (cell * 0.5 + gap), Color(0.95, 0.9, 0.7), 2.0)
 		var mark: String = TYPE_MARK.get(t, "?")
+		draw_string_outline(font, rect.position + Vector2(0, cell * 0.72), mark, HORIZONTAL_ALIGNMENT_CENTER, cell, int(cell * 0.5), 3, Color(0.05, 0.03, 0.01, 0.9))
 		draw_string(font, rect.position + Vector2(0, cell * 0.72), mark, HORIZONTAL_ALIGNMENT_CENTER, cell, int(cell * 0.5), Color(0.05, 0.05, 0.05) if fill.a > 0.5 else Color(0.9, 0.9, 0.9))
