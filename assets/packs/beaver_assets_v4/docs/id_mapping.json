@@ -1,0 +1,28 @@
+{
+  "class_ids": {
+    "guardian": "player_guardian",
+    "hydro": "player_engineer",
+    "pinecone": "player_ranger",
+    "sapshaman": "player_shaman",
+    "sawtooth": "player_berserker"
+  },
+  "enemy_aliases": {
+    "gear_crab": "enemy_gear_crab",
+    "lantern_moth": "enemy_lantern_moth",
+    "reed_frog": "enemy_reed_frog",
+    "river_leech": "enemy_river_leech",
+    "root_puppet": "enemy_root_puppet",
+    "sap_totem": "enemy_sap_totem",
+    "shell_soldier": "enemy_shell_soldier",
+    "spore_mushroom": "enemy_spore_mushroom",
+    "woodjaw_beetle": "enemy_woodjaw_beetle"
+  },
+  "npc_portraits": {
+    "npc_archivist_willow": "portrait_archivist_willow",
+    "npc_elder_zelkova": "portrait_elder_zelkova",
+    "npc_engineer_ripple": "portrait_engineer_ripple",
+    "npc_herbalist_moss": "portrait_herbalist_moss",
+    "npc_merchant_doto": "portrait_merchant_doto",
+    "npc_smith_resin": "portrait_smith_resin"
+  }
+}

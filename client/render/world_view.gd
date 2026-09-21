@@ -179,8 +179,14 @@ func _draw_terrain() -> void:
 			_tile(L, tex, 2, Vector2(x0 - T, y), T)   # 왼쪽 강둑: 동쪽 경계
 			_tile(L, tex, 4, Vector2(x1, y), T)       # 오른쪽 강둑: 서쪽 경계
 			y += T
-		for c in [Vector2(x0 - 2 * T, y0 - 2 * T), Vector2(x1 + T, y0 - 2 * T), Vector2(x0 - 2 * T, y1 + T), Vector2(x1 + T, y1 + T), Vector2(x0 - 2 * T, y0 - T), Vector2(x0 - T, y0 - 2 * T), Vector2(x1, y0 - 2 * T), Vector2(x1 + T, y0 - T), Vector2(x0 - 2 * T, y1), Vector2(x0 - T, y1 + T), Vector2(x1, y1 + T), Vector2(x1 + T, y1)]:
+		for c in [Vector2(x0 - 2 * T, y0 - T), Vector2(x0 - T, y0 - 2 * T), Vector2(x1, y0 - 2 * T), Vector2(x1 + T, y0 - T), Vector2(x0 - 2 * T, y1), Vector2(x0 - T, y1 + T), Vector2(x1, y1 + T), Vector2(x1 + T, y1)]:
 			_tile(L, tex, 0, c, T)
+		# 바깥 링의 네 귀퉁이: 볼록 모서리(9~12, v4)가 있으면 그것, 없으면 전체(0)
+		var has_outer := int(AssetRegistry.get_sheet(_wall_asset)["hframes"]) >= 13
+		_tile(L, tex, 9 if has_outer else 0, Vector2(x0 - 2 * T, y0 - 2 * T), T)
+		_tile(L, tex, 10 if has_outer else 0, Vector2(x1 + T, y0 - 2 * T), T)
+		_tile(L, tex, 11 if has_outer else 0, Vector2(x1 + T, y1 + T), T)
+		_tile(L, tex, 12 if has_outer else 0, Vector2(x0 - 2 * T, y1 + T), T)
 		_tile(L, tex, 7, Vector2(x0 - T, y0 - T), T)   # 안쪽 SE 모서리
 		_tile(L, tex, 8, Vector2(x1, y0 - T), T)       # 안쪽 SW
 		_tile(L, tex, 5, Vector2(x1, y1), T)           # 안쪽 NW
@@ -202,6 +208,12 @@ func _draw_terrain() -> void:
 				_tile(L, stex, 3, Vector2(wr.position.x, y), T)
 				_tile(L, stex, 1, Vector2(wr.end.x - T, y), T)
 				y += T
+			# 물 사각형 귀퉁이: 물이 육지를 파고드는 오목 모서리(8~11, v4 버들강). 4장짜리 물가(습지·뿌리댐)는 직선만
+			if int(shore["hframes"]) >= 12:
+				_tile(L, stex, 8, wr.position, T)
+				_tile(L, stex, 9, Vector2(wr.end.x - T, wr.position.y), T)
+				_tile(L, stex, 10, wr.end - Vector2(T, T), T)
+				_tile(L, stex, 11, Vector2(wr.position.x, wr.end.y - T), T)
 
 
 func clear_entities() -> void:
@@ -264,6 +276,15 @@ func _process(dt: float) -> void:
 		var t := float(fx.get_meta("t", 0.0)) + dt
 		var life := float(fx.get_meta("life", 0.3))
 		fx.set_meta("t", t)
+		var delay := float(fx.get_meta("delay", 0.0))
+		if t < delay:
+			i -= 1
+			continue
+		if delay > 0.0 and not fx.visible:
+			fx.visible = true
+			fx.set_meta("t", 0.0)
+			fx.set_meta("delay", 0.0)
+			t = 0.0
 		if t >= life:
 			fx.queue_free()
 		else:
@@ -396,18 +417,22 @@ func _draw_telegraphs() -> void:
 				L.draw_rect(Rect2(c.x - 40, c.y - 8, 80 * prog, 16), Color(1.0, 0.3, 0.2) if st == 1 else Color(0.9, 0.7, 0.3))
 				_draw_progress(L, c + Vector2(0, 14), prog, "압력 %d%%" % int(prog * 100))
 			Protocol.ObKind.SECRET:
-				_draw_tex(L, _object_tex["secret"], c, 56, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(Time.get_ticks_msec() / 250.0)))
+				if not _draw_frame(L, "prop.secret", 0, c + Vector2(0, 14), 64.0, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(Time.get_ticks_msec() / 250.0))):
+					_draw_tex(L, _object_tex["secret"], c, 56, Color(1.0, 1.0, 1.0, 0.7 + 0.3 * sin(Time.get_ticks_msec() / 250.0)))
 				_draw_progress(L, c, prog, "F 조사 (지역 비밀)")
 			Protocol.ObKind.RAFT:
 				L.draw_circle(c, r + 100, Color(0.9, 0.85, 0.4, 0.06))
 				L.draw_arc(c, r + 100, 0, TAU, 48, Color(0.4, 0.9, 0.5, 0.6) if st == 1 else (Color(0.95, 0.4, 0.3, 0.7) if st == 2 else Color(0.9, 0.85, 0.4, 0.5)), 2.0)
-				_draw_tex(L, _object_tex["raft"], c, 96, Color.WHITE)
+				if not _draw_frame(L, "prop.raft", 1 if st == 2 else 0, c + Vector2(0, 20), 110.0):
+					_draw_tex(L, _object_tex["raft"], c, 96, Color.WHITE)
 				_draw_progress(L, c, prog, "호위 %d%%" % int(prog * 100) + (" · 적 접근!" if st == 2 else (" · 이동 중" if st == 1 else " · 가까이 가세요")))
 			Protocol.ObKind.TURRET:
-				_draw_tex(L, _object_tex["turret"], c + Vector2(0, -10), 64, Color.WHITE if st == 1 else Color(0.85, 0.9, 1.0))
+				if not _draw_frame(L, "prop.turret", 2 if st == 1 else 1, c + Vector2(0, 14), 72.0):
+					_draw_tex(L, _object_tex["turret"], c + Vector2(0, -10), 64, Color.WHITE if st == 1 else Color(0.85, 0.9, 1.0))
 				L.draw_arc(c, 18, -PI / 2, -PI / 2 + TAU * prog, 24, Color(0.4, 0.8, 1.0, 0.9), 3.0)
 			Protocol.ObKind.DAM:
-				_draw_tex(L, _object_tex["dam"], c + Vector2(0, -16), r * 2.6, Color.WHITE)
+				if not _draw_frame(L, "prop.dam", 2 if prog > 0.66 else (1 if prog > 0.33 else 0), c + Vector2(0, 16), r * 2.6):
+					_draw_tex(L, _object_tex["dam"], c + Vector2(0, -16), r * 2.6, Color.WHITE)
 				L.draw_rect(Rect2(c.x - 26, c.y - 60, 52, 5), Color(0, 0, 0, 0.6))
 				L.draw_rect(Rect2(c.x - 26, c.y - 60, 52 * prog, 5), Color(0.4, 0.75, 1.0))
 			Protocol.ObKind.ROOT_ZONE:
@@ -447,7 +472,8 @@ func _draw_telegraphs() -> void:
 				_draw_progress(L, c, prog, "F 수문")
 			Protocol.ObKind.PILLAR:
 				if not _draw_device(L, kind, c, prog, st, 150):
-					_draw_tex(L, _object_tex["pillar"], c + Vector2(0, -30), 100, Color.WHITE if st == 0 else Color(1.0, 0.75, 0.4))
+					if not _draw_frame(L, "prop.boss.pillar", 1 if st >= 1 else 0, c + Vector2(0, 16), 100.0):
+						_draw_tex(L, _object_tex["pillar"], c + Vector2(0, -30), 100, Color.WHITE if st == 0 else Color(1.0, 0.75, 0.4))
 				_draw_progress(L, c, prog, "F 갉기 (약화)" if st == 0 else "약화됨 — 돌진 유도!")
 				if st == 1:
 					L.draw_arc(c, 40, 0, TAU, 32, Color(1.0, 0.8, 0.3, 0.9), 3.0)
@@ -456,13 +482,15 @@ func _draw_telegraphs() -> void:
 				var tgt := (st >> 1) & 1
 				var locked := st == 4
 				if not _draw_device(L, kind, c, prog, st, 140):
-					_draw_tex(L, _object_tex["gate"], c + Vector2(0, -20), 80, Color(0.6, 1.0, 0.7) if locked else Color.WHITE)
+					if not _draw_frame(L, "prop.boss.gate", 2 if cur == 1 else 0, c + Vector2(0, 16), 84.0, Color(0.6, 1.0, 0.7) if locked else Color.WHITE):
+						_draw_tex(L, _object_tex["gate"], c + Vector2(0, -20), 80, Color(0.6, 1.0, 0.7) if locked else Color.WHITE)
 				L.draw_rect(Rect2(c.x - 26, c.y + 28, 24, 10), Color(0.3, 0.6, 1.0) if cur == 1 else Color(0.5, 0.4, 0.3))
 				L.draw_rect(Rect2(c.x + 2, c.y + 28, 24, 10), Color(0.3, 0.6, 1.0) if tgt == 1 else Color(0.5, 0.4, 0.3), false, 2.0)
 				_draw_progress(L, c + Vector2(0, 10), prog, "잠김" if locked else ("F 수문 (현재→목표)"))
 			Protocol.ObKind.CLAW_LINK:
 				if not _draw_device(L, kind, c, prog * 0.5 + (0.5 if st >= 1 else 0.0), 0 if st < 2 else 1, 120):
-					_draw_tex(L, _object_tex["claw_link"], c, 64, Color.WHITE if st < 2 else Color(0.6, 1.0, 0.7))
+					if not _draw_frame(L, "prop.boss.claw_link", clampi(st, 0, 2), c + Vector2(0, 14), 64.0):
+						_draw_tex(L, _object_tex["claw_link"], c, 64, Color.WHITE if st < 2 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog, ["F 고리 노출", "F 쐐기 박기", "풀려남"][clampi(st, 0, 2)])
 			Protocol.ObKind.HUSK:
 				var wig := sin(Time.get_ticks_msec() / 90.0) * 6.0 if st == 1 else 0.0
@@ -474,23 +502,28 @@ func _draw_telegraphs() -> void:
 						L.draw_arc(c, rr, 0, TAU, 40, Color(0.6, 0.85, 1.0, 0.35), 2.0)
 			Protocol.ObKind.CORRIDOR:
 				if not _draw_device(L, kind, c, prog, st, 140):
-					_draw_tex(L, _object_tex["corridor"], c, 90, Color.WHITE if st == 0 else Color(0.5, 0.5, 0.5))
+					if not _draw_frame(L, "prop.boss.corridor", 0 if st >= 1 else 1, c + Vector2(0, 16), 96.0):
+						_draw_tex(L, _object_tex["corridor"], c, 90, Color.WHITE if st == 0 else Color(0.5, 0.5, 0.5))
 				_draw_progress(L, c, prog, "F 통로 차단" if st == 0 else "차단됨")
 			Protocol.ObKind.ROPE:
-				_draw_tex(L, _object_tex["rope"], c, 44, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
+				if not _draw_frame(L, "prop.boss.rope", 1 if st >= 1 else 0, c + Vector2(0, 12), 52.0):
+					_draw_tex(L, _object_tex["rope"], c, 44, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog, "F 닻줄 연결" if st == 0 else "연결됨")
 			Protocol.ObKind.DEBRIS:
-				_draw_tex(L, _object_tex["debris"], c, 80, Color.WHITE)
+				if not _draw_frame(L, "prop.boss.debris", mini(int(prog * 3.0), 2), c + Vector2(0, 14), 84.0):
+					_draw_tex(L, _object_tex["debris"], c, 80, Color.WHITE)
 				_draw_progress(L, c, prog, "F 잔해 제거")
 			Protocol.ObKind.ANCHOR:
 				if not _draw_device(L, kind, c, prog, st, 150):
-					_draw_tex(L, _object_tex["anchor"], c + Vector2(0, -20), 80, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
+					if not _draw_frame(L, "prop.boss.anchor", 0 if st >= 1 else 1, c + Vector2(0, 16), 84.0):
+						_draw_tex(L, _object_tex["anchor"], c + Vector2(0, -20), 80, Color.WHITE if st == 0 else Color(0.6, 1.0, 0.7))
 				_draw_progress(L, c, prog, "F 고정 (줄·잔해 먼저)" if st == 0 else "고정됨")
 			Protocol.ObKind.PLATFORM:
 				if st != 2:
 					_draw_frame(L, "vfx.whirlpool", int(Time.get_ticks_msec() / 160) % 4, c, r * 3.2, Color(1, 1, 1, 0.75))
 				var pc := Color(0.9, 0.8, 0.4, 0.25) if st == 2 else Color(0.6, 0.5, 0.3, 0.2)
 				L.draw_circle(c, r, pc)
+				_draw_frame(L, "prop.boss.platform", 0 if st == 2 else 1, c + Vector2(0, r * 0.5), r * 1.8, Color(1, 1, 1, 0.85))
 				L.draw_arc(c, r, 0, TAU, 48, Color(1.0, 0.85, 0.4, 0.9) if st == 2 else Color(0.8, 0.7, 0.5, 0.8), 3.0)
 				if st != 2:
 					L.draw_arc(c, r + 10, -PI / 2, -PI / 2 + TAU * prog, 48, Color(1.0, 0.4, 0.3, 0.9), 5.0)
@@ -525,7 +558,9 @@ func _draw_telegraphs() -> void:
 			L.draw_circle(c, r * progress, Color(1.0, 0.35, 0.15, 0.35))
 			L.draw_arc(c, r, 0, TAU, 40, Color(1.0, 0.5, 0.2, 0.95), 3.0)
 			if _tg_tex != null:
-				var sc := r * 2.0 / maxf(_tg_tex.get_width(), 1)
+				var vb: Array = AssetRegistry.entry("vfx.telegraph_circle").get("visual_bounds_px", [])
+				var ring_w := float(vb[0]) if vb.size() >= 1 else float(_tg_tex.get_width())
+				var sc := r * 2.0 / maxf(ring_w, 1.0)
 				L.draw_set_transform(c, 0.0, Vector2(sc, sc))
 				L.draw_texture(_tg_tex, -_tg_tex.get_size() / 2.0, Color(1, 1, 1, 0.5))
 				L.draw_set_transform(Vector2.ZERO)
@@ -615,7 +650,7 @@ func _draw_progress(L: Node2D, c: Vector2, prog: float, label: String) -> void:
 
 ## 짧은 이펙트. 재생 규칙은 시트 메타(loop / hold_last / one_shot)를 따르고, frame>=0 이면 그 프레임만 고정 표시한다.
 ## size>0 이면 월드 px 폭을 강제한다 (보스 강타 반경 등).
-func spawn_effect(asset_id: String, pos: Vector2, rotation_: float = 0.0, life: float = -1.0, size: float = -1.0, frame: int = -1) -> void:
+func spawn_effect(asset_id: String, pos: Vector2, rotation_: float = 0.0, life: float = -1.0, size: float = -1.0, frame: int = -1, delay: float = 0.0) -> void:
 	var sheet := AssetRegistry.get_sheet(asset_id)
 	var spr := Sprite2D.new()
 	spr.texture = sheet["texture"]
@@ -646,6 +681,9 @@ func spawn_effect(asset_id: String, pos: Vector2, rotation_: float = 0.0, life: 
 	spr.set_meta("loop", looping)
 	spr.set_meta("hold", hold)
 	spr.set_meta("frame", frame)
+	spr.set_meta("delay", delay)
+	if delay > 0.0:
+		spr.visible = false
 	_effects.add_child(spr)
 
 
@@ -659,7 +697,7 @@ func play_sound(asset_id: String, min_gap: float = 0.06) -> void:
 	for ap: AudioStreamPlayer in _audio_players:
 		if not ap.playing:
 			ap.stream = stream
-			ap.volume_db = linear_to_db(clampf(sfx_volume, 0.0, 1.0)) if sfx_volume > 0.001 else -80.0
+			ap.volume_db = (linear_to_db(clampf(sfx_volume, 0.0, 1.0)) + float(AssetRegistry.entry(asset_id).get("gain_db", 0.0))) if sfx_volume > 0.001 else -80.0
 			ap.play()
 			_audio_last[asset_id] = now
 			return

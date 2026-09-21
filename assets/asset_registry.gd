@@ -85,6 +85,8 @@ func _exists(path: String) -> bool:
 
 
 func _ext_for(e: Dictionary) -> String:
+	if String(e.get("ext", "")) != "":
+		return String(e["ext"])
 	match String(e.get("type", "texture")):
 		"font": return "ttf"
 		"audio": return "wav"
@@ -191,11 +193,21 @@ func get_audio(id: String) -> AudioStream:
 		return _audio_cache[id]
 	var path := resolve_path(id)
 	var stream: AudioStream = null
+	var e := entry(id)
 	if path != "":
 		if path.begins_with("res://") and ResourceLoader.exists(path, "AudioStream"):
 			stream = load(path) as AudioStream
 		if stream == null and path.ends_with(".wav") and FileAccess.file_exists(path):
 			stream = AudioStreamWAV.load_from_file(path)
+		if stream == null and path.ends_with(".ogg") and FileAccess.file_exists(path):
+			stream = AudioStreamOggVorbis.load_from_file(path)
+	# 팩 매니페스트의 루프 정보 (샘플 위치는 44.1kHz 기준)
+	if stream is AudioStreamOggVorbis and bool(e.get("loop", false)):
+		var ogg := stream as AudioStreamOggVorbis
+		ogg.loop = true
+		ogg.loop_offset = float(e.get("loop_start_sample", 0)) / maxf(float(e.get("sample_rate", 44100)), 1.0)
+	elif stream is AudioStreamWAV and bool(e.get("loop", false)):
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
 	if stream == null and not missing_ids.has(id):
 		missing_ids.append(id)
 	_audio_cache[id] = stream

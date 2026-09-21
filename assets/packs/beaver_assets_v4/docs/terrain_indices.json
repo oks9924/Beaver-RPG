@@ -1,0 +1,95 @@
+{
+  "tile_willow_wall": [
+    "solid",
+    "north",
+    "east",
+    "south",
+    "west",
+    "inner NW",
+    "inner NE",
+    "inner SE",
+    "inner SW",
+    "outer NW",
+    "outer NE",
+    "outer SE",
+    "outer SW"
+  ],
+  "tile_willow_ground": [
+    "grass A",
+    "grass B",
+    "grass C",
+    "grass D",
+    "faint dirt A",
+    "faint dirt B",
+    "faint dirt C",
+    "faint dirt D"
+  ],
+  "tile_willow_shore": [
+    "grass north water south",
+    "water west grass east",
+    "water north grass south",
+    "grass west water east",
+    "convex NW",
+    "convex NE",
+    "convex SE",
+    "convex SW",
+    "concave NW",
+    "concave NE",
+    "concave SE",
+    "concave SW"
+  ],
+  "tile_swamp_ground": [
+    "subtle variation A",
+    "subtle variation B",
+    "subtle variation C",
+    "subtle variation D"
+  ],
+  "tile_swamp_wall": [
+    "solid",
+    "north",
+    "east",
+    "south",
+    "west",
+    "inner NW",
+    "inner NE",
+    "inner SE",
+    "inner SW"
+  ],
+  "tile_swamp_water": [
+    "ripple phase A",
+    "ripple phase B"
+  ],
+  "tile_swamp_shore": [
+    "land north water south",
+    "water west land east",
+    "water north land south",
+    "land west water east"
+  ],
+  "tile_rootdam_ground": [
+    "subtle variation A",
+    "subtle variation B",
+    "subtle variation C",
+    "subtle variation D"
+  ],
+  "tile_rootdam_wall": [
+    "solid",
+    "north",
+    "east",
+    "south",
+    "west",
+    "inner NW",
+    "inner NE",
+    "inner SE",
+    "inner SW"
+  ],
+  "tile_rootdam_water": [
+    "ripple phase A",
+    "ripple phase B"
+  ],
+  "tile_rootdam_shore": [
+    "land north water south",
+    "water west land east",
+    "water north land south",
+    "land west water east"
+  ]
+}

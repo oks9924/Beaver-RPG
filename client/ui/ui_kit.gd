@@ -3,6 +3,7 @@ extends RefCounted
 ## 코드로 UI 를 만들 때 쓰는 공통 헬퍼. 폰트·패널은 에셋 ID 로 가져온다.
 
 static var _theme: Theme = null
+static var click_sound: Callable = Callable()
 
 static func error_text(code: String, payload: Dictionary = {}) -> String:
 	match code:
@@ -93,7 +94,13 @@ static func button(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.pressed.connect(cb)
+	b.pressed.connect(_click)
 	return b
+
+
+static func _click() -> void:
+	if click_sound.is_valid():
+		click_sound.call()
 
 
 static func line_edit(placeholder: String, secret: bool = false) -> LineEdit:
@@ -147,10 +154,21 @@ static func card_button(text: String, sheet_id: String, frame: int, size: Vector
 	sb.texture = AssetRegistry.get_frame_texture(sheet_id, frame)
 	for side in ["left", "right", "top", "bottom"]:
 		sb.set("texture_margin_" + side, 28)
-	sb.content_margin_left = 22
-	sb.content_margin_right = 22
-	sb.content_margin_top = 26
-	sb.content_margin_bottom = 20
+	# 팩의 content_rect(투명 안쪽 영역)를 카드 크기에 비례해 여백으로 적용한다 (docs/ui_layout.json)
+	var fs: Vector2 = sheet["frame_size"]
+	var cr: Array = AssetRegistry.entry(sheet_id).get("content_rect", [])
+	var sx := size.x / maxf(fs.x, 1.0)
+	var sy := size.y / maxf(fs.y, 1.0)
+	if cr.size() == 4:
+		sb.content_margin_left = float(cr[0]) * sx
+		sb.content_margin_top = float(cr[1]) * sy
+		sb.content_margin_right = (fs.x - float(cr[0]) - float(cr[2])) * sx
+		sb.content_margin_bottom = (fs.y - float(cr[1]) - float(cr[3])) * sy
+	else:
+		sb.content_margin_left = 22
+		sb.content_margin_right = 22
+		sb.content_margin_top = 26
+		sb.content_margin_bottom = 20
 	for st in ["normal", "hover", "pressed", "disabled", "focus"]:
 		var sbx: StyleBoxTexture = sb.duplicate()
 		if st == "hover":
@@ -164,6 +182,7 @@ static func card_button(text: String, sheet_id: String, frame: int, size: Vector
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.add_theme_font_size_override("font_size", 13)
+	b.pressed.connect(_click)
 	return b
 
 

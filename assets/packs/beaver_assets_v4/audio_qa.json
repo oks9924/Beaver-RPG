@@ -1,0 +1,121 @@
+[
+  {
+    "id": "sfx_dodge",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.300000"
+  },
+  {
+    "id": "sfx_down",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.920000"
+  },
+  {
+    "id": "sfx_great_tree",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "1.450000"
+  },
+  {
+    "id": "sfx_hammer_hit",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.420000"
+  },
+  {
+    "id": "sfx_player_hit",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.240000"
+  },
+  {
+    "id": "sfx_rescue",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "1.100000"
+  },
+  {
+    "id": "sfx_sling",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.230000"
+  },
+  {
+    "id": "sfx_snail_death",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.850000"
+  },
+  {
+    "id": "sfx_snail_hit",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.310000"
+  },
+  {
+    "id": "sfx_tail_slam",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.680000"
+  },
+  {
+    "id": "sfx_ui_click",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.120000"
+  },
+  {
+    "id": "sfx_wood_block",
+    "codec": "pcm_s16le",
+    "sample_rate": "44100",
+    "channels": 1,
+    "duration": "0.300000"
+  },
+  {
+    "id": "bgm_hub",
+    "codec": "vorbis",
+    "sample_rate": "44100",
+    "channels": 2,
+    "duration": "96.000000"
+  },
+  {
+    "id": "bgm_combat_normal",
+    "codec": "vorbis",
+    "sample_rate": "44100",
+    "channels": 2,
+    "duration": "64.000000"
+  },
+  {
+    "id": "bgm_boss",
+    "codec": "vorbis",
+    "sample_rate": "44100",
+    "channels": 2,
+    "duration": "80.000000"
+  },
+  {
+    "id": "amb_water",
+    "codec": "vorbis",
+    "sample_rate": "44100",
+    "channels": 2,
+    "duration": "72.000000"
+  },
+  {
+    "id": "amb_wind",
+    "codec": "vorbis",
+    "sample_rate": "44100",
+    "channels": 2,
+    "duration": "80.000000"
+  }
+]

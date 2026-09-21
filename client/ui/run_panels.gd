@@ -58,6 +58,9 @@ const RARITY_KO := {"common": "일반", "rare": "희귀", "legendary": "전설"}
 const RARITY_COLOR := {"common": Color(1, 1, 1), "rare": Color(0.6, 0.85, 1.0), "legendary": Color(1.0, 0.8, 0.4)}
 
 
+var run_class: String = "guardian"
+
+
 func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 	_mode = "reward"
 	_my_id = my_id
@@ -81,6 +84,17 @@ func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 		var kind_ko: String = {"relic": "유물", "upgrade": "스킬 강화", "acorns": "도토리"}.get(kind, "")
 		var b := UIKit.card_button("[%s · %s]\n%s\n\n%s" % [kind_ko, RARITY_KO.get(rarity, rarity), o.get("name_ko", ""), o.get("desc_ko", "")], "ui.card.reward", 0 if kind == "relic" else 1, Vector2(196, 270), func() -> void: reward_picked.emit(i))
 		b.add_theme_color_override("font_color", RARITY_COLOR.get(rarity, Color.WHITE))
+		var icon_id := ""
+		if kind == "relic":
+			icon_id = String(ContentDB.relics.get(String(o.get("id", "")), {}).get("assets", {}).get("icon", ""))
+		elif kind == "upgrade":
+			icon_id = String(ContentDB.get_class_def(String(run_class)).get("skills", {}).get(String(o.get("skill", "")), {}).get("assets", {}).get("icon", ""))
+		if icon_id != "" and AssetRegistry.status(icon_id) == "final":
+			b.icon = AssetRegistry.get_texture(icon_id)
+			b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+			b.expand_icon = true
+			b.add_theme_constant_override("icon_max_width", 48)
 		if rarity != "common":
 			b.modulate = Color(1.05, 1.05, 1.0) if rarity == "rare" else Color(1.1, 1.05, 0.9)
 		cards.add_child(b)

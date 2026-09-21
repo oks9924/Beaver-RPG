@@ -17,6 +17,8 @@ var v1: Dictionary = {}
 var v2: Dictionary = {}
 var v3a: Dictionary = {}
 var v3b: Dictionary = {}
+var v4: Dictionary = {}
+var v4_audio: Dictionary = {}
 var manifest: Dictionary = {}
 var made: int = 0
 var only: String = ""
@@ -40,6 +42,10 @@ func _init() -> void:
 		v3a = _read_json(packs_dir.path_join("beaver_assets_v3a/manifest.json"))
 	if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v3bce/manifest.json")):
 		v3b = _read_json(packs_dir.path_join("beaver_assets_v3bce/manifest.json"))
+	if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v4/manifest.json")):
+		v4 = _read_json(packs_dir.path_join("beaver_assets_v4/manifest.json"))
+		if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v4/audio_manifest.json")):
+			v4_audio = _read_json(packs_dir.path_join("beaver_assets_v4/audio_manifest.json"))
 	var mj := JSON.new()
 	mj.parse(FileAccess.get_file_as_string(MANIFEST))
 	manifest = mj.data
@@ -390,6 +396,7 @@ func _run() -> void:
 			_emit("prop.mechanic.%s.%s" % [key, state], fr, D, 128, "final", _src("beaver_combat_v2", actor, state + "_fixed"), linked, "", ["all"])
 	_run_v3a()
 	_run_v3b()
+	_run_v4()
 	# 팩 참조 문서 정보
 	manifest["packs"] = {
 		"beaver_assets_v1": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_에셋팩_v1.zip", "manifest": "assets/packs/beaver_assets_v1/manifest.json", "status": v1.get("status", ""), "note": "플레이어 5직업 기본 자세, 수호목수 이동·공격·Q/E/R, 적 12·보스 3 기본 자세"},
@@ -397,6 +404,8 @@ func _run() -> void:
 	}
 	if not v3a.is_empty():
 		manifest["packs"]["beaver_assets_v3a"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_A.zip", "manifest": "assets/packs/beaver_assets_v3a/manifest.json", "status": v3a.get("status", ""), "note": "요청서 v3 A: 사수 8동작, 수호목수 피격·다운·사망·갉기, 적 3종 이동·피격·사망(+멧돼지 돌진), 가재 이동·피격·사망·탈피·빈 껍질"}
+	if not v4.is_empty():
+		manifest["packs"]["beaver_assets_v4"] = {"root": "GitHub Release assets-raw-v4 / beaver_assets_v4.zip", "manifest": "assets/packs/beaver_assets_v4/manifest.json", "status": v4.get("status", ""), "note": "요청서 v4: 직업 3종 8동작, 적 9종 이동·피격·사망, 두꺼비·뿌리왕 4동작, 버들강 보정 타일, 습지·뿌리댐 타일, 보스·댐·마을 소품, 새 직업 VFX 12, 아이콘 52·초상 14·NPC 6, 오디오 17"}
 	if not v3b.is_empty():
 		manifest["packs"]["beaver_assets_v3bce"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_B-E.zip", "manifest": "assets/packs/beaver_assets_v3bce/manifest.json", "status": v3b.get("status", ""), "note": "요청서 v3 B~E: VFX 16, 버들강 타일 6·소품 13, 아이콘 24, UI 9"}
 	manifest["import_tool"] = "tools/import_asset_pack.gd"
@@ -656,3 +665,162 @@ func _run_v3b() -> void:
 	var pf := _pack_strip(v3b, R, "ui_frame_portrait", "default_all")
 	if not pf.is_empty():
 		_emit_single("ui.frame.portrait", pf["all"][0], "final", _src(R, "ui_frame_portrait", "default_all", "pack", V3_ORIGIN), true)
+
+
+# ------------------------------------------------------------------ v4 (assets-raw-v4)
+
+const V4_ORIGIN := "GitHub Release assets-raw-v4"
+const AUDIO_OUT := "res://assets/final/audio/"
+
+
+func _run_v4() -> void:
+	if v4.is_empty():
+		report.append("SKIP v4 (pack not found)")
+		return
+	const R := "beaver_assets_v4"
+	const P := 128
+	const B := 256
+	# --- F1: 직업 3종 8상태 (idle 은 v1 유지)
+	var classes := {"sawtooth": "player_berserker", "sapshaman": "player_shaman", "hydro": "player_engineer"}
+	for cid: String in classes.keys():
+		var actor := String(classes[cid])
+		for st in ["walk", "attack", "cast", "cast_q", "cast_e", "cast_r", "hit", "down"]:
+			var fr := _pack_frames(v4, R, actor, st)
+			if not fr.is_empty():
+				fr["_contact"] = {"attack": 2, "cast_q": 2, "cast_e": 3, "cast_r": 2}.get(st, -1)
+			_emit("char.%s.%s" % [cid, st], fr, P, 112, "final", _src(R, actor, st, "pack", V4_ORIGIN), true, "hit.player_default")
+	# --- F2: 일반 적 9종 이동·피격·사망
+	for eid in ["shell_soldier", "spore_mushroom", "root_puppet", "reed_frog", "river_leech", "lantern_moth", "woodjaw_beetle", "gear_crab", "sap_totem"]:
+		var actor: String = "enemy_" + String(eid)
+		for st in ["walk", "hit", "death"]:
+			_emit("enemy.%s.%s" % [eid, st], _pack_frames(v4, R, actor, st), P, 100, "final", _src(R, actor, st, "pack", V4_ORIGIN), true, "hit.%s_body" % eid)
+	# --- F3: 보스 2종 (512→256). 뿌리왕 root_regrow 는 클라이언트의 MOLT 상태 시트(boss.*.molt) 로도 등록한다
+	for st in ["walk", "hit", "death", "molt"]:
+		var fr := _pack_frames(v4, R, "boss_lantern_toad", st)
+		if st == "molt":
+			fr["_loop"] = false
+		_emit("boss.lantern_toad.%s" % st, fr, B, 240, "final", _src(R, "boss_lantern_toad", st, "pack (512→256)", V4_ORIGIN), true, "hit.boss_lantern_toad")
+	for st in ["walk", "hit", "death"]:
+		_emit("boss.root_king.%s" % st, _pack_frames(v4, R, "boss_root_king", st), B, 240, "final", _src(R, "boss_root_king", st, "pack (512→256)", V4_ORIGIN), true, "hit.boss_root_king")
+	var regrow := _pack_frames(v4, R, "boss_root_king", "root_regrow")
+	if not regrow.is_empty():
+		regrow["_loop"] = false
+		_emit("boss.root_king.molt", regrow, B, 240, "final", _src(R, "boss_root_king", "root_regrow (MOLT 상태 시트로 사용)", "pack (512→256)", V4_ORIGIN), true, "hit.boss_root_king")
+		_emit("boss.root_king.root_regrow", regrow, B, 240, "final", _src(R, "boss_root_king", "root_regrow", "pack (512→256)", V4_ORIGIN), false, "hit.boss_root_king")
+	# --- P/F5: 타일. 바닥은 변형을 4×4 모자이크로. 벽·물가·물은 인덱스 시트 (docs/terrain_indices.json)
+	for t in [["willow", "tile_willow"], ["swamp", "tile_swamp"], ["rootdam", "tile_rootdam"]]:
+		var g := _pack_strip(v4, R, t[1] + "_ground", "default_all")
+		if not g.is_empty():
+			_emit_single("tile.%s.ground" % t[0], _mosaic(g["all"], 4, 11 + t[0].length(), false), "final", _src(R, t[1] + "_ground", "default_all", "pack: %d variants → 4×4 seeded mosaic" % (g["all"] as Array).size(), V4_ORIGIN), true)
+			_entry("tile.%s.ground" % t[0])["layer"] = "ground"
+		for part in [["wall", "collision"], ["water", "hazard"], ["shore", "ground"]]:
+			var strip := _pack_strip(v4, R, "%s_%s" % [t[1], part[0]], "default_all")
+			_emit_strip("tile.%s.%s" % [t[0], part[0]], strip, 64, 64, [64, 64], "final", _src(R, "%s_%s" % [t[1], part[0]], "default_all", "pack", V4_ORIGIN), true, "texture", {"layer": part[1]}, [0.0, 0.0])
+	# --- F5: 소품 (열 = 상태). 서버 상태 ↔ 프레임 매핑은 docs/asset_plan.md 의 v4 표
+	var props := {"prop.boss.anchor": ["prop_boss_anchor", 80], "prop.boss.claw_link": ["prop_boss_claw_link", 64], "prop.boss.corridor": ["prop_boss_corridor", 90], "prop.boss.debris": ["prop_boss_debris", 80],
+		"prop.boss.gate": ["prop_boss_gate", 80], "prop.boss.pillar": ["prop_boss_pillar", 100], "prop.boss.platform": ["prop_boss_platform", 160], "prop.boss.rope": ["prop_boss_rope", 44],
+		"prop.dam": ["prop_dam", 104], "prop.dam.gear": ["prop_dam_gear", 90], "prop.dam.timber": ["prop_dam_timber", 90], "prop.raft": ["prop_raft", 96], "prop.secret": ["prop_secret", 56],
+		"prop.swamp.mushroom": ["prop_swamp_mushroom", 96], "prop.swamp.stump": ["prop_swamp_stump", 96], "prop.turret": ["prop_turret", 64],
+		"prop.hub.training_ground": ["prop_training_ground", 150], "prop.hub.herbal_hut": ["prop_herbal_hut", 150], "prop.hub.archive": ["prop_archive", 150]}
+	for id: String in props.keys():
+		var strip := _pack_strip(v4, R, props[id][0], "default_all")
+		var rs: int = int(props[id][1])
+		var linked := not id in ["prop.dam.gear", "prop.dam.timber"]
+		_emit_strip(id, strip, int(strip.get("_w", 256)), int(strip.get("_h", 256)), [rs, rs], "final", _src(R, props[id][0], "default_all", "pack", V4_ORIGIN), linked, "sprite_sheet", {"hitbox_ref": "obstacle"} if id.begins_with("prop.swamp") else {})
+	# --- F4: 새 직업 VFX (기존 render_size 유지) + 거목 활성 루프 + 예고 그림
+	var vfx_render := {"gnaw_dash": 128, "wood_split": 128, "log_whirl": 256, "sap_bloom": 256, "root_bind": 128, "spring_flood": 460, "water_turret": 128, "torrent_valve": 256, "great_dam": 460, "projectile_water": 24}
+	for key: String in vfx_render.keys():
+		var strip := _pack_strip(v4, R, "vfx_" + key, "default_all")
+		var rs: int = int(vfx_render[key])
+		_emit_strip("vfx." + key, strip, int(strip.get("_w", 128)), int(strip.get("_h", 128)), [rs, rs], "final", _src(R, "vfx_" + key, "default_all", "pack", V4_ORIGIN), true, "sprite_sheet", {}, [0.5, 0.5])
+	var active := _pack_strip(v4, R, "vfx_great_tree", "active_all")
+	_emit_strip("vfx.great_tree_active", active, 512, 512, [460, 460], "final", _src(R, "vfx_great_tree", "active_all (성장 뒤 루프)", "pack", V4_ORIGIN), true, "sprite_sheet", {}, [0.5, 0.5])
+	for tg in ["telegraph_circle", "telegraph_line"]:
+		var strip := _pack_strip(v4, R, "vfx_" + tg, "default_all")
+		if not strip.is_empty():
+			_emit_single("vfx." + tg, strip["all"][0], "final", _src(R, "vfx_" + tg, "default_all (시각 경계 docs/geometry_reference.json)", "pack", V4_ORIGIN), true)
+			_entry("vfx." + tg)["anchor"] = [0.5, 0.5] if tg == "telegraph_circle" else [0.5, 0.5]
+			_entry("vfx." + tg)["visual_bounds_px"] = [229, 215] if tg == "telegraph_circle" else [48, 220]
+	# --- F6: 아이콘·초상·NPC
+	var singles := {}
+	for cid in ["sawtooth", "sapshaman", "hydro"]:
+		for k in ["q", "e", "r"]:
+			singles["icon.skill.%s.%s" % [cid, k]] = "icon_skill_%s_%s" % [cid, k]
+	for r in ["acorn_cache", "amber_tooth", "ancient_incisor", "beaver_grease", "bitter_sap", "dam_bell", "dam_keeper_badge", "firefly_jar", "gnawed_charm", "hollow_log", "hunters_eye", "kin_totem", "lucky_acorn", "memory_bloom", "moss_blanket", "otter_whistle", "quick_gnaw", "river_heart", "river_pebbles", "sap_lantern", "stone_shell", "storm_tail", "tail_drum", "thorn_bolt", "thorn_crown", "willow_bark"]:
+		singles["icon.relic." + r] = "icon_relic_" + r
+	for cid in ["guardian", "pinecone", "sawtooth", "sapshaman", "hydro"]:
+		singles["icon.class." + cid] = "icon_class_" + cid
+		singles["portrait." + cid] = "portrait_" + cid
+	for bid in ["ironclaw", "lantern_toad", "root_king"]:
+		singles["portrait." + bid] = "portrait_" + bid
+	var enemy_icons := {"sap_snail": "sap_slug", "thorn_boar": "thorn_boar", "black_bird": "black_crow", "shell_soldier": "shell_soldier", "spore_mushroom": "spore_mushroom", "root_puppet": "root_puppet", "reed_frog": "reed_frog", "river_leech": "river_leech", "lantern_moth": "lantern_moth", "woodjaw_beetle": "woodjaw_beetle", "gear_crab": "gear_crab", "sap_totem": "sap_totem"}
+	for eid: String in enemy_icons.keys():
+		singles["icon.enemy." + eid] = "icon_enemy_" + enemy_icons[eid]
+	for nid in ["archivist_willow", "elder_zelkova", "engineer_ripple", "herbalist_moss", "merchant_doto", "smith_resin"]:
+		singles["npc." + nid] = "npc_" + nid
+		singles["portrait.npc." + nid] = "portrait_" + nid
+	for id: String in singles.keys():
+		var strip := _pack_strip(v4, R, singles[id], "default_all")
+		if strip.is_empty():
+			report.append("SKIP " + id)
+			continue
+		_emit_single(id, strip["all"][0], "final", _src(R, singles[id], "default_all", "pack", V4_ORIGIN), true)
+		if id.begins_with("npc."):
+			_entry(id)["anchor"] = strip.get("_anchor", [0.5, 0.828])
+	# --- P: 카드 (중앙 투명 영역 content_rect 는 팩 docs/ui_layout.json)
+	var reward := _pack_strip(v4, R, "ui_card_reward", "default_all")
+	_emit_strip("ui.card.reward", reward, 256, 352, [200, 275], "final", _src(R, "ui_card_reward", "default_all (v4: 안쪽 투명, 상하 +16px)", "pack", V4_ORIGIN), true, "sprite_sheet", {"frame_labels": ["relic", "upgrade"], "content_rect": [56, 69, 144, 246]}, [0.0, 0.0])
+	var route := _pack_strip(v4, R, "ui_card_route", "default_all")
+	_emit_strip("ui.card.route", route, 256, 160, [208, 130], "final", _src(R, "ui_card_route", "default_all (v4: 안쪽 투명)", "pack", V4_ORIGIN), true, "sprite_sheet", {"frame_labels": ["combat", "event", "shop", "rest", "boss"], "content_rect": [56, 44, 144, 96]}, [0.0, 0.0])
+	# --- G: 오디오 (별도 audio_manifest.json). 파일을 assets/final/audio/ 로 복사하고 확장자·루프·버스·권장 음량을 기록한다
+	_run_v4_audio()
+
+
+func _run_v4_audio() -> void:
+	if v4_audio.is_empty():
+		report.append("SKIP v4 audio (no audio_manifest.json)")
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(AUDIO_OUT))
+	var items: Dictionary = v4_audio.get("audio", {})
+	for key: String in items.keys():
+		var a: Dictionary = items[key]
+		var id := _audio_id(key)
+		if only != "" and not id.begins_with(only):
+			continue
+		var src := packs_dir.path_join("beaver_assets_v4").path_join(String(a.get("path", "")))
+		if not FileAccess.file_exists(src):
+			report.append("SKIP %s (missing %s)" % [id, src])
+			continue
+		var ext := String(a.get("path", "")).get_extension()
+		var dst := AUDIO_OUT + id.replace(".", "_") + "." + ext
+		var bytes := FileAccess.get_file_as_bytes(src)
+		var f := FileAccess.open(dst, FileAccess.WRITE)
+		f.store_buffer(bytes)
+		f.close()
+		var e := _entry(id)
+		e["type"] = "audio"
+		e["status"] = "final"
+		e["final_path"] = dst
+		e["ext"] = ext
+		e["loop"] = bool(a.get("loop", false))
+		e["loop_start_sample"] = int(a.get("loop_start_sample", 0))
+		e["loop_end_sample"] = int(a.get("loop_end_sample", 0)) if a.get("loop_end_sample") != null else 0
+		e["sample_rate"] = int(a.get("sample_rate", 44100))
+		e["channels"] = int(a.get("channels", 1))
+		e["duration_sec"] = float(a.get("duration_seconds", 0.0))
+		e["bus"] = String(a.get("bus", "SFX"))
+		e["gain_db"] = float(a.get("suggested_gain_db", 0.0)) if a.get("suggested_gain_db") != null else 0.0
+		e["source"] = {"pack": "beaver_assets_v4", "actor": key, "animation": "", "method": "pack audio (procedural synthesis, no external samples)", "license": "project-internal (see pack README)", "origin": V4_ORIGIN}
+		e["provided"] = true
+		e["linked"] = true
+		e["verified"] = "not_run"
+		made += 1
+		report.append("FIN %s <- %s (%s %.1fs)" % [id, key, ext, float(a.get("duration_seconds", 0.0))])
+
+
+## 팩 오디오 키 → 프로젝트 ID: sfx_dodge → sfx.dodge, bgm_combat_normal → bgm.combat_normal, amb_water → amb.water
+func _audio_id(key: String) -> String:
+	for prefix in ["sfx_", "bgm_", "amb_"]:
+		if key.begins_with(prefix):
+			return prefix.trim_suffix("_") + "." + key.substr(prefix.length())
+	return key.replace("_", ".")

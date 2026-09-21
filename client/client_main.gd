@@ -31,6 +31,7 @@ var npc_panel := NpcPanel.new()
 var settings_panel := SettingsPanel.new()
 var selected_difficulty: String = "normal"
 var selected_pacts: Dictionary = {}
+var audio: AudioDirector = AudioDirector.new()
 var _affix_of_enemy: Dictionary = {}   # eid -> affix id (정예 접두 표시용)
 var _map_big: bool = false
 var build_kind: String = "log_cover"
@@ -195,6 +196,7 @@ func _apply_settings() -> void:
 	get_tree().root.content_scale_factor = clampf(float(settings.data.get("ui_scale", 1.0)), 0.8, 1.6)
 	world.ally_vfx_alpha = float(settings.data.get("ally_vfx_alpha", 0.7))
 	world.sfx_volume = float(settings.data.get("volume_sfx", 0.8))
+	audio.apply_volumes(float(settings.data.get("volume_bgm", 0.8)), float(settings.data.get("volume_ambient", 0.6)))
 	world.flash_reduce = bool(settings.data.get("flash_reduce", false))
 	var want_full := bool(settings.data.get("fullscreen", false))
 	if not demo and bot == null and DisplayServer.get_name() != "headless":
@@ -206,6 +208,20 @@ func _set_mode(m: String) -> void:
 	mode = m
 	if bot != null:
 		return
+	if audio.get_parent() == null:
+		add_child(audio)
+		UIKit.click_sound = func() -> void: world.play_sound("sfx.ui_click", 0.05)
+	match m:
+		"hub":
+			audio.set_music("bgm.hub")
+			audio.set_ambience("amb.wind")
+		"room":
+			var rdef: Dictionary = room.get("room_def", {})
+			audio.set_music("bgm.boss" if String(rdef.get("objective", "")) == "boss" else "bgm.combat_normal")
+			audio.set_ambience("amb.water" if not (rdef.get("water", []) as Array).is_empty() else "amb.wind")
+		"connect", "login":
+			audio.set_music("bgm.hub")
+			audio.set_ambience("")
 	connect_screen.visible = m == "connect"
 	login_screen.visible = m == "login"
 	hub_screen.visible = m == "hub"
@@ -366,6 +382,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			run_state = p
 			hud.update_run(run_state, my_id)
 		Protocol.S.REWARD_OFFER:
+			run_panels.run_class = _my_class()
 			run_panels.show_reward(p, my_id, int(run_state.get("players", {}).get(my_id, {}).get("rerolls", 0)))
 			_set_mode("phase")
 		Protocol.S.ROUTE_OFFER:
@@ -445,8 +462,19 @@ func _on_room_event(ev: Dictionary) -> void:
 			if slot == "r" and caster_class == "guardian":
 				# 성장 5프레임 후 활성 프레임 유지. 보호 지속시간은 서버(직업 데이터)가 정한다
 				var dur := float(ContentDB.get_class_def("guardian").get("skills", {}).get("r", {}).get("effect", {}).get("duration_sec", 6.0))
-				world.spawn_effect("vfx.great_tree", pos + Vector2(0, -20), 0.0, dur)
+				# 성장 6프레임(v3) 뒤 활성 잎 2프레임 루프(v4)를 보호 시간이 끝날 때까지
+				var grow_sec := 6.0 / maxf(float(AssetRegistry.get_sheet("vfx.great_tree")["fps"]), 1.0)
+				world.spawn_effect("vfx.great_tree", pos + Vector2(0, -20), 0.0, grow_sec + 0.05)
+				world.spawn_effect("vfx.great_tree_active", pos + Vector2(0, -20), 0.0, maxf(dur - grow_sec, 0.5), -1.0, -1, grow_sec)
 				world.play_sound("sfx.great_tree")
+			elif slot == "r" and caster_class == "sapshaman":
+				world.spawn_effect("vfx.spring_flood", pos)
+				world.play_sound("sfx.rescue", 0.1)
+			elif slot == "r" and caster_class == "sawtooth":
+				var wk := "p:" + String(ev.get("id", ""))
+				if world.entities.has(wk):
+					world.spawn_effect("vfx.log_whirl", (world.entities[wk] as Node2D).position + Vector2(0, -20), 0.0, 2.5)
+				world.play_sound("sfx.tail_slam", 0.1)
 			elif slot == "q" and caster_class == "pinecone":
 				var key := "p:" + String(ev.get("id", ""))
 				var f := (world.entities[key] as EntityView).facing if world.entities.has(key) else Vector2.RIGHT
@@ -506,7 +534,12 @@ func _on_room_event(ev: Dictionary) -> void:
 			world.spawn_effect("vfx.gnaw_dash", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))), Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))).angle())
 			world.play_sound("sfx.dodge", 0.1)
 		"heavy_strike":
+			world.spawn_effect("vfx.wood_split", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -20))
 			world.play_sound("sfx.tail_slam", 0.1)
+		"rooted":
+			var rk := "e:%d" % int(ev.get("eid", 0))
+			if world.entities.has(rk):
+				world.spawn_effect("vfx.root_bind", (world.entities[rk] as Node2D).position, 0.0, float(ev.get("sec", 1.5)))
 		"heal_zone":
 			world.spawn_effect("vfx.sap_bloom", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
 			world.play_sound("sfx.rescue", 0.1)
@@ -520,6 +553,8 @@ func _on_room_event(ev: Dictionary) -> void:
 			world.spawn_effect("vfx.torrent_valve", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))) * float(ev.get("len", 260)) * 0.5, Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))).angle())
 			world.play_sound("sfx.sling", 0.1)
 		"turret_shot":
+			if ev.has("x"):
+				world.spawn_effect("vfx.water_turret", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -20))
 			world.play_sound("sfx.sling", 0.15)
 		"dam_burst":
 			world.spawn_effect("vfx.great_dam", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
@@ -551,6 +586,7 @@ func _on_room_event(ev: Dictionary) -> void:
 		"secret_found":
 			hud.toast("지역 비밀 발견: %s (+%d 조각)" % [String(ev.get("name", "")), int(ContentDB.rule("secret_reward_shards", 2))], 3.0)
 			world.spawn_effect("vfx.rescue_ring", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
+			world.spawn_effect("prop.secret", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, 14), 0.0, 3.0, 64.0, 1)
 			world.play_sound("sfx.rescue")
 		"elite_spawn":
 			_affix_of_enemy[int(ev.get("eid", 0))] = String(ev.get("affix", ""))
@@ -812,10 +848,14 @@ func _hub_obstacles() -> Array:
 func _hub_decor() -> Array:
 	var structures: Dictionary = hub_info.get("structures", {})
 	var ws_level := clampi(int(structures.get("workshop", {}).get("level", 0)), 0, 2)
+	var lv := func(sid: String) -> int: return clampi(int(structures.get(sid, {}).get("level", 0)), 0, 2)
 	return [
 		{"asset": "prop.hub.workshop", "x": 1000, "y": 790, "frame": ws_level, "size": 170},
 		{"asset": "prop.hub.board", "x": 700, "y": 560, "frame": 0, "size": 110},
 		{"asset": "prop.stall", "x": 1250, "y": 470, "frame": 0, "size": 130},
+		{"asset": "prop.hub.training_ground", "x": 640, "y": 870, "frame": lv.call("training_ground"), "size": 170},
+		{"asset": "prop.hub.herbal_hut", "x": 250, "y": 640, "frame": lv.call("herb_hut"), "size": 160},
+		{"asset": "prop.hub.archive", "x": 1230, "y": 230, "frame": lv.call("archive"), "size": 160},
 	]
 
 

@@ -1,0 +1,55 @@
+{
+  "purpose": "Visual bounds only. Server attack geometry remains authoritative. Glow bounds are not a hitbox.",
+  "assets": {
+    "vfx_telegraph_circle": {
+      "canvas": [
+        256,
+        256
+      ],
+      "anchor": [
+        128,
+        128
+      ],
+      "alpha24_bounds_xyxy": [
+        14,
+        20,
+        243,
+        235
+      ],
+      "center_px": [
+        128.5,
+        127.5
+      ],
+      "size_px": [
+        229,
+        215
+      ],
+      "alpha_threshold": 24
+    },
+    "vfx_telegraph_line": {
+      "canvas": [
+        256,
+        256
+      ],
+      "anchor": [
+        128,
+        128
+      ],
+      "alpha24_bounds_xyxy": [
+        104,
+        18,
+        152,
+        238
+      ],
+      "center_px": [
+        128.0,
+        128.0
+      ],
+      "size_px": [
+        48,
+        220
+      ],
+      "alpha_threshold": 24
+    }
+  }
+}

@@ -1,5 +1,7 @@
 # 에셋 요청서 v4 — 남은 임시·파생 에셋과 v3 보정 요청
 
+> **납품 상태 (2026-09-21)**: 보정(P)·F1~F6·G 전부 수령·연결 완료 (Release `assets-raw-v4`). 매니페스트에 임시·예정 항목이 없다. 엔진 검수 결과는 `assets/packs/beaver_assets_v4/qa_results.json`, 연결 방식은 `docs/asset_plan.md`.
+
 v3(A~E)까지 받은 뒤 남은 항목이다. 규격·앵커·파일 구조는 v3 요청서(`docs/asset_request_v3.md`)와 같다(format_version 2, 128/256/512, 발 앵커, `direction: all` 은 `default_all`). 매니페스트 현황: 최종 205 · 파생 89 · 임시 93 · 예정 5 (총 392).
 
 ## 0. v3 연결 결과와 보정 요청 (작화 쪽)

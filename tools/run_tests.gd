@@ -64,6 +64,8 @@ func _ready() -> void:
 	test_v3_pack_assets()
 	print("-- test_roguelike_systems")
 	test_roguelike_systems()
+	print("-- test_v4_pack_assets")
+	test_v4_pack_assets()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -1474,7 +1476,7 @@ func test_v3_pack_assets() -> void:
 	check(not bool(AssetRegistry.get_sheet("vfx.thorn_trap")["loop"]) and _ints(trap.get("idle", {}).get("indices", [])) == [1, 2] and _ints(trap.get("trigger", {}).get("indices", [])) == [3], "thorn trap: whole strip does not loop; idle segment [1,2], trigger [3]")
 	check(bool(AssetRegistry.get_sheet("vfx.great_tree")["hold_last"]), "great tree holds its last (active) frame")
 	# v3-C: 타일·소품
-	check(int(AssetRegistry.get_sheet("tile.willow.wall")["hframes"]) == 9 and int(AssetRegistry.get_sheet("tile.willow.water")["hframes"]) == 2 and int(AssetRegistry.get_sheet("tile.willow.shore")["hframes"]) == 4, "willow wall 9 / water 2 / shore 4 tiles")
+	check(int(AssetRegistry.get_sheet("tile.willow.wall")["hframes"]) >= 9 and int(AssetRegistry.get_sheet("tile.willow.water")["hframes"]) == 2 and int(AssetRegistry.get_sheet("tile.willow.shore")["hframes"]) >= 4, "willow wall >=9 / water 2 / shore >=4 tiles (v4 adds corners)")
 	check(AssetRegistry.get_sheet("tile.willow.ground")["frame_size"] == Vector2(256, 256) and AssetRegistry.status("tile.willow.ground") == "final", "willow ground is a 256px mosaic of the 4 variants")
 	var props := {"prop.gnaw_tree": 3, "prop.device": 4, "prop.lever": 2, "prop.sluice_gate": 3, "prop.log_cover": 2, "prop.hold_point": 2, "prop.campfire": 2, "prop.hub.memory_tree": 3, "prop.hub.workshop": 3, "prop.hub.board": 1, "prop.stall": 1}
 	ok = true
@@ -1662,3 +1664,77 @@ func test_roguelike_systems() -> void:
 	check(is_equal_approx(boss.hp, boss.max_hp * 0.55) and br.enemies.size() == adds_before + 2, "failed mechanic heals the boss 5%% and spawns 2 adds (%d)" % (br.enemies.size() - adds_before))
 	check(int(ContentDB.bosses["ironclaw"]["hp"]) == 900 and int(ContentDB.bosses["ironclaw"]["mechanic_gap_sec"]) == 9, "pacing: boss hp 900, mechanic gap 9s")
 	check(int(ContentDB.get_room_def("annihilate")["waves"]["wave_count"]) == 3 and float(ContentDB.get_room_def("annihilate")["waves"]["base_budget"]) >= 9.0, "pacing: annihilate rooms have 3 waves and budget 9")
+
+
+func test_v4_pack_assets() -> void:
+	# F1~F3: 직업 3종 8상태, 적 9종 3상태, 보스 2종 4상태 (4방향 최종본)
+	var ok := true
+	var expect := {}
+	for cid in ["sawtooth", "sapshaman", "hydro"]:
+		for st in ["walk", "attack", "cast", "cast_q", "cast_e", "cast_r"]:
+			expect["char.%s.%s" % [cid, st]] = 4
+		expect["char.%s.hit" % cid] = 2
+		expect["char.%s.down" % cid] = 2
+	for eid in ["shell_soldier", "spore_mushroom", "root_puppet", "reed_frog", "river_leech", "lantern_moth", "woodjaw_beetle", "gear_crab", "sap_totem"]:
+		expect["enemy.%s.walk" % eid] = 4
+		expect["enemy.%s.hit" % eid] = 2
+		expect["enemy.%s.death" % eid] = 4
+	for bid in ["lantern_toad", "root_king"]:
+		expect["boss.%s.walk" % bid] = 4
+		expect["boss.%s.hit" % bid] = 2
+		expect["boss.%s.death" % bid] = 6
+		expect["boss.%s.molt" % bid] = 4
+	for id: String in expect.keys():
+		var sheet := AssetRegistry.get_sheet(id)
+		if AssetRegistry.status(id) != "final" or int(sheet["hframes"]) != int(expect[id]) or int(sheet["vframes"]) != 4 or bool(sheet["is_fallback"]):
+			ok = false
+			failures.append("v4 sheet %s: status=%s cols=%d rows=%d" % [id, AssetRegistry.status(id), int(sheet["hframes"]), int(sheet["vframes"])])
+	check(ok, "v4 class/enemy/boss sheets are final 4-direction strips with requested frame counts")
+	check(int(AssetRegistry.entry("char.sawtooth.cast_e").get("animation", {}).get("event_frames", {}).get("hit", -1)) == 3 and int(AssetRegistry.entry("char.hydro.attack").get("animation", {}).get("event_frames", {}).get("hit", -1)) == 2, "new class contact frames: attack/Q/R 2, E 3")
+	check(AssetRegistry.status("char.sawtooth.idle") == "final" and AssetRegistry.status("boss.ironclaw.idle") == "final", "v1/v2 idle sheets are kept (merge by animation, not by actor)")
+	# 타일 인덱스 (docs/terrain_indices.json)
+	check(int(AssetRegistry.get_sheet("tile.willow.wall")["hframes"]) == 13 and int(AssetRegistry.get_sheet("tile.willow.shore")["hframes"]) == 12, "willow wall 13 (outer corners) and shore 12 (convex/concave corners)")
+	ok = true
+	for rg in ["swamp", "rootdam"]:
+		if int(AssetRegistry.get_sheet("tile.%s.wall" % rg)["hframes"]) != 9 or int(AssetRegistry.get_sheet("tile.%s.water" % rg)["hframes"]) != 2 or int(AssetRegistry.get_sheet("tile.%s.shore" % rg)["hframes"]) != 4 or AssetRegistry.status("tile.%s.ground" % rg) != "final":
+			ok = false
+	check(ok, "swamp and root-dam tiles: ground mosaic, wall 9, water 2, shore 4")
+	# 소품 상태 수
+	var props := {"prop.boss.pillar": 3, "prop.boss.gate": 3, "prop.boss.claw_link": 3, "prop.boss.corridor": 3, "prop.boss.rope": 3, "prop.boss.debris": 3, "prop.boss.anchor": 3, "prop.boss.platform": 3, "prop.dam": 3, "prop.raft": 2, "prop.secret": 2, "prop.turret": 3, "prop.swamp.mushroom": 2, "prop.swamp.stump": 2, "prop.hub.training_ground": 3, "prop.hub.herbal_hut": 3, "prop.hub.archive": 3}
+	ok = true
+	for id: String in props.keys():
+		if AssetRegistry.status(id) != "final" or int(AssetRegistry.get_sheet(id)["hframes"]) != int(props[id]):
+			ok = false
+			failures.append("v4 prop %s cols=%d" % [id, int(AssetRegistry.get_sheet(id)["hframes"])])
+	check(ok, "v4 props are final state strips")
+	# VFX
+	ok = true
+	for id in ["vfx.gnaw_dash", "vfx.wood_split", "vfx.log_whirl", "vfx.sap_bloom", "vfx.root_bind", "vfx.spring_flood", "vfx.water_turret", "vfx.torrent_valve", "vfx.great_dam", "vfx.projectile_water", "vfx.telegraph_circle", "vfx.telegraph_line"]:
+		if AssetRegistry.status(id) != "final":
+			ok = false
+	check(ok, "v4 VFX for the three new classes and both telegraphs are final")
+	check(int(AssetRegistry.get_sheet("vfx.great_tree_active")["hframes"]) == 2 and bool(AssetRegistry.get_sheet("vfx.great_tree_active")["loop"]) and int(AssetRegistry.get_sheet("vfx.great_tree")["hframes"]) == 6, "great tree keeps the v3 growth strip and adds the v4 active loop")
+	check(_ints(AssetRegistry.entry("vfx.telegraph_circle").get("visual_bounds_px", [])) == [229, 215], "telegraph circle carries its visual ring bounds (not a hitbox)")
+	# 아이콘·초상·NPC
+	ok = true
+	for id in ["icon.skill.sawtooth.q", "icon.skill.hydro.r", "icon.relic.storm_tail", "icon.class.sapshaman", "icon.enemy.gear_crab", "portrait.hydro", "portrait.root_king", "npc.merchant_doto", "portrait.npc.smith_resin"]:
+		if AssetRegistry.status(id) != "final":
+			ok = false
+	check(ok, "v4 icons, portraits and NPC sprites are final")
+	var rep := AssetRegistry.report()
+	check(int(rep["placeholder"]) == 0 and int(rep["planned"]) == 0, "no placeholder or planned entries remain (%d / %d)" % [int(rep["placeholder"]), int(rep["planned"])])
+	# 카드 content_rect
+	check(_ints(AssetRegistry.entry("ui.card.reward").get("content_rect", [])) == [56, 69, 144, 246] and _ints(AssetRegistry.entry("ui.card.route").get("content_rect", [])) == [56, 44, 144, 96], "v4 cards carry their transparent content rect")
+	# 오디오: wav 효과음·ogg 루프
+	var sfx := AssetRegistry.get_audio("sfx.dodge")
+	check(sfx != null and sfx is AudioStreamWAV and AssetRegistry.status("sfx.dodge") == "final", "sfx wav loads as a stream")
+	var bgm := AssetRegistry.get_audio("bgm.hub")
+	check(bgm != null and bgm is AudioStreamOggVorbis and (bgm as AudioStreamOggVorbis).loop and AssetRegistry.entry("bgm.hub").get("bus", "") == "Music", "bgm ogg loads with loop enabled")
+	var amb := AssetRegistry.get_audio("amb.water")
+	check(amb != null and amb is AudioStreamOggVorbis and (amb as AudioStreamOggVorbis).loop and float(AssetRegistry.entry("amb.water").get("gain_db", 0.0)) < 0.0, "ambience ogg loads with loop and a negative suggested gain")
+	ok = true
+	for id in ["sfx.down", "sfx.great_tree", "sfx.hammer_hit", "sfx.player_hit", "sfx.rescue", "sfx.sling", "sfx.snail_death", "sfx.snail_hit", "sfx.tail_slam", "sfx.ui_click", "sfx.wood_block", "bgm.combat_normal", "bgm.boss", "amb.wind"]:
+		if AssetRegistry.get_audio(id) == null:
+			ok = false
+			failures.append("audio %s failed to load" % id)
+	check(ok, "all 17 pack audio entries decode")

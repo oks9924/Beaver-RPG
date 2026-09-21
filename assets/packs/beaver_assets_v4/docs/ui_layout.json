@@ -1,0 +1,84 @@
+{
+  "coordinate_system": "pixel x,y,width,height; half-open bounds",
+  "basis": "v3에는 content_rect와 실제 중앙 알파 구멍이 없다. 아래 reference_content_rect는 원본 장식 안쪽에 정한 안전한 레이아웃 기준이며 기존 클라이언트의 실측값이 아니다. v4는 이 기준에서 위·아래 16px 확장한 실제 투명 영역을 보장한다. 실제 텍스트 패딩과 비교해 적용한다.",
+  "cards": {
+    "ui_card_reward": {
+      "canvas": [
+        256,
+        352
+      ],
+      "reference_content_rect": [
+        56,
+        85,
+        144,
+        214
+      ],
+      "content_rect": [
+        56,
+        69,
+        144,
+        246
+      ],
+      "vertical_expansion_px": {
+        "top": 16,
+        "bottom": 16
+      },
+      "method": "AI frame artwork; deterministic vertical slice resizing, same canvas",
+      "variants": [
+        {
+          "file": "assets/ui_card_reward/default/all_00.png",
+          "verified_alpha_max": 0
+        },
+        {
+          "file": "assets/ui_card_reward/default/all_01.png",
+          "verified_alpha_max": 0
+        }
+      ]
+    },
+    "ui_card_route": {
+      "canvas": [
+        256,
+        160
+      ],
+      "reference_content_rect": [
+        56,
+        60,
+        144,
+        64
+      ],
+      "content_rect": [
+        56,
+        44,
+        144,
+        96
+      ],
+      "vertical_expansion_px": {
+        "top": 16,
+        "bottom": 16
+      },
+      "method": "AI frame artwork; deterministic vertical slice resizing, same canvas",
+      "variants": [
+        {
+          "file": "assets/ui_card_route/default/all_00.png",
+          "verified_alpha_max": 0
+        },
+        {
+          "file": "assets/ui_card_route/default/all_01.png",
+          "verified_alpha_max": 0
+        },
+        {
+          "file": "assets/ui_card_route/default/all_02.png",
+          "verified_alpha_max": 0
+        },
+        {
+          "file": "assets/ui_card_route/default/all_03.png",
+          "verified_alpha_max": 0
+        },
+        {
+          "file": "assets/ui_card_route/default/all_04.png",
+          "verified_alpha_max": 0
+        }
+      ]
+    }
+  }
+}

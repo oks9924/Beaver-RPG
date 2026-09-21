@@ -6,6 +6,39 @@
 - 해석 순서: **`asset_overrides/<id>.<ext>`(실행 파일 옆, 재빌드 없이 교체)** → `final_path` → `path`(임시) → 런타임 대체 도형(자홍/검정 체크, 경고 로그).
 - 상태: `placeholder`(생성한 임시 도형) · `final`(확정) · `derived`(팩 프레임을 가공한 파생) · `planned`(ID 만 예약, 파일 없음).
 
+## 에셋팩 v4 연결 (2026-09-21, Release `assets-raw-v4`)
+131 ID · 1,069장 · 오디오 17개를 `_run_v4/_run_v4_audio` 가 v1~v3 위에 애니메이션 단위로 병합했다. 현황: **최종 394 · 파생 5 · 임시 0 · 예정 0** (총 399). 남은 파생 5는 수호목수·사수의 범용 `cast`(Q/E/R 전용 시트가 있어 실제로는 쓰이지 않음)와 보스 3종 `down`(보스는 다운 상태가 없음).
+
+| 묶음 | 연결 |
+|---|---|
+| F1 직업 3종 8상태 | `char.sawtooth/sapshaman/hydro.{walk,attack,cast,cast_q,cast_e,cast_r,hit,down}` 최종, idle 은 v1 유지. 접점 attack/Q/R 2, E 3 |
+| F2 적 9종 | walk/hit/death 최종 (사망 4프레임 유지) |
+| F3 보스 2종 | 두꺼비 walk/hit/death/molt, 뿌리왕 walk/hit/death + `root_regrow` 를 클라이언트 MOLT 상태 시트 `boss.root_king.molt` 로도 등록 |
+| P 보정 | 버들강 벽 13장(외곽 볼록 모서리 → 바깥 링 귀퉁이), 바닥 8변형 모자이크, 물가 12장(오목 모서리 → 물 사각형 귀퉁이), 카드 2종(안쪽 투명 `content_rect` → 텍스트 여백), 거목 `active_all` 2프레임 루프(`vfx.great_tree_active`), 마을 소품 3종(복구 단계 프레임) |
+| F4 VFX | 새 직업 스킬 12종 + 예고 원/직선(시각 경계 `visual_bounds_px` 로 반경 배율) |
+| F5 지역 2·3 | 습지·뿌리댐 바닥 모자이크·벽 9·물 2·물가 4, 보스 소품 8(3상태), 댐·톱니·목재, 뗏목·비밀·포탑, 습지 버섯·그루터기 변형 2 |
+| F6 | 스킬 아이콘 9, 유물 26, 직업 아이콘·초상 5, 적 아이콘 12, 보스 초상 3, NPC 스프라이트·초상 6 |
+| G 오디오 | `assets/final/audio/` 에 복사. wav 효과음 12(Master 버스, 설정 SFX 음량 + gain_db), ogg 음악 3·환경음 2(`AudioDirector`: 루프 오프셋 = loop_start_sample/44100, 설정 BGM·환경음 음량 + gain_db). 마을 `bgm.hub`+`amb.wind`, 전투 `bgm.combat_normal`, 보스방 `bgm.boss`, 물 있는 방 `amb.water`, 버튼 `sfx.ui_click` |
+
+### v4 소품 상태 ↔ 서버 상태 매핑 (팩 INTEGRATION 요구)
+| ID (프레임 라벨) | 서버 상태 → 프레임 |
+|---|---|
+| `prop.raft` (intact, damaged) | RAFT `state` 2(적 접근·정지) → 1, 그 외 0 |
+| `prop.secret` (closed, open) | 항상 0, `secret_found` 이벤트에 1을 3초 표시 |
+| `prop.turret` (folded, deployed, firing) | TURRET `state` 1(사격 중) → 2, 그 외 1 |
+| `prop.dam` (gap, partly, completed) | DAM `progress`(체력 비율) > 0.66 → 2, > 0.33 → 1, 그 외 0 |
+| `prop.boss.pillar` (intact, notch, snapped) | IC-01 PILLAR `state` ≥ 1(약화) → 1, 아니면 0. 파괴되면 오브젝트 제거 |
+| `prop.boss.gate` (closed, half, open) | IC-02 GATE 현재 비트 1 → 2, 0 → 0 |
+| `prop.boss.claw_link` (open, latched, broken) | IC-03 `state` 0/1/2 그대로 |
+| `prop.boss.corridor` (blocked, clear, collapsed) | IC-04 `state` 0(열림) → 1 clear, ≥1(차단) → 0 blocked |
+| `prop.boss.rope` (slack, taut, snapped) | IC-05 ROPE `state` ≥ 1(연결) → 1, 아니면 0 |
+| `prop.boss.debris` (fresh, partly, few) | IC-05 DEBRIS `progress` × 3 |
+| `prop.boss.anchor` (intact, strained, broken) | IC-05 ANCHOR `state` ≥ 1(고정) → 0 intact, 아니면 1 strained |
+| `prop.boss.platform` (stable, tilting, broken) | IC-05 PLATFORM `state` 2(안전) → 0, 그 외 1 |
+| `prop.dam.gear`, `prop.dam.timber` | 대응 오브젝트 없음 — 등록만 (RK 기믹은 v2 장치 시트) |
+
+보스 소품은 v2 기믹 장치 시트(activation/success/failure)가 우선이고, 장치 시트가 없을 때만 위 프레임을 그린다(두 그림을 겹치지 않는다).
+
 ## 에셋팩 v3 연결 (2026-09-21, Release `assets-raw-v3`)
 두 팩(`beaver_assets_v3a` 361장, `beaver_assets_v3bce` 158장)을 `tools/import_asset_pack.gd` 의 `_run_v3a/_run_v3b` 가 v1·v2 위에 **애니메이션 단위로** 덮어쓴다. 현황: 최종 205 · 파생 89 · 임시 93 · 예정 5 (총 392, `check_assets` 문제 0).
 
