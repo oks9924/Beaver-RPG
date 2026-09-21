@@ -1056,7 +1056,7 @@ func _demo_tick(dt: float) -> void:
 				_screenshot("02_hub.png")
 			elif _demo_step >= 50 and _demo_step <= 71 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
 				# 메뉴 탭을 차례로 열어 찍는다 (열기 → 다음 틱에 촬영). 장비 탭은 창고 첫 항목을 장착해 본 뒤 한 번 더 찍는다.
-				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced", "fx_success"], ["gear", "02c3a_menu_gear_fx_success", "fx_fail"], ["gear", "02c3b_menu_gear_fx_fail", "fx_destroy"], ["gear", "02c3c_menu_gear_fx_destroy", "scroll"], ["gear", "02c4_menu_gear_craft"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
+				var tabs: Array = [["expedition", "02a_menu_expedition"], ["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced", "fx_success"], ["gear", "02c3a_menu_gear_fx_success", "fx_fail"], ["gear", "02c3b_menu_gear_fx_fail", "fx_destroy"], ["gear", "02c3c_menu_gear_fx_destroy", "scroll"], ["gear", "02c4_menu_gear_craft"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
 				var ti: int = (_demo_step - 50) / 2
 				var entry: Array = tabs[ti]
 				if (_demo_step - 50) % 2 == 0:

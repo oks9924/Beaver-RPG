@@ -42,7 +42,10 @@ var mastery_box: VBoxContainer
 var codex_label: Label
 var records_label: Label
 var quest_label: Label
-var summary_label: Label
+var _party_panel: PanelContainer
+var _chat_panel: PanelContainer
+const CHAT_H_SMALL := 52
+const CHAT_H_BIG := 150
 var menu_panel: PanelContainer
 var _menu_scroll: ScrollContainer
 var _menu_tabs: Dictionary = {}
@@ -50,7 +53,7 @@ var _menu_tab_buttons: Dictionary = {}
 var _menu_current: String = ""
 var _quest_summary: Dictionary = {}
 var _bond_text: String = "인연: 아직 없음"
-const MENU_TABS := [["village", "내실 · 마을 복구"], ["gear", "장비"], ["mastery", "숙련 · 특성"], ["codex", "도감 · 기록"], ["quest", "퀘스트 · 인연"]]
+const MENU_TABS := [["expedition", "원정 모집판"], ["village", "내실 · 마을 복구"], ["gear", "장비"], ["mastery", "숙련 · 특성"], ["codex", "도감 · 기록"], ["quest", "퀘스트 · 인연"]]
 signal equip_requested(slot: String, uid: String)
 signal gear_action(action: String, uid: String, index: int)
 signal sfx_requested(asset_id: String)
@@ -146,113 +149,45 @@ var _gear_selected: String = ""
 func _ready() -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
-	# 좌측: 마을 정보 + 접속자
-	var left := UIKit.panel(Vector2(300, 0))
-	left.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
-	left.position = Vector2(12, 12)
-	var lv := UIKit.vbox(6)
-	left.add_child(lv)
-	lv.add_child(UIKit.label("버들둑 마을", 20, Color(0.98, 0.85, 0.45)))
-	info_label = UIKit.label("", 13)
-	info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_label.custom_minimum_size = Vector2(270, 0)
-	lv.add_child(info_label)
-	lv.add_child(UIKit.label("접속자", 15, Color(0.8, 0.9, 0.8)))
-	roster_label = UIKit.label("", 13)
-	lv.add_child(roster_label)
-	summary_label = UIKit.label("", 12, Color(0.8, 0.78, 0.7))
-	summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary_label.custom_minimum_size = Vector2(270, 0)
-	lv.add_child(summary_label)
-	# 메뉴: 내실·도감·퀘스트 같은 긴 내용은 항상 보이는 패널이 아니라 메뉴 창(Tab)에서 연다.
-	lv.add_child(UIKit.label("메뉴 (Tab)", 15, Color(0.8, 0.9, 0.8)))
-	var mg := GridContainer.new()
-	mg.columns = 2
-	mg.add_theme_constant_override("h_separation", 4)
-	mg.add_theme_constant_override("v_separation", 4)
-	for t: Array in MENU_TABS:
-		var tid := String(t[0])
-		mg.add_child(UIKit.button(String(t[1]), func() -> void: open_menu(tid)))
-	mg.add_child(UIKit.button("설정 (Esc)", func() -> void: settings_requested.emit()))
-	mg.add_child(UIKit.button("로그아웃", func() -> void: logout_requested.emit()))
-	lv.add_child(mg)
-	add_child(left)
-	# 우측: 원정 모집판 + 파티
-	var right := UIKit.panel(Vector2(360, 0))
-	right.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
-	right.position = Vector2(-372, 12)
-	var rv := UIKit.vbox(6)
-	right.add_child(rv)
-	rv.add_child(UIKit.label("원정 모집판", 20, Color(0.98, 0.85, 0.45)))
-	rv.add_child(UIKit.label("혼자도 출정 가능 · 파티 최대 4명 · 초대 불필요", 12, Color(0.7, 0.7, 0.65)))
-	board_list = UIKit.vbox(4)
-	rv.add_child(board_list)
-	var dh := UIKit.hbox(6)
-	dh.add_child(UIKit.label("난이도", 13))
-	difficulty_pick = OptionButton.new()
-	for did: String in ContentDB.rules.get("difficulties", {}).keys():
-		var dd: Dictionary = ContentDB.rules["difficulties"][did]
-		_difficulty_ids.append(did)
-		difficulty_pick.add_item("%s — %s" % [dd.get("name_ko", did), dd.get("desc_ko", "")])
-	difficulty_pick.item_selected.connect(func(i: int) -> void: difficulty_changed.emit(String(_difficulty_ids[i])))
-	dh.add_child(difficulty_pick)
-	rv.add_child(dh)
-	# 서약(열기): Hades 형벌의 서약처럼 모듈을 쌓아 난이도와 보상을 함께 올린다. 단추를 누를 때마다 단계가 오르고, 최대에서 다시 0.
-	heat_label = UIKit.label("서약 열기 0 — 기억 조각 보상 +0%", 12, Color(1.0, 0.8, 0.5))
-	rv.add_child(heat_label)
-	var pact_grid := GridContainer.new()
-	pact_grid.columns = 2
-	pact_grid.add_theme_constant_override("h_separation", 4)
-	pact_grid.add_theme_constant_override("v_separation", 2)
-	for pid: String in ContentDB.pact_ids():
-		var pdef: Dictionary = ContentDB.pacts[pid]
-		var b := Button.new()
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.add_theme_font_size_override("font_size", 14)
-		b.tooltip_text = String(pdef.get("desc_ko", ""))
-		b.pressed.connect(func() -> void: _cycle_pact(pid))
-		_pact_buttons[pid] = b
-		pact_grid.add_child(b)
-	rv.add_child(pact_grid)
-	_refresh_pacts()
-	create_btn = UIKit.button("새 원정 만들기 (공개)", func() -> void: create_requested.emit())
-	tutorial_btn = UIKit.button("튜토리얼 (혼자 · 5분)", func() -> void: tutorial_requested.emit())
-	rv.add_child(create_btn)
-	rv.add_child(tutorial_btn)
-	party_box = UIKit.vbox(6)
-	party_box.visible = false
-	party_box.add_child(UIKit.label("내 파티", 17, Color(0.8, 0.9, 1.0)))
+	# 상단 띠: 마을 이름·접속자 한 줄 + 메뉴 단추 2개. 긴 내용은 전부 메뉴 창(Tab)에 있다.
+	var top := UIKit.panel(Vector2(0, 0))
+	top.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	top.position = Vector2(12, 12)
+	var th := UIKit.hbox(8)
+	top.add_child(th)
+	th.add_child(UIKit.label("버들둑 마을", 17, Color(0.98, 0.85, 0.45)))
+	roster_label = UIKit.label("", 13, Color(0.85, 0.9, 0.85))
+	th.add_child(roster_label)
+	th.add_child(UIKit.button("원정 모집판", func() -> void: open_menu("expedition")))
+	th.add_child(UIKit.button("메뉴 (Tab)", func() -> void: toggle_menu()))
+	add_child(top)
+	# 우측 상단: 파티에 있을 때만 보이는 작은 파티 띠 (준비·출정·나가기). 모집판 자체는 메뉴 창의 탭이다.
+	_party_panel = UIKit.panel(Vector2(300, 0))
+	_party_panel.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
+	_party_panel.position = Vector2(-312, 12)
+	_party_panel.visible = false
+	party_box = UIKit.vbox(4)
+	_party_panel.add_child(party_box)
+	party_box.add_child(UIKit.label("내 파티", 15, Color(0.8, 0.9, 1.0)))
 	party_members = UIKit.vbox(2)
 	party_box.add_child(party_members)
-	var ph := UIKit.hbox()
+	var ph := UIKit.hbox(4)
 	ready_btn = UIKit.button("준비 완료", func() -> void: ready_toggled.emit(not _my_ready))
 	start_btn = UIKit.button("출정!", func() -> void: start_requested.emit())
 	ph.add_child(ready_btn)
 	ph.add_child(start_btn)
-	ph.add_child(UIKit.button("파티 나가기", func() -> void: leave_requested.emit()))
+	ph.add_child(UIKit.button("나가기", func() -> void: leave_requested.emit()))
 	party_box.add_child(ph)
-	rv.add_child(party_box)
-	var ch := UIKit.hbox()
-	ch.add_child(UIKit.label("직업", 13))
-	class_pick = OptionButton.new()
-	for cid: String in ContentDB.classes.keys():
-		if ContentDB.is_class_playable(cid):
-			_class_ids.append(cid)
-			var cdef: Dictionary = ContentDB.get_class_def(cid)
-			class_pick.add_item("%s — %s" % [cdef.get("name_ko", cid), cdef.get("role_ko", "")])
-	class_pick.item_selected.connect(func(i: int) -> void: class_changed.emit(String(_class_ids[i])))
-	ch.add_child(class_pick)
-	rv.add_child(ch)
-	rv.add_child(UIKit.label("같은 직업 중복 선택 가능 · 출정 전에 바꿀 수 있습니다", 11, Color(0.7, 0.7, 0.65)))
-	add_child(right)
-	# 하단: 채팅
-	var bottom := UIKit.panel(Vector2(420, 150))
-	bottom.set_anchors_and_offsets_preset(PRESET_BOTTOM_LEFT)
-	bottom.position = Vector2(12, -162)
+	add_child(_party_panel)
+	# 하단: 채팅. 평소엔 마지막 몇 줄만 반투명하게, Enter 로 입력창을 잡으면 커진다.
+	_chat_panel = UIKit.panel(Vector2(400, 0))
+	_chat_panel.set_anchors_and_offsets_preset(PRESET_BOTTOM_LEFT)
+	_chat_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_chat_panel.position = Vector2(12, -12)
 	var bv := UIKit.vbox(4)
-	bottom.add_child(bv)
+	_chat_panel.add_child(bv)
 	chat_log = RichTextLabel.new()
-	chat_log.custom_minimum_size = Vector2(390, 90)
+	chat_log.custom_minimum_size = Vector2(370, CHAT_H_SMALL)
 	chat_log.scroll_following = true
 	bv.add_child(chat_log)
 	chat_edit = UIKit.line_edit("마을 채팅 (Enter)")
@@ -261,11 +196,11 @@ func _ready() -> void:
 			chat_sent.emit(t)
 		chat_edit.text = ""
 		chat_edit.release_focus())
+	chat_edit.focus_entered.connect(func() -> void: _set_chat_expanded(true))
+	chat_edit.focus_exited.connect(func() -> void: _set_chat_expanded(false))
 	bv.add_child(chat_edit)
-	add_child(bottom)
-	add_child(UIKit.label("WASD 이동 · 마을은 서버가 저장하며 접속자가 0명이어도 유지됩니다", 12, Color(0.75, 0.75, 0.7)))
-	get_child(get_child_count() - 1).set_anchors_and_offsets_preset(PRESET_CENTER_BOTTOM)
-	get_child(get_child_count() - 1).position = Vector2(-220, -30)
+	add_child(_chat_panel)
+	_set_chat_expanded(false)
 	_build_menu()
 
 
@@ -296,12 +231,19 @@ func _build_menu() -> void:
 	var pages := VBoxContainer.new()
 	pages.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(pages)
+	# 원정 모집판 (예전 우측 패널 전부)
+	_menu_tabs["expedition"] = _build_expedition_tab()
+	pages.add_child(_menu_tabs["expedition"])
 	# 내실 · 마을 복구
 	village_box = UIKit.vbox(4)
 	var intro_1 := UIKit.label("기억 조각으로 마을 시설을 복구하면 모든 원정에 영구 보너스가 붙습니다.", 12, Color(0.7, 0.7, 0.65))
 	intro_1.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro_1.custom_minimum_size = Vector2(700, 0)
 	village_box.add_child(intro_1)
+	info_label = UIKit.label("", 12, Color(0.75, 0.75, 0.7))
+	info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_label.custom_minimum_size = Vector2(700, 0)
+	village_box.add_child(info_label)
 	_menu_tabs["village"] = village_box
 	pages.add_child(village_box)
 	# 장비 (영구): 장착 슬롯 + 창고
@@ -353,7 +295,66 @@ func _build_menu() -> void:
 	foot.add_child(UIKit.button("닫기 (Esc / Tab)", func() -> void: close_menu()))
 	mv.add_child(foot)
 	add_child(menu_panel)
-	_select_tab("village")
+	_select_tab("expedition")
+
+
+## 원정 모집판 탭: 모집 목록·난이도·서약·직업·새 원정/튜토리얼. 파티 상태는 화면 우측 상단 띠에 따로 보인다.
+func _build_expedition_tab() -> VBoxContainer:
+	var rv := UIKit.vbox(6)
+	rv.add_child(UIKit.label("혼자도 출정 가능 · 파티 최대 4명 · 초대 불필요 · 파티 상태와 준비·출정 단추는 화면 우측 상단에 보입니다", 12, Color(0.7, 0.7, 0.65)))
+	board_list = UIKit.vbox(4)
+	rv.add_child(board_list)
+	var dh := UIKit.hbox(6)
+	dh.add_child(UIKit.label("난이도", 13))
+	difficulty_pick = OptionButton.new()
+	for did: String in ContentDB.rules.get("difficulties", {}).keys():
+		var dd: Dictionary = ContentDB.rules["difficulties"][did]
+		_difficulty_ids.append(did)
+		difficulty_pick.add_item("%s — %s" % [dd.get("name_ko", did), dd.get("desc_ko", "")])
+	difficulty_pick.item_selected.connect(func(i: int) -> void: difficulty_changed.emit(String(_difficulty_ids[i])))
+	dh.add_child(difficulty_pick)
+	dh.add_child(UIKit.label("직업", 13))
+	class_pick = OptionButton.new()
+	for cid: String in ContentDB.classes.keys():
+		if ContentDB.is_class_playable(cid):
+			_class_ids.append(cid)
+			var cdef: Dictionary = ContentDB.get_class_def(cid)
+			class_pick.add_item("%s — %s" % [cdef.get("name_ko", cid), cdef.get("role_ko", "")])
+	class_pick.item_selected.connect(func(i: int) -> void: class_changed.emit(String(_class_ids[i])))
+	dh.add_child(class_pick)
+	rv.add_child(dh)
+	rv.add_child(UIKit.label("같은 직업 중복 선택 가능 · 출정 전에 바꿀 수 있습니다", 11, Color(0.7, 0.7, 0.65)))
+	# 서약(열기): Hades 형벌의 서약처럼 모듈을 쌓아 난이도와 보상을 함께 올린다. 단추를 누를 때마다 단계가 오르고, 최대에서 다시 0.
+	heat_label = UIKit.label("서약 열기 0 — 기억 조각 보상 +0%", 12, Color(1.0, 0.8, 0.5))
+	rv.add_child(heat_label)
+	var pact_grid := GridContainer.new()
+	pact_grid.columns = 3
+	pact_grid.add_theme_constant_override("h_separation", 4)
+	pact_grid.add_theme_constant_override("v_separation", 2)
+	for pid: String in ContentDB.pact_ids():
+		var pdef: Dictionary = ContentDB.pacts[pid]
+		var b := Button.new()
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.add_theme_font_size_override("font_size", 14)
+		b.tooltip_text = String(pdef.get("desc_ko", ""))
+		b.pressed.connect(func() -> void: _cycle_pact(pid))
+		_pact_buttons[pid] = b
+		pact_grid.add_child(b)
+	rv.add_child(pact_grid)
+	_refresh_pacts()
+	var ch := UIKit.hbox(6)
+	create_btn = UIKit.button("새 원정 만들기 (공개)", func() -> void: create_requested.emit())
+	tutorial_btn = UIKit.button("튜토리얼 (혼자 · 5분)", func() -> void: tutorial_requested.emit())
+	ch.add_child(create_btn)
+	ch.add_child(tutorial_btn)
+	rv.add_child(ch)
+	return rv
+
+
+func _set_chat_expanded(on: bool) -> void:
+	chat_log.custom_minimum_size = Vector2(370, CHAT_H_BIG if on else CHAT_H_SMALL)
+	_chat_panel.modulate = Color(1, 1, 1, 1.0 if on else 0.8)
+	_chat_panel.reset_size()
 
 
 func _select_tab(tid: String) -> void:
@@ -411,7 +412,8 @@ func show_roster(roster: Array, online: int, max_online: int) -> void:
 	var names: PackedStringArray = []
 	for r: Dictionary in roster:
 		names.append(String(r.get("nick", "?")))
-	roster_label.text = "마을 %d명 · 서버 접속 %d/%d\n%s" % [roster.size(), online, max_online, ", ".join(names)]
+	roster_label.text = "마을 %d명 · 접속 %d/%d · %s" % [roster.size(), online, max_online, ", ".join(names)]
+	roster_label.tooltip_text = ", ".join(names)
 
 
 func show_board(list: Array, my_expedition: String) -> void:
@@ -435,7 +437,7 @@ func show_board(list: Array, my_expedition: String) -> void:
 
 
 func show_party(party: Dictionary, my_id: String) -> void:
-	party_box.visible = not party.is_empty()
+	_party_panel.visible = not party.is_empty()
 	# 파티에 있는 동안은 새 원정·튜토리얼을 만들 수 없다 (먼저 파티 나가기)
 	create_btn.disabled = not party.is_empty()
 	tutorial_btn.disabled = not party.is_empty()
@@ -472,7 +474,6 @@ func show_progression(info: Dictionary, account: Dictionary) -> void:
 	var structures: Dictionary = info.get("structures", {})
 	var defs: Dictionary = info.get("village", {})
 	var bonus: Dictionary = info.get("bonus", {})
-	summary_label.text = "기억 조각 %d · 최고 완주 열기 %d\n영구 보너스: 체력 +%d, 회복 +%d, 목재 +%d" % [shards, int(prog.get("best_heat", 0)), int(bonus.get("max_hp_add", 0)), int(bonus.get("heal_uses_add", 0)), int(bonus.get("team_wood_add", 0))]
 	village_box.add_child(UIKit.label("기억 조각 %d · 영구 보너스: 최대 체력 +%d, 회복 도구 +%d, 팀 목재 +%d (상한 적용) · 최고 완주 열기 %d" % [shards, int(bonus.get("max_hp_add", 0)), int(bonus.get("heal_uses_add", 0)), int(bonus.get("team_wood_add", 0)), int(prog.get("best_heat", 0))], 13, Color(1.0, 0.9, 0.7)))
 	for sid: String in defs.keys():
 		var sdef: Dictionary = defs[sid]
