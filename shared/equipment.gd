@@ -173,7 +173,7 @@ static func item_mods(item: Dictionary) -> Dictionary:
 	var mods := {}
 	var procs: Array = []
 	var bdef := base_def(item)
-	var scale := float(db().get("level_scale", {}).get(str(int(item.get("level", 1))), 1.0))
+	var scale := base_scale(item)
 	for k: String in bdef.get("base", {}).keys():
 		mods[k] = float(mods.get(k, 0.0)) + float(bdef["base"][k]) * scale
 	for af: Dictionary in item.get("affixes", []):
@@ -291,25 +291,159 @@ static func equip(prog: Dictionary, slot: String, uid: String) -> String:
 	return ""
 
 
+## 기본 속성 배율 = 지역 레벨 배율 × (1 + 강화 단계 × base_mult_per_level)
+static func base_scale(item: Dictionary) -> float:
+	var scale := float(db().get("level_scale", {}).get(str(int(item.get("level", 1))), 1.0))
+	return scale * (1.0 + int(item.get("enhance", 0)) * float(db().get("enhance", {}).get("base_mult_per_level", 0.1)))
+
+
 static func display_name(item: Dictionary) -> String:
 	var bdef := base_def(item)
 	var name := String(bdef.get("name_ko", item.get("base", "?")))
 	var u := unique_def(String(item.get("unique", "")))
+	var out := name
 	if not u.is_empty():
-		return String(u.get("name_ko", name))
-	var pre: String = {"uncommon": "단단한 ", "rare": "정교한 ", "epic": "영웅의 "}.get(String(item.get("rarity", "common")), "")
-	return pre + name
+		out = String(u.get("name_ko", name))
+	else:
+		var pre: String = {"uncommon": "단단한 ", "rare": "정교한 ", "epic": "영웅의 "}.get(String(item.get("rarity", "common")), "")
+		out = pre + name
+	if int(item.get("enhance", 0)) > 0:
+		out += " +%d" % int(item["enhance"])
+	return out
+
+
+# ------------------------------------------------------------------ 강화 · 재감정 · 분해 (재료: 수액 결정)
+
+static func material_count(prog: Dictionary, mat: String = "sap_crystal") -> int:
+	return int(prog.get("materials", {}).get(mat, 0))
+
+
+static func add_material(prog: Dictionary, amount: int, mat: String = "sap_crystal") -> void:
+	if not prog.has("materials") or not (prog["materials"] is Dictionary):
+		prog["materials"] = {}
+	prog["materials"][mat] = maxi(int(prog["materials"].get(mat, 0)) + amount, 0)
+
+
+static func enhance_cost(item: Dictionary) -> int:
+	var en: Dictionary = db().get("enhance", {})
+	var lv := int(item.get("enhance", 0))
+	var costs: Array = en.get("cost", [3, 5, 8, 12, 18])
+	if lv >= int(en.get("max", 5)) or costs.is_empty():
+		return -1
+	var base := float(costs[mini(lv, costs.size() - 1)])
+	return int(ceil(base * (1.0 + rarity_index(String(item.get("rarity", "common"))) * float(en.get("rarity_cost_mult", 0.5)))))
+
+
+static func reforge_cost(item: Dictionary) -> int:
+	var c: Dictionary = db().get("reforge", {}).get("cost", {})
+	if (item.get("affixes", []) as Array).is_empty():
+		return -1
+	return int(c.get(String(item.get("rarity", "common")), -1))
+
+
+static func salvage_value(item: Dictionary) -> int:
+	var v: Dictionary = db().get("salvage", {}).get("value", {})
+	return int(v.get(String(item.get("rarity", "common")), 1)) + int(item.get("enhance", 0))
+
+
+static func is_equipped(prog: Dictionary, uid: String) -> bool:
+	var eqp: Dictionary = prog.get("equipped", {})
+	for sk: String in ["armor", "trinket1", "trinket2"]:
+		if String(eqp.get(sk, "")) == uid:
+			return true
+	var w: Variant = eqp.get("weapon", {})
+	if w is Dictionary:
+		for cid: String in (w as Dictionary).keys():
+			if String(w[cid]) == uid:
+				return true
+	return false
+
+
+## 강화: 수액 결정을 쓰고 enhance +1. 돌려주는 값 "" 또는 오류 코드
+static func enhance(prog: Dictionary, uid: String) -> String:
+	var it := find_item(prog, uid)
+	if it.is_empty():
+		return "NO_ITEM"
+	var cost := enhance_cost(it)
+	if cost < 0:
+		return "MAX_ENHANCE"
+	if material_count(prog) < cost:
+		return "NOT_ENOUGH_MATERIALS"
+	add_material(prog, -cost)
+	it["enhance"] = int(it.get("enhance", 0)) + 1
+	it["name_ko"] = display_name(it)
+	return ""
+
+
+## 재감정: index 번째 부가 속성을 같은 등급 계층 안에서 새 특성으로 다시 굴린다 (다른 줄과 중복 금지)
+static func reforge(prog: Dictionary, uid: String, index: int, rng: RandomNumberGenerator) -> String:
+	var it := find_item(prog, uid)
+	if it.is_empty():
+		return "NO_ITEM"
+	var affixes: Array = it.get("affixes", [])
+	if index < 0 or index >= affixes.size():
+		return "BAD_INDEX"
+	var cost := reforge_cost(it)
+	if cost < 0:
+		return "BAD_STATE"
+	if material_count(prog) < cost:
+		return "NOT_ENOUGH_MATERIALS"
+	var rdef := rarity_def(String(it.get("rarity", "common")))
+	var slot := String(it.get("slot", ""))
+	var class_id := String(it.get("class", ""))
+	var attack_shape := ""
+	if slot == "weapon":
+		attack_shape = String(base_def(it).get("basic_attack", {}).get("shape", ContentDB.get_class_def(class_id).get("basic_attack", {}).get("shape", "arc")))
+	var used: Dictionary = {}
+	for i in affixes.size():
+		if i != index:
+			used[String(affixes[i]["id"])] = true
+	used[String(affixes[index]["id"])] = true   # 같은 특성으로 되돌아오지 않게
+	var candidates: Array = []
+	for a: Dictionary in ContentDB.gear_affixes.get("affixes", []):
+		if int(a.get("tier", 1)) > int(rdef.get("tier_max", 1)):
+			continue
+		if a.has("slots") and not (a["slots"] as Array).has(slot):
+			continue
+		if a.has("class") and String(a["class"]) != class_id:
+			continue
+		if a.has("attack") and String(a["attack"]) != attack_shape:
+			continue
+		candidates.append(a)
+	var pick := _pick_affix(rng, candidates, used, 0)
+	if pick.is_empty():
+		return "NO_CANDIDATE"
+	add_material(prog, -cost)
+	var t := rng.randf_range(float(rdef.get("roll_min", 0.0)), float(rdef.get("roll_max", 1.0)))
+	affixes[index] = {"id": String(pick["id"]), "t": snappedf(t, 0.01)}
+	return ""
+
+
+## 분해: 장착 중이 아닌 장비를 없애고 수액 결정을 얻는다
+static func salvage(prog: Dictionary, uid: String) -> String:
+	var it := find_item(prog, uid)
+	if it.is_empty():
+		return "NO_ITEM"
+	if is_equipped(prog, uid):
+		return "ITEM_EQUIPPED"
+	add_material(prog, salvage_value(it))
+	var inv: Array = prog.get("inventory", [])
+	for i in inv.size():
+		if String(inv[i].get("uid", "")) == uid:
+			inv.remove_at(i)
+			break
+	return ""
 
 
 ## 설명 줄들: [기본 속성, 부가 속성..., 고유]
 static func describe(item: Dictionary) -> PackedStringArray:
 	var out: PackedStringArray = []
 	var bdef := base_def(item)
-	var scale := float(db().get("level_scale", {}).get(str(int(item.get("level", 1))), 1.0))
+	var scale := base_scale(item)
 	var base_parts: PackedStringArray = []
 	for k: String in bdef.get("base", {}).keys():
 		base_parts.append(_mod_text(k, float(bdef["base"][k]) * scale))
-	out.append("기본: " + (", ".join(base_parts) if not base_parts.is_empty() else "-") + " (지역 %d)" % int(item.get("level", 1)))
+	out.append("기본: " + (", ".join(base_parts) if not base_parts.is_empty() else "-") + " (지역 %d%s)" % [int(item.get("level", 1)), (" · 강화 +%d" % int(item["enhance"])) if int(item.get("enhance", 0)) > 0 else ""])
 	if not bdef.get("basic_attack", {}).is_empty():
 		out.append("기본 공격 교체: " + String(bdef.get("desc_ko", "")))
 	for af: Dictionary in item.get("affixes", []):

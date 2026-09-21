@@ -1967,6 +1967,39 @@ func test_equipment() -> void:
 	inst2.room.projectiles.clear()
 	inst2.room._apply_basic_attack(p2, inst2.room.basic_attack_def(p2))
 	check(inst2.room.projectiles.size() == 3, "launcher fires 3 pellets")
+	# 강화: 비용·상한·기본 속성 배율, 재감정: 줄 교체·계층 유지·중복 금지, 분해: 장착 중 불가·재료 획득
+	var prog2 := {"inventory": [], "equipped": {}, "materials": {"sap_crystal": 0}}
+	var rare_arm := {"uid": "ra", "slot": "armor", "base": "bark_vest", "rarity": "rare", "level": 1, "affixes": [{"id": "a_hp", "t": 0.5}, {"id": "a_speed", "t": 0.5}], "unique": "", "name_ko": "정교한 나무껍질 조끼"}
+	prog2["inventory"].append(rare_arm)
+	check(Equipment.enhance(prog2, "ra") == "NOT_ENOUGH_MATERIALS", "enhance refused without crystals")
+	Equipment.add_material(prog2, 100)
+	var c0 := Equipment.enhance_cost(rare_arm)
+	check(c0 == int(ceil(3.0 * (1.0 + 2 * 0.5))), "enhance cost = 3 × (1 + rarity index × 0.5) for rare (%d)" % c0)
+	check(Equipment.enhance(prog2, "ra") == "" and int(rare_arm["enhance"]) == 1 and Equipment.material_count(prog2) == 100 - c0, "enhance +1 consumes crystals")
+	check(is_equal_approx(float(Equipment.item_mods(rare_arm)["mods"]["max_hp_add"]), 14.0 * 1.1 + Equipment.affix_value([6, 20], 0.5, "int")), "enhance scales only the base stat (+10% per level)")
+	check(rare_arm["name_ko"].ends_with("+1") and Equipment.describe(rare_arm)[0].contains("강화 +1"), "name and description show the enhance level")
+	for i in 4:
+		Equipment.enhance(prog2, "ra")
+	check(int(rare_arm["enhance"]) == 5 and Equipment.enhance(prog2, "ra") == "MAX_ENHANCE" and Equipment.enhance_cost(rare_arm) == -1, "enhance stops at +5")
+	var before_mats := Equipment.material_count(prog2)
+	var rr := RandomNumberGenerator.new()
+	rr.seed = 3
+	check(Equipment.reforge(prog2, "ra", 5, rr) == "BAD_INDEX", "reforge rejects a bad line index")
+	var old_id := String(rare_arm["affixes"][1]["id"])
+	check(Equipment.reforge(prog2, "ra", 1, rr) == "" and String(rare_arm["affixes"][1]["id"]) != old_id and String(rare_arm["affixes"][1]["id"]) != "a_hp" and (rare_arm["affixes"] as Array).size() == 2, "reforge replaces the chosen line with a different, non-duplicate affix")
+	check(Equipment.material_count(prog2) == before_mats - Equipment.reforge_cost(rare_arm), "reforge consumes the rarity cost")
+	var tier_ok2 := true
+	for i in 20:
+		Equipment.add_material(prog2, 10)
+		Equipment.reforge(prog2, "ra", 0, rr)
+		if int(Equipment.affix_def(String(rare_arm["affixes"][0]["id"])).get("tier", 1)) > 2 or Equipment.affix_def(String(rare_arm["affixes"][0]["id"])).has("class"):
+			tier_ok2 = false
+	check(tier_ok2, "reforged lines stay within the rarity tier cap and slot rules")
+	Equipment.equip(prog2, "armor", "ra")
+	check(Equipment.salvage(prog2, "ra") == "ITEM_EQUIPPED", "equipped item cannot be salvaged")
+	Equipment.equip(prog2, "armor", "")
+	var mats_before := Equipment.material_count(prog2)
+	check(Equipment.salvage_value(rare_arm) == 5 + 5 and Equipment.salvage(prog2, "ra") == "" and Equipment.find_item(prog2, "ra").is_empty() and Equipment.material_count(prog2) == mats_before + 10, "salvage removes the item and pays rarity value + enhance level")
 	# 드랍 굴림: 보스는 확정 희귀 이상, 창고 상한
 	var dd: Dictionary = eqdb["drop"]
 	check(float(dd.get("room_chance", 0)) > 0.0 and String(dd.get("boss_min_rarity", "")) == "rare" and int(dd.get("inventory_cap", 0)) == 60, "drop rules: room chance, boss min rarity rare, cap 60")

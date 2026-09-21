@@ -49,9 +49,11 @@ var _quest_summary: Dictionary = {}
 var _bond_text: String = "인연: 아직 없음"
 const MENU_TABS := [["village", "내실 · 마을 복구"], ["gear", "장비"], ["mastery", "숙련 · 특성"], ["codex", "도감 · 기록"], ["quest", "퀘스트 · 인연"]]
 signal equip_requested(slot: String, uid: String)
+signal gear_action(action: String, uid: String, index: int)
 var gear_box: VBoxContainer
 var _gear_account: Dictionary = {}
 var _gear_class: String = "guardian"
+var _gear_selected: String = ""
 
 
 func _ready() -> void:
@@ -471,7 +473,7 @@ func set_selected_class(cid: String) -> void:
 		_refresh_gear()
 
 
-## 장비 탭: 현재 직업의 무기 슬롯 + 갑옷 + 장신구 2, 그 아래 창고(등급 내림차순). 단추를 누르면 장착, 장착 중인 것을 누르면 해제.
+## 장비 탭: 현재 직업의 무기 슬롯 + 갑옷 + 장신구 2, 창고(등급 내림차순), 고른 장비의 상세(장착·강화·재감정·분해).
 func _refresh_gear() -> void:
 	if gear_box == null:
 		return
@@ -482,12 +484,15 @@ func _refresh_gear() -> void:
 	var eqp: Dictionary = prog.get("equipped", {})
 	var wslot: Dictionary = eqp.get("weapon", {}) if eqp.get("weapon", {}) is Dictionary else {}
 	var cname := String(ContentDB.get_class_def(_gear_class).get("name_ko", _gear_class))
-	gear_box.add_child(UIKit.label("장착 중 (%s 무기 · 갑옷 · 장신구 2) — 창고 %d/%d" % [cname, inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60))], 14, Color(1.0, 0.9, 0.7)))
+	gear_box.add_child(UIKit.label("장착 중 (%s 무기 · 갑옷 · 장신구 2) — 창고 %d/%d · 수액 결정 %d" % [cname, inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60)), Equipment.material_count(prog)], 14, Color(1.0, 0.9, 0.7)))
 	var slots := [["weapon:" + _gear_class, "무기", String(wslot.get(_gear_class, ""))], ["armor", "갑옷", String(eqp.get("armor", ""))], ["trinket1", "장신구 1", String(eqp.get("trinket1", ""))], ["trinket2", "장신구 2", String(eqp.get("trinket2", ""))]]
+	var equipped_uids: Array = []
+	var top := UIKit.hbox(12)
+	var slot_col := UIKit.vbox(3)
 	for sl: Array in slots:
 		var h := UIKit.hbox(6)
 		var sname := UIKit.label(String(sl[1]), 13)
-		sname.custom_minimum_size = Vector2(70, 0)
+		sname.custom_minimum_size = Vector2(60, 0)
 		h.add_child(sname)
 		var uid := String(sl[2])
 		var it := Equipment.find_item(prog, uid)
@@ -497,12 +502,15 @@ func _refresh_gear() -> void:
 				dw = String(ContentDB.equipment.get("weapons", {}).get(Equipment.default_weapon(_gear_class), {}).get("name_ko", "기본"))
 			h.add_child(UIKit.label("(비어 있음%s)" % ((" · 기본 " + dw) if dw != "" else ""), 12, Color(0.6, 0.6, 0.55)))
 		else:
+			equipped_uids.append(uid)
 			var b := _item_button(it, true)
-			var slot_id := String(sl[0])
-			b.pressed.connect(func() -> void: equip_requested.emit(slot_id, ""))
+			b.pressed.connect(func() -> void: _select_gear(uid))
 			h.add_child(b)
-		gear_box.add_child(h)
-	gear_box.add_child(UIKit.label("창고 (누르면 장착 · 무기는 해당 직업 슬롯에)", 14, Color(1.0, 0.9, 0.7)))
+		slot_col.add_child(h)
+	top.add_child(slot_col)
+	top.add_child(_gear_detail(prog, equipped_uids))
+	gear_box.add_child(top)
+	gear_box.add_child(UIKit.label("창고 (누르면 상세 · 무기는 해당 직업 슬롯에 장착)", 14, Color(1.0, 0.9, 0.7)))
 	var sorted := inv.duplicate()
 	sorted.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var ra := Equipment.rarity_index(String(a.get("rarity", "")))
@@ -516,35 +524,100 @@ func _refresh_gear() -> void:
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 4)
-	var equipped_uids: Array = [String(wslot.get(_gear_class, "")), String(eqp.get("armor", "")), String(eqp.get("trinket1", "")), String(eqp.get("trinket2", ""))]
 	for it: Dictionary in sorted:
 		var uid := String(it.get("uid", ""))
 		var b := _item_button(it, equipped_uids.has(uid))
-		var slot := String(it.get("slot", ""))
-		if slot == "weapon" and String(it.get("class", "")) != _gear_class:
-			b.disabled = true
-			b.tooltip_text += "\n(%s 전용 — 직업을 바꾸면 장착 가능)" % ContentDB.get_class_def(String(it.get("class", ""))).get("name_ko", "")
-		elif equipped_uids.has(uid):
-			b.pressed.connect(func() -> void: equip_requested.emit(_slot_of_equipped(eqp, uid), ""))
-		else:
-			b.pressed.connect(func() -> void: equip_requested.emit("trinket1" if slot == "trinket" and String(eqp.get("trinket1", "")) == "" else ("trinket2" if slot == "trinket" else slot), uid))
+		if uid == _gear_selected:
+			b.modulate = Color(1.15, 1.15, 1.0)
+		b.pressed.connect(func() -> void: _select_gear(uid))
 		grid.add_child(b)
 	gear_box.add_child(grid)
 
 
-## 데모/검증용: 창고의 첫 장착 가능 항목을 누른다 (EQUIP 왕복 확인)
+func _select_gear(uid: String) -> void:
+	_gear_selected = "" if _gear_selected == uid else uid
+	_refresh_gear()
+
+
+## 고른 장비 상세: 설명 줄 + 장착/해제 · 강화(비용) · 재감정(줄마다 비용) · 분해(획득량)
+func _gear_detail(prog: Dictionary, equipped_uids: Array) -> Control:
+	var box := UIKit.vbox(4)
+	box.custom_minimum_size = Vector2(360, 0)
+	var it := Equipment.find_item(prog, _gear_selected)
+	if it.is_empty():
+		box.add_child(UIKit.label("장비를 누르면 여기에 상세와 강화·재감정·분해가 나옵니다.\n수액 결정은 장비 분해(등급별 1/2/5/12/30)와 정예(+1)·보스(+3) 처치로 얻습니다.", 12, Color(0.7, 0.7, 0.65)))
+		return box
+	var uid := String(it.get("uid", ""))
+	var rarity := String(it.get("rarity", "common"))
+	var title := UIKit.label("[%s] %s" % [Equipment.rarity_name(rarity), it.get("name_ko", Equipment.display_name(it))], 14, Equipment.rarity_color(rarity))
+	box.add_child(title)
+	var lines := Equipment.describe(it)
+	var affix_start := 1 + (1 if not Equipment.base_def(it).get("basic_attack", {}).is_empty() else 0)
+	var mats := Equipment.material_count(prog)
+	var rcost := Equipment.reforge_cost(it)
+	for i in lines.size():
+		var h := UIKit.hbox(6)
+		var l := UIKit.label(String(lines[i]), 12)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.custom_minimum_size = Vector2(250, 0)
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		h.add_child(l)
+		var ai := i - affix_start
+		if ai >= 0 and ai < (it.get("affixes", []) as Array).size() and rcost > 0:
+			var rb := UIKit.button("재감정 (%d)" % rcost, func() -> void: gear_action.emit("reforge", uid, ai))
+			rb.add_theme_font_size_override("font_size", 11)
+			rb.disabled = mats < rcost
+			rb.tooltip_text = "이 줄을 같은 등급 계층 안에서 다시 굴립니다 (수액 결정 %d)" % rcost
+			h.add_child(rb)
+		box.add_child(h)
+	var actions := UIKit.hbox(6)
+	var is_eq := equipped_uids.has(uid)
+	var slot := String(it.get("slot", ""))
+	if slot == "weapon" and String(it.get("class", "")) != _gear_class:
+		actions.add_child(UIKit.label("%s 전용 (직업을 바꾸면 장착)" % ContentDB.get_class_def(String(it.get("class", ""))).get("name_ko", ""), 12, Color(0.7, 0.7, 0.65)))
+	elif is_eq:
+		var eqp: Dictionary = prog.get("equipped", {})
+		actions.add_child(UIKit.button("해제", func() -> void: equip_requested.emit(_slot_of_equipped(eqp, uid), "")))
+	else:
+		var eqp: Dictionary = prog.get("equipped", {})
+		var target := slot
+		if slot == "trinket":
+			target = "trinket1" if String(eqp.get("trinket1", "")) == "" else "trinket2"
+		actions.add_child(UIKit.button("장착", func() -> void: equip_requested.emit(target, uid)))
+	var ecost := Equipment.enhance_cost(it)
+	var eb := UIKit.button("강화 +%d (%d)" % [int(it.get("enhance", 0)) + 1, ecost] if ecost >= 0 else "강화 최대 (+%d)" % int(ContentDB.equipment.get("enhance", {}).get("max", 5)), func() -> void: gear_action.emit("enhance", uid, 0))
+	eb.disabled = ecost < 0 or mats < ecost
+	eb.tooltip_text = "기본 속성 ×(1 + 0.1 × 단계). 수액 결정 %d" % maxi(ecost, 0)
+	actions.add_child(eb)
+	var sb := UIKit.button("분해 (+%d 결정)" % Equipment.salvage_value(it), func() -> void: gear_action.emit("salvage", uid, 0))
+	sb.disabled = is_eq
+	sb.tooltip_text = "장비를 없애고 수액 결정을 얻습니다" + (" — 장착 중이라 불가" if is_eq else "")
+	actions.add_child(sb)
+	box.add_child(actions)
+	return box
+
+
+## 데모/검증용: 창고의 첫 장착 가능 항목을 고른 뒤 장착한다 (EQUIP 왕복 확인)
 func demo_equip_first() -> bool:
-	var grid: GridContainer = null
-	for c: Node in gear_box.get_children():
-		if c is GridContainer:
-			grid = c
-	if grid == null:
-		return false
-	for b: Node in grid.get_children():
-		if b is Button and not (b as Button).disabled and not (b as Button).text.begins_with("● "):
-			(b as Button).pressed.emit()
-			return true
+	var prog: Dictionary = _gear_account.get("progression", {})
+	for it: Dictionary in prog.get("inventory", []):
+		var slot := String(it.get("slot", ""))
+		if slot == "weapon" and String(it.get("class", "")) != _gear_class:
+			continue
+		if Equipment.is_equipped(prog, String(it.get("uid", ""))):
+			continue
+		_gear_selected = String(it.get("uid", ""))
+		_refresh_gear()
+		var target := slot if slot != "trinket" else "trinket1"
+		equip_requested.emit(target, _gear_selected)
+		return true
 	return false
+
+
+## 데모/검증용: 고른 장비를 강화한다
+func demo_enhance_selected() -> void:
+	if _gear_selected != "":
+		gear_action.emit("enhance", _gear_selected, 0)
 
 
 func _slot_of_equipped(eqp: Dictionary, uid: String) -> String:

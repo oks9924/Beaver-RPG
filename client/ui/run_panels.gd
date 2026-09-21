@@ -82,6 +82,8 @@ func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 		if bool(rw.get("gear_lost", false)):
 			gtxt = "창고가 가득 차 장비를 버렸습니다: " + String(gear.get("name_ko", ""))
 		body.text += "\n" + gtxt
+	if int(rw.get("crystals", 0)) > 0:
+		body.text += "\n수액 결정 +%d (강화·재감정 재료)" % int(rw.get("crystals", 0))
 	_clear_buttons()
 	var options: Array = p.get("options", [])
 	if options.is_empty() or bool(p.get("picked", false)):

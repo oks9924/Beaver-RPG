@@ -69,7 +69,9 @@
    "armor": 0.3,
    "trinket": 0.3
   },
-  "inventory_cap": 60
+  "inventory_cap": 60,
+  "crystal_on_elite": 1,
+  "crystal_on_boss": 3
  },
  "level_scale": {
   "1": 1.0,
@@ -301,6 +303,44 @@
    "base": {
     "cdr": 0.04
    }
+  }
+ },
+ "materials": {
+  "sap_crystal": {
+   "name_ko": "수액 결정",
+   "desc_ko": "장비를 분해하면 나온다. 강화·재감정에 쓴다"
+  }
+ },
+ "enhance": {
+  "_comment": "강화 +1~+5: 기본 속성만 오른다(등급 무관). 비용은 다음 단계 기준 cost[level] × (1 + 등급 지수 × rarity_cost_mult) 수액 결정",
+  "max": 5,
+  "base_mult_per_level": 0.1,
+  "cost": [
+   3,
+   5,
+   8,
+   12,
+   18
+  ],
+  "rarity_cost_mult": 0.5
+ },
+ "reforge": {
+  "_comment": "재감정: 부가 속성 1줄을 골라 같은 등급 계층 안에서 다시 굴린다(다른 줄과 중복 금지, 고유 특성은 불가). 비용은 등급별 수액 결정",
+  "cost": {
+   "uncommon": 2,
+   "rare": 4,
+   "epic": 8,
+   "legendary": 15
+  }
+ },
+ "salvage": {
+  "_comment": "분해: 장비를 없애고 수액 결정을 얻는다. 장착 중이면 불가. 강화 단계당 +1",
+  "value": {
+   "common": 1,
+   "uncommon": 2,
+   "rare": 5,
+   "epic": 12,
+   "legendary": 30
   }
  }
 }

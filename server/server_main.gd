@@ -288,6 +288,7 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.EXPEDITION_PAUSE: _handle_expedition_pause(s)
 				Protocol.C.MARK: _handle_mark(s, payload)
 				Protocol.C.EQUIP: _handle_equip(s, payload)
+				Protocol.C.GEAR_ACTION: _handle_gear_action(s, payload)
 				_: _err(s, Protocol.ERR_BAD_STATE, {"message": "unknown message %d" % type})
 
 
@@ -692,6 +693,52 @@ func _handle_equip(s: Session, payload: Dictionary) -> void:
 	if inst != null and inst.members.has(s.account_id):
 		inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
 	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+
+
+## 강화·재감정·분해: {"action": "enhance"|"reforge"|"salvage", "uid": ..., "index": n}. 마을 또는 원정 준비 중에만.
+func _handle_gear_action(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if s.location != Protocol.Location.HUB and not (inst != null and inst.state == Protocol.ExpState.PREPARING):
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	var acc := store.get_account(s.account_id)
+	var prog: Dictionary = acc["progression"]
+	var uid := String(payload.get("uid", ""))
+	var err := ""
+	var note := ""
+	match String(payload.get("action", "")):
+		"enhance":
+			err = Equipment.enhance(prog, uid)
+			if err == "":
+				note = "강화 성공: %s" % Equipment.find_item(prog, uid).get("name_ko", "")
+		"reforge":
+			var rng := RandomNumberGenerator.new()
+			rng.randomize()
+			err = Equipment.reforge(prog, uid, int(payload.get("index", 0)), rng)
+			if err == "":
+				var it := Equipment.find_item(prog, uid)
+				var lines := Equipment.describe(it)
+				var li := 1 + (1 if not Equipment.base_def(it).get("basic_attack", {}).is_empty() else 0) + int(payload.get("index", 0))
+				note = "재감정: %s" % (lines[li] if li < lines.size() else it.get("name_ko", ""))
+		"salvage":
+			var it := Equipment.find_item(prog, uid)
+			var gain := Equipment.salvage_value(it) if not it.is_empty() else 0
+			err = Equipment.salvage(prog, uid)
+			if err == "":
+				note = "분해: %s → 수액 결정 +%d" % [it.get("name_ko", ""), gain]
+		_:
+			err = Protocol.ERR_BAD_STATE
+	if err != "":
+		_err(s, err)
+		return
+	if store.put_account(acc) != OK:
+		metrics["save_failures"] += 1
+		_err(s, Protocol.ERR_SAVE_FAILED)
+		return
+	if inst != null and inst.members.has(s.account_id):
+		inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
+	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+	Net.send_to_peer(s.peer_id, Protocol.S.NOTICE, {"text": note})
 
 
 ## 방 클리어 장비 드랍: 접속 인원 각자 개별 굴림. 정예·보스 확정(최소 등급), 일반 방은 room_chance. 창고가 차면 알림만.
@@ -1190,6 +1237,14 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 				codex["relics"].append(rid)
 		prog["codex"] = codex
 		var gear_drop := _roll_gear_drop(inst, aid, res, prog) if victory else {}
+		var crystals := 0
+		if victory and not inst.tutorial:
+			if String(res.get("boss_id", "")) != "":
+				crystals = int(ContentDB.equipment.get("drop", {}).get("crystal_on_boss", 3))
+			elif bool(res.get("elite", false)):
+				crystals = int(ContentDB.equipment.get("drop", {}).get("crystal_on_elite", 1))
+		if crystals > 0:
+			Equipment.add_material(prog, crystals)
 		if not gear_drop.is_empty():
 			var it: Dictionary = gear_drop["item"]
 			var txt := "%s 획득: [%s] %s" % [inst.members[aid]["nickname"], Equipment.rarity_name(String(it.get("rarity", ""))), it.get("name_ko", "")]
@@ -1224,7 +1279,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 					QuestEngine.fail_for_run(prog, "opt_03")
 		if store.put_account(acc) != OK:
 			metrics["save_failures"] += 1
-		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}, "quests_completed": completed, "secrets": res.get("stats", {}).get("secrets", []), "gear": gear_drop.get("item", {}), "gear_lost": bool(gear_drop.get("full", false))}
+		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}, "quests_completed": completed, "secrets": res.get("stats", {}).get("secrets", []), "gear": gear_drop.get("item", {}), "gear_lost": bool(gear_drop.get("full", false)), "crystals": crystals}
 		var ms := _session_for_account(aid)
 		if ms != null:
 			Net.send_to_peer(ms.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})

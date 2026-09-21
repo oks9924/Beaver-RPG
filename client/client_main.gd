@@ -125,6 +125,7 @@ func _ready() -> void:
 	hub_screen.upgrade_requested.connect(func(sid: String) -> void: net.send(Protocol.C.HUB_UPGRADE, {"structure": sid}))
 	hub_screen.trait_requested.connect(func(cid: String, tid: String) -> void: net.send(Protocol.C.MASTERY_TRAIT, {"class_id": cid, "trait_id": tid}))
 	hub_screen.equip_requested.connect(func(slot: String, uid: String) -> void: net.send(Protocol.C.EQUIP, {"slot": slot, "uid": uid}))
+	hub_screen.gear_action.connect(func(action: String, uid: String, index: int) -> void: net.send(Protocol.C.GEAR_ACTION, {"action": action, "uid": uid, "index": index}))
 	hud.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	result_panel.choice_made.connect(func(c: String) -> void: net.send(Protocol.C.ROOM_CHOICE, {"choice": c}))
 	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))
@@ -1024,9 +1025,9 @@ func _demo_tick(dt: float) -> void:
 			if _demo_step == 0 and _demo_t > 1.0:
 				_demo_step = 50
 				_screenshot("02_hub.png")
-			elif _demo_step >= 50 and _demo_step <= 61 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
+			elif _demo_step >= 50 and _demo_step <= 63 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
 				# 메뉴 탭을 차례로 열어 찍는다 (열기 → 다음 틱에 촬영). 장비 탭은 창고 첫 항목을 장착해 본 뒤 한 번 더 찍는다.
-				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
+				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
 				var ti: int = (_demo_step - 50) / 2
 				var entry: Array = tabs[ti]
 				if (_demo_step - 50) % 2 == 0:
@@ -1035,11 +1036,13 @@ func _demo_tick(dt: float) -> void:
 					_screenshot(String(entry[1]) + ".png")
 					if entry.size() > 2 and String(entry[2]) == "equip":
 						hub_screen.demo_equip_first()
+					elif entry.size() > 2 and String(entry[2]) == "enhance":
+						hub_screen.demo_enhance_selected()
 				_demo_step += 1
-			elif _demo_step == 62 and _demo_t > 6.2:
+			elif _demo_step == 64 and _demo_t > 7.0:
 				_demo_step = 11
 				hub_screen.close_menu()
-			elif _demo_step == 11 and _demo_t > 6.5 and party.is_empty():
+			elif _demo_step == 11 and _demo_t > 7.3 and party.is_empty():
 				_demo_step = 2
 				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class})
 			elif _demo_step == 2 and not party.is_empty() and _demo_t > 2.2:
