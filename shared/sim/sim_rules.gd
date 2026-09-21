@@ -64,6 +64,13 @@ static func facing_from(aim: Vector2, fallback: Vector2) -> Vector2:
 	return fallback
 
 
+## 바라보는 방향 규칙: 이동 키를 누르면 그 방향, 아니면 이전 방향을 유지한다 (마우스는 공격·스킬 시작 순간에만 방향을 정한다).
+static func move_facing(mv: Vector2, prev: Vector2) -> Vector2:
+	if mv.length_squared() > 0.01:
+		return mv.normalized()
+	return prev
+
+
 ## 4방향 애니메이션 행 선택: down=0, up=1, left=2, right=3
 static func dir_row(facing: Vector2) -> int:
 	if absf(facing.x) > absf(facing.y):

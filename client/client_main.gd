@@ -26,6 +26,9 @@ var last_result: Dictionary = {}
 var _seq: int = 0
 var _pending: Array = []            # [{seq, mv, dt}]
 var _pred_pos: Vector2 = Vector2.ZERO
+var _vis_offset: Vector2 = Vector2.ZERO   # 서버 보정으로 생긴 위치 차이를 화면에서 서서히 흡수한다 (순간 이동·떨림 방지)
+var _prev_pred: Vector2 = Vector2.ZERO    # 직전 물리 틱의 예측 위치. 30Hz 예측을 화면 주사율에 맞춰 보간한다
+var _prev_btn: int = 0
 var selected_class: String = "guardian"
 var npc_panel := NpcPanel.new()
 var settings_panel := SettingsPanel.new()
@@ -335,6 +338,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			var you: Dictionary = p.get("you", {})
 			_pred_pos = Vector2(float(you.get("x", 800)), float(you.get("y", 600)))
 			_pending.clear()
+			_vis_offset = Vector2.ZERO
 			world.camera.position = _pred_pos
 			world.camera.reset_smoothing()
 			hub_screen.show_hub(hub_info, roster, int(net.server_info.get("online", 0)), int(net.server_info.get("max_online", 0)))
@@ -366,6 +370,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 				var ra: Dictionary = def.get("assets", {})
 				world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(ra.get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []), String(ra.get("wall", "tile.willow.wall")), String(ra.get("water", "tile.willow.water")), String(ra.get("shore", "tile.willow.shore")))
 				_pending.clear()
+				_vis_offset = Vector2.ZERO
 				_me_snapshot = PackedFloat32Array()
 				var spawns: Array = def.get("player_spawns", [[100, 100]])
 				var mine_spawn: Array = (p.get("spawns", {}) as Dictionary).get(my_id, spawns[0])
@@ -799,7 +804,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		if ev.is_local:
 			_me_snapshot = e
 			_reconcile(pos, int(p.get("ack", 0)), e)
-			ev.position = _pred_pos
+			ev.position = _render_pos()
 		else:
 			ev.target_pos = pos
 	world.remove_missing(keys, "p:")
@@ -915,8 +920,12 @@ func _reconcile(server_pos: Vector2, ack: int, me: PackedFloat32Array) -> void:
 		var speed := float(ContentDB.get_class_def(_my_class()).get("move_speed", 180))
 		for inp: Dictionary in _pending:
 			pos = SimRules.move(pos, inp["mv"], speed, float(inp["dt"]), world.bounds, 18.0, room.get("room_def", {}).get("obstacles", []))
-	if _pred_pos.distance_to(pos) > 2.0:
-		_pred_pos = _pred_pos.lerp(pos, 0.5) if _pred_pos.distance_to(pos) < 60.0 else pos
+	var err := pos - _pred_pos
+	if err.length() > 0.25:
+		# 예측 위치는 서버 기준으로 바로 맞추고, 화면에서는 차이를 오프셋으로 남겨 몇 프레임에 걸쳐 흡수한다.
+		_vis_offset = (_vis_offset - err) if err.length() < 60.0 else Vector2.ZERO
+		_prev_pred += err
+		_pred_pos = pos
 
 
 # ------------------------------------------------------------------ 입력
@@ -996,13 +1005,24 @@ func _physics_process(dt: float) -> void:
 		_pending.append({"seq": _seq, "mv": mv, "dt": dt})
 		if _pending.size() > 60:
 			_pending.pop_front()
+	_prev_pred = _pred_pos
 	if movable and mv.length_squared() > 0.0:
 		_pred_pos = SimRules.move(_pred_pos, mv, speed, dt, world.bounds, 18.0, obstacles)
+	_vis_offset *= exp(-dt * 12.0)
+	if _vis_offset.length() < 0.2:
+		_vis_offset = Vector2.ZERO
+	var pressed := btn & ~_prev_btn
+	_prev_btn = btn
 	var mine: EntityView = world.entities.get("p:" + my_id, null)
 	if mine != null:
-		mine.position = _pred_pos
-		# 서버와 같은 규칙: 조준(마우스)이 있으면 조준 방향, 없으면 이동 방향. 이동 방향과 섞지 않는다.
-		mine.facing = SimRules.facing_from(aim, mv.normalized() if mv.length_squared() > 0.01 else mine.facing)
+		mine.position = _render_pos()
+		mine.move_intent = movable and mv.length_squared() > 0.0
+		# 서버와 같은 규칙: 이동 키 방향을 본다. 공격(누르고 있는 동안)·스킬을 시작하는 순간에만 마우스 방향을 본다.
+		var act := int(_me_snapshot[Protocol.SNAP_P.ACTION]) if mode == "room" and not _me_snapshot.is_empty() else Protocol.Action.IDLE
+		if act == Protocol.Action.IDLE or act == Protocol.Action.RECOVERY:
+			mine.facing = SimRules.move_facing(mv, mine.facing)
+			if mode == "room" and (btn & Protocol.BTN_ATTACK or pressed & (Protocol.BTN_Q | Protocol.BTN_E | Protocol.BTN_R)):
+				mine.facing = SimRules.facing_from(aim, mine.facing)
 
 
 func _screenshot(name: String) -> void:
@@ -1212,12 +1232,22 @@ func _demo_input() -> Dictionary:
 	return {"mv": mv, "btn": btn, "aim": aim}
 
 
+## 내 캐릭터의 화면 위치: 물리 틱(30Hz) 사이를 보간하고, 서버 보정 오프셋을 더한다. 카메라도 같은 위치를 따른다.
+func _render_pos() -> Vector2:
+	if _prev_pred.distance_to(_pred_pos) > 60.0:
+		_prev_pred = _pred_pos   # 순간 이동(입장·부활·큰 보정)은 보간하지 않는다
+	return _prev_pred.lerp(_pred_pos, clampf(Engine.get_physics_interpolation_fraction(), 0.0, 1.0)) + _vis_offset
+
+
 func _process(dt: float) -> void:
 	if bot != null:
 		return
 	if demo:
 		_demo_tick(dt)
-	world.camera.position = _pred_pos
+	var mine: EntityView = world.entities.get("p:" + my_id, null)
+	if mine != null:
+		mine.position = _render_pos()
+	world.camera.position = _render_pos()
 	world.camera.offset = world.camera.offset.lerp(Vector2.ZERO, 0.2)
 	if overlay.visible:
 		overlay.update_info(net, world, room, _seq, _pending.size())

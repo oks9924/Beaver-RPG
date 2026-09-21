@@ -16,6 +16,8 @@ func _ready() -> void:
 	test_store_atomic()
 	print("-- test_sim_rules")
 	test_sim_rules()
+	print("-- test_facing_rules")
+	test_facing_rules()
 	print("-- test_combat_room_flow")
 	test_combat_room_flow()
 	print("-- test_combat_room_down_rescue_wipe")
@@ -163,6 +165,54 @@ func test_sim_rules() -> void:
 	var p2 := SimRules.move(Vector2(40, 50), Vector2.RIGHT, 100, 0.2, bounds, 10, [{"x": 60, "y": 50, "r": 10}])
 	check(p2.x <= 40.0 + 0.001, "move blocked by obstacle")
 	check(SimRules.dir_row(Vector2(0, 1)) == 0 and SimRules.dir_row(Vector2(0, -1)) == 1 and SimRules.dir_row(Vector2(-1, 0)) == 2 and SimRules.dir_row(Vector2(1, 0)) == 3, "dir rows")
+	check(SimRules.move_facing(Vector2(0, -3), Vector2.RIGHT) == Vector2.UP and SimRules.move_facing(Vector2.ZERO, Vector2.RIGHT) == Vector2.RIGHT, "move_facing: key direction, else keep")
+
+
+## 바라보는 방향: 이동 키 방향을 따르고, 마우스(조준)는 공격·스킬 시작 순간에만 방향을 정한다. 마을도 같다.
+func test_facing_rules() -> void:
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 3, _members(1))
+	var dt := 1.0 / 30.0
+	var p: Dictionary = room.players["p0"]
+	var seq := 1
+	# 마우스는 위를 가리키지만 오른쪽으로 걷는다 → 오른쪽을 본다
+	for i in 5:
+		room.queue_input("p0", seq, Vector2.RIGHT, Vector2(0, -200), 0)
+		seq += 1
+		room.step(dt)
+	check(p["facing"] == Vector2.RIGHT, "walking faces the movement key, not the mouse")
+	# 멈추면 마지막 방향 유지 (마우스가 아래를 가리켜도)
+	for i in 5:
+		room.queue_input("p0", seq, Vector2.ZERO, Vector2(0, 200), 0)
+		seq += 1
+		room.step(dt)
+	check(p["facing"] == Vector2.RIGHT, "standing still keeps last facing")
+	# 공격 버튼: 그 순간의 마우스 방향을 본다
+	room.queue_input("p0", seq, Vector2.ZERO, Vector2(0, 200), Protocol.BTN_ATTACK)
+	seq += 1
+	room.step(dt)
+	check(p["facing"] == Vector2.DOWN and p["action"] == Protocol.Action.WINDUP, "attack turns toward the mouse at start")
+	# 공격 중에는 이동 키가 방향을 바꾸지 않는다 (WINDUP/ACTIVE)
+	room.queue_input("p0", seq, Vector2.LEFT, Vector2(0, 200), 0)
+	seq += 1
+	room.step(dt)
+	check(p["facing"] == Vector2.DOWN, "facing is locked while the swing plays")
+	while p["action"] != Protocol.Action.IDLE and seq < 200:
+		room.queue_input("p0", seq, Vector2.ZERO, Vector2(0, 200), 0)
+		seq += 1
+		room.step(dt)
+	# 스킬도 시작 순간 마우스 방향
+	room.queue_input("p0", seq, Vector2.LEFT, Vector2(300, 0), Protocol.BTN_Q)
+	seq += 1
+	room.step(dt)
+	check(p["facing"] == Vector2.RIGHT and p["action"] == Protocol.Action.CAST, "skill turns toward the mouse at cast start")
+	# 마을
+	var hub := HubWorld.new()
+	var s := Session.new(1)
+	s.account_id = "h0"
+	hub.apply_input(s, Vector2.LEFT, Vector2(500, 0))
+	check(s.hub_facing == Vector2.LEFT, "hub: facing follows movement key")
+	hub.apply_input(s, Vector2.ZERO, Vector2(500, 0))
+	check(s.hub_facing == Vector2.LEFT, "hub: standing keeps facing")
 
 
 func _members(n: int) -> Array:

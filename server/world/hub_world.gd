@@ -53,9 +53,9 @@ func has(account_id: String) -> bool:
 	return sessions.has(account_id)
 
 
-func apply_input(s: Session, mv: Vector2, aim: Vector2) -> void:
+func apply_input(s: Session, mv: Vector2, _aim: Vector2) -> void:
 	s.hub_move = mv.limit_length(1.0)
-	s.hub_facing = SimRules.facing_from(aim, s.hub_facing if mv.length_squared() < 0.01 else mv.normalized())
+	s.hub_facing = SimRules.move_facing(mv, s.hub_facing)   # 마을에서는 이동 방향만 본다
 
 
 func step(dt: float) -> void:

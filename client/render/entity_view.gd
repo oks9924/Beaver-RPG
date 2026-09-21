@@ -16,6 +16,8 @@ var state: int = Protocol.EntState.ALIVE
 var action: int = Protocol.Action.IDLE
 var ai_state: int = Protocol.EnemyAI.IDLE
 var moving: bool = false
+var move_intent: bool = false   # 내 캐릭터: 입력으로 정한다 (보정으로 생기는 미세 이동에 걷기/서기가 깜빡이지 않도록)
+var _move_hold: float = 0.0
 var invuln: bool = false
 var connected: bool = true
 var down_t: float = 0.0
@@ -145,7 +147,12 @@ func flash() -> void:
 func _process(dt: float) -> void:
 	if not is_local:
 		position = position.lerp(target_pos, 1.0 - exp(-dt * 18.0))
-	moving = (position - _last_pos).length() > 0.5
+	if is_local:
+		moving = move_intent
+	else:
+		# 다른 플레이어·적: 스냅샷 사이에 잠깐 멈춰도 걷기 동작이 끊기지 않도록 0.12초 유지
+		_move_hold = 0.12 if (position - _last_pos).length() > 0.5 else maxf(_move_hold - dt, 0.0)
+		moving = _move_hold > 0.0
 	_last_pos = position
 	_set_anim(_pick_anim())
 	if not _fallback_only:

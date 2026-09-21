@@ -487,7 +487,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		p["aim"] = aim   # 반복 틱에서는 마지막 조준을 유지한다 (시전 완료 시 사용)
 	var action: int = p["action"]
 	if action == Protocol.Action.IDLE or action == Protocol.Action.RECOVERY:
-		p["facing"] = SimRules.facing_from(aim, p["facing"] if mv.length_squared() < 0.01 else mv.normalized())
+		p["facing"] = SimRules.move_facing(mv, p["facing"])   # 이동 키 방향을 본다. 마우스 방향은 공격·스킬 시작 순간에만 적용
 	if pressed & Protocol.BTN_DODGE and int(p["dodge_charges"]) > 0 and action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY, Protocol.Action.INTERACTING] and float(p["stagger_t"]) <= 0.0:
 		p["dodge_charges"] = int(p["dodge_charges"]) - 1
 		p["action"] = Protocol.Action.DODGE
@@ -506,12 +506,16 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		var cdef: Dictionary = ContentDB.get_class_def(p["class_id"])
 		if btn & Protocol.BTN_ATTACK:
 			var atk := basic_attack_def(p)
+			_face_aim(p)
 			_start_action(p, Protocol.Action.WINDUP, "basic", float(atk.get("windup_sec", 0.2)))
 		elif pressed & Protocol.BTN_Q and float(p["cd"]["q"]) <= 0.0:
+			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "q", float(cdef["skills"]["q"].get("cast_sec", 0.2)))
 		elif pressed & Protocol.BTN_E and float(p["cd"]["e"]) <= 0.0:
+			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "e", float(cdef["skills"]["e"].get("cast_sec", 0.2)))
 		elif pressed & Protocol.BTN_R and float(p["cd"]["r"]) <= 0.0:
+			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "r", float(cdef["skills"]["r"].get("cast_sec", 0.2)))
 		elif pressed & Protocol.BTN_HEAL and int(p["heal_uses"]) > 0 and float(p["hp"]) < float(p["max_hp"]):
 			_start_action(p, Protocol.Action.CAST, "heal", float(rules.get("heal_cast_sec", 0.8)))
@@ -581,6 +585,11 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		if float(p["whirl_t"]) > 0.0:
 			speed *= float(p.get("whirl_move_mult", 0.7))
 		p["pos"] = SimRules.move(p["pos"], mv, speed, dt, bounds, float(p["radius"]), obstacles)
+
+
+## 공격·스킬을 시작하는 순간 마지막 마우스 조준 방향을 바라본다 (조준이 없으면 이동 방향 유지).
+func _face_aim(p: Dictionary) -> void:
+	p["facing"] = SimRules.facing_from(p.get("aim", Vector2.ZERO), p["facing"])
 
 
 func _start_action(p: Dictionary, action: int, kind: String, t: float) -> void:
