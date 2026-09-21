@@ -20,15 +20,25 @@ func _process(_dt: float) -> void:
 	queue_redraw()
 
 
+## 그려지는 크기 (px). 팀원 지도(미니맵)가 이 폭에 맞춰 아래에 붙는다.
+func size_px() -> Vector2:
+	var cell := 34.0 if big else 24.0
+	var gap := 4.0
+	var cols := int(dungeon.get("cols", 5))
+	var rows := int(dungeon.get("rows", 3))
+	var top := 18.0 if title != "" else 0.0
+	return Vector2(cols * (cell + gap) + 4.0, rows * (cell + gap) + top + 4.0)
+
+
 func _draw() -> void:
 	if dungeon.is_empty():
 		return
 	var cell := 34.0 if big else 24.0
 	var gap := 4.0
-	var cols := int(dungeon.get("cols", 5))
 	var rows := int(dungeon.get("rows", 3))
 	var font := AssetRegistry.get_font("font.ui.main")
-	var gw := cols * (cell + gap) + 8.0
+	var sz := size_px()
+	var gw := sz.x + 4.0
 	var top := 18.0 if title != "" else 0.0
 	draw_rect(Rect2(Vector2(-4, -4), Vector2(gw + 4, rows * (cell + gap) + top + 8)), Color(0.05, 0.08, 0.05, 0.7))
 	if title != "":

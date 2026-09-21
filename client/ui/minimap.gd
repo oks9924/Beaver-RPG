@@ -11,11 +11,12 @@ var has_boss: bool = false
 var pings: Array = []        # [pos, t_left, nick]
 var big: bool = false
 var route_text: String = ""
+var map_width: float = 148.0      # 던전 지도 폭에 맞춘다 (RoomHud 가 갱신)
 
 
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(180, 120)
+	custom_minimum_size = Vector2(148, 96)
 
 
 func _process(dt: float) -> void:
@@ -29,7 +30,7 @@ func _process(dt: float) -> void:
 
 
 func _draw() -> void:
-	var w := 320.0 if big else 180.0
+	var w := map_width
 	var h := w * bounds.size.y / maxf(bounds.size.x, 1.0)
 	draw_rect(Rect2(0, 0, w, h), Color(0.05, 0.08, 0.05, 0.75))
 	draw_rect(Rect2(0, 0, w, h), Color(0.6, 0.55, 0.4, 0.9), false, 1.5)

@@ -116,15 +116,15 @@ func _ready() -> void:
 	conn_label.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
 	conn_label.position = Vector2(12, 12)
 	add_child(conn_label)
-	minimap = Minimap.new()
-	minimap.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
-	minimap.position = Vector2(-500, 12)
-	add_child(minimap)
-	# 던전 격자 지도: 화면 좌측 상단 구석 (접속 상태 줄 아래)
+	# 던전 격자 지도: 화면 좌측 상단 구석 (접속 상태 줄 아래). 팀원 지도(미니맵)는 같은 폭으로 그 아래에 붙는다 (_process 가 위치 갱신)
 	dungeon_map = DungeonMap.new()
 	dungeon_map.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
 	dungeon_map.position = Vector2(16, 40)
 	add_child(dungeon_map)
+	minimap = Minimap.new()
+	minimap.set_anchors_and_offsets_preset(PRESET_TOP_LEFT)
+	minimap.position = Vector2(16, 160)
+	add_child(minimap)
 	tutorial_label = UIKit.label("", 16, Color(0.7, 1.0, 0.8))
 	tutorial_label.set_anchors_and_offsets_preset(PRESET_CENTER_TOP)
 	tutorial_label.position = Vector2(-300, 150)
@@ -186,6 +186,10 @@ func toast(text: String, sec: float = 2.5) -> void:
 
 
 func _process(dt: float) -> void:
+	if dungeon_map != null and minimap != null:
+		var sz := dungeon_map.size_px()
+		minimap.map_width = maxf(sz.x, 120.0) if not dungeon_map.dungeon.is_empty() else (200.0 if minimap.big else 148.0)
+		minimap.position = dungeon_map.position + Vector2(0, (sz.y if not dungeon_map.dungeon.is_empty() else 0.0) + 10.0)
 	if _toast_t > 0.0:
 		_toast_t -= dt
 		if _toast_t <= 0.0:
