@@ -1,20 +1,195 @@
 {
-  "_comment": "탐험·사건 노드 2개. 선택은 파티 투표(동률은 시드 추첨). 효과는 이번 원정에만 적용된다.",
-  "fallen_branch": {
-    "id": "fallen_branch", "name_ko": "쓰러진 기억나무 가지",
-    "text_ko": "강가에 커다란 가지가 쓰러져 있다. 갉아서 목재로 쓰거나, 가지에 맺힌 수액을 핥아 기운을 차릴 수 있다.",
-    "choices": [
-      {"id": "gnaw", "text_ko": "갉아서 목재로 (팀 목재 +6)", "effects": [{"type": "wood", "value": 6}]},
-      {"id": "lick", "text_ko": "수액을 핥는다 (전원 체력 30% 회복, 다음 방 적 웨이브 +1)", "effects": [{"type": "heal_all", "value": 0.3}, {"type": "next_room_budget_add", "value": 1.0}]},
-      {"id": "leave", "text_ko": "그냥 지나간다", "effects": []}
+ "_comment": "탐험·사건 노드 2개. 선택은 파티 투표(동률은 시드 추첨). 효과는 이번 원정에만 적용된다.",
+ "fallen_branch": {
+  "id": "fallen_branch",
+  "name_ko": "쓰러진 기억나무 가지",
+  "text_ko": "강가에 커다란 가지가 쓰러져 있다. 갉아서 목재로 쓰거나, 가지에 맺힌 수액을 핥아 기운을 차릴 수 있다.",
+  "choices": [
+   {
+    "id": "gnaw",
+    "text_ko": "갉아서 목재로 (팀 목재 +6)",
+    "effects": [
+     {
+      "type": "wood",
+      "value": 6
+     }
     ]
-  },
-  "drifting_crate": {
-    "id": "drifting_crate", "name_ko": "떠내려온 상자",
-    "text_ko": "검은 수액이 묻은 상자가 물가에 걸려 있다. 열어 보면 무언가 있을지도 모른다.",
-    "choices": [
-      {"id": "open", "text_ko": "연다 (도토리 +12 전원, 다음 방에 매복: 웨이브 예산 +2)", "effects": [{"type": "acorns_all", "value": 12}, {"type": "next_room_budget_add", "value": 2.0}]},
-      {"id": "sniff", "text_ko": "냄새만 맡고 지나간다 (도토리 +3 전원)", "effects": [{"type": "acorns_all", "value": 3}]}
+   },
+   {
+    "id": "lick",
+    "text_ko": "수액을 핥는다 (전원 체력 30% 회복, 다음 방 적 웨이브 +1)",
+    "effects": [
+     {
+      "type": "heal_all",
+      "value": 0.3
+     },
+     {
+      "type": "next_room_budget_add",
+      "value": 1.0
+     }
     ]
-  }
+   },
+   {
+    "id": "leave",
+    "text_ko": "그냥 지나간다",
+    "effects": []
+   }
+  ]
+ },
+ "drifting_crate": {
+  "id": "drifting_crate",
+  "name_ko": "떠내려온 상자",
+  "text_ko": "검은 수액이 묻은 상자가 물가에 걸려 있다. 열어 보면 무언가 있을지도 모른다.",
+  "choices": [
+   {
+    "id": "open",
+    "text_ko": "연다 (도토리 +12 전원, 다음 방에 매복: 웨이브 예산 +2)",
+    "effects": [
+     {
+      "type": "acorns_all",
+      "value": 12
+     },
+     {
+      "type": "next_room_budget_add",
+      "value": 2.0
+     }
+    ]
+   },
+   {
+    "id": "sniff",
+    "text_ko": "냄새만 맡고 지나간다 (도토리 +3 전원)",
+    "effects": [
+     {
+      "type": "acorns_all",
+      "value": 3
+     }
+    ]
+   }
+  ]
+ },
+ "chance_altar": {
+  "id": "chance_altar",
+  "name_ko": "운의 제단",
+  "text_ko": "이끼 낀 돌제단에 도토리 구멍이 파여 있다. 넣으면 무언가 돌려준다고들 한다.",
+  "choices": [
+   {
+    "id": "pay",
+    "text_ko": "전원 도토리 15 넣기 (각자 45% 확률로 무작위 유물, 실패해도 도토리는 사라짐)",
+    "effects": [
+     {
+      "type": "acorns_cost_all",
+      "value": 15
+     },
+     {
+      "type": "random_relic_chance",
+      "value": 0.45
+     }
+    ]
+   },
+   {
+    "id": "pay_big",
+    "text_ko": "전원 도토리 40 넣기 (각자 85% 확률, 희귀 이상 보장)",
+    "effects": [
+     {
+      "type": "acorns_cost_all",
+      "value": 40
+     },
+     {
+      "type": "random_relic_chance",
+      "value": 0.85,
+      "min_rarity": "rare"
+     }
+    ]
+   },
+   {
+    "id": "leave",
+    "text_ko": "지나간다",
+    "effects": []
+   }
+  ]
+ },
+ "blood_altar": {
+  "id": "blood_altar",
+  "name_ko": "피의 제단",
+  "text_ko": "가시가 돋은 제단. 피를 바치면 강이 도토리를 밀어 올린다.",
+  "choices": [
+   {
+    "id": "bleed",
+    "text_ko": "전원 현재 체력 35% 바치기 (전원 도토리 +25)",
+    "effects": [
+     {
+      "type": "hp_cost_all",
+      "value": 0.35
+     },
+     {
+      "type": "acorns_all",
+      "value": 25
+     }
+    ]
+   },
+   {
+    "id": "leave",
+    "text_ko": "지나간다",
+    "effects": []
+   }
+  ]
+ },
+ "cursed_crate": {
+  "id": "cursed_crate",
+  "name_ko": "저주받은 상자",
+  "text_ko": "검은 수액이 뚝뚝 떨어지는 상자. 안에는 분명 좋은 것이 있다.",
+  "choices": [
+   {
+    "id": "open",
+    "text_ko": "연다 (전원 희귀 유물 1개, 저주: 다음 2방 받는 피해 +30%)",
+    "effects": [
+     {
+      "type": "random_relic_chance",
+      "value": 1.0,
+      "min_rarity": "rare"
+     },
+     {
+      "type": "curse",
+      "value": 2,
+      "damage_taken_mult": 1.3
+     }
+    ]
+   },
+   {
+    "id": "leave",
+    "text_ko": "지나간다",
+    "effects": []
+   }
+  ]
+ },
+ "combat_altar": {
+  "id": "combat_altar",
+  "name_ko": "전투의 제단",
+  "text_ko": "북 소리가 울리는 제단. 두드리면 적이 몰려오지만, 이긴 자에게 기억 조각이 남는다.",
+  "choices": [
+   {
+    "id": "drum",
+    "text_ko": "두드린다 (다음 방: 정예 1 + 웨이브 예산 +4, 원정 결과 기억 조각 +2 전원)",
+    "effects": [
+     {
+      "type": "next_room_budget_add",
+      "value": 4.0
+     },
+     {
+      "type": "next_room_elite",
+      "value": 1
+     },
+     {
+      "type": "shards_all",
+      "value": 2
+     }
+    ]
+   },
+   {
+    "id": "leave",
+    "text_ko": "지나간다",
+    "effects": []
+   }
+  ]
+ }
 }

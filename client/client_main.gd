@@ -30,6 +30,8 @@ var selected_class: String = "guardian"
 var npc_panel := NpcPanel.new()
 var settings_panel := SettingsPanel.new()
 var selected_difficulty: String = "normal"
+var selected_pacts: Dictionary = {}
+var _affix_of_enemy: Dictionary = {}   # eid -> affix id (정예 접두 표시용)
 var _map_big: bool = false
 var build_kind: String = "log_cover"
 var _me_snapshot: PackedFloat32Array = PackedFloat32Array()
@@ -97,7 +99,9 @@ func _ready() -> void:
 	login_screen.login_requested.connect(func(n: String, p: String) -> void: _auth(Protocol.C.LOGIN, {"nick": n, "password": p}))
 	login_screen.register_requested.connect(func(n: String, p: String) -> void: _auth(Protocol.C.REGISTER, {"nick": n, "password": p}))
 	login_screen.back_requested.connect(func() -> void: net.disconnect_from_server(""); _set_mode("connect"))
-	hub_screen.create_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": selected_difficulty, "class_id": selected_class}))
+	hub_screen.create_requested.connect(func() -> void: net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": selected_difficulty, "class_id": selected_class, "pacts": selected_pacts}))
+	hub_screen.pacts_changed.connect(func(p: Dictionary) -> void: selected_pacts = p)
+	run_panels.reward_reroll.connect(func() -> void: net.send(Protocol.C.REWARD_PICK, {"reroll": true}))
 	hub_screen.join_requested.connect(func(id: String) -> void: net.send(Protocol.C.BOARD_JOIN, {"expedition_id": id, "class_id": selected_class}))
 	hub_screen.class_changed.connect(func(cid: String) -> void:
 		selected_class = cid
@@ -362,7 +366,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 			run_state = p
 			hud.update_run(run_state, my_id)
 		Protocol.S.REWARD_OFFER:
-			run_panels.show_reward(p, my_id)
+			run_panels.show_reward(p, my_id, int(run_state.get("players", {}).get(my_id, {}).get("rerolls", 0)))
 			_set_mode("phase")
 		Protocol.S.ROUTE_OFFER:
 			_route_offer = p
@@ -549,7 +553,18 @@ func _on_room_event(ev: Dictionary) -> void:
 			world.spawn_effect("vfx.rescue_ring", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
 			world.play_sound("sfx.rescue")
 		"elite_spawn":
-			hud.toast("정예: %s 등장!" % String(ev.get("name", "")), 3.0)
+			_affix_of_enemy[int(ev.get("eid", 0))] = String(ev.get("affix", ""))
+			hud.toast("정예: %s 등장! %s" % [String(ev.get("name", "")), String(ev.get("affix_desc", ""))], 3.5)
+		"reinforce":
+			hud.toast("증원 %d" % int(ev.get("count", 0)), 1.2)
+		"split":
+			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
+		"heal_cut":
+			if String(ev.get("id", "")) == my_id:
+				hud.toast("검은 수액: 회복량 절반 (%d초)" % int(ev.get("sec", 5)), 1.5)
+		"player_slowed":
+			if String(ev.get("id", "")) == my_id:
+				hud.toast("젖음: 둔화", 0.8)
 			world.play_sound("sfx.tail_slam", 0.2)
 		"escort_lost":
 			hud.toast("뗏목이 부서졌다 — 호위 실패", 3.0)
@@ -723,6 +738,8 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		var pos := Vector2(e[Protocol.SNAP_E.X], e[Protocol.SNAP_E.Y])
 		var ev := world.get_or_create(key, false, "enemy." + ContentDB.enemy_id_at(int(entry[1])), pos)
 		ev.entity_id = int(entry[0])
+		var affix_id: String = _affix_of_enemy.get(int(entry[0]), "")
+		ev.affix_color = Color(String(ContentDB.elites.get("affixes", {}).get(affix_id, {}).get("color", "#ffffff"))) if affix_id != "" else Color.TRANSPARENT
 		ev.facing = Vector2(e[Protocol.SNAP_E.FX], e[Protocol.SNAP_E.FY])
 		ev.hp = e[Protocol.SNAP_E.HP]
 		ev.max_hp = e[Protocol.SNAP_E.MAX_HP]

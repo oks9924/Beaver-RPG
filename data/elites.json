@@ -1,0 +1,72 @@
+{
+ "_comment": "정예 접두(RoR2 정예 접두처럼 눈에 보이는 규칙 하나씩). 일반 스폰이 profile.elite_chance 로 정예가 되면 접두 하나를 받는다. 정예방의 고정 정예(rooms.elite)에도 접두가 붙는다.",
+ "spawn": {
+  "base_chance": 0.06,
+  "hp_mult": 2.2,
+  "damage_mult": 1.3,
+  "scale": 1.25,
+  "max_affix_elites_per_wave": 1,
+  "wood_mult": 3,
+  "xp_mult": 3
+ },
+ "affixes": {
+  "wet": {
+   "id": "wet",
+   "name_ko": "젖은",
+   "desc_ko": "명중한 플레이어를 2.5초 40% 둔화. 죽으면 물웅덩이(둔화)를 남긴다",
+   "color": "#5aa8ff",
+   "on_hit": {
+    "slow_mult": 0.4,
+    "slow_sec": 2.5
+   },
+   "on_death": {
+    "hazard_slow": 0.35,
+    "hazard_r": 70,
+    "hazard_sec": 6.0
+   }
+  },
+  "black_sap": {
+   "id": "black_sap",
+   "name_ko": "검은 수액",
+   "desc_ko": "명중한 플레이어의 회복량을 5초간 절반으로",
+   "color": "#8a3fbf",
+   "on_hit": {
+    "heal_cut_sec": 5.0,
+    "heal_cut_mult": 0.5
+   }
+  },
+  "thorn_shell": {
+   "id": "thorn_shell",
+   "name_ko": "가시 껍질",
+   "desc_ko": "근접(90px 안)에서 때린 플레이어에게 출혈 2/초 3초",
+   "color": "#c8563a",
+   "reflect": {
+    "range": 90,
+    "bleed_dps": 2.0,
+    "bleed_sec": 3.0
+   }
+  },
+  "regen_shell": {
+   "id": "regen_shell",
+   "name_ko": "재생 껍질",
+   "desc_ko": "2.5초 동안 맞지 않으면 초당 최대 체력 4% 회복",
+   "color": "#59c26a",
+   "regen": {
+    "idle_sec": 2.5,
+    "per_sec": 0.04
+   }
+  },
+  "splitting": {
+   "id": "splitting",
+   "name_ko": "분열",
+   "desc_ko": "죽으면 체력 30%짜리 작은 개체 2마리로 갈라진다 (한 번만)",
+   "color": "#e0b040",
+   "split": {
+    "count": 2,
+    "hp_frac": 0.3,
+    "scale": 0.75,
+    "max_depth": 1
+   }
+  }
+ }
+}

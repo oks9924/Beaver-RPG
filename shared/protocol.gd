@@ -2,8 +2,8 @@ extends Node
 ## 클라이언트와 서버가 공유하는 프로토콜 상수. 버전이 맞지 않으면 게임 상태를 보내기 전에 접속을 끊는다.
 
 const PROTOCOL_VERSION: int = 1
-const CONTENT_VERSION: String = "0.2.0"
-const BUILD_VERSION: String = "0.2.0-stage4"
+const CONTENT_VERSION: String = "0.3.0"
+const BUILD_VERSION: String = "0.3.0-roguelike"
 const DEFAULT_PORT: int = 7777
 const MAX_PARTY_SIZE: int = 4
 

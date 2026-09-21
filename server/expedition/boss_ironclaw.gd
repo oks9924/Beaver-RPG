@@ -80,6 +80,8 @@ func hp_fraction() -> float:
 
 func damage_taken_mult() -> float:
 	var m := 1.0 + shell_broken * float(def.get("shell_damage_taken_mult_per_broken", 0.18))
+	if shell_broken == 0 and def.has("shell_intact_damage_taken_mult"):
+		m *= float(def.get("shell_intact_damage_taken_mult", 0.6))   # 갑각을 하나도 못 깨면 기믹 없이는 피해가 잘 안 들어간다
 	if joint_weak_t > 0.0:
 		m *= 1.3
 	if exposed_t > 0.0:
@@ -553,12 +555,18 @@ func _finish_mechanic(success: bool, reason: String) -> void:
 		stats["mechanics_succeeded"] += 1
 	else:
 		stats["mechanics_failed"] += 1
+		# 실패의 무게: 보스 회복 + 인원 프로필의 벌칙 (extra_adds → 추가 적 2)
+		var heal_frac := float(def.get("fail_heal_fraction", 0.0))
+		if heal_frac > 0.0 and state != BS.DEAD:
+			hp = minf(hp + max_hp * heal_frac, max_hp)
+		if String(profile.get("fail_penalty", "")) == "extra_adds":
+			_spawn_adds(2)
 	log.append({"mechanic": mid, "event": "success" if success else "fail", "reason": reason, "elapsed": room.elapsed})
 	_mechanic_end(mid, success)
 	room.events.append({"k": "mechanic_end", "id": mid, "success": success, "reason": reason, "text": md.get("success_ko" if success else "fail_ko", "")})
 	last_mechanic = mid
 	active = ""
-	mechanic_gap_t = float(def.get("mechanic_gap_sec", 12))
+	mechanic_gap_t = float(def.get("mechanic_gap_sec", 12)) * float(profile.get("mechanic_gap_mult", 1.0))
 
 
 func _spawn_adds(count: int, type_id: String = "sap_snail") -> void:

@@ -437,7 +437,8 @@ func _handle_board_create(s: Session, payload: Dictionary) -> void:
 		_err(s, Protocol.ERR_BAD_CONTENT_ID, {"message": class_id})
 		return
 	s.class_id = class_id
-	var r := expeditions.create(s, bool(payload.get("public", true)), String(payload.get("difficulty", "normal")), _permanent_bonus(s.account_id), bool(payload.get("tutorial", false)))
+	var pacts_sel: Dictionary = payload.get("pacts", {}) if payload.get("pacts", {}) is Dictionary else {}
+	var r := expeditions.create(s, bool(payload.get("public", true)), String(payload.get("difficulty", "normal")), _permanent_bonus(s.account_id), bool(payload.get("tutorial", false)), pacts_sel)
 	if not r["ok"]:
 		_err(s, r["error"], {"active": expeditions.active_count(), "max": expeditions.max_active})
 		return
@@ -599,8 +600,12 @@ func _on_run_finished(inst: ExpeditionInstance) -> void:
 			continue
 		var st: Dictionary = acc["stats"]
 		var prog: Dictionary = acc["progression"]
-		var shard := 3 if victory else 0
+		# Hades 열기 보상: 서약 열기에 비례해 기억 조각이 늘고, 전투의 제단 등 런 중 약속된 조각을 더한다
+		var pr: Dictionary = ContentDB.pacts.get("_rewards", {})
+		var shard := int(round(3.0 * (1.0 + inst.heat * float(pr.get("shards_mult_per_heat", 0.15))))) + int(inst.run.get("bonus_shards", 0)) if victory else 0
 		QuestEngine.ensure(prog)
+		if victory and inst.heat > int(prog.get("best_heat", 0)):
+			prog["best_heat"] = inst.heat
 		var completed: Array = []
 		if victory:
 			st["runs_completed"] = int(st.get("runs_completed", 0)) + 1
@@ -820,6 +825,12 @@ func _handle_reward_pick(s: Session, payload: Dictionary) -> void:
 	var inst := expeditions.get_for_session(s)
 	if inst == null:
 		_err(s, Protocol.ERR_NO_EXPEDITION)
+		return
+	if bool(payload.get("reroll", false)):
+		if not inst.reroll_reward(s.account_id):
+			_err(s, Protocol.ERR_BAD_STATE)
+			return
+		_flush_outbox(inst)
 		return
 	if not inst.pick_reward(s.account_id, int(payload.get("index", 0))):
 		_err(s, Protocol.ERR_BAD_STATE)

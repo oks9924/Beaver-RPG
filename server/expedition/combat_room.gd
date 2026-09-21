@@ -41,6 +41,10 @@ var tutorial_step: int = 0
 var _tutorial_moved: float = 0.0
 var _tutorial_flags: Dictionary = {}
 var elite_spawned: bool = false
+var _director_reserve: float = 0.0     # 웨이브 뒤 증원용 예산 (RoR2 디렉터 크레딧). 0 이 되면 증원이 끝난다
+var _director_credits: float = 0.0
+var _affix_elites_this_wave: int = 0
+var _forced_elite_done: bool = false
 var enemy_pool: Array = []
 var boss: RefCounted = null        # 보스방일 때 BossController (단계 2-3)
 var _retreat_t: float = -1.0
@@ -56,13 +60,15 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 	var b: Dictionary = def.get("bounds", {"x": 0, "y": 0, "w": 1200, "h": 800})
 	bounds = Rect2(b["x"], b["y"], b["w"], b["h"])
 	obstacles = def.get("obstacles", []).duplicate(true)
-	hit_damage_mult = float(profile.get("hit_damage_mult", 1.0))
+	hit_damage_mult = float(profile.get("hit_damage_mult", 1.0)) * float(profile.get("player_damage_taken_mult", 1.0))
 	objective = String(def.get("objective", "annihilate"))
 	enemy_pool = opts.get("enemy_pool", def.get("enemy_pool", [{"id": "sap_snail", "weight": 1.0}]))
 	team_wood = int(opts.get("team_wood", 0))
 	var w: Dictionary = def.get("waves", {})
 	wave_count = maxi(int(w.get("wave_count", 1)), 1)
 	wave_budget_total = (float(w.get("base_budget", 4.0)) + float(opts.get("budget_add", 0.0))) * float(profile.get("wave_budget_mult", 1.0))
+	var dr: Dictionary = game_rules.get("director", {})
+	_director_reserve = wave_budget_total * float(dr.get("reserve_frac", 0.5)) if float(w.get("base_budget", 0.0)) > 0.0 else 0.0
 	var spawns: Array = def.get("player_spawns", [[100, 100]])
 	var i := 0
 	_members_snapshot = members
@@ -127,13 +133,13 @@ func add_player(m: Dictionary, spawn: Array, members_count: int = 1) -> Dictiona
 		"pos": Vector2(spawn[0], spawn[1]), "facing": Vector2(1, 0), "speed": float(cdef.get("move_speed", 180)) * (1.0 + float(mods.get("speed_mult", 0.0))),
 		"radius": float(cdef.get("radius", 18)), "hp": maxf(minf(float(m.get("hp", max_hp)), max_hp), 1.0) if m.has("hp") else max_hp, "max_hp": max_hp, "state": Protocol.EntState.ALIVE,
 		"action": Protocol.Action.IDLE, "action_kind": "", "action_t": 0.0, "action_total": 0.0, "hit_applied": false,
-		"cd": {"q": 0.0, "e": 0.0, "r": 0.0}, "dodge_max": int(rules.get("dodge_charges", 2)) + int(mods.get("dodge_charges_add", 0)), "dodge_charges": 0, "dodge_recharge_t": 0.0,
+		"cd": {"q": 0.0, "e": 0.0, "r": 0.0}, "dodge_max": maxi(int(rules.get("dodge_charges", 2)) + int(mods.get("dodge_charges_add", 0)) + int(profile.get("dodge_charges_add", 0)), 1), "dodge_charges": 0, "dodge_recharge_t": 0.0,
 		"invuln_t": 0.0, "protect_t": 0.0, "shield": 0.0, "shield_t": 0.0, "front_guard_t": 0.0, "stagger_t": 0.0,
 		"down_t": 0.0, "rescue_target": "", "rescue_t": 0.0, "rescued_count": 0, "heal_uses": int(m.get("heal_uses", rules.get("heal_uses_per_expedition", 2))),
 		"connected": bool(m.get("connected", true)), "disconnect_t": 0.0, "inputs": [], "last_seq": 0, "prev_buttons": 0, "move_dir": Vector2.ZERO,
 		"mods": mods, "procs": m.get("procs", []), "interact_target": 0, "grab_t": 0.0,
 		"resource": 0.0, "resource_t": 0.0, "haste_t": 0.0, "haste_mult": 0.0, "whirl_t": 0.0, "whirl_tick": 0.0, "heal_log": [], "delayed": [], "guard_bonus": 0.0, "build_kind": String(m.get("build_kind", "log_cover")),
-		"slow_t": 0.0, "slow_mult": 0.0, "root_t": 0.0, "bleed_t": 0.0, "bleed_dps": 0.0,
+		"slow_t": 0.0, "slow_mult": 0.0, "root_t": 0.0, "bleed_t": 0.0, "bleed_dps": 0.0, "heal_cut_t": 0.0, "heal_cut_mult": 1.0,
 		"stats": {"damage_dealt": 0.0, "damage_taken": 0.0, "kills": 0, "downs": 0, "rescues": 0, "deaths": 0, "objective": 0.0, "guards": 0},
 	}
 	p["dodge_charges"] = p["dodge_max"]
@@ -215,6 +221,13 @@ func step(dt: float) -> Array:
 	_separate_enemies()
 	_step_projectiles(dt)
 	_step_objects(dt)
+	# 임시 위험 구역(젖은 정예 웅덩이 등)은 수명이 다하면 사라진다
+	for i in range(hazards.size() - 1, -1, -1):
+		var hz: Dictionary = hazards[i]
+		if hz.has("life"):
+			hz["life"] = float(hz["life"]) - dt
+			if float(hz["life"]) <= 0.0:
+				hazards.remove_at(i)
 	_step_water(dt)
 	if boss != null:
 		boss.step(dt)
@@ -239,6 +252,7 @@ func _step_player(p: Dictionary, dt: float) -> void:
 	p["haste_t"] = maxf(float(p["haste_t"]) - dt, 0.0)
 	p["slow_t"] = maxf(float(p["slow_t"]) - dt, 0.0)
 	p["root_t"] = maxf(float(p["root_t"]) - dt, 0.0)
+	p["heal_cut_t"] = maxf(float(p.get("heal_cut_t", 0.0)) - dt, 0.0)
 	if float(p["mods"].get("low_hp_regen", 0.0)) > 0.0 and p["state"] == Protocol.EntState.ALIVE and float(p["hp"]) <= float(p["max_hp"]) * 0.3:
 		p["hp"] = minf(float(p["hp"]) + float(p["mods"]["low_hp_regen"]) * dt, float(p["max_hp"]))
 	if float(p["bleed_t"]) > 0.0 and p["state"] == Protocol.EntState.ALIVE:
@@ -730,6 +744,8 @@ func _heal_player(target: Dictionary, amount: float, source: Dictionary) -> floa
 			used += float(log[i][1])
 		i -= 1
 	amount *= 1.0 + float(source.get("mods", {}).get("heal_mult", 0.0))
+	if float(target.get("heal_cut_t", 0.0)) > 0.0:
+		amount *= float(target.get("heal_cut_mult", 0.5))   # 검은 수액 정예: 회복 절반
 	var allowed := minf(amount, maxf(cap - used, 0.0))
 	var applied := minf(allowed, float(target["max_hp"]) - float(target["hp"]))
 	if applied <= 0.0:
@@ -1139,6 +1155,8 @@ func _damage_player(p: Dictionary, amount: float, source_pos: Vector2, source_id
 	events.append({"k": "hit", "id": p["id"], "by": source_id, "dmg": dmg, "absorbed": absorbed, "guarded": reduction > 0.0})
 	if dmg > 0.0 and source_id != "bleed":
 		_fire_procs(p, "on_hurt", {"enemy": source_enemy})
+		if not source_enemy.is_empty() and String(source_enemy.get("affix", "")) != "":
+			_apply_affix_on_hit(p, source_enemy)
 	if float(p["hp"]) <= 0.0:
 		p["state"] = Protocol.EntState.DOWNED
 		p["down_t"] = float(rules.get("down_duration_sec", 25.0))
@@ -1168,7 +1186,13 @@ func _damage_enemy(e: Dictionary, dmg: float, attacker: Dictionary, knockback: f
 		if not silent:
 			events.append({"k": "armor_block", "eid": e["id"], "x": e["pos"].x, "y": e["pos"].y})
 	e["hp"] = maxf(float(e["hp"]) - dmg, 0.0)
+	e["last_hit_t"] = elapsed
 	attacker["stats"]["damage_dealt"] = float(attacker["stats"].get("damage_dealt", 0.0)) + dmg
+	if not silent and String(e.get("affix", "")) == "thorn_shell" and players.has(attacker.get("id", "")) and attacker.has("pos"):
+		var rf: Dictionary = ContentDB.elites.get("affixes", {}).get("thorn_shell", {}).get("reflect", {})
+		if (attacker["pos"] as Vector2).distance_to(e["pos"]) <= float(rf.get("range", 90)):
+			attacker["bleed_t"] = maxf(float(attacker["bleed_t"]), float(rf.get("bleed_sec", 3.0)))
+			attacker["bleed_dps"] = maxf(float(attacker["bleed_dps"]), float(rf.get("bleed_dps", 2.0)))
 	if knockback > 0.0:
 		var dir: Vector2 = (e["pos"] - attacker["pos"]).normalized() if (e["pos"] as Vector2).distance_to(attacker["pos"]) > 0.01 else attacker["facing"]
 		e["pos"] = SimRules.move(e["pos"], dir, knockback, 1.0, bounds, float(e["radius"]), all_obstacles())
@@ -1214,11 +1238,12 @@ func _kill_enemy(e: Dictionary, attacker: Dictionary) -> void:
 	stats["enemies_killed"] += 1
 	var kbt: Dictionary = stats["kills_by_type"]
 	kbt[e["type"]] = int(kbt.get(e["type"], 0)) + 1
-	var wood := int(e["def"].get("wood_drop", 0)) * (3 if bool(e.get("elite", false)) else 1)
+	var wood := int(e["def"].get("wood_drop", 0)) * (int(ContentDB.elites.get("spawn", {}).get("wood_mult", 3)) if bool(e.get("elite", false)) else 1)
 	if wood > 0:
 		team_wood = mini(team_wood + wood, int(rules.get("wood_cap", 30)))
 		stats["wood_gained"] += wood
 	events.append({"k": "enemy_died", "eid": e["id"], "by": attacker["id"], "type": e["type"], "x": e["pos"].x, "y": e["pos"].y})
+	_affix_on_death(e)
 	if players.has(attacker.get("id", "")):
 		_fire_procs(attacker, "on_kill", {"enemy": e})
 
@@ -1442,20 +1467,41 @@ func _step_objects(dt: float) -> void:
 
 # ------------------------------------------------------------------ enemies
 
-func _spawn_enemy(type_id: String, pos: Vector2, elite: Dictionary = {}) -> Dictionary:
+func _spawn_enemy(type_id: String, pos: Vector2, elite: Dictionary = {}, opts: Dictionary = {}) -> Dictionary:
 	var def: Dictionary = ContentDB.get_enemy_def(type_id)
-	var max_hp := float(def.get("hp", 30)) * float(profile.get("enemy_hp_mult", 1.0)) * float(elite.get("hp_mult", 1.0))
+	var affix := ""
+	var espawn: Dictionary = ContentDB.elites.get("spawn", {})
+	var affix_ids: Array = ContentDB.affix_ids()
+	if elite.is_empty() and not bool(opts.get("no_affix", false)) and not affix_ids.is_empty() and String(def.get("role", "")) != "dummy":
+		# RoR2 식 정예: 일반 스폰이 profile.elite_chance 로 접두 정예가 된다 (웨이브당 상한)
+		var chance := float(profile.get("elite_chance", 0.0))
+		var forced := bool(profile.get("force_elite", false)) and not _forced_elite_done
+		if forced or (chance > 0.0 and _affix_elites_this_wave < int(espawn.get("max_affix_elites_per_wave", 1)) and rng.randf() < chance):
+			_forced_elite_done = _forced_elite_done or forced
+			_affix_elites_this_wave += 1
+			affix = String(affix_ids[rng.randi() % affix_ids.size()])
+			elite = {"hp_mult": float(espawn.get("hp_mult", 2.2)), "damage_mult": float(espawn.get("damage_mult", 1.3)), "scale": float(espawn.get("scale", 1.25)), "name_ko": "%s %s" % [ContentDB.elites["affixes"][affix].get("name_ko", affix), def.get("name_ko", type_id)]}
+	elif not elite.is_empty() and not affix_ids.is_empty() and String(elite.get("affix", "")) == "" and not bool(opts.get("no_affix", false)):
+		affix = String(affix_ids[rng.randi() % affix_ids.size()])   # 정예방의 고정 정예에도 접두 하나
+	elif not elite.is_empty():
+		affix = String(elite.get("affix", ""))
+	var max_hp := float(def.get("hp", 30)) * float(profile.get("enemy_hp_mult", 1.0)) * float(elite.get("hp_mult", 1.0)) * float(opts.get("hp_frac", 1.0))
 	var e := {
 		"id": next_enemy_id, "type": type_id, "def": def, "role": String(def.get("role", "approach")), "pos": pos, "facing": Vector2(-1, 0), "hp": max_hp, "max_hp": max_hp,
 		"radius": float(def.get("radius", 20)), "speed": float(def.get("move_speed", 60)), "ai": Protocol.EnemyAI.SEEK,
 		"t": 0.0, "cooldown_t": 0.0, "target": "", "stagger_t": 0.0, "stagger_resist_t": 0.0, "telegraph": {}, "death_t": 0.0, "hit_done": false, "root_t": 0.0, "charge_hit": [], "marks": {},
 		"slow_t": 0.0, "slow_mult": 0.0, "vuln_t": 0.0, "vuln_mult": 0.0,
 		"elite": not elite.is_empty(), "damage_mult": float(elite.get("damage_mult", 1.0)), "summon_t": float(def.get("summon", {}).get("every_sec", 0.0)), "summoned": 0, "combo_left": 0, "aura_t": 0.0,
+		"affix": affix, "last_hit_t": -100.0, "split_depth": int(opts.get("split_depth", 0)),
 	}
+	if float(opts.get("scale", 1.0)) != 1.0:
+		e["radius"] = float(e["radius"]) * float(opts.get("scale", 1.0))
 	if not elite.is_empty():
 		e["radius"] = float(e["radius"]) * float(elite.get("scale", 1.3))
 		e["name_ko"] = String(elite.get("name_ko", def.get("name_ko", type_id)))
-		events.append({"k": "elite_spawn", "eid": e["id"], "name": e["name_ko"], "x": pos.x, "y": pos.y})
+		if affix != "" and not String(e["name_ko"]).begins_with(String(ContentDB.elites["affixes"][affix].get("name_ko", ""))):
+			e["name_ko"] = "%s %s" % [ContentDB.elites["affixes"][affix].get("name_ko", affix), e["name_ko"]]
+		events.append({"k": "elite_spawn", "eid": e["id"], "name": e["name_ko"], "affix": affix, "affix_desc": ContentDB.elites.get("affixes", {}).get(affix, {}).get("desc_ko", ""), "x": pos.x, "y": pos.y})
 	next_enemy_id += 1
 	enemies[e["id"]] = e
 	stats["enemies_spawned"] += 1
@@ -1493,6 +1539,10 @@ func _step_enemy(e: Dictionary, dt: float) -> void:
 		return
 	e["cooldown_t"] = maxf(float(e["cooldown_t"]) - dt, 0.0)
 	e["stagger_resist_t"] = maxf(float(e["stagger_resist_t"]) - dt, 0.0)
+	if String(e.get("affix", "")) == "regen_shell":
+		var rg: Dictionary = ContentDB.elites.get("affixes", {}).get("regen_shell", {}).get("regen", {})
+		if elapsed - float(e.get("last_hit_t", -100.0)) >= float(rg.get("idle_sec", 2.5)) and float(e["hp"]) < float(e["max_hp"]):
+			e["hp"] = minf(float(e["hp"]) + float(e["max_hp"]) * float(rg.get("per_sec", 0.04)) * dt, float(e["max_hp"]))
 	e["slow_t"] = maxf(float(e.get("slow_t", 0.0)) - dt, 0.0)
 	e["vuln_t"] = maxf(float(e.get("vuln_t", 0.0)) - dt, 0.0)
 	if float(e.get("bleed_t", 0.0)) > 0.0:
@@ -1733,6 +1783,7 @@ func _spawn_wave() -> void:
 		_all_spawned = true
 		return
 	var budget := wave_budget_total / float(wave_count)
+	_affix_elites_this_wave = 0
 	var spawns: Array = room_def.get("enemy_spawns", [[900, 400]])
 	var elite_def: Dictionary = room_def.get("elite", {})
 	if not elite_def.is_empty() and not elite_spawned:
@@ -1804,12 +1855,51 @@ func _step_waves(dt: float) -> void:
 	for k in enemies.keys():
 		if enemies[k]["ai"] == Protocol.EnemyAI.DEAD and float(enemies[k]["death_t"]) <= 0.0:
 			enemies.erase(k)
+	if _all_spawned:
+		_step_director(dt)
 	if _all_spawned or objective_done or objective == "boss":
 		return
 	_wave_gap_t -= dt
 	var threshold := int(room_def.get("waves", {}).get("next_wave_when_alive_at_most", 1))
 	if _wave_gap_t <= 0.0 and _alive_enemy_count() <= threshold:
 		_spawn_wave()
+
+
+## RoR2 디렉터: 웨이브가 다 나온 뒤 남은 예산(reserve)을 초당 크레딧으로 풀어, 적이 적을 때 소규모로 증원한다. 예산이 다하면 끝.
+func _step_director(dt: float) -> void:
+	if _director_reserve <= 0.0 or objective_done or objective in ["boss", "tutorial"]:
+		return
+	var dr: Dictionary = rules.get("director", {})
+	if _alive_enemy_count() > int(dr.get("reinforce_when_alive_at_most", 3)):
+		return
+	_director_credits += wave_budget_total * float(dr.get("credit_per_sec_frac", 0.08)) * dt
+	if _cheapest_affordable(_director_reserve).is_empty():
+		_director_reserve = 0.0   # 남은 예산으로 살 수 있는 적이 없으면 증원 종료 (방이 반드시 끝나도록)
+		return
+	var cheapest := _cheapest_affordable(minf(_director_credits, _director_reserve))
+	if cheapest.is_empty():
+		return
+	var spawns: Array = room_def.get("enemy_spawns", [[900, 400]])
+	var cap := int(ContentDB.party_scaling.get("screen_caps", {}).get("max_enemies_on_screen", 12))
+	var n := 0
+	while n < int(dr.get("group_max", 3)) and _director_reserve > 0.0 and _alive_enemy_count() < cap:
+		var pick: Dictionary = _weighted_pick(enemy_pool)
+		var def := ContentDB.get_enemy_def(String(pick.get("id", "")))
+		if def.is_empty() or not bool(def.get("implemented", false)):
+			break
+		var cost := float(def.get("threat_cost", 1.0))
+		if cost > _director_credits + 0.001:
+			def = _cheapest_affordable(_director_credits)
+			if def.is_empty():
+				break
+			cost = float(def.get("threat_cost", 1.0))
+		_director_credits -= cost
+		_director_reserve -= cost
+		var sp: Array = spawns[(wave_index * 5 + n + int(elapsed)) % spawns.size()]
+		_spawn_enemy(String(def["id"]), Vector2(sp[0], sp[1]) + Vector2(rng.randf_range(-30, 30), rng.randf_range(-30, 30)))
+		n += 1
+	if n > 0:
+		events.append({"k": "reinforce", "count": n})
 
 
 func _step_objective(dt: float) -> void:
@@ -1965,7 +2055,7 @@ func _check_outcome() -> void:
 			outcome = Protocol.Outcome.VICTORY
 			events.append({"k": "room_clear", "elapsed": elapsed})
 		return
-	if objective == "annihilate" and _all_spawned and _alive_enemy_count() == 0:
+	if objective == "annihilate" and _all_spawned and _director_reserve <= 0.001 and _alive_enemy_count() == 0:
 		outcome = Protocol.Outcome.VICTORY
 		events.append({"k": "room_clear", "elapsed": elapsed})
 
@@ -2029,3 +2119,37 @@ func result_summary() -> Dictionary:
 			if String(entry.get("event", "")) == "success":
 				mech_ok.append(String(entry.get("mechanic", "")))
 	return {"outcome": outcome, "elapsed": elapsed, "ticks": tick, "seed": seed_value, "n": n_players, "objective": objective, "stats": stats.duplicate(true), "players": per, "team_wood": team_wood, "boss_id": boss_id, "mechanics_succeeded": mech_ok, "room_id": String(room_def.get("id", "")), "elite": room_def.has("elite")}
+
+
+# ------------------------------------------------------------------ 정예 접두 (data/elites.json)
+
+func _apply_affix_on_hit(p: Dictionary, e: Dictionary) -> void:
+	var a: Dictionary = ContentDB.elites.get("affixes", {}).get(String(e.get("affix", "")), {})
+	var oh: Dictionary = a.get("on_hit", {})
+	if oh.is_empty():
+		return
+	if oh.has("slow_mult"):
+		p["slow_t"] = maxf(float(p["slow_t"]), float(oh.get("slow_sec", 2.0)))
+		p["slow_mult"] = maxf(float(p["slow_mult"]), float(oh.get("slow_mult", 0.4)))
+		events.append({"k": "player_slowed", "id": p["id"], "sec": oh.get("slow_sec", 2.0)})
+	if oh.has("heal_cut_sec"):
+		p["heal_cut_t"] = maxf(float(p.get("heal_cut_t", 0.0)), float(oh.get("heal_cut_sec", 5.0)))
+		p["heal_cut_mult"] = float(oh.get("heal_cut_mult", 0.5))
+		events.append({"k": "heal_cut", "id": p["id"], "sec": oh.get("heal_cut_sec", 5.0)})
+
+
+func _affix_on_death(e: Dictionary) -> void:
+	var affix := String(e.get("affix", ""))
+	if affix == "":
+		return
+	var a: Dictionary = ContentDB.elites.get("affixes", {}).get(affix, {})
+	var od: Dictionary = a.get("on_death", {})
+	if od.has("hazard_slow"):
+		var r := float(od.get("hazard_r", 70))
+		hazards.append({"x": e["pos"].x - r, "y": e["pos"].y - r, "w": r * 2, "h": r * 2, "slow": float(od.get("hazard_slow", 0.35)), "life": float(od.get("hazard_sec", 6.0))})
+	var sp: Dictionary = a.get("split", {})
+	if not sp.is_empty() and int(e.get("split_depth", 0)) < int(sp.get("max_depth", 1)):
+		for i in int(sp.get("count", 2)):
+			var off := Vector2.RIGHT.rotated(i * TAU / maxi(int(sp.get("count", 2)), 1)) * 26.0
+			_spawn_enemy(String(e["type"]), (e["pos"] as Vector2) + off, {}, {"no_affix": true, "hp_frac": float(sp.get("hp_frac", 0.3)), "scale": float(sp.get("scale", 0.75)), "split_depth": int(e.get("split_depth", 0)) + 1})
+		events.append({"k": "split", "eid": e["id"], "x": e["pos"].x, "y": e["pos"].y})

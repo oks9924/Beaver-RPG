@@ -5,8 +5,12 @@ extends Control
 signal create_requested()
 signal tutorial_requested()
 signal difficulty_changed(difficulty: String)
+signal pacts_changed(pacts: Dictionary)
 signal settings_requested()
 var difficulty_pick: OptionButton
+var _pact_ranks: Dictionary = {}
+var _pact_buttons: Dictionary = {}
+var heat_label: Label
 var _difficulty_ids: Array = []
 signal join_requested(expedition_id: String)
 signal leave_requested()
@@ -86,6 +90,24 @@ func _ready() -> void:
 	difficulty_pick.item_selected.connect(func(i: int) -> void: difficulty_changed.emit(String(_difficulty_ids[i])))
 	dh.add_child(difficulty_pick)
 	rv.add_child(dh)
+	# 서약(열기): Hades 형벌의 서약처럼 모듈을 쌓아 난이도와 보상을 함께 올린다. 단추를 누를 때마다 단계가 오르고, 최대에서 다시 0.
+	heat_label = UIKit.label("서약 열기 0 — 기억 조각 보상 +0%", 12, Color(1.0, 0.8, 0.5))
+	rv.add_child(heat_label)
+	var pact_grid := GridContainer.new()
+	pact_grid.columns = 2
+	pact_grid.add_theme_constant_override("h_separation", 4)
+	pact_grid.add_theme_constant_override("v_separation", 2)
+	for pid: String in ContentDB.pact_ids():
+		var pdef: Dictionary = ContentDB.pacts[pid]
+		var b := Button.new()
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.add_theme_font_size_override("font_size", 11)
+		b.tooltip_text = String(pdef.get("desc_ko", ""))
+		b.pressed.connect(func() -> void: _cycle_pact(pid))
+		_pact_buttons[pid] = b
+		pact_grid.add_child(b)
+	rv.add_child(pact_grid)
+	_refresh_pacts()
 	rv.add_child(UIKit.button("새 원정 만들기 (공개)", func() -> void: create_requested.emit()))
 	var th := UIKit.hbox(6)
 	th.add_child(UIKit.button("튜토리얼 (혼자 · 5분)", func() -> void: tutorial_requested.emit()))
@@ -167,7 +189,8 @@ func show_board(list: Array, my_expedition: String) -> void:
 		if bool(e.get("paused", false)):
 			state_txt = "중단됨 (이어하기)"
 		var dname: String = String(ContentDB.rules.get("difficulties", {}).get(String(e.get("difficulty", "normal")), {}).get("name_ko", e.get("difficulty", "")))
-		h.add_child(UIKit.label("%s  %d/%d  %s  방 %d  %s%s" % [String(e["id"]).left(14), int(e["members"]), int(e["max"]), state_txt, int(e.get("room_index", 0)), dname, ("  " + String(e.get("region", ""))) if String(e.get("region", "")) != "" else ""], 13))
+		var heat_txt := ("  열기 %d" % int(e.get("heat", 0))) if int(e.get("heat", 0)) > 0 else ""
+		h.add_child(UIKit.label("%s  %d/%d  %s  방 %d  %s%s%s" % [String(e["id"]).left(14), int(e["members"]), int(e["max"]), state_txt, int(e.get("room_index", 0)), dname, heat_txt, ("  " + String(e.get("region", ""))) if String(e.get("region", "")) != "" else ""], 13))
 		var b := UIKit.button("이어하기" if bool(e.get("resume", false)) else "참가", func() -> void: join_requested.emit(String(e["id"])))
 		b.disabled = not bool(e.get("joinable", false)) or my_expedition != ""
 		h.add_child(b)
@@ -205,7 +228,7 @@ func show_progression(info: Dictionary, account: Dictionary) -> void:
 	var structures: Dictionary = info.get("structures", {})
 	var defs: Dictionary = info.get("village", {})
 	var bonus: Dictionary = info.get("bonus", {})
-	village_box.add_child(UIKit.label("기억 조각 %d · 영구 보너스: 최대 체력 +%d, 회복 도구 +%d, 팀 목재 +%d (상한 적용)" % [shards, int(bonus.get("max_hp_add", 0)), int(bonus.get("heal_uses_add", 0)), int(bonus.get("team_wood_add", 0))], 12))
+	village_box.add_child(UIKit.label("기억 조각 %d · 영구 보너스: 최대 체력 +%d, 회복 도구 +%d, 팀 목재 +%d (상한 적용) · 최고 완주 열기 %d" % [shards, int(bonus.get("max_hp_add", 0)), int(bonus.get("heal_uses_add", 0)), int(bonus.get("team_wood_add", 0)), int(prog.get("best_heat", 0))], 12))
 	for sid: String in defs.keys():
 		var sdef: Dictionary = defs[sid]
 		var level := int(structures.get(sid, {}).get("level", 0))
@@ -280,3 +303,32 @@ func set_selected_difficulty(did: String) -> void:
 	var i := _difficulty_ids.find(did)
 	if i >= 0 and difficulty_pick != null:
 		difficulty_pick.select(i)
+
+
+func _cycle_pact(pid: String) -> void:
+	var maxr := int(ContentDB.pacts.get(pid, {}).get("max_rank", 1))
+	_pact_ranks[pid] = (int(_pact_ranks.get(pid, 0)) + 1) % (maxr + 1)
+	_refresh_pacts()
+	pacts_changed.emit(selected_pacts())
+
+
+func selected_pacts() -> Dictionary:
+	var out := {}
+	for pid: String in _pact_ranks.keys():
+		if int(_pact_ranks[pid]) > 0:
+			out[pid] = int(_pact_ranks[pid])
+	return out
+
+
+func _refresh_pacts() -> void:
+	var n := ContentDB.normalize_pacts(selected_pacts())
+	var heat := int(n["heat"])
+	var pr: Dictionary = ContentDB.pacts.get("_rewards", {})
+	heat_label.text = "서약 열기 %d — 기억 조각 보상 +%d%%, 도토리 +%d%%" % [heat, int(heat * float(pr.get("shards_mult_per_heat", 0.15)) * 100), int(heat * float(pr.get("acorn_mult_per_heat", 0.1)) * 100)]
+	for pid: String in _pact_buttons.keys():
+		var pdef: Dictionary = ContentDB.pacts[pid]
+		var rank := int(_pact_ranks.get(pid, 0))
+		var maxr := int(pdef.get("max_rank", 1))
+		var mark := "●".repeat(rank) + "○".repeat(maxr - rank)
+		(_pact_buttons[pid] as Button).text = "%s %s (열기 %d)" % [mark, pdef.get("name_ko", pid), int(pdef.get("heat_per_rank", 1))]
+		(_pact_buttons[pid] as Button).modulate = Color(1.0, 0.85, 0.6) if rank > 0 else Color(0.8, 0.8, 0.8)

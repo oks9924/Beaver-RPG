@@ -62,6 +62,8 @@ func _ready() -> void:
 	test_snapshot_codec()
 	print("-- test_v3_pack_assets")
 	test_v3_pack_assets()
+	print("-- test_roguelike_systems")
+	test_roguelike_systems()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -568,6 +570,7 @@ func test_run_structure() -> void:
 	check(c.run_payload()["layers"].size() >= 5, "run payload has layers")
 	# 방 완료 → 보상 3지선다 → 전원 선택 → 다음 층(2노드) 경로 투표
 	a.room._all_spawned = true
+	a.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
 	for e: Dictionary in a.room.enemies.values():
 		a.room._kill_enemy(e, a.room.players["run0"])
 	a.step(1.0 / 30.0, 2)
@@ -596,6 +599,7 @@ func test_run_structure() -> void:
 	d.start_run()
 	d.mark_disconnected("run31")
 	d.room._all_spawned = true
+	d.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
 	for e: Dictionary in d.room.enemies.values():
 		d.room._kill_enemy(e, d.room.players["run30"])
 	d.step(1.0 / 30.0, 2)
@@ -606,6 +610,7 @@ func test_run_structure() -> void:
 	e_inst.add_member(_make_session(40))
 	e_inst.start_run()
 	e_inst.room._all_spawned = true
+	e_inst.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
 	for en: Dictionary in e_inst.room.enemies.values():
 		e_inst.room._kill_enemy(en, e_inst.room.players["run40"])
 	e_inst.step(1.0 / 30.0, 2)
@@ -1304,7 +1309,9 @@ func test_difficulty_tutorial_pause() -> void:
 	var prof := inst.effective_profile(ContentDB.get_party_profile(2))
 	check(is_equal_approx(float(prof["enemy_hp_mult"]), 1.1 * 1.25) and is_equal_approx(float(prof["hit_damage_mult"]), 1.3), "hard difficulty multiplies profile (%s)" % [prof])
 	inst.difficulty = "nope"
-	check(inst.effective_profile(ContentDB.get_party_profile(1)) == ContentDB.get_party_profile(1), "unknown difficulty leaves profile unchanged")
+	var up := inst.effective_profile(ContentDB.get_party_profile(1))
+	var bp := ContentDB.get_party_profile(1)
+	check(is_equal_approx(float(up["enemy_hp_mult"]), float(bp["enemy_hp_mult"])) and is_equal_approx(float(up["hit_damage_mult"]), float(bp["hit_damage_mult"])) and is_equal_approx(float(up["boss_hp_mult"]), float(bp["boss_hp_mult"])), "unknown difficulty leaves multipliers unchanged")
 	# 튜토리얼: 단계가 실제 행동으로 넘어가고, 건너뛰기가 방을 끝낸다
 	var room := CombatRoom.new(ContentDB.get_room_def("tutorial"), ContentDB.get_party_profile(1), ContentDB.rules, 1, _members(1))
 	check(room.objective == "tutorial" and room.enemies.size() >= 1 and room.enemies.values()[0]["role"] == "dummy", "tutorial room with dummies")
@@ -1352,6 +1359,7 @@ func test_difficulty_tutorial_pause() -> void:
 	e2.start_run()
 	check(not e2.pause_run(), "cannot pause mid-combat")
 	e2.room._all_spawned = true
+	e2.room._director_reserve = 0.0   # 테스트: 증원 없이 바로 끝낸다
 	for en: Dictionary in e2.room.enemies.values():
 		e2.room._kill_enemy(en, e2.room.players["run60"])
 	e2.step(dt, 2)
@@ -1495,3 +1503,162 @@ func _ints(a: Array) -> Array:
 	for v in a:
 		out.append(int(v))
 	return out
+
+
+func test_roguelike_systems() -> void:
+	# --- 서약(열기): 정리·열기 합·프로필 반영
+	var n := ContentDB.normalize_pacts({"hard_shell": 2, "elite_season": 1, "nope": 3, "thin_sap": 9})
+	check(n["pacts"] == {"hard_shell": 2, "elite_season": 1, "thin_sap": 1} and int(n["heat"]) == 5, "pacts normalized (unknown dropped, rank clamped) and heat summed (%s)" % [n])
+	var inst := ExpeditionInstance.new("exp_rl", 21)
+	inst.add_member(_make_session(70))
+	inst.set_pacts({"hard_shell": 2, "wild_river": 1, "thin_sap": 1, "short_breath": 1, "ancient_armor": 1, "greedy_stall": 1})
+	inst.start_run()
+	var prof := inst.effective_profile(ContentDB.get_party_profile(1))
+	check(is_equal_approx(float(prof["enemy_hp_mult"]), 1.4) and is_equal_approx(float(prof["hit_damage_mult"]), 1.2) and is_equal_approx(float(prof["boss_hp_mult"]), 1.25), "pacts multiply hp/damage/boss hp (%s)" % [prof])
+	check(int(prof["dodge_charges_add"]) == -1 and is_equal_approx(float(prof["mechanic_gap_mult"]), 0.8) and is_equal_approx(float(prof["shop_price_mult"]), 1.4), "pacts feed dodge/mechanic gap/shop price")
+	check(int(inst.members["run70"]["heal_uses"]) == int(ContentDB.rule("heal_uses_per_expedition", 2)) - 1, "thin sap pact removes one heal use at run start")
+	check(int(inst.heat) == 8 and int(inst.to_checkpoint()["heat"]) == 8 and ExpeditionInstance.from_checkpoint(JSON.parse_string(JSON.stringify(inst.to_checkpoint()))).heat == 8, "heat survives the checkpoint round-trip (%d)" % inst.heat)
+	# --- 위험도: 전투 시간·층으로 오르고 상한이 있다
+	var d0 := inst.danger()
+	inst.run["stats"]["combat_sec"] = 600.0
+	inst.run["layer"] = 5
+	var d1 := inst.danger()
+	inst.run["stats"]["combat_sec"] = 100000.0
+	var d2 := inst.danger()
+	check(is_equal_approx(d0, 1.0) and d1 > 1.5 and d1 < 2.2 and is_equal_approx(d2, float(ContentDB.rule("danger", {}).get("max", 2.2))), "danger rises with combat time and layer and is capped (%.2f %.2f %.2f)" % [d0, d1, d2])
+	inst.run["stats"]["combat_sec"] = 0.0
+	inst.run["layer"] = 0
+	# --- 디렉터 증원: 웨이브가 끝난 뒤 예산의 일부만큼 더 나오고, 예산이 다하면 방이 끝난다
+	var room := CombatRoom.new(ContentDB.get_room_def("annihilate"), ContentDB.get_party_profile(1), ContentDB.rules, 5, _members(1))
+	var spawned_before := int(room.stats["enemies_spawned"])
+	var guard := 0
+	var reinforced := false
+	while not room.is_finished() and guard < 6000:
+		guard += 1
+		for en: Dictionary in room.enemies.values():
+			if en["ai"] != Protocol.EnemyAI.DEAD:
+				room._damage_enemy(en, 1000.0, room.players["p0"], 0.0, 0.0)
+		for ev: Dictionary in room.step(1.0 / 30.0):
+			if ev["k"] == "reinforce":
+				reinforced = true
+	check(room.outcome == Protocol.Outcome.VICTORY and reinforced and int(room.stats["enemies_spawned"]) > spawned_before, "director reinforces after the waves and the room still ends (%d spawned, %d steps)" % [int(room.stats["enemies_spawned"]), guard])
+	# --- 정예 접두: 젖은(둔화)·검은 수액(회복 절반)·가시 껍질(반사 출혈)·재생·분열
+	var r2 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 6, _members(1))
+	var p0: Dictionary = r2.players["p0"]
+	var wet := r2._spawn_enemy("sap_snail", p0["pos"] + Vector2(40, 0), {"hp_mult": 2.0, "damage_mult": 1.0, "scale": 1.2, "affix": "wet", "name_ko": "젖은 달팽이"})
+	check(String(wet["affix"]) == "wet" and bool(wet["elite"]), "elite spawned with an explicit affix")
+	r2._damage_player(p0, 5.0, wet["pos"], str(wet["id"]), wet)
+	check(float(p0["slow_t"]) > 0.0 and float(p0["slow_mult"]) > 0.3, "wet elite hit slows the player")
+	var sap := r2._spawn_enemy("sap_snail", p0["pos"] + Vector2(-40, 0), {"hp_mult": 2.0, "affix": "black_sap"})
+	r2._damage_player(p0, 5.0, sap["pos"], str(sap["id"]), sap)
+	p0["hp"] = 50.0
+	var healed := r2._heal_player(p0, 20.0, p0)
+	check(float(p0["heal_cut_t"]) > 0.0 and is_equal_approx(healed, 10.0), "black sap halves healing (%.1f)" % healed)
+	var thorn := r2._spawn_enemy("sap_snail", p0["pos"] + Vector2(30, 0), {"hp_mult": 2.0, "affix": "thorn_shell"})
+	r2._damage_enemy(thorn, 5.0, p0, 0.0, 0.0)
+	check(float(p0["bleed_t"]) > 0.0, "thorn shell reflects bleed to melee attackers")
+	var regen := r2._spawn_enemy("sap_snail", Vector2(600, 400), {"hp_mult": 2.0, "affix": "regen_shell"})
+	r2._damage_enemy(regen, 30.0, p0, 0.0, 0.0)
+	var hp_after_hit := float(regen["hp"])
+	for i in 120:
+		r2.elapsed += 1.0 / 30.0
+		r2._step_enemy(regen, 1.0 / 30.0)
+	check(float(regen["hp"]) > hp_after_hit + 1.0, "regen shell heals after not being hit (%.1f -> %.1f)" % [hp_after_hit, float(regen["hp"])])
+	var split := r2._spawn_enemy("sap_snail", Vector2(700, 400), {"hp_mult": 2.0, "affix": "splitting"})
+	var before := r2.enemies.size()
+	r2._damage_enemy(split, 10000.0, p0, 0.0, 0.0)
+	check(r2.enemies.size() == before + 2, "splitting elite leaves two small copies")
+	var copies := 0
+	for en: Dictionary in r2.enemies.values():
+		if int(en.get("split_depth", 0)) == 1:
+			copies += 1
+			r2._damage_enemy(en, 10000.0, p0, 0.0, 0.0)
+	check(copies == 2 and r2.enemies.size() == before + 2, "copies do not split again")
+	# 정예 확률: force_elite 프로필이면 첫 일반 스폰이 접두 정예가 된다
+	var fp := ContentDB.get_party_profile(1).duplicate()
+	fp["force_elite"] = true
+	fp["elite_chance"] = 0.0
+	var r3 := CombatRoom.new(ContentDB.get_room_def("annihilate"), fp, ContentDB.rules, 7, _members(1))
+	var forced := 0
+	for en: Dictionary in r3.enemies.values():
+		if bool(en["elite"]) and String(en.get("affix", "")) != "":
+			forced += 1
+	check(forced == 1, "combat altar forces exactly one affix elite in the next room (%d)" % forced)
+	# --- 보상 희귀도·리롤
+	var inst2 := ExpeditionInstance.new("exp_rw", 33)
+	inst2.add_member(_make_session(71))
+	inst2.start_run()
+	var rr := RandomNumberGenerator.new()
+	rr.seed = 1
+	var rare_only := inst2._weighted_relic(inst2._relic_pool("run71"), "run71", rr, "rare")
+	check(rare_only != "" and String(ContentDB.relics[rare_only].get("rarity", "")) != "common", "min_rarity picks only rare or better")
+	var rares := 0
+	for i in 200:
+		var pick := inst2._weighted_relic(inst2._relic_pool("run71"), "run71", rr)
+		if String(ContentDB.relics[pick].get("rarity", "common")) != "common":
+			rares += 1
+	check(rares > 5 and rares < 120, "rarity weights give mostly common with some rare (%d/200)" % rares)
+	inst2._begin_reward()
+	var first: Array = (inst2.run["pending_rewards"]["run71"] as Array).duplicate(true)
+	check(inst2.reroll_reward("run71") and int(inst2.run["players"]["run71"]["rerolls"]) == 0 and inst2.run["pending_rewards"]["run71"] != first, "reroll replaces the offer and spends the run's reroll")
+	check(not inst2.reroll_reward("run71"), "no rerolls left")
+	# --- 제단 사건: 도토리 지불·확률 유물·피의 제단·저주·전투 제단
+	var ev := ExpeditionInstance.new("exp_alt", 12)
+	ev.add_member(_make_session(72))
+	ev.start_run()
+	ev.run["players"]["run72"]["acorns"] = 50
+	ev._begin_menu("event", "chance_altar")
+	ev.node_action("run72", {"action": "vote", "choice": "pay_big"})
+	var rp72: Dictionary = ev.run["players"]["run72"]
+	check(int(rp72["acorns"]) == 10 and ((rp72["relics"] as Array).is_empty() or String(ContentDB.relics[rp72["relics"][0]].get("rarity", "")) != "common"), "chance altar charges acorns and can grant a rare+ relic")
+	var ev2 := ExpeditionInstance.new("exp_alt2", 13)
+	ev2.add_member(_make_session(73))
+	ev2.start_run()
+	ev2.members["run73"]["hp"] = 100.0
+	ev2._begin_menu("event", "blood_altar")
+	ev2.node_action("run73", {"action": "vote", "choice": "bleed"})
+	check(is_equal_approx(float(ev2.members["run73"]["hp"]), 65.0) and int(ev2.run["players"]["run73"]["acorns"]) == 25, "blood altar trades hp for acorns")
+	var ev3 := ExpeditionInstance.new("exp_alt3", 14)
+	ev3.add_member(_make_session(74))
+	ev3.start_run()
+	ev3._begin_menu("event", "cursed_crate")
+	ev3.node_action("run74", {"action": "vote", "choice": "open"})
+	check(int(ev3.run["curse_rooms"]) == 2 and (ev3.run["players"]["run74"]["relics"] as Array).size() == 1, "cursed crate grants a relic and a 2-room curse")
+	var cp := ev3.effective_profile(ContentDB.get_party_profile(1))
+	check(is_equal_approx(float(cp["player_damage_taken_mult"]), 1.3), "curse raises damage taken in the profile")
+	var ev4 := ExpeditionInstance.new("exp_alt4", 15)
+	ev4.add_member(_make_session(75))
+	ev4.start_run()
+	ev4._begin_menu("event", "combat_altar")
+	ev4.node_action("run75", {"action": "vote", "choice": "drum"})
+	check(int(ev4.run["next_room_elite"]) == 1 and int(ev4.run["bonus_shards"]) == 2 and is_equal_approx(float(ev4.run["next_room_budget_add"]), 4.0) and bool(ev4.effective_profile(ContentDB.get_party_profile(1))["force_elite"]), "combat altar arms the next room and promises shards")
+	# --- 휴식: 숫돌은 강화 1개, 휴식은 회복
+	var rs := ExpeditionInstance.new("exp_rest", 16)
+	rs.add_member(_make_session(76))
+	rs.add_member(_make_session(77))
+	rs.start_run()
+	rs.members["run76"]["hp"] = 30.0
+	rs.members["run77"]["hp"] = 30.0
+	rs._begin_menu("rest", "campfire")
+	rs.node_action("run76", {"action": "rest_choice", "choice": "smith"})
+	rs.node_action("run77", {"action": "continue"})
+	check((rs.run["players"]["run76"]["upgrades"] as Array).size() == 1 and is_equal_approx(float(rs.members["run76"]["hp"]), 30.0), "smith grants an upgrade and no heal")
+	check(float(rs.members["run77"]["hp"]) > 30.0, "continue without a choice heals")
+	rs.node_action("run76", {"action": "rest_choice", "choice": "heal"})
+	check(is_equal_approx(float(rs.members["run76"]["hp"]), 30.0), "one choice per player per rest")
+	# --- 보스: 갑각 온전 시 피해 감소, 기믹 실패 시 회복·추가 적
+	var br := CombatRoom.new(ContentDB.get_room_def("boss_ironclaw"), ContentDB.get_party_profile(1), ContentDB.rules, 8, _members(1))
+	var bscript: GDScript = load("res://server/expedition/boss_ironclaw.gd")
+	var boss = bscript.new(br, ContentDB.get_party_profile(1), ContentDB.bosses["ironclaw"])
+	br.boss = boss
+	check(is_equal_approx(boss.damage_taken_mult(), 0.6), "intact shell reduces damage taken to 60%")
+	boss.shell_broken = 1
+	check(boss.damage_taken_mult() > 1.0, "breaking a shell segment removes the reduction")
+	boss.hp = boss.max_hp * 0.5
+	boss.active = "IC-01"
+	boss.mechanics["IC-01"]["state"] = "active"
+	var adds_before := br.enemies.size()
+	boss._finish_mechanic(false, "test")
+	check(is_equal_approx(boss.hp, boss.max_hp * 0.55) and br.enemies.size() == adds_before + 2, "failed mechanic heals the boss 5%% and spawns 2 adds (%d)" % (br.enemies.size() - adds_before))
+	check(int(ContentDB.bosses["ironclaw"]["hp"]) == 900 and int(ContentDB.bosses["ironclaw"]["mechanic_gap_sec"]) == 9, "pacing: boss hp 900, mechanic gap 9s")
+	check(int(ContentDB.get_room_def("annihilate")["waves"]["wave_count"]) == 3 and float(ContentDB.get_room_def("annihilate")["waves"]["base_budget"]) >= 9.0, "pacing: annihilate rooms have 3 waves and budget 9")

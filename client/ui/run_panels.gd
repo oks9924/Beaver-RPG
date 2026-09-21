@@ -3,6 +3,7 @@ extends Control
 ## 원정 진행 패널: 보상 3지선다, 경로 투표, 사건/상점/휴식 노드. 제한시간과 기본 규칙을 표시한다 (4절·14절).
 
 signal reward_picked(index: int)
+signal reward_reroll()
 signal route_voted(node_id: String)
 signal node_action(payload: Dictionary)
 signal pause_requested()
@@ -53,7 +54,11 @@ func _process(_dt: float) -> void:
 		timer_label.text = "남은 시간 %d초 · 시간이 끝나면 기본 규칙이 적용됩니다" % int(ceil(left))
 
 
-func show_reward(p: Dictionary, my_id: String) -> void:
+const RARITY_KO := {"common": "일반", "rare": "희귀", "legendary": "전설"}
+const RARITY_COLOR := {"common": Color(1, 1, 1), "rare": Color(0.6, 0.85, 1.0), "legendary": Color(1.0, 0.8, 0.4)}
+
+
+func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 	_mode = "reward"
 	_my_id = my_id
 	visible = true
@@ -62,6 +67,8 @@ func show_reward(p: Dictionary, my_id: String) -> void:
 	title.text = "방 클리어 — 보상 선택"
 	var ps: Dictionary = res.get("players", {}).get(my_id, {})
 	body.text = "소요 %s · 처치 %d · 내 피해 %d · 받은 피해 %d · 도토리 +%d · 경험치 +%d (런 레벨 %d)" % [UIKit.fmt_time(float(res.get("elapsed", 0))), int(res.get("stats", {}).get("enemies_killed", 0)), int(ps.get("damage_dealt", 0)), int(ps.get("damage_taken", 0)), int(ps.get("acorns_gained", 0)), int(res.get("xp_gained", 0)), int(res.get("level", 1))]
+	if bool(res.get("par_bonus", false)):
+		body.text += "\n기록 보너스! 기준 %d초 안에 클리어 — 도토리·경험치 추가" % int(res.get("par_sec", 0))
 	_clear_buttons()
 	var options: Array = p.get("options", [])
 	if options.is_empty() or bool(p.get("picked", false)):
@@ -70,11 +77,19 @@ func show_reward(p: Dictionary, my_id: String) -> void:
 	for i in options.size():
 		var o: Dictionary = options[i]
 		var kind: String = String(o.get("kind", ""))
+		var rarity: String = String(o.get("rarity", "common"))
 		var kind_ko: String = {"relic": "유물", "upgrade": "스킬 강화", "acorns": "도토리"}.get(kind, "")
-		var b := UIKit.card_button("[%s]\n%s\n\n%s" % [kind_ko, o.get("name_ko", ""), o.get("desc_ko", "")], "ui.card.reward", 0 if kind == "relic" else 1, Vector2(196, 270), func() -> void: reward_picked.emit(i))
+		var b := UIKit.card_button("[%s · %s]\n%s\n\n%s" % [kind_ko, RARITY_KO.get(rarity, rarity), o.get("name_ko", ""), o.get("desc_ko", "")], "ui.card.reward", 0 if kind == "relic" else 1, Vector2(196, 270), func() -> void: reward_picked.emit(i))
+		b.add_theme_color_override("font_color", RARITY_COLOR.get(rarity, Color.WHITE))
+		if rarity != "common":
+			b.modulate = Color(1.05, 1.05, 1.0) if rarity == "rare" else Color(1.1, 1.05, 0.9)
 		cards.add_child(b)
 	buttons_box.add_child(cards)
-	footer.text = "개인 선택입니다. 시간이 끝나면 첫 번째 항목이 자동 선택됩니다. 유물·강화는 이번 원정에만 적용됩니다."
+	if not options.is_empty() and not bool(p.get("picked", false)):
+		var rb := UIKit.button("다시 뽑기 (남은 %d회)" % rerolls, func() -> void: reward_reroll.emit())
+		rb.disabled = rerolls <= 0
+		buttons_box.add_child(rb)
+	footer.text = "개인 선택입니다. 시간이 끝나면 첫 번째 항목이 자동 선택됩니다. 유물·강화는 이번 원정에만 적용됩니다. 깊이 들어갈수록 희귀·전설이 자주 나옵니다."
 
 
 func show_route(p: Dictionary, my_id: String, party: Array) -> void:
@@ -141,9 +156,23 @@ func show_menu(p: Dictionary, my_id: String, party: Array) -> void:
 			title.text = String(data.get("name_ko", "휴식"))
 			body.text = String(data.get("text_ko", ""))
 			buttons_box.add_child(UIKit.frame_icon("prop.campfire", int(Time.get_ticks_msec() / 400) % 2, 96))
+			var rc: Dictionary = data.get("rest_choice", {})
+			var mine_choice := String(rc.get(my_id, ""))
+			if mine_choice == "":
+				var ch := UIKit.hbox(8)
+				ch.add_child(UIKit.button("휴식 — 체력 회복 + 회복 도구 보충", func() -> void: node_action.emit({"action": "rest_choice", "choice": "heal"})))
+				ch.add_child(UIKit.button("숫돌 — 무작위 스킬 강화 1개 (회복 없음)", func() -> void: node_action.emit({"action": "rest_choice", "choice": "smith"})))
+				buttons_box.add_child(ch)
+			else:
+				buttons_box.add_child(UIKit.label("내 선택: %s" % ("휴식" if mine_choice == "heal" else "숫돌"), 13, Color(0.7, 1.0, 0.7)))
+			var picks: PackedStringArray = []
+			for aid: String in rc.keys():
+				picks.append("%s: %s" % [_nick(aid, party), "휴식" if String(rc[aid]) == "heal" else "숫돌"])
+			if not picks.is_empty():
+				buttons_box.add_child(UIKit.label(" · ".join(picks), 12))
 			var done: Array = p.get("done", [])
 			buttons_box.add_child(UIKit.button("계속 (%d/%d 준비)" % [done.size(), party.size()], func() -> void: node_action.emit({"action": "continue"})))
-			footer.text = ""
+			footer.text = "고르지 않고 계속하면 휴식으로 처리됩니다."
 	if _mode == "menu" and (p.get("done", []) as Array).has(my_id):
 		buttons_box.add_child(UIKit.label("다른 파티원을 기다리는 중...", 13))
 

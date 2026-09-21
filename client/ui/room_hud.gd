@@ -260,6 +260,13 @@ func update_run(run: Dictionary, my_id: String) -> void:
 	var lvl := int(run.get("level", 1))
 	var next_xp: String = str(table[lvl]) if lvl < table.size() else "최대"
 	run_label.text = "런 레벨 %d (경험치 %d/%s) · 팀 목재 %d · 도토리 %d · 노드 %d/%d" % [lvl, int(run.get("xp", 0)), next_xp, int(run.get("team_wood", 0)), int(mine.get("acorns", 0)), (run.get("path", []) as Array).size(), (run.get("layers", []) as Array).size()]
+	run_label.text += "\n위험도 ×%.2f" % float(run.get("danger", 1.0))
+	if int(run.get("heat", 0)) > 0:
+		run_label.text += " · 서약 열기 %d" % int(run.get("heat", 0))
+	if int(run.get("curse_rooms", 0)) > 0:
+		run_label.text += " · 저주 %d방 남음 (받는 피해 증가)" % int(run.get("curse_rooms", 0))
+	if int(run.get("bonus_shards", 0)) > 0:
+		run_label.text += " · 약속된 기억 조각 +%d" % int(run.get("bonus_shards", 0))
 	var names: PackedStringArray = []
 	for rid: String in mine.get("relics", []):
 		names.append(String(ContentDB.relics.get(rid, {}).get("name_ko", rid)))

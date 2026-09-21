@@ -194,10 +194,10 @@
    }
   ],
   "waves": {
-   "base_budget": 6.0,
-   "wave_count": 2,
-   "next_wave_when_alive_at_most": 1,
-   "wave_gap_sec": 2.5
+   "base_budget": 9.0,
+   "wave_count": 3,
+   "next_wave_when_alive_at_most": 3,
+   "wave_gap_sec": 2.0
   },
   "enemy_pool": [
    {
@@ -323,7 +323,7 @@
    }
   ],
   "waves": {
-   "base_budget": 7.0,
+   "base_budget": 9.0,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 9.0
@@ -463,7 +463,7 @@
    }
   ],
   "waves": {
-   "base_budget": 6.5,
+   "base_budget": 8.5,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 8.0
@@ -775,7 +775,7 @@
    }
   ],
   "waves": {
-   "base_budget": 8.0,
+   "base_budget": 10.0,
    "wave_count": 4,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 10.0
@@ -927,7 +927,7 @@
    }
   ],
   "waves": {
-   "base_budget": 6.0,
+   "base_budget": 7.0,
    "wave_count": 2,
    "next_wave_when_alive_at_most": 2,
    "wave_gap_sec": 4.0
@@ -1065,7 +1065,7 @@
    "base_budget": 9.0,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 3,
-   "wave_gap_sec": 3.0
+   "wave_gap_sec": 2.0
   },
   "enemy_pool": [
    {
@@ -1223,7 +1223,7 @@
    }
   ],
   "waves": {
-   "base_budget": 9.0,
+   "base_budget": 11.0,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 9.0
@@ -1391,7 +1391,7 @@
    }
   ],
   "waves": {
-   "base_budget": 8.5,
+   "base_budget": 10.5,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 8.0
@@ -1562,7 +1562,7 @@
    }
   ],
   "waves": {
-   "base_budget": 8.0,
+   "base_budget": 10.0,
    "wave_count": 4,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 10.0
@@ -1740,7 +1740,7 @@
    }
   ],
   "waves": {
-   "base_budget": 6.0,
+   "base_budget": 7.0,
    "wave_count": 2,
    "next_wave_when_alive_at_most": 2,
    "wave_gap_sec": 4.0
@@ -1908,7 +1908,7 @@
    "base_budget": 9.0,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 3,
-   "wave_gap_sec": 3.0
+   "wave_gap_sec": 2.0
   },
   "enemy_pool": [
    {
@@ -2061,7 +2061,7 @@
    }
   ],
   "waves": {
-   "base_budget": 9.0,
+   "base_budget": 11.0,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 9.0
@@ -2228,7 +2228,7 @@
    }
   ],
   "waves": {
-   "base_budget": 8.5,
+   "base_budget": 10.5,
    "wave_count": 3,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 8.0
@@ -2399,7 +2399,7 @@
    }
   ],
   "waves": {
-   "base_budget": 8.0,
+   "base_budget": 10.0,
    "wave_count": 4,
    "next_wave_when_alive_at_most": 99,
    "wave_gap_sec": 10.0
@@ -2580,7 +2580,7 @@
    }
   ],
   "waves": {
-   "base_budget": 6.0,
+   "base_budget": 7.0,
    "wave_count": 2,
    "next_wave_when_alive_at_most": 2,
    "wave_gap_sec": 4.0

@@ -1,0 +1,74 @@
+{
+ "_comment": "서약(열기). Hades 형벌의 서약·DRG 위험도처럼 원정 생성 시 골라 쌓는 난이도 모듈. 열기 합계가 기억 조각·도토리 보상을 늘리고 계정에 최고 열기를 기록한다. 모든 값은 데이터이며 effective_profile 이 곱한다.",
+ "hard_shell": {
+  "id": "hard_shell",
+  "name_ko": "단단한 갑각",
+  "desc_ko": "적 체력 +20% (단계마다)",
+  "heat_per_rank": 1,
+  "max_rank": 2,
+  "enemy_hp_mult_per_rank": 0.2
+ },
+ "wild_river": {
+  "id": "wild_river",
+  "name_ko": "사나운 강",
+  "desc_ko": "적 피해 +20% (단계마다)",
+  "heat_per_rank": 1,
+  "max_rank": 2,
+  "damage_mult_per_rank": 0.2
+ },
+ "elite_season": {
+  "id": "elite_season",
+  "name_ko": "정예의 계절",
+  "desc_ko": "정예 등장 확률 2배",
+  "heat_per_rank": 2,
+  "max_rank": 1,
+  "elite_chance_mult_per_rank": 1.0
+ },
+ "thin_sap": {
+  "id": "thin_sap",
+  "name_ko": "마른 수액",
+  "desc_ko": "회복 도구 -1",
+  "heat_per_rank": 1,
+  "max_rank": 1,
+  "heal_uses_add_per_rank": -1
+ },
+ "short_breath": {
+  "id": "short_breath",
+  "name_ko": "짧은 숨",
+  "desc_ko": "회피 충전 -1",
+  "heat_per_rank": 1,
+  "max_rank": 1,
+  "dodge_charges_add_per_rank": -1
+ },
+ "rising_tide": {
+  "id": "rising_tide",
+  "name_ko": "차오르는 물",
+  "desc_ko": "위험도 상승 속도 +50%",
+  "heat_per_rank": 2,
+  "max_rank": 1,
+  "danger_pace_add_per_rank": 0.5
+ },
+ "greedy_stall": {
+  "id": "greedy_stall",
+  "name_ko": "비싼 노점",
+  "desc_ko": "상점 가격 +40%",
+  "heat_per_rank": 1,
+  "max_rank": 1,
+  "shop_price_mult_per_rank": 0.4
+ },
+ "ancient_armor": {
+  "id": "ancient_armor",
+  "name_ko": "오래된 갑각",
+  "desc_ko": "보스 체력 +25%, 기믹 간격 -20%",
+  "heat_per_rank": 2,
+  "max_rank": 1,
+  "boss_hp_mult_per_rank": 0.25,
+  "mechanic_gap_mult_per_rank": -0.2
+ },
+ "_rewards": {
+  "shards_mult_per_heat": 0.15,
+  "acorn_mult_per_heat": 0.1,
+  "xp_mult_per_heat": 0.05,
+  "max_heat": 12
+ }
+}

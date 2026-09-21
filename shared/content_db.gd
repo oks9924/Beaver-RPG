@@ -21,6 +21,8 @@ var shop: Dictionary = {}
 var regions: Dictionary = {}
 var bosses: Dictionary = {}
 var village: Dictionary = {}
+var pacts: Dictionary = {}       # 서약(열기) 모듈
+var elites: Dictionary = {}      # 정예 접두
 var load_errors: PackedStringArray = []
 
 
@@ -44,6 +46,8 @@ func reload() -> void:
 	regions = _load_json("regions.json")
 	bosses = _load_json("bosses.json") if FileAccess.file_exists(DATA_DIR + "bosses.json") else {}
 	village = _load_json("village.json")
+	pacts = _load_json("pacts.json") if FileAccess.file_exists(DATA_DIR + "pacts.json") else {}
+	elites = _load_json("elites.json") if FileAccess.file_exists(DATA_DIR + "elites.json") else {}
 	mastery = _load_json("mastery.json") if FileAccess.file_exists(DATA_DIR + "mastery.json") else {}
 	npcs = _load_json("npcs.json") if FileAccess.file_exists(DATA_DIR + "npcs.json") else {}
 	quests = _load_json("quests.json") if FileAccess.file_exists(DATA_DIR + "quests.json") else {}
@@ -166,3 +170,37 @@ func mastery_trait(class_id: String, trait_id: String) -> Dictionary:
 		if String(t.get("id", "")) == trait_id:
 			return t
 	return {}
+
+
+## 서약 목록(id 순). _ 로 시작하는 키는 제외.
+func pact_ids() -> Array:
+	var out: Array = []
+	for k: String in pacts.keys():
+		if not k.begins_with("_"):
+			out.append(k)
+	out.sort()
+	return out
+
+
+## 서약 선택 {id: rank} 을 검증해 정리하고 열기 합계를 돌려준다. 모르는 id·범위 밖 rank 는 버린다.
+func normalize_pacts(sel: Dictionary) -> Dictionary:
+	var out := {}
+	var heat := 0
+	for k in sel.keys():
+		var id := String(k)
+		var d: Dictionary = pacts.get(id, {})
+		if d.is_empty() or id.begins_with("_"):
+			continue
+		var rank := clampi(int(sel[k]), 0, int(d.get("max_rank", 1)))
+		if rank <= 0:
+			continue
+		out[id] = rank
+		heat += rank * int(d.get("heat_per_rank", 1))
+	return {"pacts": out, "heat": mini(heat, int(pacts.get("_rewards", {}).get("max_heat", 12)))}
+
+
+## 정예 접두 id 목록
+func affix_ids() -> Array:
+	var out: Array = elites.get("affixes", {}).keys()
+	out.sort()
+	return out

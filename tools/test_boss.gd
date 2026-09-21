@@ -337,6 +337,7 @@ func test_patterns_and_death() -> void:
 	check(boss.state != BossIronclaw.BS.STAGGER, "stagger resistance prevents chain-staggers")
 	# 단계 전환: 예고 정리
 	boss._begin_pattern(pats["ground_slam"])
+	boss.shell_broken = 1   # 갑각이 온전하면 받는 피해가 줄어(shell_intact_damage_taken_mult) 단계가 안 넘어간다
 	boss.take_damage(boss.max_hp * 0.4, p0)
 	check(boss.phase == 1 and boss.telegraph.is_empty(), "phase change clears old telegraphs")
 	# 사망 정리: 남은 적·기믹 오브젝트 제거, 방 승리

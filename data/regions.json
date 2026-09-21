@@ -25,7 +25,11 @@
      "type": "event",
      "pool": [
       "fallen_branch",
-      "drifting_crate"
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
      ]
     }
    ],
@@ -135,7 +139,11 @@
      "type": "event",
      "pool": [
       "fallen_branch",
-      "drifting_crate"
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
      ]
     }
    ],
@@ -254,7 +262,11 @@
      "type": "event",
      "pool": [
       "fallen_branch",
-      "drifting_crate"
+      "drifting_crate",
+      "chance_altar",
+      "blood_altar",
+      "cursed_crate",
+      "combat_altar"
      ]
     }
    ],

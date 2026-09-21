@@ -1,6 +1,6 @@
 {
  "_comment": "8절 PartyScalingProfile. 방 시작 시 기준 인원 N을 확정하고 프로필을 고정한다. 검증 전 출발값.",
- "content_version": "0.2.0",
+ "content_version": "0.3.0",
  "profiles": {
   "1": {
    "n": 1,
@@ -13,7 +13,7 @@
    "concurrent_interactions": 1,
    "sequential_fallback": true,
    "mechanic_grace_sec": 6.0,
-   "fail_penalty": "limited_damage"
+   "fail_penalty": "extra_adds"
   },
   "2": {
    "n": 2,
@@ -26,7 +26,7 @@
    "concurrent_interactions": 1,
    "sequential_fallback": true,
    "mechanic_grace_sec": 5.0,
-   "fail_penalty": "limited_damage"
+   "fail_penalty": "extra_adds"
   },
   "3": {
    "n": 3,

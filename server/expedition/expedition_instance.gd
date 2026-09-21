@@ -23,6 +23,8 @@ var suspended_at: float = 0.0
 var paused: bool = false            # 파티가 안전 지점에서 명시적으로 중단한 원정 (이어하기 가능, SAVE-01)
 var paused_at: float = 0.0
 var tutorial: bool = false
+var pacts: Dictionary = {}          # 서약 {id: rank} (Hades 열기 식 난이도 모듈)
+var heat: int = 0
 var content_version: String = Protocol.CONTENT_VERSION
 var _snap_accum: int = 0
 var rooms_cleared: int = 0
@@ -234,7 +236,7 @@ func _new_run() -> void:
 	run = {
 		"region": region.get("id", "willow_river"), "region_name": region.get("name_ko", ""), "layers": layers, "layer": 0, "current": "", "path": [],
 		"xp": 0, "level": 1, "team_wood": 0, "players": {}, "next_room_budget_add": 0.0,
-		"pending_rewards": {}, "votes": {}, "menu": {}, "enemy_pool": region.get("enemy_pool", []),
+		"pending_rewards": {}, "votes": {}, "menu": {}, "enemy_pool": region.get("enemy_pool", []), "curse_rooms": 0, "curse_mult": 1.0, "next_room_elite": 0, "bonus_shards": 0, "par_hits": 0,
 		"stats": {"rooms_cleared": 0, "enemies_killed": 0, "combat_sec": 0.0, "nodes": [], "started_at": Time.get_unix_time_from_system(), "memories": 0, "secrets": [], "mechanics_succeeded": [], "bosses_killed": []},
 		"reward_rng_state": reward_rng.state, "map_rng_state": map_rng.state, "checkpoint_note": "",
 	}
@@ -242,7 +244,7 @@ func _new_run() -> void:
 		_run_player(aid)
 		members[aid]["hp"] = -1.0
 		var perm: Dictionary = members[aid].get("permanent", {})
-		members[aid]["heal_uses"] = int(ContentDB.rule("heal_uses_per_expedition", 2)) + int(perm.get("heal_uses_add", 0))
+		members[aid]["heal_uses"] = maxi(int(ContentDB.rule("heal_uses_per_expedition", 2)) + int(perm.get("heal_uses_add", 0)) + int(pact_sum("heal_uses_add")), 0)
 		run["team_wood"] = maxi(int(run["team_wood"]), int(perm.get("team_wood_add", 0)))
 	room_index = 0
 	rooms_cleared = 0
@@ -252,7 +254,7 @@ func _new_run() -> void:
 func _run_player(aid: String) -> Dictionary:
 	var rp: Dictionary = run["players"].get(aid, {})
 	if rp.is_empty():
-		rp = {"relics": [], "upgrades": [], "acorns": int(members.get(aid, {}).get("permanent", {}).get("start_acorns", 0)), "max_hp_add": 0, "shop_buys": {}, "level_seen": 1}
+		rp = {"relics": [], "upgrades": [], "acorns": int(members.get(aid, {}).get("permanent", {}).get("start_acorns", 0)), "max_hp_add": 0, "shop_buys": {}, "level_seen": 1, "rerolls": int(ContentDB.rule("reward_rerolls_per_run", 1))}
 		run["players"][aid] = rp
 	return rp
 
@@ -399,16 +401,55 @@ func _start_room_for_node(node: Dictionary) -> void:
 	start_room()
 
 
-## 인원 프로필에 난이도 배율을 곱한 값 (rules.difficulties)
+func set_pacts(sel: Dictionary) -> void:
+	var n := ContentDB.normalize_pacts(sel)
+	pacts = n["pacts"]
+	heat = int(n["heat"])
+
+
+## 서약 합산: 키별로 rank × per_rank 값을 더한 사전
+func pact_sum(key: String) -> float:
+	var total := 0.0
+	for id: String in pacts.keys():
+		total += float(ContentDB.pacts.get(id, {}).get(key + "_per_rank", 0.0)) * float(pacts[id])
+	return total
+
+
+## RoR2 식 시간 위험도. 전투 누적 시간(메뉴·투표 시간 제외)과 층 수로 오르고 난이도·서약이 속도를 정한다.
+func danger() -> float:
+	var dr: Dictionary = ContentDB.rules.get("danger", {})
+	if dr.is_empty() or run.is_empty():
+		return 1.0
+	var d: Dictionary = ContentDB.rules.get("difficulties", {}).get(difficulty, {})
+	var pace := float(d.get("danger_pace", 1.0)) + pact_sum("danger_pace_add")
+	var combat_min := float(run.get("stats", {}).get("combat_sec", 0.0)) / 60.0
+	if room != null and state == Protocol.ExpState.IN_ROOM:
+		combat_min += room.elapsed / 60.0
+	var v := 1.0 + combat_min * float(dr.get("per_combat_min", 0.06)) * pace + float(run.get("layer", 0)) * float(dr.get("per_layer", 0.03))
+	return clampf(v, 1.0, float(dr.get("max", 2.2)))
+
+
+## 인원 프로필 × 난이도 × 서약 × 위험도 (rules.difficulties, data/pacts.json, rules.danger)
 func effective_profile(base: Dictionary) -> Dictionary:
 	var d: Dictionary = ContentDB.rules.get("difficulties", {}).get(difficulty, {})
-	if d.is_empty():
-		return base
 	var out := base.duplicate()
-	out["enemy_hp_mult"] = float(base.get("enemy_hp_mult", 1.0)) * float(d.get("enemy_hp_mult", 1.0))
-	out["hit_damage_mult"] = float(base.get("hit_damage_mult", 1.0)) * float(d.get("damage_mult", 1.0))
-	out["boss_hp_mult"] = float(base.get("boss_hp_mult", 1.0)) * float(d.get("boss_hp_mult", 1.0))
-	out["wave_budget_mult"] = float(base.get("wave_budget_mult", 1.0)) * float(d.get("wave_budget_mult", 1.0))
+	var dr: Dictionary = ContentDB.rules.get("danger", {})
+	var dg := danger()
+	var hp_m := float(d.get("enemy_hp_mult", 1.0)) * (1.0 + pact_sum("enemy_hp_mult")) * (1.0 + (dg - 1.0) * float(dr.get("hp_weight", 0.8)))
+	var dmg_m := float(d.get("damage_mult", 1.0)) * (1.0 + pact_sum("damage_mult")) * (1.0 + (dg - 1.0) * float(dr.get("damage_weight", 0.5)))
+	var budget_m := float(d.get("wave_budget_mult", 1.0)) * (1.0 + (dg - 1.0) * float(dr.get("budget_weight", 0.3)))
+	out["enemy_hp_mult"] = float(base.get("enemy_hp_mult", 1.0)) * hp_m
+	out["hit_damage_mult"] = float(base.get("hit_damage_mult", 1.0)) * dmg_m
+	out["boss_hp_mult"] = float(base.get("boss_hp_mult", 1.0)) * float(d.get("boss_hp_mult", 1.0)) * (1.0 + pact_sum("boss_hp_mult"))
+	out["wave_budget_mult"] = float(base.get("wave_budget_mult", 1.0)) * budget_m
+	out["elite_chance"] = float(ContentDB.elites.get("spawn", {}).get("base_chance", 0.06)) * float(d.get("elite_chance_mult", 1.0)) * (1.0 + pact_sum("elite_chance_mult")) * dg
+	out["dodge_charges_add"] = int(pact_sum("dodge_charges_add"))
+	out["mechanic_gap_mult"] = maxf(1.0 + pact_sum("mechanic_gap_mult"), 0.4)
+	out["shop_price_mult"] = 1.0 + pact_sum("shop_price_mult")
+	out["player_damage_taken_mult"] = float(run.get("curse_mult", 1.0)) if int(run.get("curse_rooms", 0)) > 0 else 1.0
+	out["force_elite"] = int(run.get("next_room_elite", 0)) > 0
+	out["danger"] = dg
+	out["heat"] = heat
 	out["difficulty"] = difficulty
 	return out
 
@@ -457,6 +498,9 @@ func start_room() -> Dictionary:
 	var opts := {"budget_add": float(run.get("next_room_budget_add", 0.0)), "team_wood": int(run.get("team_wood", 0)), "enemy_pool": ContentDB.get_room_def(room_id).get("enemy_pool", run.get("enemy_pool", []))}
 	run["next_room_budget_add"] = 0.0
 	room = CombatRoom.new(ContentDB.get_room_def(room_id), effective_profile(profile), ContentDB.rules, room_seed, member_list, opts)
+	run["next_room_elite"] = 0
+	if int(run.get("curse_rooms", 0)) > 0:
+		run["curse_rooms"] = int(run["curse_rooms"]) - 1
 	if room_id.begins_with("boss_"):
 		var boss_id := String(room_id.trim_prefix("boss_"))
 		var path := "res://server/expedition/boss_%s.gd" % boss_id
@@ -498,7 +542,7 @@ func party_payload() -> Dictionary:
 
 
 func board_entry() -> Dictionary:
-	return {"id": id, "state": state, "public": public, "difficulty": difficulty, "members": members.size(), "max": Protocol.MAX_PARTY_SIZE, "room_index": room_index, "joinable": is_joinable() and members.size() < Protocol.MAX_PARTY_SIZE and not paused, "host_nick": host_nick, "paused": paused, "tutorial": tutorial, "region": run.get("region_name", "") if not run.is_empty() else ""}
+	return {"id": id, "state": state, "public": public, "difficulty": difficulty, "heat": heat, "pacts": pacts, "members": members.size(), "max": Protocol.MAX_PARTY_SIZE, "room_index": room_index, "joinable": is_joinable() and members.size() < Protocol.MAX_PARTY_SIZE and not paused, "host_nick": host_nick, "paused": paused, "tutorial": tutorial, "region": run.get("region_name", "") if not run.is_empty() else ""}
 
 
 func run_payload() -> Dictionary:
@@ -507,8 +551,9 @@ func run_payload() -> Dictionary:
 	var players: Dictionary = {}
 	for aid: String in run["players"].keys():
 		var rp: Dictionary = run["players"][aid]
-		players[aid] = {"relics": rp["relics"], "upgrades": rp["upgrades"], "acorns": rp["acorns"], "max_hp_add": rp["max_hp_add"], "heal_uses": members.get(aid, {}).get("heal_uses", 0), "hp": members.get(aid, {}).get("hp", -1), "build_kind": members.get(aid, {}).get("build_kind", "log_cover"), "synergies": member_mods(aid).get("synergies", [])}
+		players[aid] = {"relics": rp["relics"], "upgrades": rp["upgrades"], "acorns": rp["acorns"], "max_hp_add": rp["max_hp_add"], "heal_uses": members.get(aid, {}).get("heal_uses", 0), "hp": members.get(aid, {}).get("hp", -1), "build_kind": members.get(aid, {}).get("build_kind", "log_cover"), "synergies": member_mods(aid).get("synergies", []), "rerolls": rp.get("rerolls", 0)}
 	return {"expedition_id": id, "state": state, "region": run["region"], "region_name": run["region_name"], "layers": run["layers"], "layer": run["layer"], "current": run["current"], "path": run["path"],
+		"danger": snappedf(danger(), 0.01), "heat": heat, "pacts": pacts, "curse_rooms": run.get("curse_rooms", 0), "bonus_shards": run.get("bonus_shards", 0),
 		"xp": run["xp"], "level": run["level"], "xp_table": ContentDB.rule("xp_per_level", []), "team_wood": run["team_wood"], "players": players, "stats": run["stats"], "deadline_in": maxf(phase_deadline - Time.get_unix_time_from_system(), 0.0) if phase_deadline > 0.0 else 0.0}
 
 
@@ -576,6 +621,26 @@ func _on_room_finished() -> void:
 				gained += acorn_rng.randi_range(int(ContentDB.rule("acorns_per_kill_min", 2)), int(ContentDB.rule("acorns_per_kill_max", 4)))
 			rp["acorns"] = mini(int(rp["acorns"]) + int(gained * mult), int(ContentDB.rule("acorn_cap", 999)))
 			last_result["players"][aid]["acorns_gained"] = int(gained * mult)
+	# Dead Cells 시간 문 식 기록 보너스: 기준 시간 안에 방을 깨면 도토리·경험치 보너스
+	var par: Dictionary = ContentDB.rule("room_par", {})
+	var par_sec := float(par.get("base_sec", 70)) + float(par.get("per_player_sec", 10)) * n_locked
+	last_result["par_sec"] = par_sec
+	last_result["par_bonus"] = false
+	if victory and room.objective != "boss" and room.objective != "tutorial" and room.elapsed <= par_sec:
+		last_result["par_bonus"] = true
+		run["stats"]["par_hits"] = int(run["stats"].get("par_hits", 0)) + 1
+		var bonus_xp := int(xp * float(par.get("xp_mult", 0.25)))
+		run["xp"] = int(run["xp"]) + bonus_xp
+		xp += bonus_xp
+		for aid: String in members.keys():
+			if members[aid]["connected"]:
+				var rp2 := _run_player(aid)
+				rp2["acorns"] = mini(int(rp2["acorns"]) + int(par.get("acorns", 10)), int(ContentDB.rule("acorn_cap", 999)))
+				last_result["players"][aid]["acorns_gained"] = int(last_result["players"][aid].get("acorns_gained", 0)) + int(par.get("acorns", 10))
+		for i in table.size():
+			if int(run["xp"]) >= int(table[i]):
+				lvl = i + 1
+		run["level"] = lvl
 	run["reward_rng_state"] = acorn_rng.state
 	last_result["xp_gained"] = xp
 	last_result["level"] = lvl
@@ -625,6 +690,39 @@ func _begin_reward() -> void:
 	_push_run_state()
 
 
+## 희귀도 가중치: rules.rarity_weights × (층·유물 보너스). Hades 보온 희귀도처럼 깊이 들어갈수록 희귀가 흔해진다.
+func _rarity_weight(rarity: String, aid: String) -> float:
+	var w: Dictionary = ContentDB.rule("rarity_weights", {"common": 1.0, "rare": 0.25, "legendary": 0.06})
+	var base := float(w.get(rarity, 0.0))
+	if rarity == "common":
+		return base
+	var bonus := 1.0 + float(run.get("layer", 0)) * float(ContentDB.rule("rarity_layer_bonus", 0.03)) * 4.0 + float(member_mods(aid)["mods"].get("rare_chance_add", 0.0)) * 3.0
+	return base * bonus
+
+
+func _weighted_relic(pool: Array, aid: String, rr: RandomNumberGenerator, min_rarity: String = "") -> String:
+	var order := {"common": 0, "rare": 1, "legendary": 2}
+	var cands: Array = []
+	var total := 0.0
+	for rid: String in pool:
+		var rarity := String(ContentDB.relics.get(rid, {}).get("rarity", "common"))
+		if min_rarity != "" and int(order.get(rarity, 0)) < int(order.get(min_rarity, 0)):
+			continue
+		var w := _rarity_weight(rarity, aid)
+		if w <= 0.0:
+			continue
+		cands.append([rid, w])
+		total += w
+	if cands.is_empty():
+		return "" if pool.is_empty() or min_rarity != "" else String(pool[rr.randi() % pool.size()])
+	var x := rr.randf() * total
+	for c: Array in cands:
+		x -= float(c[1])
+		if x <= 0.0:
+			return String(c[0])
+	return String(cands[cands.size() - 1][0])
+
+
 func _make_reward_options(aid: String, rr: RandomNumberGenerator) -> Array:
 	var relics := _relic_pool(aid)
 	var upgrades := _upgrade_pool(aid)
@@ -636,21 +734,34 @@ func _make_reward_options(aid: String, rr: RandomNumberGenerator) -> Array:
 		if take_upgrade:
 			var uid: String = upgrades.pop_at(rr.randi() % upgrades.size())
 			var u: Dictionary = ContentDB.upgrades.get(String(members[aid]["class_id"]), {}).get(uid, {})
-			options.append({"kind": "upgrade", "id": uid, "name_ko": u.get("name_ko", uid), "desc_ko": u.get("desc_ko", ""), "skill": u.get("skill", "")})
+			var urar := "legendary" if bool(u.get("evolution", false)) else ("rare" if bool(u.get("stackable", false)) else "common")
+			options.append({"kind": "upgrade", "id": uid, "name_ko": u.get("name_ko", uid), "desc_ko": u.get("desc_ko", ""), "skill": u.get("skill", ""), "rarity": urar})
 		else:
-			var rare_bonus := float(member_mods(aid)["mods"].get("rare_chance_add", 0.0))
-			var pick_from := relics
-			if rare_bonus > 0.0 and rr.randf() < rare_bonus:
-				var rares: Array = relics.filter(func(x: String) -> bool: return String(ContentDB.relics.get(x, {}).get("rarity", "common")) != "common")
-				if not rares.is_empty():
-					pick_from = rares
-			var rid: String = pick_from[rr.randi() % pick_from.size()]
+			var rid := _weighted_relic(relics, aid, rr)
+			if rid == "":
+				break
 			relics.erase(rid)
 			var r: Dictionary = ContentDB.relics.get(rid, {})
 			options.append({"kind": "relic", "id": rid, "name_ko": r.get("name_ko", rid), "desc_ko": r.get("desc_ko", ""), "rarity": r.get("rarity", "common")})
 	if options.is_empty():
 		options.append({"kind": "acorns", "id": "acorns", "name_ko": "도토리 20", "desc_ko": "더 얻을 유물이 없다", "value": 20})
 	return options
+
+
+## 보상 다시 뽑기 (런당 rules.reward_rerolls_per_run 회). 같은 시드 흐름을 이어 쓴다.
+func reroll_reward(aid: String) -> bool:
+	if state != Protocol.ExpState.REWARD or not run["pending_rewards"].has(aid):
+		return false
+	var rp := _run_player(aid)
+	if int(rp.get("rerolls", 0)) <= 0:
+		return false
+	rp["rerolls"] = int(rp["rerolls"]) - 1
+	var rr := _reward_rng()
+	run["pending_rewards"][aid] = _make_reward_options(aid, rr)
+	run["reward_rng_state"] = rr.state
+	checkpoint_dirty = true
+	_send_phase_to(aid)
+	return true
 
 
 func pick_reward(aid: String, index: int) -> bool:
@@ -770,14 +881,8 @@ func _begin_menu(kind: String, variant: String) -> void:
 	run["menu"] = {"kind": kind, "variant": variant, "votes": {}, "done": [], "applied": false}
 	run["checkpoint_note"] = "menu"
 	if kind == "rest":
-		for aid: String in members.keys():
-			var max_hp := float(ContentDB.get_class_def(String(members[aid]["class_id"])).get("base_hp", 100)) + float(member_mods(aid)["mods"].get("max_hp_add", 0.0))
-			var hp := float(members[aid].get("hp", -1.0))
-			if hp < 0.0:
-				hp = max_hp
-			members[aid]["hp"] = minf(hp + max_hp * (float(ContentDB.rule("rest_heal_fraction", 0.4)) + float(member_mods(aid)["mods"].get("rest_heal_add", 0.0))), max_hp)
-			members[aid]["heal_uses"] = int(ContentDB.rule("heal_uses_per_expedition", 2))
-		run["menu"]["applied"] = true
+		# StS 휴식처: 각자 회복(기본) 또는 숫돌(무작위 스킬 강화 1개)을 고른다. 계속을 누를 때까지 안 고르면 회복.
+		run["menu"]["rest_choice"] = {}
 	checkpoint_dirty = true
 	for aid: String in members.keys():
 		if members[aid]["connected"]:
@@ -791,7 +896,7 @@ func menu_payload() -> Dictionary:
 	match String(menu.get("kind", "")):
 		"event": data = ContentDB.events.get(String(menu.get("variant", "")), {})
 		"shop": data = ContentDB.shop.get(String(menu.get("variant", "")), {})
-		"rest": data = {"name_ko": "모닥불 휴식", "text_ko": "전원 체력 %d%% 회복, 회복 도구 보충. 준비되면 계속." % int(float(ContentDB.rule("rest_heal_fraction", 0.4)) * 100)}
+		"rest": data = {"name_ko": "모닥불 휴식", "text_ko": "각자 고릅니다: 휴식(체력 %d%% 회복 + 회복 도구 보충) 또는 숫돌(무작위 스킬 강화 1개, 회복 없음). 고르지 않고 계속하면 휴식." % int(float(ContentDB.rule("rest_heal_fraction", 0.4)) * 100), "rest_choice": menu.get("rest_choice", {})}
 	return {"kind": menu.get("kind", ""), "variant": menu.get("variant", ""), "data": data, "votes": menu.get("votes", {}), "done": menu.get("done", []), "deadline_in": maxf(phase_deadline - Time.get_unix_time_from_system(), 0.0), "run": run_payload()}
 
 
@@ -827,7 +932,15 @@ func node_action(aid: String, payload: Dictionary) -> Dictionary:
 			if menu["kind"] != "shop":
 				return {"ok": false, "error": Protocol.ERR_BAD_STATE}
 			return _buy(aid, String(payload.get("item", "")))
+		"rest_choice":
+			if menu["kind"] != "rest":
+				return {"ok": false, "error": Protocol.ERR_BAD_STATE}
+			_apply_rest_choice(aid, String(payload.get("choice", "heal")))
+			_broadcast_menu()
+			return {"ok": true}
 		"continue":
+			if menu["kind"] == "rest":
+				_apply_rest_choice(aid, "heal")
 			if not (menu["done"] as Array).has(aid):
 				menu["done"].append(aid)
 			_broadcast_menu()
@@ -839,6 +952,36 @@ func node_action(aid: String, payload: Dictionary) -> Dictionary:
 				_leave_menu()
 			return {"ok": true}
 	return {"ok": false, "error": Protocol.ERR_BAD_STATE}
+
+
+func _apply_rest_choice(aid: String, choice: String) -> void:
+	var menu: Dictionary = run["menu"]
+	var done: Dictionary = menu.get("rest_choice", {})
+	if done.has(aid) or not members.has(aid):
+		return
+	if choice == "smith":
+		var pool := _upgrade_pool(aid)
+		if not pool.is_empty():
+			var rr := _reward_rng()
+			var uid := String(pool[rr.randi() % pool.size()])
+			_run_player(aid)["upgrades"].append(uid)
+			run["reward_rng_state"] = rr.state
+			var u: Dictionary = ContentDB.upgrades.get(String(members[aid]["class_id"]), {}).get(uid, {})
+			outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": "%s: 숫돌 — %s" % [members[aid]["nickname"], u.get("name_ko", uid)]}})
+		else:
+			choice = "heal"
+	if choice != "smith":
+		var max_hp := float(ContentDB.get_class_def(String(members[aid]["class_id"])).get("base_hp", 100)) + float(member_mods(aid)["mods"].get("max_hp_add", 0.0))
+		var hp := float(members[aid].get("hp", -1.0))
+		if hp < 0.0:
+			hp = max_hp
+		members[aid]["hp"] = minf(hp + max_hp * (float(ContentDB.rule("rest_heal_fraction", 0.4)) + float(member_mods(aid)["mods"].get("rest_heal_add", 0.0))), max_hp)
+		members[aid]["heal_uses"] = maxi(int(ContentDB.rule("heal_uses_per_expedition", 2)) + int(pact_sum("heal_uses_add")), 0)
+		choice = "heal"
+	done[aid] = choice
+	menu["rest_choice"] = done
+	checkpoint_dirty = true
+	_push_run_state()
 
 
 func _buy(aid: String, item_id: String) -> Dictionary:
@@ -853,7 +996,7 @@ func _buy(aid: String, item_id: String) -> Dictionary:
 	var bought := int(rp["shop_buys"].get(item_id, 0))
 	if bought >= int(item.get("limit_per_player", 1)):
 		return {"ok": false, "error": "SOLD_OUT"}
-	var cost := int(round(float(item.get("cost", 0)) * (1.0 - clampf(float(member_mods(aid)["mods"].get("shop_discount", 0.0)), 0.0, 0.5))))
+	var cost := int(round(float(item.get("cost", 0)) * (1.0 + pact_sum("shop_price_mult")) * (1.0 - clampf(float(member_mods(aid)["mods"].get("shop_discount", 0.0)), 0.0, 0.5))))
 	if int(rp["acorns"]) < cost:
 		return {"ok": false, "error": "NOT_ENOUGH_ACORNS"}
 	# 서버가 한 번만 처리: 잔액 검증 후 즉시 차감. 음수 불가.
@@ -918,7 +1061,32 @@ func _resolve_event() -> void:
 			"acorns_all":
 				for aid: String in members.keys():
 					var rp := _run_player(aid)
-					rp["acorns"] = int(rp["acorns"]) + int(eff.get("value", 0))
+					rp["acorns"] = mini(int(rp["acorns"]) + int(eff.get("value", 0)), int(ContentDB.rule("acorn_cap", 999)))
+			"acorns_cost_all":
+				for aid: String in members.keys():
+					var rp := _run_player(aid)
+					rp["acorns"] = maxi(int(rp["acorns"]) - int(eff.get("value", 0)), 0)
+			"hp_cost_all":
+				for aid: String in members.keys():
+					var max_hp := float(ContentDB.get_class_def(String(members[aid]["class_id"])).get("base_hp", 100)) + float(member_mods(aid)["mods"].get("max_hp_add", 0.0))
+					var hp := float(members[aid].get("hp", -1.0))
+					if hp < 0.0:
+						hp = max_hp
+					members[aid]["hp"] = maxf(hp * (1.0 - float(eff.get("value", 0.35))), 1.0)
+			"random_relic_chance":
+				var rr2 := _reward_rng()
+				for aid: String in members.keys():
+					if rr2.randf() < float(eff.get("value", 0.5)):
+						var rid := _weighted_relic(_relic_pool(aid), aid, rr2, String(eff.get("min_rarity", "")))
+						if rid != "":
+							_run_player(aid)["relics"].append(rid)
+							outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": "%s: %s 획득" % [members[aid]["nickname"], ContentDB.relics.get(rid, {}).get("name_ko", rid)]}})
+				run["reward_rng_state"] = rr2.state
+			"curse":
+				run["curse_rooms"] = int(run.get("curse_rooms", 0)) + int(eff.get("value", 2))
+				run["curse_mult"] = maxf(float(run.get("curse_mult", 1.0)), float(eff.get("damage_taken_mult", 1.3)))
+			"next_room_elite": run["next_room_elite"] = int(run.get("next_room_elite", 0)) + int(eff.get("value", 1))
+			"shards_all": run["bonus_shards"] = int(run.get("bonus_shards", 0)) + int(eff.get("value", 1))
 	menu["applied"] = true
 	outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": "사건 결과: %s" % pick.get("text_ko", "")}})
 	_push_run_state()
@@ -1026,7 +1194,7 @@ func to_checkpoint() -> Dictionary:
 		m["connected"] = false
 		m["peer_id"] = 0
 		mem[aid] = m
-	return {"id": id, "seed": seed_value, "public": public, "difficulty": difficulty, "paused": paused, "tutorial": tutorial, "created_at": created_at, "saved_at": Time.get_unix_time_from_system(),
+	return {"id": id, "seed": seed_value, "public": public, "difficulty": difficulty, "pacts": pacts, "heat": heat, "paused": paused, "tutorial": tutorial, "created_at": created_at, "saved_at": Time.get_unix_time_from_system(),
 		"state": state, "room_index": room_index, "room_id": room_id, "rooms_cleared": rooms_cleared, "n_locked": n_locked, "host_nick": host_nick,
 		"members": mem, "run": run.duplicate(true), "rng_state": rng.state, "content_version": content_version, "phase_deadline": phase_deadline, "run_outcome": run_outcome,
 		"room_in_progress": state == Protocol.ExpState.IN_ROOM, "last_result": last_result.duplicate(true)}
@@ -1038,6 +1206,7 @@ static func from_checkpoint(cp: Dictionary) -> ExpeditionInstance:
 	inst.difficulty = String(cp.get("difficulty", "normal"))
 	inst.paused = bool(cp.get("paused", false))
 	inst.tutorial = bool(cp.get("tutorial", false))
+	inst.set_pacts(cp.get("pacts", {}))
 	inst.created_at = float(cp.get("created_at", 0))
 	inst.room_index = int(cp.get("room_index", 0))
 	inst.room_id = String(cp.get("room_id", "annihilate"))

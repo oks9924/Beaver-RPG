@@ -29,7 +29,7 @@ func running_count() -> int:
 	return c
 
 
-func create(s: Session, public: bool, difficulty: String, permanent: Dictionary = {}, tutorial: bool = false) -> Dictionary:
+func create(s: Session, public: bool, difficulty: String, permanent: Dictionary = {}, tutorial: bool = false, pacts: Dictionary = {}) -> Dictionary:
 	if s.expedition_id != "":
 		return {"ok": false, "error": Protocol.ERR_ALREADY_IN_EXPEDITION}
 	if active_count() >= max_active:
@@ -42,6 +42,8 @@ func create(s: Session, public: bool, difficulty: String, permanent: Dictionary 
 	inst.tutorial = tutorial
 	if tutorial:
 		inst.public = false
+	else:
+		inst.set_pacts(pacts)
 	inst.host_nick = s.nickname
 	inst.add_member(s, permanent)
 	instances[id] = inst

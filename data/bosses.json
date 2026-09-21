@@ -4,7 +4,7 @@
   "id": "ironclaw",
   "name_ko": "철턱 가재",
   "region": "willow_river",
-  "hp": 520,
+  "hp": 900,
   "radius": 46,
   "move_speed": 78,
   "shell_segments": 3,
@@ -286,13 +286,15 @@
     "IC-05"
    ]
   ],
-  "mechanic_gap_sec": 12
+  "mechanic_gap_sec": 9,
+  "shell_intact_damage_taken_mult": 0.6,
+  "fail_heal_fraction": 0.05
  },
  "lantern_toad": {
   "id": "lantern_toad",
   "name_ko": "늪등불 두꺼비",
   "region": "black_sap_swamp",
-  "hp": 700,
+  "hp": 1050,
   "radius": 50,
   "move_speed": 70,
   "shell_segments": 0,
@@ -377,7 +379,7 @@
     "TF-05"
    ]
   ],
-  "mechanic_gap_sec": 10,
+  "mechanic_gap_sec": 9,
   "mechanics": {
    "TF-01": {
     "id": "TF-01",
@@ -567,13 +569,15 @@
      }
     }
    }
-  }
+  },
+  "shell_intact_damage_taken_mult": 0.6,
+  "fail_heal_fraction": 0.05
  },
  "root_king": {
   "id": "root_king",
   "name_ko": "뿌리왕",
   "region": "ancient_root_dam",
-  "hp": 950,
+  "hp": 1425,
   "radius": 54,
   "move_speed": 60,
   "shell_segments": 0,
@@ -660,7 +664,7 @@
     "RK-05"
    ]
   ],
-  "mechanic_gap_sec": 10,
+  "mechanic_gap_sec": 9,
   "mechanics": {
    "RK-01": {
     "id": "RK-01",
@@ -850,6 +854,8 @@
      }
     }
    }
-  }
+  },
+  "shell_intact_damage_taken_mult": 0.6,
+  "fail_heal_fraction": 0.05
  }
 }

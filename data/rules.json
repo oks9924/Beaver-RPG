@@ -1,6 +1,6 @@
 {
  "_comment": "공통 전투 규칙 출발값 (5절, 14절). 미검증 초기값이며 플레이 테스트 후 조정한다.",
- "content_version": "0.2.0",
+ "content_version": "0.3.0",
  "dodge_charges": 2,
  "dodge_recharge_sec": 4.0,
  "dodge_invuln_sec": 0.2,
@@ -139,7 +139,9 @@
    "boss_hp_mult": 0.8,
    "wave_budget_mult": 0.9,
    "reward_mult": 0.7,
-   "xp_mult": 0.8
+   "xp_mult": 0.8,
+   "danger_pace": 0.5,
+   "elite_chance_mult": 0.5
   },
   "normal": {
    "id": "normal",
@@ -150,7 +152,9 @@
    "boss_hp_mult": 1.0,
    "wave_budget_mult": 1.0,
    "reward_mult": 1.0,
-   "xp_mult": 1.0
+   "xp_mult": 1.0,
+   "danger_pace": 1.0,
+   "elite_chance_mult": 1.0
   },
   "hard": {
    "id": "hard",
@@ -161,7 +165,9 @@
    "boss_hp_mult": 1.3,
    "wave_budget_mult": 1.15,
    "reward_mult": 1.5,
-   "xp_mult": 1.2
+   "xp_mult": 1.2,
+   "danger_pace": 1.5,
+   "elite_chance_mult": 1.5
   }
  },
  "tutorial_steps": [
@@ -198,5 +204,35 @@
    "text_ko": "수문 레버 옆에서 F 를 유지해 물길을 바꿔 보세요 (경고 뒤 급류)"
   }
  ],
- "ping_cooldown_sec": 1.0
+ "ping_cooldown_sec": 1.0,
+ "danger": {
+  "_comment": "RoR2 식 시간 위험도: 전투 누적 시간과 층 수로 오른다. 적 체력·피해·웨이브·정예 확률에 곱한다.",
+  "per_combat_min": 0.06,
+  "per_layer": 0.03,
+  "max": 2.2,
+  "hp_weight": 0.8,
+  "damage_weight": 0.5,
+  "budget_weight": 0.3
+ },
+ "reward_rerolls_per_run": 1,
+ "rarity_weights": {
+  "common": 1.0,
+  "rare": 0.25,
+  "legendary": 0.06
+ },
+ "rarity_layer_bonus": 0.03,
+ "room_par": {
+  "base_sec": 70,
+  "per_player_sec": 10,
+  "acorns": 10,
+  "xp_mult": 0.25
+ },
+ "director": {
+  "_comment": "웨이브가 끝난 뒤에도 예산의 일부(reserve_frac)를 초당 credit 으로 풀어 증원한다. 예산이 다하면 멈추므로 방은 반드시 끝난다.",
+  "reserve_frac": 0.5,
+  "credit_per_sec_frac": 0.08,
+  "reinforce_when_alive_at_most": 3,
+  "group_max": 3
+ },
+ "smith_upgrade_rarity": "common"
 }

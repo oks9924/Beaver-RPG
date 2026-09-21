@@ -27,6 +27,7 @@ var molting: bool = false
 var action_kind: int = 0
 var status_bits: int = 0
 var boss_pattern: String = ""
+var affix_color: Color = Color.TRANSPARENT   # 정예 접두 색 (링·이름표)
 var _sprite := Sprite2D.new()
 var _guard := Sprite2D.new()
 var _anim: String = ""
@@ -196,8 +197,10 @@ func _draw() -> void:
 	# 그림자 겸 파티 색 링, 체력 바, 이름표. 실제 문구는 UI(폰트)로 렌더링한다.
 	draw_arc(Vector2.ZERO, 20, 0, TAU, 24, Color(party_color, 0.55) if is_player else Color(0.2, 0.1, 0.3, 0.5), 2.0)
 	if status_bits & Protocol.ST_ELITE:
-		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1.0, 0.8, 0.3, 0.9), 3.0)
-		draw_string(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 13, Color(1.0, 0.85, 0.4))
+		var ac := affix_color if affix_color.a > 0.0 else Color(1.0, 0.8, 0.3)
+		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(ac, 0.9), 3.0)
+		draw_arc(Vector2.ZERO, 36, 0, TAU, 32, Color(ac, 0.35), 6.0)
+		draw_string(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 13, Color(ac, 1.0).lightened(0.3))
 	if is_player and state == Protocol.EntState.DOWNED:
 		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1, 0.35, 0.2, 0.8), 3.0)
 		var t := "%.0f" % down_t
