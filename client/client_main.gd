@@ -1022,14 +1022,19 @@ func _demo_tick(dt: float) -> void:
 	if _demo_step != _demo_dbg_step:
 		_demo_dbg_step = _demo_step
 		print("[demo] step %d mode %s t %.1f party %d" % [_demo_step, mode, _demo_t, (party.get("members", []) as Array).size()])
+	var now_p := Time.get_ticks_msec() / 1000.0
+	for i in range(_demo_shots_pending.size() - 1, -1, -1):
+		if now_p >= float(_demo_shots_pending[i][0]) and mode == "hub":
+			_screenshot(String(_demo_shots_pending[i][1]))
+			_demo_shots_pending.remove_at(i)
 	match mode:
 		"hub":
 			if _demo_step == 0 and _demo_t > 1.0:
 				_demo_step = 50
 				_screenshot("02_hub.png")
-			elif _demo_step >= 50 and _demo_step <= 65 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
+			elif _demo_step >= 50 and _demo_step <= 71 and _demo_t > 1.3 + 0.4 * (_demo_step - 50):
 				# 메뉴 탭을 차례로 열어 찍는다 (열기 → 다음 틱에 촬영). 장비 탭은 창고 첫 항목을 장착해 본 뒤 한 번 더 찍는다.
-				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced", "scroll"], ["gear", "02c4_menu_gear_craft"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
+				var tabs: Array = [["village", "02b_menu_village"], ["gear", "02c_menu_gear", "equip"], ["gear", "02c2_menu_gear_equipped", "enhance"], ["gear", "02c3_menu_gear_enhanced", "fx_success"], ["gear", "02c3a_menu_gear_fx_success", "fx_fail"], ["gear", "02c3b_menu_gear_fx_fail", "fx_destroy"], ["gear", "02c3c_menu_gear_fx_destroy", "scroll"], ["gear", "02c4_menu_gear_craft"], ["mastery", "02d_menu_mastery"], ["codex", "02e_menu_codex"], ["quest", "02f_menu_quest"]]
 				var ti: int = (_demo_step - 50) / 2
 				var entry: Array = tabs[ti]
 				if (_demo_step - 50) % 2 == 0:
@@ -1040,13 +1045,22 @@ func _demo_tick(dt: float) -> void:
 						hub_screen.demo_equip_first()
 					elif entry.size() > 2 and String(entry[2]) == "enhance":
 						hub_screen.demo_enhance_selected()
+						# 서버 결과가 오면 연출이 시작된다: 0.15초·0.3초 뒤 두 장을 더 찍는다
+						var now0 := Time.get_ticks_msec() / 1000.0
+						_demo_shots_pending.append([now0 + 0.25, "02c2b_enhance_fx_1.png"])
+						_demo_shots_pending.append([now0 + 0.4, "02c2c_enhance_fx_2.png"])
+					elif entry.size() > 2 and String(entry[2]).begins_with("fx_"):
+						# 클라이언트 미리보기: 실패·파괴 연출을 서버 결과 없이 그려 본다 (데모 전용, 계정 변화 없음)
+						hub_screen.on_gear_result({"seq": Time.get_ticks_usec(), "action": "enhance", "result": String(entry[2]).trim_prefix("fx_"), "uid": ""})
+						var now1 := Time.get_ticks_msec() / 1000.0
+						_demo_shots_pending.append([now1 + 0.2, String(entry[1]).replace("menu_gear_", "menu_gear_mid_") + ".png"])
 					elif entry.size() > 2 and String(entry[2]) == "scroll":
 						hub_screen.demo_scroll_bottom()
 				_demo_step += 1
-			elif _demo_step == 66 and _demo_t > 7.8:
+			elif _demo_step == 72 and _demo_t > 10.2:
 				_demo_step = 11
 				hub_screen.close_menu()
-			elif _demo_step == 11 and _demo_t > 8.1 and party.is_empty():
+			elif _demo_step == 11 and _demo_t > 10.5 and party.is_empty():
 				_demo_step = 2
 				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class})
 			elif _demo_step == 2 and not party.is_empty() and _demo_t > 2.2:

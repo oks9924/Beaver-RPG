@@ -110,6 +110,7 @@ class GearIcon extends Control:
 ## 한 번 재생하고 사라지는 UI 연출 (강화 결과). 시트 프레임을 fps 로 넘기고 마지막 프레임 뒤에 자신을 지운다.
 class UiFrameAnim extends TextureRect:
 	var sheet_id: String = ""
+	var anchor: Control = null   # 있으면 매 프레임 이 컨트롤의 중심을 따라간다 (레이아웃이 한 프레임 뒤에 잡혀도 제자리)
 	var _t: float = 0.0
 	var _fps: float = 10.0
 	var _frames: int = 1
@@ -126,6 +127,8 @@ class UiFrameAnim extends TextureRect:
 		texture = AssetRegistry.get_frame_texture(id, 0)
 
 	func _process(dt: float) -> void:
+		if anchor != null and is_instance_valid(anchor) and anchor.is_inside_tree():
+			global_position = anchor.get_global_rect().get_center() - size * 0.5
 		_t += dt
 		var fi := int(_t * _fps)
 		if fi >= _frames:
@@ -788,9 +791,10 @@ func on_gear_result(res: Dictionary) -> void:
 	var px := 128.0 if kind == "destroy" else 96.0
 	var anim := UiFrameAnim.new()
 	anim.start(vfx_id, px)
-	menu_panel.add_child(anim)
+	add_child(anim)   # 컨테이너(PanelContainer)에 넣으면 크기가 패널에 맞춰 늘어나므로 화면 루트에 둔다
 	var center := menu_panel.get_global_rect().get_center()
 	if _detail_icon != null and is_instance_valid(_detail_icon) and _detail_icon.is_inside_tree():
+		anim.anchor = _detail_icon
 		center = _detail_icon.get_global_rect().get_center()
 	anim.global_position = center - Vector2(px, px) * 0.5
 
