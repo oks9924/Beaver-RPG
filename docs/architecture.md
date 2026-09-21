@@ -48,6 +48,7 @@
 - **보스**: `BossIronclaw` 가 공통 컨트롤러다(패턴 모양 arc/line(돌진·즉발)/circle_at_target/leap/projectile_fan, 경직 게이지, 단계, 위험 구역, 운반 시스템, 스케줄러). `BossLanternToad`, `BossRootKing` 은 이를 상속해 `_mechanic_start/_step/_end/_object` 훅만 구현한다. 보스 id → `server/expedition/boss_<id>.gd`.
 - **퀘스트**: 서버가 방·원정 결과와 마을 행동을 `QuestEngine.on_event` 이벤트로 바꾼다. 보상은 `reward_id` 로 한 번만 지급, 선택 임무 실패는 런 단위(`run_failed`)라 메인을 막지 않는다.
 - **중단/이어하기**: 안전 지점에서 `EXPEDITION_PAUSE` → `paused` 체크포인트 저장, 멤버는 마을로. 모집판은 계정별로 만들어져 멤버에게만 `resume` 항목이 보이고, `BOARD_JOIN` 이 복귀 경로다.
+- **영구 장비**: `shared/equipment.gd` 가 데이터(`equipment.json`, `affixes.json`)로 아이템을 굴리고(`roll_item`: 등급별 줄 수·계층 상한·직업/슬롯/공격 형태 제한·전설 고유) 설명·이름을 만든다. 계정 `progression.inventory`(상한 60)와 `progression.equipped`(`weapon[class]`, `armor`, `trinket1/2`)에 저장. 서버는 출정·합류·준비·이어하기 때 `Equipment.gear_bundle` 로 합산(`caps` 적용)해 `members[aid]["gear"]` 에 붙이고, `member_mods` 가 mods 를 가산·procs 를 추가하며, 무기의 `basic_attack` 교체 값은 `CombatRoom.basic_attack_def()` 가 직업 기본값 위에 덮는다(산탄 `pellets`). 드랍은 `ServerMain._roll_gear_drop` (방 시드+계정 해시로 재현, 정예/보스 확정, 열기·깊이 등급 보너스). `C.EQUIP {slot, uid}` 는 마을·원정 준비 중에만 받고 `ACCOUNT_UPDATE` 로 돌려준다.
 - **난이도**: `rules.difficulties` 배율을 `ExpeditionInstance.effective_profile()` 이 인원 프로필에 곱한다. 보상·숙련 경험치도 배율을 따른다.
 - **튜토리얼**: `tutorial` 원정은 방 하나(`rooms.json: tutorial`)이며 서버가 실제 행동(이동·처치·회피·스킬·갉기·건설·수문)으로 단계를 넘긴다.
 

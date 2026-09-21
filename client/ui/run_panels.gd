@@ -75,6 +75,13 @@ func show_reward(p: Dictionary, my_id: String, rerolls: int = 0) -> void:
 		body.text = "소요 %s · 처치 %d · 내 피해 %d · 받은 피해 %d · 도토리 +%d · 경험치 +%d (런 레벨 %d)" % [UIKit.fmt_time(float(res.get("elapsed", 0))), int(res.get("stats", {}).get("enemies_killed", 0)), int(ps.get("damage_dealt", 0)), int(ps.get("damage_taken", 0)), int(ps.get("acorns_gained", 0)), int(res.get("xp_gained", 0)), int(res.get("level", 1))]
 	if bool(res.get("par_bonus", false)):
 		body.text += "\n기록 보너스! 기준 %d초 안에 클리어 — 도토리·경험치 추가" % int(res.get("par_sec", 0))
+	var rw: Dictionary = res.get("rewards", {}).get(my_id, {})
+	var gear: Dictionary = rw.get("gear", {})
+	if not gear.is_empty():
+		var gtxt := "장비 획득: [%s] %s — %s" % [Equipment.rarity_name(String(gear.get("rarity", ""))), gear.get("name_ko", ""), " / ".join(Equipment.describe(gear))]
+		if bool(rw.get("gear_lost", false)):
+			gtxt = "창고가 가득 차 장비를 버렸습니다: " + String(gear.get("name_ko", ""))
+		body.text += "\n" + gtxt
 	_clear_buttons()
 	var options: Array = p.get("options", [])
 	if options.is_empty() or bool(p.get("picked", false)):

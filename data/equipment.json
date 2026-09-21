@@ -1,0 +1,306 @@
+{
+ "_comment": "영구 장비 (마을 창고에 남는다). 슬롯: weapon(직업별, 직업당 2종), armor, trinket1, trinket2. 등급은 rarities 순서대로 부가 속성 줄이 1줄씩 늘고 전설은 고유 특성(affixes.json uniques) 1개를 더 갖는다. 기본 속성(base)은 지역 레벨(level_scale)과 함께 오르고 등급과 무관하다. 합산은 caps 로 잘라 유물 빌드가 런의 중심이 되게 한다.",
+ "rarity_order": [
+  "common",
+  "uncommon",
+  "rare",
+  "epic",
+  "legendary"
+ ],
+ "rarities": {
+  "common": {
+   "name_ko": "일반",
+   "color": "#ffffff",
+   "lines": 0,
+   "weight": 55,
+   "tier_max": 1,
+   "roll_min": 0.0,
+   "roll_max": 0.5
+  },
+  "uncommon": {
+   "name_ko": "고급",
+   "color": "#7be07b",
+   "lines": 1,
+   "weight": 28,
+   "tier_max": 1,
+   "roll_min": 0.0,
+   "roll_max": 0.6
+  },
+  "rare": {
+   "name_ko": "희귀",
+   "color": "#6fb6ff",
+   "lines": 2,
+   "weight": 12,
+   "tier_max": 2,
+   "roll_min": 0.25,
+   "roll_max": 0.8
+  },
+  "epic": {
+   "name_ko": "영웅",
+   "color": "#c58cff",
+   "lines": 3,
+   "weight": 4,
+   "tier_max": 3,
+   "roll_min": 0.5,
+   "roll_max": 1.0
+  },
+  "legendary": {
+   "name_ko": "전설",
+   "color": "#ffb347",
+   "lines": 3,
+   "weight": 1,
+   "tier_max": 3,
+   "roll_min": 0.7,
+   "roll_max": 1.0,
+   "unique": true
+  }
+ },
+ "drop": {
+  "_comment": "방 클리어 시 접속 인원 각자 개별 굴림. 정예·보스는 확정(최소 등급 상향). 서약 열기 1당 상위 등급 가중치 +3%p. 창고 상한 초과면 드랍은 사라지고 알림만 간다.",
+  "room_chance": 0.25,
+  "elite_guaranteed": true,
+  "elite_min_rarity": "uncommon",
+  "boss_guaranteed": true,
+  "boss_min_rarity": "rare",
+  "heat_rarity_bonus": 0.03,
+  "depth_rarity_bonus": 0.01,
+  "slot_weights": {
+   "weapon": 0.4,
+   "armor": 0.3,
+   "trinket": 0.3
+  },
+  "inventory_cap": 60
+ },
+ "level_scale": {
+  "1": 1.0,
+  "2": 1.25,
+  "3": 1.5
+ },
+ "caps": {
+  "_comment": "장비 합산 상한 (유물·마을 보너스와 별도)",
+  "damage_mult": 0.35,
+  "max_hp_add": 60,
+  "damage_reduction": 0.15,
+  "cdr": 0.15,
+  "speed_mult": 0.15,
+  "acorn_mult": 0.5,
+  "boss_damage_mult": 0.3,
+  "knockback_mult": 0.6,
+  "heal_mult": 0.4,
+  "dodge_invuln_add": 0.2,
+  "shop_discount": 0.3,
+  "status_resist": 0.5
+ },
+ "weapons": {
+  "guardian_hammer": {
+   "class": "guardian",
+   "name_ko": "나무망치",
+   "desc_ko": "기본 호 공격. 균형 잡힌 방어형 무기",
+   "base": {
+    "damage_mult": 0.05
+   },
+   "default": true
+  },
+  "guardian_log": {
+   "class": "guardian",
+   "name_ko": "통나무",
+   "desc_ko": "느리고 넓게 밀친다. 넉백·경직이 크다",
+   "base": {
+    "damage_mult": 0.03,
+    "knockback_mult": 0.15
+   },
+   "basic_attack": {
+    "damage": 17,
+    "windup_sec": 0.34,
+    "active_sec": 0.12,
+    "recovery_sec": 0.4,
+    "range": 98,
+    "angle_deg": 165,
+    "knockback": 75,
+    "stagger_sec": 0.28
+   }
+  },
+  "sawtooth_axe": {
+   "class": "sawtooth",
+   "name_ko": "쌍톱 손도끼",
+   "desc_ko": "빠른 연타. 열의를 빨리 쌓는다",
+   "base": {
+    "damage_mult": 0.05
+   },
+   "default": true
+  },
+  "sawtooth_greatsaw": {
+   "class": "sawtooth",
+   "name_ko": "대톱",
+   "desc_ko": "느리지만 무겁다. 한 방이 크고 경직을 준다",
+   "base": {
+    "damage_mult": 0.03,
+    "stagger_add": 0.05
+   },
+   "basic_attack": {
+    "damage": 15,
+    "windup_sec": 0.26,
+    "active_sec": 0.1,
+    "recovery_sec": 0.34,
+    "range": 90,
+    "angle_deg": 90,
+    "knockback": 45,
+    "stagger_sec": 0.2
+   }
+  },
+  "pinecone_sling": {
+   "class": "pinecone",
+   "name_ko": "솔방울 새총",
+   "desc_ko": "단발 장거리. 표식 공략에 알맞다",
+   "base": {
+    "damage_mult": 0.05
+   },
+   "default": true
+  },
+  "pinecone_launcher": {
+   "class": "pinecone",
+   "name_ko": "솔방울 투척기",
+   "desc_ko": "근거리 산탄 3발. 가까울수록 강하다",
+   "base": {
+    "damage_mult": 0.02,
+    "proj_damage_add": 1
+   },
+   "basic_attack": {
+    "damage": 4,
+    "windup_sec": 0.14,
+    "active_sec": 0.05,
+    "recovery_sec": 0.3,
+    "shape": "projectile",
+    "projectile": {
+     "speed": 480,
+     "radius": 8,
+     "ttl_sec": 0.45,
+     "asset": "vfx.projectile_pinecone"
+    },
+    "pellets": 3,
+    "spread_deg": 26,
+    "knockback": 14,
+    "stagger_sec": 0.0
+   }
+  },
+  "sap_staff": {
+   "class": "sapshaman",
+   "name_ko": "수액 지팡이",
+   "desc_ko": "회복량이 오른다. 단일 회복형",
+   "base": {
+    "damage_mult": 0.03,
+    "heal_mult": 0.06
+   },
+   "default": true
+  },
+  "sap_dripper": {
+   "class": "sapshaman",
+   "name_ko": "수액 방울총",
+   "desc_ko": "맞은 적이 출혈한다. 지속 피해형",
+   "base": {
+    "damage_mult": 0.02,
+    "proj_bleed": 2
+   },
+   "basic_attack": {
+    "damage": 5,
+    "windup_sec": 0.14,
+    "active_sec": 0.05,
+    "recovery_sec": 0.28,
+    "shape": "projectile",
+    "projectile": {
+     "speed": 520,
+     "radius": 9,
+     "ttl_sec": 1.0,
+     "asset": "vfx.projectile_sap"
+    },
+    "knockback": 6,
+    "stagger_sec": 0.0
+   }
+  },
+  "hydro_pump": {
+   "class": "hydro",
+   "name_ko": "물총 펌프",
+   "desc_ko": "압력탄 사격. 설치물 사이에서 싸운다",
+   "base": {
+    "damage_mult": 0.05
+   },
+   "default": true
+  },
+  "hydro_wrench": {
+   "class": "hydro",
+   "name_ko": "수문 렌치",
+   "desc_ko": "근접 휘두르기. 설치물이 튼튼해지고 급류가 길어진다",
+   "base": {
+    "damage_mult": 0.02,
+    "structure_hp_mult": 0.15,
+    "e_length_add": 20
+   },
+   "basic_attack": {
+    "damage": 11,
+    "windup_sec": 0.18,
+    "active_sec": 0.08,
+    "recovery_sec": 0.26,
+    "shape": "arc",
+    "range": 76,
+    "angle_deg": 120,
+    "knockback": 45,
+    "stagger_sec": 0.15
+   }
+  }
+ },
+ "armors": {
+  "bark_vest": {
+   "name_ko": "나무껍질 조끼",
+   "desc_ko": "최대 체력이 오른다",
+   "base": {
+    "max_hp_add": 14
+   }
+  },
+  "shell_plate": {
+   "name_ko": "껍질 판갑",
+   "desc_ko": "체력과 피해 감소",
+   "base": {
+    "max_hp_add": 8,
+    "damage_reduction": 0.03
+   }
+  },
+  "moss_cloak": {
+   "name_ko": "이끼 망토",
+   "desc_ko": "가볍다. 체력과 이동 속도",
+   "base": {
+    "max_hp_add": 6,
+    "speed_mult": 0.04
+   }
+  }
+ },
+ "trinkets": {
+  "river_pebble": {
+   "name_ko": "강돌 부적",
+   "desc_ko": "회피 무적 시간이 길어진다",
+   "base": {
+    "dodge_invuln_add": 0.05
+   }
+  },
+  "acorn_charm": {
+   "name_ko": "도토리 부적",
+   "desc_ko": "도토리 획득량이 오른다",
+   "base": {
+    "acorn_mult": 0.1
+   }
+  },
+  "firefly_bead": {
+   "name_ko": "반딧불 구슬",
+   "desc_ko": "이동 속도가 오른다",
+   "base": {
+    "speed_mult": 0.04
+   }
+  },
+  "resin_ring": {
+   "name_ko": "송진 반지",
+   "desc_ko": "스킬 재사용 대기시간이 준다",
+   "base": {
+    "cdr": 0.04
+   }
+  }
+ }
+}

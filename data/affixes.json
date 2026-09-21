@@ -1,0 +1,884 @@
+{
+ "_comment": "장비 부가 속성 풀. tier 1 은 고급부터, 2(발동형·협동·스킬)는 희귀부터, 3(조건부·직업 전용)은 영웅부터 나온다. 값은 [min,max] 사이를 등급별 roll 구간으로 굴린다. slots 로 슬롯을 제한하고 class 로 직업 전용, attack 으로 무기 공격 형태를 제한한다. name_ko 의 {v} 에 값이 들어간다 (fmt: pct=백분율, int=정수, sec=초, num=소수).",
+ "affixes": [
+  {
+   "id": "a_damage",
+   "tier": 1,
+   "cat": "공격",
+   "name_ko": "피해 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "damage_mult": [
+     0.04,
+     0.12
+    ]
+   }
+  },
+  {
+   "id": "a_basic",
+   "tier": 1,
+   "cat": "공격",
+   "name_ko": "기본 공격 피해 +{v}",
+   "fmt": "int",
+   "mods": {
+    "basic_damage_add": [
+     1,
+     4
+    ]
+   },
+   "slots": [
+    "weapon"
+   ]
+  },
+  {
+   "id": "a_knockback",
+   "tier": 1,
+   "cat": "공격",
+   "name_ko": "넉백 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "knockback_mult": [
+     0.1,
+     0.3
+    ]
+   },
+   "slots": [
+    "weapon"
+   ]
+  },
+  {
+   "id": "a_pierce",
+   "tier": 1,
+   "cat": "공격",
+   "name_ko": "투사체 관통 +{v}",
+   "fmt": "int",
+   "mods": {
+    "pierce_add": [
+     1,
+     1
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "attack": "projectile"
+  },
+  {
+   "id": "a_stagger",
+   "tier": 1,
+   "cat": "공격",
+   "name_ko": "경직 +{v}초",
+   "fmt": "sec",
+   "mods": {
+    "stagger_add": [
+     0.05,
+     0.15
+    ]
+   },
+   "slots": [
+    "weapon"
+   ]
+  },
+  {
+   "id": "a_boss",
+   "tier": 1,
+   "cat": "공격",
+   "name_ko": "보스·정예 피해 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "boss_damage_mult": [
+     0.05,
+     0.12
+    ]
+   }
+  },
+  {
+   "id": "a_hp",
+   "tier": 1,
+   "cat": "방어",
+   "name_ko": "최대 체력 +{v}",
+   "fmt": "int",
+   "mods": {
+    "max_hp_add": [
+     6,
+     20
+    ]
+   }
+  },
+  {
+   "id": "a_dr",
+   "tier": 1,
+   "cat": "방어",
+   "name_ko": "받는 피해 -{v}%",
+   "fmt": "pct",
+   "mods": {
+    "damage_reduction": [
+     0.02,
+     0.06
+    ]
+   },
+   "slots": [
+    "armor",
+    "trinket"
+   ]
+  },
+  {
+   "id": "a_resist",
+   "tier": 1,
+   "cat": "방어",
+   "name_ko": "상태 이상 저항 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "status_resist": [
+     0.1,
+     0.25
+    ]
+   }
+  },
+  {
+   "id": "a_shield_dur",
+   "tier": 1,
+   "cat": "방어",
+   "name_ko": "보호막 지속 +{v}초",
+   "fmt": "sec",
+   "mods": {
+    "shield_duration_add": [
+     0.3,
+     0.8
+    ]
+   }
+  },
+  {
+   "id": "a_regen",
+   "tier": 1,
+   "cat": "방어",
+   "name_ko": "체력 30% 이하일 때 초당 {v} 재생",
+   "fmt": "num",
+   "mods": {
+    "low_hp_regen": [
+     0.5,
+     1.5
+    ]
+   }
+  },
+  {
+   "id": "a_speed",
+   "tier": 1,
+   "cat": "기동",
+   "name_ko": "이동 속도 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "speed_mult": [
+     0.03,
+     0.08
+    ]
+   }
+  },
+  {
+   "id": "a_dodge_rc",
+   "tier": 1,
+   "cat": "기동",
+   "name_ko": "회피 충전 {v}초 단축",
+   "fmt": "sec_abs",
+   "mods": {
+    "dodge_recharge_add": [
+     -0.3,
+     -0.9
+    ]
+   }
+  },
+  {
+   "id": "a_dodge_iv",
+   "tier": 1,
+   "cat": "기동",
+   "name_ko": "회피 무적 +{v}초",
+   "fmt": "sec",
+   "mods": {
+    "dodge_invuln_add": [
+     0.04,
+     0.1
+    ]
+   }
+  },
+  {
+   "id": "a_interact",
+   "tier": 1,
+   "cat": "기동",
+   "name_ko": "상호작용 속도 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "interact_speed": [
+     0.1,
+     0.3
+    ]
+   }
+  },
+  {
+   "id": "a_acorn",
+   "tier": 1,
+   "cat": "자원",
+   "name_ko": "도토리 획득 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "acorn_mult": [
+     0.08,
+     0.2
+    ]
+   }
+  },
+  {
+   "id": "a_start_acorns",
+   "tier": 1,
+   "cat": "자원",
+   "name_ko": "출정 시 도토리 +{v}",
+   "fmt": "int",
+   "mods": {
+    "start_acorns": [
+     5,
+     15
+    ]
+   }
+  },
+  {
+   "id": "a_discount",
+   "tier": 1,
+   "cat": "자원",
+   "name_ko": "상점 할인 {v}%",
+   "fmt": "pct",
+   "mods": {
+    "shop_discount": [
+     0.05,
+     0.1
+    ]
+   }
+  },
+  {
+   "id": "a_build",
+   "tier": 1,
+   "cat": "자원",
+   "name_ko": "건설 목재 -{v}",
+   "fmt": "int_abs",
+   "mods": {
+    "build_cost_add": [
+     -1,
+     -1
+    ]
+   }
+  },
+  {
+   "id": "a_rest",
+   "tier": 1,
+   "cat": "자원",
+   "name_ko": "휴식 회복 +{v}",
+   "fmt": "int",
+   "mods": {
+    "rest_heal_add": [
+     3,
+     8
+    ]
+   }
+  },
+  {
+   "id": "a_shard",
+   "tier": 1,
+   "cat": "자원",
+   "name_ko": "방 클리어 기억 조각 +{v} (원정당 3회)",
+   "fmt": "int",
+   "mods": {
+    "shard_bonus": [
+     1,
+     1
+    ]
+   },
+   "slots": [
+    "trinket"
+   ]
+  },
+  {
+   "id": "a_kill_heal",
+   "tier": 2,
+   "cat": "발동",
+   "name_ko": "처치 시 체력 {v} 회복",
+   "fmt": "int",
+   "procs": [
+    {
+     "trigger": "on_kill",
+     "effect": "heal",
+     "value": [
+      2,
+      4
+     ],
+     "icd_sec": 1.0
+    }
+   ]
+  },
+  {
+   "id": "a_hurt_burst",
+   "tier": 2,
+   "cat": "발동",
+   "name_ko": "피격 시 주변 폭발 {v} (3초마다)",
+   "fmt": "int",
+   "procs": [
+    {
+     "trigger": "on_hurt",
+     "effect": "aoe_damage",
+     "value": [
+      8,
+      16
+     ],
+     "icd_sec": 3.0,
+     "radius": 80
+    }
+   ]
+  },
+  {
+   "id": "a_dodge_burst",
+   "tier": 2,
+   "cat": "발동",
+   "name_ko": "회피 시 잔상 피해 {v}",
+   "fmt": "int",
+   "procs": [
+    {
+     "trigger": "on_dodge",
+     "effect": "aoe_damage",
+     "value": [
+      6,
+      14
+     ],
+     "icd_sec": 2.0,
+     "radius": 70
+    }
+   ]
+  },
+  {
+   "id": "a_skill_haste",
+   "tier": 2,
+   "cat": "발동",
+   "name_ko": "스킬 사용 시 근처 아군 가속 {v}%",
+   "fmt": "pct",
+   "procs": [
+    {
+     "trigger": "on_skill",
+     "effect": "ally_haste",
+     "value": [
+      0.1,
+      0.2
+     ],
+     "icd_sec": 6.0,
+     "radius": 160
+    }
+   ]
+  },
+  {
+   "id": "a_rescue_shield",
+   "tier": 2,
+   "cat": "발동",
+   "name_ko": "구조 시 둘 다 보호막 {v}",
+   "fmt": "int",
+   "procs": [
+    {
+     "trigger": "on_rescue",
+     "effect": "shield_both",
+     "value": [
+      10,
+      20
+     ],
+     "icd_sec": 3.0
+    }
+   ]
+  },
+  {
+   "id": "a_kill_charge",
+   "tier": 2,
+   "cat": "발동",
+   "name_ko": "처치 시 {v}% 확률로 회복 도구 +1 (원정당 3회)",
+   "fmt": "chance",
+   "procs": [
+    {
+     "trigger": "on_kill",
+     "effect": "heal_charge",
+     "value": 1,
+     "chance": [
+      0.03,
+      0.08
+     ],
+     "icd_sec": 10.0,
+     "max_per_run": 3
+    }
+   ]
+  },
+  {
+   "id": "a_ally_hp",
+   "tier": 2,
+   "cat": "협동",
+   "name_ko": "아군 1명당 최대 체력 +{v}",
+   "fmt": "int",
+   "mods": {
+    "hp_per_ally": [
+     3,
+     8
+    ]
+   }
+  },
+  {
+   "id": "a_rescue_fast",
+   "tier": 2,
+   "cat": "협동",
+   "name_ko": "구조 시간 {v}초 단축",
+   "fmt": "sec_abs",
+   "mods": {
+    "rescue_hold_add": [
+     -0.4,
+     -1.0
+    ]
+   }
+  },
+  {
+   "id": "a_rescue_protect",
+   "tier": 2,
+   "cat": "협동",
+   "name_ko": "구조된 아군 보호 +{v}초",
+   "fmt": "sec",
+   "mods": {
+    "rescue_protect_add": [
+     1.0,
+     2.5
+    ]
+   }
+  },
+  {
+   "id": "a_shield_cap",
+   "tier": 2,
+   "cat": "협동",
+   "name_ko": "보호막 상한 +{v}",
+   "fmt": "int",
+   "mods": {
+    "shield_cap_add": [
+     10,
+     25
+    ]
+   }
+  },
+  {
+   "id": "a_cdr",
+   "tier": 2,
+   "cat": "스킬",
+   "name_ko": "재사용 대기시간 -{v}%",
+   "fmt": "pct",
+   "mods": {
+    "cdr": [
+     0.04,
+     0.1
+    ]
+   }
+  },
+  {
+   "id": "a_q_cdr",
+   "tier": 2,
+   "cat": "스킬",
+   "name_ko": "Q 재사용 대기시간 -{v}%",
+   "fmt": "pct",
+   "mods": {
+    "q_cdr": [
+     0.05,
+     0.12
+    ]
+   }
+  },
+  {
+   "id": "a_e_cdr",
+   "tier": 2,
+   "cat": "스킬",
+   "name_ko": "E 재사용 대기시간 -{v}%",
+   "fmt": "pct",
+   "mods": {
+    "e_cdr": [
+     0.05,
+     0.12
+    ]
+   }
+  },
+  {
+   "id": "a_r_cdr",
+   "tier": 2,
+   "cat": "스킬",
+   "name_ko": "R 재사용 대기시간 -{v}%",
+   "fmt": "pct",
+   "mods": {
+    "r_cdr": [
+     0.05,
+     0.12
+    ]
+   }
+  },
+  {
+   "id": "a_r_radius",
+   "tier": 2,
+   "cat": "스킬",
+   "name_ko": "R 범위 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "r_radius_mult": [
+     0.1,
+     0.2
+    ]
+   }
+  },
+  {
+   "id": "a_low_hp_dmg",
+   "tier": 3,
+   "cat": "조건",
+   "name_ko": "체력 50% 이하일 때 피해 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "low_hp_damage": [
+     0.1,
+     0.2
+    ]
+   }
+  },
+  {
+   "id": "a_elite",
+   "tier": 3,
+   "cat": "조건",
+   "name_ko": "정예 상대 피해 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "elite_damage_mult": [
+     0.08,
+     0.15
+    ]
+   }
+  },
+  {
+   "id": "a_heat_dr",
+   "tier": 3,
+   "cat": "조건",
+   "name_ko": "서약 열기 3 이상일 때 받는 피해 -{v}%",
+   "fmt": "pct",
+   "mods": {
+    "heat_damage_reduction": [
+     0.04,
+     0.08
+    ]
+   }
+  },
+  {
+   "id": "a_rare",
+   "tier": 3,
+   "cat": "조건",
+   "name_ko": "보상 후보에 희귀 유물 확률 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "rare_chance_add": [
+     0.05,
+     0.1
+    ]
+   }
+  },
+  {
+   "id": "a_g_shield",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "통나무 방패 지속 +{v}초",
+   "fmt": "sec",
+   "mods": {
+    "q_duration_add": [
+     0.5,
+     1.0
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "guardian"
+  },
+  {
+   "id": "a_g_guard",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "막은 뒤 다음 공격 피해 +{v}",
+   "fmt": "int",
+   "mods": {
+    "guard_bonus_add": [
+     3,
+     6
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "guardian"
+  },
+  {
+   "id": "a_s_heat",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "열의 최대 중첩 +{v}",
+   "fmt": "int",
+   "mods": {
+    "heat_max_add": [
+     1,
+     2
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "sawtooth"
+  },
+  {
+   "id": "a_s_recover",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "기본 공격 후딜레이 -{v}%",
+   "fmt": "pct_abs",
+   "mods": {
+    "basic_recovery_mult": [
+     -0.1,
+     -0.2
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "sawtooth"
+  },
+  {
+   "id": "a_p_mark",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "표식 피해 +{v}",
+   "fmt": "int",
+   "mods": {
+    "mark_damage_add": [
+     2,
+     5
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "pinecone"
+  },
+  {
+   "id": "a_p_proj",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "투사체 피해 +{v}",
+   "fmt": "int",
+   "mods": {
+    "proj_damage_add": [
+     1,
+     3
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "pinecone"
+  },
+  {
+   "id": "a_h_heal",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "회복량 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "heal_mult": [
+     0.1,
+     0.2
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "sapshaman"
+  },
+  {
+   "id": "a_h_qheal",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "수액 회복 +{v}",
+   "fmt": "int",
+   "mods": {
+    "q_heal_add": [
+     3,
+     6
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "sapshaman"
+  },
+  {
+   "id": "a_w_turret",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "포탑 체력 +{v}",
+   "fmt": "int",
+   "mods": {
+    "q_hp_add": [
+     10,
+     25
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "hydro"
+  },
+  {
+   "id": "a_w_structure",
+   "tier": 3,
+   "cat": "직업",
+   "name_ko": "설치물 체력 +{v}%",
+   "fmt": "pct",
+   "mods": {
+    "structure_hp_mult": [
+     0.15,
+     0.3
+    ]
+   },
+   "slots": [
+    "weapon"
+   ],
+   "class": "hydro"
+  }
+ ],
+ "uniques": [
+  {
+   "id": "u_river_memory",
+   "name_ko": "강가의 기억",
+   "desc_ko": "막을 때마다 공격자에게 12 피해, 보호막 상한 +20",
+   "slot": "weapon",
+   "class": "guardian",
+   "mods": {
+    "shield_cap_add": 20
+   },
+   "procs": [
+    {
+     "trigger": "on_guard",
+     "effect": "reflect",
+     "value": 12,
+     "icd_sec": 0.3
+    }
+   ]
+  },
+  {
+   "id": "u_black_sap_saw",
+   "name_ko": "검은 수액 대톱",
+   "desc_ko": "처치마다 체력 3 회복, 피해 +8%",
+   "slot": "weapon",
+   "class": "sawtooth",
+   "mods": {
+    "damage_mult": 0.08
+   },
+   "procs": [
+    {
+     "trigger": "on_kill",
+     "effect": "heal",
+     "value": 3,
+     "icd_sec": 0.5
+    }
+   ]
+  },
+  {
+   "id": "u_hunters_pinecone",
+   "name_ko": "사냥꾼의 솔방울",
+   "desc_ko": "투사체 관통 +1, 표식 피해 +4",
+   "slot": "weapon",
+   "class": "pinecone",
+   "mods": {
+    "pierce_add": 1,
+    "mark_damage_add": 4
+   }
+  },
+  {
+   "id": "u_moss_staff",
+   "name_ko": "이끼 지팡이",
+   "desc_ko": "회복량 +20%, 스킬 사용 시 근처 아군 가속",
+   "slot": "weapon",
+   "class": "sapshaman",
+   "mods": {
+    "heal_mult": 0.2
+   },
+   "procs": [
+    {
+     "trigger": "on_skill",
+     "effect": "ally_haste",
+     "value": 0.2,
+     "icd_sec": 5.0,
+     "radius": 160
+    }
+   ]
+  },
+  {
+   "id": "u_dam_wrench",
+   "name_ko": "댐지기의 렌치",
+   "desc_ko": "설치물 체력 +40%, 상호작용 완료 시 파티 보호막 12",
+   "slot": "weapon",
+   "class": "hydro",
+   "mods": {
+    "structure_hp_mult": 0.4
+   },
+   "procs": [
+    {
+     "trigger": "on_interact",
+     "effect": "party_shield",
+     "value": 12,
+     "icd_sec": 4.0
+    }
+   ]
+  },
+  {
+   "id": "u_ancient_shell",
+   "name_ko": "고대 껍질 갑옷",
+   "desc_ko": "받는 피해 -8%, 피격 시 3초마다 주변 폭발 14",
+   "slot": "armor",
+   "mods": {
+    "damage_reduction": 0.08
+   },
+   "procs": [
+    {
+     "trigger": "on_hurt",
+     "effect": "aoe_damage",
+     "value": 14,
+     "icd_sec": 3.0,
+     "radius": 90
+    }
+   ]
+  },
+  {
+   "id": "u_otter_cloak",
+   "name_ko": "수달 망토",
+   "desc_ko": "이동 속도 +8%, 회피 무적 +0.1초",
+   "slot": "armor",
+   "mods": {
+    "speed_mult": 0.08,
+    "dodge_invuln_add": 0.1
+   }
+  },
+  {
+   "id": "u_lucky_acorn",
+   "name_ko": "행운의 도토리",
+   "desc_ko": "도토리 획득 +25%, 상점 할인 10%",
+   "slot": "trinket",
+   "mods": {
+    "acorn_mult": 0.25,
+    "shop_discount": 0.1
+   }
+  },
+  {
+   "id": "u_memory_bloom",
+   "name_ko": "기억꽃 장신구",
+   "desc_ko": "방 클리어 기억 조각 +1 (원정당 3회), 휴식 회복 +8",
+   "slot": "trinket",
+   "mods": {
+    "shard_bonus": 1,
+    "rest_heal_add": 8
+   }
+  }
+ ]
+}

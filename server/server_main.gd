@@ -287,6 +287,7 @@ func _on_client_message(peer_id: int, type: int, payload: Dictionary) -> void:
 				Protocol.C.QUEST_ACTION: _handle_quest_action(s, payload)
 				Protocol.C.EXPEDITION_PAUSE: _handle_expedition_pause(s)
 				Protocol.C.MARK: _handle_mark(s, payload)
+				Protocol.C.EQUIP: _handle_equip(s, payload)
 				_: _err(s, Protocol.ERR_BAD_STATE, {"message": "unknown message %d" % type})
 
 
@@ -443,6 +444,7 @@ func _handle_board_create(s: Session, payload: Dictionary) -> void:
 		return
 	var inst: ExpeditionInstance = r["expedition"]
 	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
+	inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
 	_log(1, "%s created expedition %s" % [s.nickname, inst.id])
 	_broadcast_party(inst)
 	_broadcast_board()
@@ -462,6 +464,8 @@ func _handle_board_join(s: Session, payload: Dictionary) -> void:
 	var inst: ExpeditionInstance = r["expedition"]
 	if bool(r.get("resumed", false)):
 		_log(1, "%s resumed paused expedition %s" % [s.nickname, inst.id])
+		if inst.members.has(s.account_id):
+			inst.members[s.account_id]["gear"] = _gear_for(s.account_id, String(inst.members[s.account_id].get("class_id", s.class_id)))
 		if hub.has(s.account_id):
 			hub.leave(s.account_id)
 			_broadcast_hub_roster()
@@ -470,6 +474,7 @@ func _handle_board_join(s: Session, payload: Dictionary) -> void:
 		_broadcast_board()
 		return
 	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
+	inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
 	_log(1, "%s joined expedition %s (%d/%d, state %d)" % [s.nickname, inst.id, inst.member_count(), Protocol.MAX_PARTY_SIZE, inst.state])
 	if inst.is_safe_point():
 		if hub.has(s.account_id):
@@ -510,6 +515,7 @@ func _handle_ready(s: Session, payload: Dictionary) -> void:
 		s.class_id = class_id
 	inst.set_ready(s.account_id, bool(payload.get("ready", true)), s.class_id)
 	inst.members[s.account_id]["trait"] = _trait_for(s.account_id, s.class_id)
+	inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
 	_broadcast_party(inst)
 
 
@@ -656,6 +662,66 @@ func _trait_for(account_id: String, class_id: String) -> String:
 	var tdef := ContentDB.mastery_trait(class_id, tid)
 	var lv := ContentDB.mastery_level(int(prog.get("class_mastery", {}).get(class_id, {}).get("xp", 0)))
 	return tid if not tdef.is_empty() and lv >= int(tdef.get("unlock_level", 1)) else ""
+
+
+## 장착 장비 합산 (Equipment.gear_bundle). 무기는 직업별 슬롯, 상한은 equipment.caps.
+func _gear_for(account_id: String, class_id: String) -> Dictionary:
+	var acc := store.get_account(account_id)
+	if acc.is_empty():
+		return {}
+	var b := Equipment.gear_bundle(acc.get("progression", {}), class_id)
+	return {"mods": b["mods"], "procs": b["procs"], "weapon_attack": b["weapon_attack"], "weapon_id": b["weapon_id"], "items": b["items"].map(func(it: Dictionary) -> String: return String(it.get("uid", "")))}
+
+
+## 장착/해제: {"slot": "weapon"|"armor"|"trinket1"|"trinket2"|"weapon:<class>", "uid": "<item uid>"|""}. 마을 또는 원정 준비 중에만.
+func _handle_equip(s: Session, payload: Dictionary) -> void:
+	var inst := expeditions.get_for_session(s)
+	if s.location != Protocol.Location.HUB and not (inst != null and inst.state == Protocol.ExpState.PREPARING):
+		_err(s, Protocol.ERR_BAD_STATE)
+		return
+	var acc := store.get_account(s.account_id)
+	var prog: Dictionary = acc["progression"]
+	var err := Equipment.equip(prog, String(payload.get("slot", "")), String(payload.get("uid", "")))
+	if err != "":
+		_err(s, err)
+		return
+	if store.put_account(acc) != OK:
+		metrics["save_failures"] += 1
+		_err(s, Protocol.ERR_SAVE_FAILED)
+		return
+	if inst != null and inst.members.has(s.account_id):
+		inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
+	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+
+
+## 방 클리어 장비 드랍: 접속 인원 각자 개별 굴림. 정예·보스 확정(최소 등급), 일반 방은 room_chance. 창고가 차면 알림만.
+func _roll_gear_drop(inst: ExpeditionInstance, aid: String, res: Dictionary, prog: Dictionary) -> Dictionary:
+	var dd: Dictionary = ContentDB.equipment.get("drop", {})
+	if dd.is_empty() or inst.tutorial:
+		return {}
+	var is_boss := String(res.get("boss_id", "")) != ""
+	var is_elite := bool(res.get("elite", false))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(res.get("seed", 0)) * 31 + aid.hash()
+	var min_rarity := ""
+	if is_boss and bool(dd.get("boss_guaranteed", true)):
+		min_rarity = String(dd.get("boss_min_rarity", "rare"))
+	elif is_elite and bool(dd.get("elite_guaranteed", true)):
+		min_rarity = String(dd.get("elite_min_rarity", "uncommon"))
+	elif rng.randf() >= float(dd.get("room_chance", 0.25)):
+		return {}
+	var bonus := inst.heat * float(dd.get("heat_rarity_bonus", 0.03)) + float(inst.run.get("layer", 0)) * float(dd.get("depth_rarity_bonus", 0.01))
+	var rarity := Equipment.roll_rarity(rng, min_rarity, bonus)
+	var level := int(inst.run.get("region_index", 0)) + 1
+	var item := Equipment.roll_item(rng, String(inst.members[aid]["class_id"]), level, rarity, "", int(rng.randi()))
+	if item.is_empty():
+		return {}
+	var inv: Array = prog.get("inventory", [])
+	if inv.size() >= int(dd.get("inventory_cap", 60)):
+		return {"full": true, "item": item}
+	inv.append(item)
+	prog["inventory"] = inv
+	return {"item": item}
 
 
 func _handle_mastery_trait(s: Session, payload: Dictionary) -> void:
@@ -1123,6 +1189,13 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 			if not (codex["relics"] as Array).has(rid):
 				codex["relics"].append(rid)
 		prog["codex"] = codex
+		var gear_drop := _roll_gear_drop(inst, aid, res, prog) if victory else {}
+		if not gear_drop.is_empty():
+			var it: Dictionary = gear_drop["item"]
+			var txt := "%s 획득: [%s] %s" % [inst.members[aid]["nickname"], Equipment.rarity_name(String(it.get("rarity", ""))), it.get("name_ko", "")]
+			if bool(gear_drop.get("full", false)):
+				txt = "%s: 창고가 가득 차 [%s] %s 을(를) 버렸습니다 (마을 메뉴 장비에서 정리)" % [inst.members[aid]["nickname"], Equipment.rarity_name(String(it.get("rarity", ""))), it.get("name_ko", "")]
+			inst.outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": txt}})
 		# 지역 비밀·퀘스트 진행 (한 번만 반영)
 		QuestEngine.ensure(prog)
 		for sid: String in res.get("stats", {}).get("secrets", []):
@@ -1151,7 +1224,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 					QuestEngine.fail_for_run(prog, "opt_03")
 		if store.put_account(acc) != OK:
 			metrics["save_failures"] += 1
-		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}, "quests_completed": completed, "secrets": res.get("stats", {}).get("secrets", [])}
+		rewards[aid] = {"memory_shards": shard, "mastery_xp": xp_gain, "class_id": cls, "totals": {"memory_shards": prog["memory_shards"], "mastery": entry}, "quests_completed": completed, "secrets": res.get("stats", {}).get("secrets", []), "gear": gear_drop.get("item", {}), "gear_lost": bool(gear_drop.get("full", false))}
 		var ms := _session_for_account(aid)
 		if ms != null:
 			Net.send_to_peer(ms.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})

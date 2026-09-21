@@ -52,7 +52,8 @@ func show_result(r: Dictionary, party: Array, my_id: String) -> void:
 		var id := String(m.get("id", ""))
 		var ps: Dictionary = players.get(id, {})
 		var rw: Dictionary = rewards.get(id, {})
-		lines.append("%s%s: 피해 %d · 처치 %d · 받은 피해 %d · 다운 %d · 구조 %d   → 기억 조각 +%d, 숙련 +%d" % ["▶" if id == my_id else "  ", m.get("nick", "?"), int(ps.get("damage_dealt", 0)), int(ps.get("kills", 0)), int(ps.get("damage_taken", 0)), int(ps.get("downs", 0)), int(ps.get("rescues", 0)), int(rw.get("memory_shards", 0)), int(rw.get("mastery_xp", 0))])
+		var gear: Dictionary = rw.get("gear", {})
+		lines.append("%s%s: 피해 %d · 처치 %d · 받은 피해 %d · 다운 %d · 구조 %d   → 기억 조각 +%d, 숙련 +%d%s" % ["▶" if id == my_id else "  ", m.get("nick", "?"), int(ps.get("damage_dealt", 0)), int(ps.get("kills", 0)), int(ps.get("damage_taken", 0)), int(ps.get("downs", 0)), int(ps.get("rescues", 0)), int(rw.get("memory_shards", 0)), int(rw.get("mastery_xp", 0)), (", 장비 [%s] %s" % [Equipment.rarity_name(String(gear.get("rarity", ""))), gear.get("name_ko", "")]) if not gear.is_empty() else ""])
 	body.text = "\n".join(lines)
 
 

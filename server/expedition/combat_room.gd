@@ -306,7 +306,7 @@ func add_player(m: Dictionary, spawn: Array, members_count: int = 1) -> Dictiona
 		"invuln_t": 0.0, "protect_t": 0.0, "shield": 0.0, "shield_t": 0.0, "front_guard_t": 0.0, "stagger_t": 0.0,
 		"down_t": 0.0, "rescue_target": "", "rescue_t": 0.0, "rescued_count": 0, "heal_uses": int(m.get("heal_uses", rules.get("heal_uses_per_expedition", 2))),
 		"connected": bool(m.get("connected", true)), "disconnect_t": 0.0, "inputs": [], "last_seq": 0, "prev_buttons": 0, "move_dir": Vector2.ZERO,
-		"mods": mods, "procs": m.get("procs", []), "interact_target": 0, "grab_t": 0.0,
+		"mods": mods, "procs": m.get("procs", []), "interact_target": 0, "grab_t": 0.0, "weapon_attack": m.get("weapon_attack", {}), "weapon_id": String(m.get("weapon_id", "")),
 		"resource": 0.0, "resource_t": 0.0, "haste_t": 0.0, "haste_mult": 0.0, "whirl_t": 0.0, "whirl_tick": 0.0, "heal_log": [], "delayed": [], "guard_bonus": 0.0, "build_kind": String(m.get("build_kind", "log_cover")),
 		"slow_t": 0.0, "slow_mult": 0.0, "root_t": 0.0, "bleed_t": 0.0, "bleed_dps": 0.0, "heal_cut_t": 0.0, "heal_cut_mult": 1.0,
 		"stats": {"damage_dealt": 0.0, "damage_taken": 0.0, "kills": 0, "downs": 0, "rescues": 0, "deaths": 0, "objective": 0.0, "guards": 0},
@@ -505,7 +505,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 	elif _can_act(p):
 		var cdef: Dictionary = ContentDB.get_class_def(p["class_id"])
 		if btn & Protocol.BTN_ATTACK:
-			var atk: Dictionary = cdef.get("basic_attack", {})
+			var atk := basic_attack_def(p)
 			_start_action(p, Protocol.Action.WINDUP, "basic", float(atk.get("windup_sec", 0.2)))
 		elif pressed & Protocol.BTN_Q and float(p["cd"]["q"]) <= 0.0:
 			_start_action(p, Protocol.Action.CAST, "q", float(cdef["skills"]["q"].get("cast_sec", 0.2)))
@@ -602,13 +602,13 @@ func _step_action(p: Dictionary, dt: float) -> void:
 	var cdef: Dictionary = ContentDB.get_class_def(p["class_id"])
 	match action:
 		Protocol.Action.WINDUP:
-			var atk: Dictionary = cdef.get("basic_attack", {})
+			var atk := basic_attack_def(p)
 			_apply_basic_attack(p, atk)
 			p["action"] = Protocol.Action.ACTIVE
 			p["action_total"] = float(atk.get("active_sec", 0.1))
 			p["action_t"] = p["action_total"]
 		Protocol.Action.ACTIVE:
-			var atk: Dictionary = cdef.get("basic_attack", {})
+			var atk := basic_attack_def(p)
 			p["action"] = Protocol.Action.RECOVERY
 			p["action_total"] = float(atk.get("recovery_sec", 0.3)) * maxf(1.0 + float(p["mods"].get("basic_recovery_mult", 0.0)), 0.3)
 			p["action_t"] = p["action_total"]
@@ -635,15 +635,32 @@ func _player_damage(p: Dictionary, base: float) -> float:
 	return SimRules.damage(base, 1.0 + float(p["mods"].get("damage_mult", 0.0)) + bonus, 0.0, 1.0, 0.0, 0.0, rules.get("caps", {}))
 
 
+## 기본 공격 정의: 직업 기본값 위에 장착 무기(영구 장비)의 교체 값을 덮는다
+func basic_attack_def(p: Dictionary) -> Dictionary:
+	var base: Dictionary = ContentDB.get_class_def(p["class_id"]).get("basic_attack", {})
+	var wa: Dictionary = p.get("weapon_attack", {})
+	if wa.is_empty():
+		return base
+	var out := base.duplicate(true)
+	out.merge(wa, true)
+	return out
+
+
 func _apply_basic_attack(p: Dictionary, atk: Dictionary) -> void:
 	var shape := String(atk.get("shape", "arc"))
 	if shape == "projectile":
 		var pr: Dictionary = atk.get("projectile", {})
 		var dir: Vector2 = p["facing"]
-		_spawn_projectile(p["pos"] + dir * 20.0, dir * float(pr.get("speed", 500)) * (1.0 + float(p["mods"].get("proj_speed_mult", 0.0))), float(pr.get("radius", 9)), _player_damage(p, float(atk.get("damage", 7)) + float(p["mods"].get("basic_damage_add", 0.0)) + float(p["mods"].get("proj_damage_add", 0.0))), 1, p["id"], float(pr.get("ttl_sec", 0.8)), int(p["mods"].get("pierce_add", 0)), float(atk.get("knockback", 0)), float(atk.get("stagger_sec", 0)))
-		projectiles[projectiles.size() - 1]["basic"] = true
-		if float(p["mods"].get("proj_bleed", 0.0)) > 0.0:
-			projectiles[projectiles.size() - 1]["bleed"] = float(p["mods"]["proj_bleed"])
+		var pellets := maxi(int(atk.get("pellets", 1)), 1)
+		var spread := deg_to_rad(float(atk.get("spread_deg", 0.0)))
+		for i in pellets:
+			var d := dir
+			if pellets > 1:
+				d = dir.rotated(-spread * 0.5 + spread * float(i) / float(pellets - 1))
+			_spawn_projectile(p["pos"] + d * 20.0, d * float(pr.get("speed", 500)) * (1.0 + float(p["mods"].get("proj_speed_mult", 0.0))), float(pr.get("radius", 9)), _player_damage(p, float(atk.get("damage", 7)) + float(p["mods"].get("basic_damage_add", 0.0)) + float(p["mods"].get("proj_damage_add", 0.0))), 1, p["id"], float(pr.get("ttl_sec", 0.8)), int(p["mods"].get("pierce_add", 0)), float(atk.get("knockback", 0)), float(atk.get("stagger_sec", 0)))
+			projectiles[projectiles.size() - 1]["basic"] = true
+			if float(p["mods"].get("proj_bleed", 0.0)) > 0.0:
+				projectiles[projectiles.size() - 1]["bleed"] = float(p["mods"]["proj_bleed"])
 		events.append({"k": "shoot", "id": p["id"], "x": p["pos"].x, "y": p["pos"].y, "fx": dir.x, "fy": dir.y})
 		return
 	var hits := 0
@@ -1315,6 +1332,8 @@ func _damage_player(p: Dictionary, amount: float, source_pos: Vector2, source_id
 	var dmg := SimRules.damage(amount, 1.0, 0.0, 1.0, reduction, 0.0, rules.get("caps", {})) * hit_damage_mult
 	if float(p["mods"].get("low_hp_taken", 0.0)) > 0.0 and float(p["hp"]) <= float(p["max_hp"]) * 0.5:
 		dmg *= 1.0 + float(p["mods"].get("low_hp_taken", 0.0))
+	if float(p["mods"].get("heat_damage_reduction", 0.0)) > 0.0 and int(profile.get("heat", 0)) >= 3:
+		dmg *= 1.0 - clampf(float(p["mods"]["heat_damage_reduction"]), 0.0, 0.5)
 	var absorbed := 0.0
 	if float(p["shield"]) > 0.0:
 		absorbed = minf(float(p["shield"]), dmg)
@@ -1349,7 +1368,7 @@ func _damage_enemy(e: Dictionary, dmg: float, attacker: Dictionary, knockback: f
 	if float(e.get("vuln_t", 0.0)) > 0.0:
 		dmg *= 1.0 + float(e.get("vuln_mult", 0.0))
 	if bool(e.get("elite", false)):
-		dmg *= 1.0 + float(attacker.get("mods", {}).get("boss_damage_mult", 0.0))
+		dmg *= 1.0 + float(attacker.get("mods", {}).get("boss_damage_mult", 0.0)) + float(attacker.get("mods", {}).get("elite_damage_mult", 0.0))
 	if knockback > 0.0 and float(attacker.get("mods", {}).get("knockback_slow", 0.0)) > 0.0:
 		_slow_enemy(e, float(attacker["mods"]["knockback_slow"]), 2.0)
 	var armor: Dictionary = e["def"].get("armor_front", {})

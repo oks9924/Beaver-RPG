@@ -47,7 +47,11 @@ var _menu_tab_buttons: Dictionary = {}
 var _menu_current: String = ""
 var _quest_summary: Dictionary = {}
 var _bond_text: String = "인연: 아직 없음"
-const MENU_TABS := [["village", "내실 · 마을 복구"], ["mastery", "숙련 · 특성"], ["codex", "도감 · 기록"], ["quest", "퀘스트 · 인연"]]
+const MENU_TABS := [["village", "내실 · 마을 복구"], ["gear", "장비"], ["mastery", "숙련 · 특성"], ["codex", "도감 · 기록"], ["quest", "퀘스트 · 인연"]]
+signal equip_requested(slot: String, uid: String)
+var gear_box: VBoxContainer
+var _gear_account: Dictionary = {}
+var _gear_class: String = "guardian"
 
 
 func _ready() -> void:
@@ -203,6 +207,11 @@ func _build_menu() -> void:
 	village_box.add_child(UIKit.label("기억 조각으로 마을 시설을 복구하면 모든 원정에 영구 보너스가 붙습니다.", 12, Color(0.7, 0.7, 0.65)))
 	_menu_tabs["village"] = village_box
 	pages.add_child(village_box)
+	# 장비 (영구): 장착 슬롯 + 창고
+	gear_box = UIKit.vbox(4)
+	gear_box.add_child(UIKit.label("장비는 원정에서 드랍되어 마을 창고에 남습니다. 무기는 직업마다 따로 장착하고, 갑옷 1개·장신구 2개는 공용입니다. 등급이 오를수록 부가 속성이 한 줄씩 늘고 전설은 고유 특성을 갖습니다.", 12, Color(0.7, 0.7, 0.65)))
+	_menu_tabs["gear"] = gear_box
+	pages.add_child(gear_box)
 	# 숙련 · 특성
 	mastery_box = UIKit.vbox(4)
 	mastery_box.add_child(UIKit.label("직업별 숙련 경험치는 원정 완료 시 쌓이며, 특성은 직업마다 하나만 켤 수 있습니다.", 12, Color(0.7, 0.7, 0.65)))
@@ -343,6 +352,8 @@ func add_chat(from: String, text: String, scope: String) -> void:
 
 ## 마을 시설 단계·복구 버튼, 개인 내실(기억 조각·숙련·도감). 메뉴 창의 각 탭을 채우고, 좌측 패널에는 한 줄 요약만 남긴다.
 func show_progression(info: Dictionary, account: Dictionary) -> void:
+	_gear_account = account
+	_refresh_gear()
 	for box: VBoxContainer in [village_box, mastery_box]:
 		for i: int in range(box.get_child_count() - 1, 0, -1):
 			box.get_child(i).queue_free()
@@ -455,6 +466,109 @@ func set_selected_class(cid: String) -> void:
 	var i := _class_ids.find(cid)
 	if i >= 0 and class_pick != null:
 		class_pick.select(i)
+	if cid != _gear_class:
+		_gear_class = cid
+		_refresh_gear()
+
+
+## 장비 탭: 현재 직업의 무기 슬롯 + 갑옷 + 장신구 2, 그 아래 창고(등급 내림차순). 단추를 누르면 장착, 장착 중인 것을 누르면 해제.
+func _refresh_gear() -> void:
+	if gear_box == null:
+		return
+	for i: int in range(gear_box.get_child_count() - 1, 0, -1):
+		gear_box.get_child(i).queue_free()
+	var prog: Dictionary = _gear_account.get("progression", {})
+	var inv: Array = prog.get("inventory", [])
+	var eqp: Dictionary = prog.get("equipped", {})
+	var wslot: Dictionary = eqp.get("weapon", {}) if eqp.get("weapon", {}) is Dictionary else {}
+	var cname := String(ContentDB.get_class_def(_gear_class).get("name_ko", _gear_class))
+	gear_box.add_child(UIKit.label("장착 중 (%s 무기 · 갑옷 · 장신구 2) — 창고 %d/%d" % [cname, inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60))], 14, Color(1.0, 0.9, 0.7)))
+	var slots := [["weapon:" + _gear_class, "무기", String(wslot.get(_gear_class, ""))], ["armor", "갑옷", String(eqp.get("armor", ""))], ["trinket1", "장신구 1", String(eqp.get("trinket1", ""))], ["trinket2", "장신구 2", String(eqp.get("trinket2", ""))]]
+	for sl: Array in slots:
+		var h := UIKit.hbox(6)
+		var sname := UIKit.label(String(sl[1]), 13)
+		sname.custom_minimum_size = Vector2(70, 0)
+		h.add_child(sname)
+		var uid := String(sl[2])
+		var it := Equipment.find_item(prog, uid)
+		if it.is_empty():
+			var dw := ""
+			if String(sl[0]).begins_with("weapon:"):
+				dw = String(ContentDB.equipment.get("weapons", {}).get(Equipment.default_weapon(_gear_class), {}).get("name_ko", "기본"))
+			h.add_child(UIKit.label("(비어 있음%s)" % ((" · 기본 " + dw) if dw != "" else ""), 12, Color(0.6, 0.6, 0.55)))
+		else:
+			var b := _item_button(it, true)
+			var slot_id := String(sl[0])
+			b.pressed.connect(func() -> void: equip_requested.emit(slot_id, ""))
+			h.add_child(b)
+		gear_box.add_child(h)
+	gear_box.add_child(UIKit.label("창고 (누르면 장착 · 무기는 해당 직업 슬롯에)", 14, Color(1.0, 0.9, 0.7)))
+	var sorted := inv.duplicate()
+	sorted.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var ra := Equipment.rarity_index(String(a.get("rarity", "")))
+		var rb := Equipment.rarity_index(String(b.get("rarity", "")))
+		if ra != rb:
+			return ra > rb
+		return String(a.get("slot", "")) < String(b.get("slot", "")))
+	if sorted.is_empty():
+		gear_box.add_child(UIKit.label("아직 장비가 없습니다. 방을 클리어하면 25% 확률로, 정예·보스에서는 확정으로 떨어집니다.", 13))
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 4)
+	var equipped_uids: Array = [String(wslot.get(_gear_class, "")), String(eqp.get("armor", "")), String(eqp.get("trinket1", "")), String(eqp.get("trinket2", ""))]
+	for it: Dictionary in sorted:
+		var uid := String(it.get("uid", ""))
+		var b := _item_button(it, equipped_uids.has(uid))
+		var slot := String(it.get("slot", ""))
+		if slot == "weapon" and String(it.get("class", "")) != _gear_class:
+			b.disabled = true
+			b.tooltip_text += "\n(%s 전용 — 직업을 바꾸면 장착 가능)" % ContentDB.get_class_def(String(it.get("class", ""))).get("name_ko", "")
+		elif equipped_uids.has(uid):
+			b.pressed.connect(func() -> void: equip_requested.emit(_slot_of_equipped(eqp, uid), ""))
+		else:
+			b.pressed.connect(func() -> void: equip_requested.emit("trinket1" if slot == "trinket" and String(eqp.get("trinket1", "")) == "" else ("trinket2" if slot == "trinket" else slot), uid))
+		grid.add_child(b)
+	gear_box.add_child(grid)
+
+
+## 데모/검증용: 창고의 첫 장착 가능 항목을 누른다 (EQUIP 왕복 확인)
+func demo_equip_first() -> bool:
+	var grid: GridContainer = null
+	for c: Node in gear_box.get_children():
+		if c is GridContainer:
+			grid = c
+	if grid == null:
+		return false
+	for b: Node in grid.get_children():
+		if b is Button and not (b as Button).disabled and not (b as Button).text.begins_with("● "):
+			(b as Button).pressed.emit()
+			return true
+	return false
+
+
+func _slot_of_equipped(eqp: Dictionary, uid: String) -> String:
+	for sk: String in ["armor", "trinket1", "trinket2"]:
+		if String(eqp.get(sk, "")) == uid:
+			return sk
+	var wslot: Dictionary = eqp.get("weapon", {}) if eqp.get("weapon", {}) is Dictionary else {}
+	for cid: String in wslot.keys():
+		if String(wslot[cid]) == uid:
+			return "weapon:" + cid
+	return ""
+
+
+func _item_button(it: Dictionary, equipped: bool) -> Button:
+	var rarity := String(it.get("rarity", "common"))
+	var slot_ko: String = {"weapon": "무기", "armor": "갑옷", "trinket": "장신구"}.get(String(it.get("slot", "")), "")
+	var b := Button.new()
+	b.text = "%s[%s] %s  (%s · 지역 %d)" % ["● " if equipped else "", Equipment.rarity_name(rarity), it.get("name_ko", Equipment.display_name(it)), slot_ko, int(it.get("level", 1))]
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	b.add_theme_font_size_override("font_size", 12)
+	b.add_theme_color_override("font_color", Equipment.rarity_color(rarity))
+	b.tooltip_text = "\n".join(Equipment.describe(it))
+	b.custom_minimum_size = Vector2(340, 0)
+	return b
 
 
 func show_quests(summary: Dictionary) -> void:

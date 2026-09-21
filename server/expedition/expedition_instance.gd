@@ -473,7 +473,17 @@ func member_mods(aid: String) -> Dictionary:
 	for k: String in perm.keys():
 		if k in RunMods.MOD_KEYS:
 			extra[k] = float(extra.get(k, 0.0)) + float(perm[k])
-	return RunMods.build(rp["relics"], rp["upgrades"], String(members[aid]["class_id"]), int(run.get("level", 1)), extra, ContentDB.rules, String(members[aid].get("trait", "")))
+	# 영구 장비 (서버가 출정·준비 때 members[aid]["gear"] 로 붙인다): mods 는 가산, procs 는 목록에 추가
+	var gear: Dictionary = members[aid].get("gear", {})
+	for k: String in gear.get("mods", {}).keys():
+		if k in RunMods.MOD_KEYS:
+			extra[k] = float(extra.get(k, 0.0)) + float(gear["mods"][k])
+	var out := RunMods.build(rp["relics"], rp["upgrades"], String(members[aid]["class_id"]), int(run.get("level", 1)), extra, ContentDB.rules, String(members[aid].get("trait", "")))
+	for pr: Dictionary in gear.get("procs", []):
+		var pp := pr.duplicate()
+		pp["_last"] = -1000.0
+		out["procs"].append(pp)
+	return out
 
 
 func grid() -> Dictionary:
@@ -736,7 +746,8 @@ func resume_member(s: Session) -> void:
 func _member_entry(aid: String) -> Dictionary:
 	var m: Dictionary = members[aid]
 	var mm := member_mods(aid)
-	var entry := {"account_id": aid, "nickname": m["nickname"], "class_id": m["class_id"], "connected": true, "heal_uses": m["heal_uses"], "mods": mm["mods"], "procs": mm["procs"], "build_kind": m.get("build_kind", "log_cover"), "secrets_found": m.get("secrets_found", [])}
+	var entry := {"account_id": aid, "nickname": m["nickname"], "class_id": m["class_id"], "connected": true, "heal_uses": m["heal_uses"], "mods": mm["mods"], "procs": mm["procs"], "build_kind": m.get("build_kind", "log_cover"), "secrets_found": m.get("secrets_found", []),
+		"weapon_attack": m.get("gear", {}).get("weapon_attack", {}), "weapon_id": m.get("gear", {}).get("weapon_id", "")}
 	if float(m.get("hp", -1.0)) >= 0.0:
 		entry["hp"] = float(m["hp"])
 	return entry

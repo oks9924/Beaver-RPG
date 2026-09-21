@@ -66,6 +66,8 @@ func _ready() -> void:
 	test_roguelike_systems()
 	print("-- test_v4_pack_assets")
 	test_v4_pack_assets()
+	print("-- test_equipment")
+	test_equipment()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -1836,3 +1838,136 @@ func test_v4_pack_assets() -> void:
 			ok = false
 			failures.append("audio %s failed to load" % id)
 	check(ok, "all 17 pack audio entries decode")
+
+
+## 영구 장비: 데이터 무결성, 등급별 줄 수·계층 제한, 재현, 상한, 장착/해제, 무기 교체가 전투에 반영되는지
+func test_equipment() -> void:
+	var eqdb: Dictionary = ContentDB.equipment
+	check(eqdb.get("weapons", {}).size() == 10 and eqdb.get("armors", {}).size() == 3 and eqdb.get("trinkets", {}).size() == 4, "10 weapons (2 per class), 3 armors, 4 trinkets defined")
+	for cid: String in ["guardian", "sawtooth", "pinecone", "sapshaman", "hydro"]:
+		var n := 0
+		for wid: String in eqdb["weapons"].keys():
+			if String(eqdb["weapons"][wid].get("class", "")) == cid:
+				n += 1
+		check(n == 2 and Equipment.default_weapon(cid) != "", "class %s has 2 weapons and a default" % cid)
+	# 모든 특성·고유의 mods 키가 RunMods 키여야 전투에 반영된다
+	var bad_keys: Array = []
+	for a: Dictionary in ContentDB.gear_affixes.get("affixes", []):
+		for k: String in a.get("mods", {}).keys():
+			if not RunMods.MOD_KEYS.has(k):
+				bad_keys.append(k)
+	for u: Dictionary in ContentDB.gear_affixes.get("uniques", []):
+		for k: String in u.get("mods", {}).keys():
+			if not RunMods.MOD_KEYS.has(k):
+				bad_keys.append(k)
+	for tbl: String in ["weapons", "armors", "trinkets"]:
+		for bid: String in eqdb[tbl].keys():
+			for k: String in eqdb[tbl][bid].get("base", {}).keys():
+				if not RunMods.MOD_KEYS.has(k):
+					bad_keys.append(k)
+	check(bad_keys.is_empty(), "all gear mod keys are RunMods keys (%s)" % [bad_keys])
+	check(ContentDB.gear_affixes.get("affixes", []).size() >= 45 and ContentDB.gear_affixes.get("uniques", []).size() == 9, "affix pool >= 45 and 9 uniques")
+	# 등급별 줄 수 + 계층 제한 + 전설 고유
+	var rng := RandomNumberGenerator.new()
+	var lines_ok := true
+	var tier_ok := true
+	var unique_ok := true
+	for r: String in ["common", "uncommon", "rare", "epic", "legendary"]:
+		var rdef := Equipment.rarity_def(r)
+		for i in 12:
+			rng.seed = 1000 + i
+			var it := Equipment.roll_item(rng, "pinecone", 1, r, "weapon")
+			if (it["affixes"] as Array).size() != int(rdef["lines"]):
+				lines_ok = false
+			for af: Dictionary in it["affixes"]:
+				var a := Equipment.affix_def(String(af["id"]))
+				if int(a.get("tier", 1)) > int(rdef["tier_max"]):
+					tier_ok = false
+				if a.has("attack") and String(a["attack"]) != "projectile":
+					tier_ok = false
+			if (String(it.get("unique", "")) != "") != bool(rdef.get("unique", false)):
+				unique_ok = false
+	check(lines_ok, "affix line count follows rarity (0/1/2/3/3)")
+	check(tier_ok, "affix tiers respect the rarity tier cap and weapon attack shape")
+	check(unique_ok, "only legendary items carry a unique trait")
+	rng.seed = 77
+	var a1 := Equipment.roll_item(rng, "guardian", 2, "epic", "weapon")
+	rng.seed = 77
+	var a2 := Equipment.roll_item(rng, "guardian", 2, "epic", "weapon")
+	check(JSON.stringify(a1) == JSON.stringify(a2) and String(a1["class"]) == "guardian", "same seed rolls the same item; weapon matches the class")
+	var uniq_ids: Dictionary = {}
+	for af: Dictionary in a1["affixes"]:
+		uniq_ids[String(af["id"])] = true
+	check(uniq_ids.size() == (a1["affixes"] as Array).size(), "no duplicate affix on one item")
+	# 등급 굴림: 최소 등급과 보너스
+	var counts := {}
+	for i in 400:
+		rng.seed = 5000 + i
+		var r := Equipment.roll_rarity(rng, "rare", 0.0)
+		counts[r] = int(counts.get(r, 0)) + 1
+	check(not counts.has("common") and not counts.has("uncommon") and int(counts.get("rare", 0)) > int(counts.get("legendary", 0)), "min rarity floor respected and rare stays commoner than legendary (%s)" % [counts])
+	# 레벨 배율·설명·이름
+	var lvl3 := {"uid": "x", "slot": "armor", "base": "bark_vest", "rarity": "common", "level": 3, "affixes": [], "unique": ""}
+	check(is_equal_approx(float(Equipment.item_mods(lvl3)["mods"]["max_hp_add"]), 14.0 * 1.5), "base stat scales with region level (14 × 1.5)")
+	check(Equipment.describe(a1).size() >= 4 and Equipment.display_name(a1).begins_with("영웅의 "), "describe lists base + affix lines; epic name prefix")
+	# 장착/해제 + 상한 + 무기 교체
+	var prog := {"inventory": [], "equipped": {}}
+	rng.seed = 9
+	var log_w := {}
+	for i in 50:
+		var cand := Equipment.roll_item(rng, "guardian", 1, "uncommon", "weapon")
+		if String(cand["base"]) == "guardian_log":
+			log_w = cand
+			break
+	check(not log_w.is_empty(), "rolled the alternate guardian weapon (log)")
+	prog["inventory"].append(log_w)
+	var big := {"uid": "big1", "slot": "armor", "base": "shell_plate", "rarity": "legendary", "level": 3, "affixes": [{"id": "a_dr", "t": 1.0}, {"id": "a_hp", "t": 1.0}, {"id": "a_damage", "t": 1.0}], "unique": "u_ancient_shell"}
+	prog["inventory"].append(big)
+	var t1 := {"uid": "t1", "slot": "trinket", "base": "resin_ring", "rarity": "common", "level": 1, "affixes": [], "unique": ""}
+	var t2 := {"uid": "t2", "slot": "trinket", "base": "firefly_bead", "rarity": "common", "level": 1, "affixes": [], "unique": ""}
+	prog["inventory"].append(t1)
+	prog["inventory"].append(t2)
+	check(Equipment.equip(prog, "weapon", String(log_w["uid"])) == "" and String(prog["equipped"]["weapon"]["guardian"]) == String(log_w["uid"]), "weapon equips into the class slot")
+	check(Equipment.equip(prog, "armor", "big1") == "" and Equipment.equip(prog, "trinket1", "t1") == "" and Equipment.equip(prog, "trinket2", "t2") == "", "armor and two trinkets equip")
+	check(Equipment.equip(prog, "trinket1", "t2") == "" and String(prog["equipped"]["trinket2"]) == "" and String(prog["equipped"]["trinket1"]) == "t2", "moving a trinket between slots frees the old slot")
+	check(Equipment.equip(prog, "armor", "nope") == "NO_ITEM", "unknown uid rejected")
+	var bundle := Equipment.gear_bundle(prog, "guardian")
+	check(bundle["items"].size() == 3 and String(bundle["weapon_id"]) == "guardian_log" and not (bundle["weapon_attack"] as Dictionary).is_empty(), "bundle collects weapon + armor + one trinket for the class")
+	check(float(bundle["mods"]["damage_reduction"]) <= float(eqdb["caps"]["damage_reduction"]) + 0.0001 and float(bundle["mods"]["damage_reduction"]) > 0.1, "gear cap clamps damage reduction (%.3f)" % float(bundle["mods"]["damage_reduction"]))
+	var has_unique_proc := false
+	for pr: Dictionary in bundle["procs"]:
+		if String(pr.get("source", "")).begins_with("unique:"):
+			has_unique_proc = true
+	check(has_unique_proc, "unique proc carried into the bundle")
+	check(Equipment.gear_bundle(prog, "pinecone")["weapon_id"] == "" and Equipment.gear_bundle(prog, "pinecone")["items"].size() == 2, "another class sees no weapon but shares armor/trinket")
+	check(Equipment.equip(prog, "weapon:guardian", "") == "" and not prog["equipped"]["weapon"].has("guardian"), "weapon unequip by class slot")
+	# 전투 반영: 무기 교체 정의가 기본 공격에 덮이고, 장비 mods 가 member_mods 에 합산된다
+	var inst := ExpeditionInstance.new("exp_gear", 21)
+	var s := _make_session(80)
+	inst.add_member(s)
+	inst.members["run80"]["gear"] = {"mods": {"max_hp_add": 20.0, "damage_mult": 0.1}, "procs": [{"trigger": "on_kill", "effect": "heal", "value": 3, "icd_sec": 0.5, "source": "gear:test"}], "weapon_attack": ContentDB.equipment["weapons"]["guardian_log"]["basic_attack"], "weapon_id": "guardian_log"}
+	inst.start_run()
+	var p: Dictionary = inst.room.players["run80"]
+	check(is_equal_approx(float(p["max_hp"]), float(ContentDB.get_class_def("guardian")["base_hp"]) + 20.0), "gear max hp applied to combat")
+	check(float(p["mods"]["damage_mult"]) >= 0.1, "gear damage mult merged into mods")
+	var atk := inst.room.basic_attack_def(p)
+	check(int(atk["damage"]) == 17 and float(atk["angle_deg"]) == 165.0 and String(atk.get("shape", "arc")) == "arc", "weapon override replaces basic attack numbers but keeps the class shape")
+	var has_gear_proc := false
+	for pr: Dictionary in p["procs"]:
+		if String(pr.get("source", "")) == "gear:test":
+			has_gear_proc = true
+	check(has_gear_proc, "gear proc present on the combat player")
+	# 산탄 무기: 투사체 3개
+	var inst2 := ExpeditionInstance.new("exp_gear2", 22)
+	var s2 := _make_session(81, "pinecone")
+	inst2.add_member(s2)
+	inst2.members["run81"]["gear"] = {"mods": {}, "procs": [], "weapon_attack": ContentDB.equipment["weapons"]["pinecone_launcher"]["basic_attack"], "weapon_id": "pinecone_launcher"}
+	inst2.start_run()
+	var p2: Dictionary = inst2.room.players["run81"]
+	inst2.room.projectiles.clear()
+	inst2.room._apply_basic_attack(p2, inst2.room.basic_attack_def(p2))
+	check(inst2.room.projectiles.size() == 3, "launcher fires 3 pellets")
+	# 드랍 굴림: 보스는 확정 희귀 이상, 창고 상한
+	var dd: Dictionary = eqdb["drop"]
+	check(float(dd.get("room_chance", 0)) > 0.0 and String(dd.get("boss_min_rarity", "")) == "rare" and int(dd.get("inventory_cap", 0)) == 60, "drop rules: room chance, boss min rarity rare, cap 60")
+
