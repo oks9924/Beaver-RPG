@@ -14,6 +14,8 @@ var _icon_class: String = ""
 var skill_boxes: Dictionary = {}
 var heal_label: Label
 var party_label: Label
+var party_portraits: PartyPortraits
+var party_max_hp: Dictionary = {}   # account_id -> 최대 체력 (초상 체력 바용)
 var wave_label: Label
 var hint_label: Label
 var conn_label: Label
@@ -86,14 +88,20 @@ func _ready() -> void:
 	sh.add_child(status_box)
 	v.add_child(sh)
 	add_child(bl)
+	# 우측 끝: 파티 초상 세로 카드 (체력 바 위, 초상, 이름). 정보 패널은 그 왼쪽.
+	party_portraits = PartyPortraits.new()
+	party_portraits.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
+	party_portraits.position = Vector2(-100, 12)
+	add_child(party_portraits)
 	var tr := UIKit.panel(Vector2(270, 0))
 	tr.set_anchors_and_offsets_preset(PRESET_TOP_RIGHT)
-	tr.position = Vector2(-282, 12)
+	tr.position = Vector2(-386, 12)
 	var pv := UIKit.vbox(4)
 	tr.add_child(pv)
 	wave_label = UIKit.label("", 15, Color(0.98, 0.85, 0.45))
 	pv.add_child(wave_label)
 	party_label = UIKit.label("", 13)
+	party_label.visible = false
 	pv.add_child(party_label)
 	room_label = UIKit.label("", 11, Color(0.7, 0.7, 0.65))
 	room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -237,6 +245,8 @@ func update_me(me: PackedFloat32Array, cdef: Dictionary) -> void:
 
 
 func update_party(snapshot_players: Array, party: Array, my_id: String) -> void:
+	if party_portraits != null:
+		party_portraits.update(snapshot_players, party, my_id, party_max_hp)
 	var lines: PackedStringArray = []
 	for m: Dictionary in party:
 		var st := "?"
