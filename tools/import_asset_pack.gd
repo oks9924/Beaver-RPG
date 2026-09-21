@@ -19,6 +19,8 @@ var v3a: Dictionary = {}
 var v3b: Dictionary = {}
 var v4: Dictionary = {}
 var v4_audio: Dictionary = {}
+var v5: Dictionary = {}
+var v5_audio: Dictionary = {}
 var manifest: Dictionary = {}
 var made: int = 0
 var only: String = ""
@@ -46,6 +48,10 @@ func _init() -> void:
 		v4 = _read_json(packs_dir.path_join("beaver_assets_v4/manifest.json"))
 		if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v4/audio_manifest.json")):
 			v4_audio = _read_json(packs_dir.path_join("beaver_assets_v4/audio_manifest.json"))
+	if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v5/manifest.json")):
+		v5 = _read_json(packs_dir.path_join("beaver_assets_v5/manifest.json"))
+		if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v5/audio_manifest.json")):
+			v5_audio = _read_json(packs_dir.path_join("beaver_assets_v5/audio_manifest.json"))
 	var mj := JSON.new()
 	mj.parse(FileAccess.get_file_as_string(MANIFEST))
 	manifest = mj.data
@@ -397,6 +403,7 @@ func _run() -> void:
 	_run_v3a()
 	_run_v3b()
 	_run_v4()
+	_run_v5()
 	# 팩 참조 문서 정보
 	manifest["packs"] = {
 		"beaver_assets_v1": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_에셋팩_v1.zip", "manifest": "assets/packs/beaver_assets_v1/manifest.json", "status": v1.get("status", ""), "note": "플레이어 5직업 기본 자세, 수호목수 이동·공격·Q/E/R, 적 12·보스 3 기본 자세"},
@@ -406,6 +413,8 @@ func _run() -> void:
 		manifest["packs"]["beaver_assets_v3a"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_A.zip", "manifest": "assets/packs/beaver_assets_v3a/manifest.json", "status": v3a.get("status", ""), "note": "요청서 v3 A: 사수 8동작, 수호목수 피격·다운·사망·갉기, 적 3종 이동·피격·사망(+멧돼지 돌진), 가재 이동·피격·사망·탈피·빈 껍질"}
 	if not v4.is_empty():
 		manifest["packs"]["beaver_assets_v4"] = {"root": "GitHub Release assets-raw-v4 / beaver_assets_v4.zip", "manifest": "assets/packs/beaver_assets_v4/manifest.json", "status": v4.get("status", ""), "note": "요청서 v4: 직업 3종 8동작, 적 9종 이동·피격·사망, 두꺼비·뿌리왕 4동작, 버들강 보정 타일, 습지·뿌리댐 타일, 보스·댐·마을 소품, 새 직업 VFX 12, 아이콘 52·초상 14·NPC 6, 오디오 17"}
+	if not v5.is_empty():
+		manifest["packs"]["beaver_assets_v5"] = {"root": "GitHub Release assets-raw-v5 / beaver_assets_v5.zip", "manifest": "assets/packs/beaver_assets_v5/manifest.json", "status": v5.get("status", ""), "note": "요청서 v5: 장비 아이콘 17, 등급 테두리 5프레임·강화 배지·빈 슬롯 4프레임·자물쇠·제작 망치, 수액 결정·도안 3, 강화 결과 VFX 3, 효과음 3"}
 	if not v3b.is_empty():
 		manifest["packs"]["beaver_assets_v3bce"] = {"root": "GitHub Release assets-raw-v3 / _RPG_._v3_B-E.zip", "manifest": "assets/packs/beaver_assets_v3bce/manifest.json", "status": v3b.get("status", ""), "note": "요청서 v3 B~E: VFX 16, 버들강 타일 6·소품 13, 아이콘 24, UI 9"}
 	manifest["import_tool"] = "tools/import_asset_pack.gd"
@@ -777,17 +786,22 @@ func _run_v4() -> void:
 
 
 func _run_v4_audio() -> void:
-	if v4_audio.is_empty():
-		report.append("SKIP v4 audio (no audio_manifest.json)")
+	_run_pack_audio(v4_audio, "beaver_assets_v4", V4_ORIGIN)
+
+
+## 팩 audio_manifest.json 의 항목을 assets/final/audio/ 로 복사하고 등록한다 (v4·v5 공용). 키는 점 ID 그대로 또는 sfx_/bgm_/amb_ 접두 형식.
+func _run_pack_audio(pack_audio: Dictionary, root: String, origin: String) -> void:
+	if pack_audio.is_empty():
+		report.append("SKIP %s audio (no audio_manifest.json)" % root)
 		return
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(AUDIO_OUT))
-	var items: Dictionary = v4_audio.get("audio", {})
+	var items: Dictionary = pack_audio.get("audio", {})
 	for key: String in items.keys():
 		var a: Dictionary = items[key]
 		var id := _audio_id(key)
 		if only != "" and not id.begins_with(only):
 			continue
-		var src := packs_dir.path_join("beaver_assets_v4").path_join(String(a.get("path", "")))
+		var src := packs_dir.path_join(root).path_join(String(a.get("path", "")))
 		if not FileAccess.file_exists(src):
 			report.append("SKIP %s (missing %s)" % [id, src])
 			continue
@@ -810,7 +824,7 @@ func _run_v4_audio() -> void:
 		e["duration_sec"] = float(a.get("duration_seconds", 0.0))
 		e["bus"] = String(a.get("bus", "SFX"))
 		e["gain_db"] = float(a.get("suggested_gain_db", 0.0)) if a.get("suggested_gain_db") != null else 0.0
-		e["source"] = {"pack": "beaver_assets_v4", "actor": key, "animation": "", "method": "pack audio (procedural synthesis, no external samples)", "license": "project-internal (see pack README)", "origin": V4_ORIGIN}
+		e["source"] = {"pack": root, "actor": key, "animation": "", "method": "pack audio (procedural synthesis, no external samples)", "license": "project-internal (see pack README)", "origin": origin}
 		e["provided"] = true
 		e["linked"] = true
 		e["verified"] = "not_run"
@@ -819,7 +833,45 @@ func _run_v4_audio() -> void:
 
 
 ## 팩 오디오 키 → 프로젝트 ID: sfx_dodge → sfx.dodge, bgm_combat_normal → bgm.combat_normal, amb_water → amb.water
+const V5_ORIGIN := "GitHub Release assets-raw-v5"
+
+
+## v5: 장비·제작·강화 UI 팩. actors 키가 점 ID 그대로이며 단일 아이콘은 texture, 등급 테두리·빈 슬롯은 select_frame 시트, 강화 결과는 one_shot VFX.
+func _run_v5() -> void:
+	if v5.is_empty():
+		report.append("SKIP v5 (pack not found)")
+		return
+	const R := "beaver_assets_v5"
+	var actors: Dictionary = v5.get("actors", {})
+	for id: String in actors.keys():
+		var strip := _pack_strip(v5, R, id, "default_all")
+		if strip.is_empty():
+			report.append("SKIP %s (v5 frames missing)" % id)
+			continue
+		var w := int(strip["_w"])
+		var h := int(strip["_h"])
+		var n: int = (strip["all"] as Array).size()
+		if id.begins_with("vfx."):
+			# 강화 결과 연출: one_shot, 마지막 프레임 유지 없음. 재생 길이 = 프레임 수 / fps
+			strip["_mode"] = "one_shot"
+			strip["_hold"] = false
+			strip["_loop"] = false
+			_emit_strip(id, strip, w, h, [w, h], "final", _src(R, id, "default_all", "pack", V5_ORIGIN), true, "sprite_sheet", {"hide_after_last": true}, [0.5, 0.5])
+		elif n > 1:
+			# 등급 테두리(5) · 빈 슬롯(4): 시간 재생 없이 인덱스로 고르는 시트
+			strip["_mode"] = "select_frame"
+			strip["_hold"] = true
+			strip["_loop"] = false
+			strip["_fps"] = 1.0
+			_emit_strip(id, strip, w, h, [w, h], "final", _src(R, id, "default_all (select_frame)", "pack", V5_ORIGIN), true, "sprite_sheet", {}, [0.0, 0.0])
+		else:
+			_emit_single(id, strip["all"][0], "final", _src(R, id, "default_all", "pack", V5_ORIGIN), true)
+	_run_pack_audio(v5_audio, R, V5_ORIGIN)
+
+
 func _audio_id(key: String) -> String:
+	if key.contains("."):
+		return key   # v5 부터는 팩 키가 점 ID 그대로
 	for prefix in ["sfx_", "bgm_", "amb_"]:
 		if key.begins_with(prefix):
 			return prefix.trim_suffix("_") + "." + key.substr(prefix.length())

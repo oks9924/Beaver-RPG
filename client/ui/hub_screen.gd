@@ -51,6 +51,87 @@ var _bond_text: String = "인연: 아직 없음"
 const MENU_TABS := [["village", "내실 · 마을 복구"], ["gear", "장비"], ["mastery", "숙련 · 특성"], ["codex", "도감 · 기록"], ["quest", "퀘스트 · 인연"]]
 signal equip_requested(slot: String, uid: String)
 signal gear_action(action: String, uid: String, index: int)
+signal sfx_requested(asset_id: String)
+var _detail_icon: Control = null
+var _last_gear_seq: int = 0
+
+
+## 장비 아이콘 묶음: 바탕(빈 슬롯 문양) → 장비 아이콘 → 등급 테두리 → 제작품 망치 → 강화 배지(+N 은 코드로). v5 팩이 없으면 아무것도 안 그린다.
+class GearIcon extends Control:
+	var item: Dictionary = {}
+	var px: float = 36.0
+	var empty_slot: int = -1      # 비어 있을 때 ui.slot.gear 프레임 (0 무기 1 갑옷 2 장신구 3 잠김)
+	var blueprint_slot: String = ""
+	var locked: bool = false
+
+	func _ready() -> void:
+		custom_minimum_size = Vector2(px, px)
+		mouse_filter = MOUSE_FILTER_IGNORE
+
+	static func _final(id: String) -> bool:
+		return AssetRegistry.has(id) and AssetRegistry.status(id) == "final"
+
+	func _draw() -> void:
+		var rect := Rect2(Vector2.ZERO, Vector2(px, px))
+		if blueprint_slot != "":
+			if _final("icon.blueprint." + blueprint_slot):
+				draw_texture_rect(AssetRegistry.get_texture("icon.blueprint." + blueprint_slot), rect, false, Color.WHITE if not locked else Color(0.55, 0.55, 0.55))
+			if locked and _final("ui.icon.locked"):
+				var lp := px * 0.5
+				draw_texture_rect(AssetRegistry.get_texture("ui.icon.locked"), Rect2(Vector2(px - lp, px - lp), Vector2(lp, lp)), false)
+			return
+		if item.is_empty():
+			if empty_slot >= 0 and _final("ui.slot.gear"):
+				draw_texture_rect(AssetRegistry.get_frame_texture("ui.slot.gear", empty_slot), rect, false, Color(1, 1, 1, 0.85))
+			return
+		var icon_id := "icon.gear." + String(item.get("base", ""))
+		if _final(icon_id):
+			draw_texture_rect(AssetRegistry.get_texture(icon_id), rect, false)
+		if _final("ui.frame.rarity"):
+			draw_texture_rect(AssetRegistry.get_frame_texture("ui.frame.rarity", Equipment.rarity_index(String(item.get("rarity", "common")))), rect, false)
+		if bool(item.get("crafted", false)) and _final("ui.icon.crafted"):
+			var cp := px * 0.4
+			draw_texture_rect(AssetRegistry.get_texture("ui.icon.crafted"), Rect2(Vector2(0, px - cp), Vector2(cp, cp)), false)
+		var en := int(item.get("enhance", 0))
+		if en > 0:
+			var bp := px * 0.48
+			var brect := Rect2(Vector2(px - bp, 0), Vector2(bp, bp))
+			if _final("ui.badge.enhance"):
+				draw_texture_rect(AssetRegistry.get_texture("ui.badge.enhance"), brect, false)
+			else:
+				draw_rect(brect, Color(0.3, 0.2, 0.1, 0.9))
+			var font := AssetRegistry.get_font("font.ui.main")
+			var fs := maxi(int(bp * 0.55), 9)
+			var txt := "+%d" % en
+			draw_string_outline(font, Vector2(brect.position.x, brect.position.y + bp * 0.72), txt, HORIZONTAL_ALIGNMENT_CENTER, bp, fs, 2, Color(0.05, 0.03, 0.01, 0.95))
+			draw_string(font, Vector2(brect.position.x, brect.position.y + bp * 0.72), txt, HORIZONTAL_ALIGNMENT_CENTER, bp, fs, Color(1, 0.95, 0.75))
+
+
+## 한 번 재생하고 사라지는 UI 연출 (강화 결과). 시트 프레임을 fps 로 넘기고 마지막 프레임 뒤에 자신을 지운다.
+class UiFrameAnim extends TextureRect:
+	var sheet_id: String = ""
+	var _t: float = 0.0
+	var _fps: float = 10.0
+	var _frames: int = 1
+
+	func start(id: String, px: float) -> void:
+		sheet_id = id
+		var sh := AssetRegistry.get_sheet(id)
+		_fps = maxf(float(sh.get("fps", 10.0)), 1.0)
+		_frames = maxi(int(sh.get("hframes", 1)), 1)
+		expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		stretch_mode = TextureRect.STRETCH_SCALE
+		mouse_filter = MOUSE_FILTER_IGNORE
+		size = Vector2(px, px)
+		texture = AssetRegistry.get_frame_texture(id, 0)
+
+	func _process(dt: float) -> void:
+		_t += dt
+		var fi := int(_t * _fps)
+		if fi >= _frames:
+			queue_free()
+			return
+		texture = AssetRegistry.get_frame_texture(sheet_id, fi)
 var gear_box: VBoxContainer
 var _gear_account: Dictionary = {}
 var _gear_class: String = "guardian"
@@ -500,7 +581,17 @@ func _refresh_gear() -> void:
 	var eqp: Dictionary = prog.get("equipped", {})
 	var wslot: Dictionary = eqp.get("weapon", {}) if eqp.get("weapon", {}) is Dictionary else {}
 	var cname := String(ContentDB.get_class_def(_gear_class).get("name_ko", _gear_class))
-	gear_box.add_child(UIKit.label("장착 중 (%s 무기 · 갑옷 · 장신구 2) — 창고 %d/%d · 수액 결정 %d" % [cname, inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60)), Equipment.material_count(prog)], 14, Color(1.0, 0.9, 0.7)))
+	var head := UIKit.hbox(6)
+	head.add_child(UIKit.label("장착 중 (%s 무기 · 갑옷 · 장신구 2) — 창고 %d/%d ·" % [cname, inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60))], 14, Color(1.0, 0.9, 0.7)))
+	if GearIcon._final("icon.material.sap_crystal"):
+		var mi := TextureRect.new()
+		mi.texture = AssetRegistry.get_texture("icon.material.sap_crystal")
+		mi.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		mi.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		mi.custom_minimum_size = Vector2(22, 22)
+		head.add_child(mi)
+	head.add_child(UIKit.label("수액 결정 %d" % Equipment.material_count(prog), 14, Color(1.0, 0.9, 0.7)))
+	gear_box.add_child(head)
 	var slots := [["weapon:" + _gear_class, "무기", String(wslot.get(_gear_class, ""))], ["armor", "갑옷", String(eqp.get("armor", ""))], ["trinket1", "장신구 1", String(eqp.get("trinket1", ""))], ["trinket2", "장신구 2", String(eqp.get("trinket2", ""))]]
 	var equipped_uids: Array = []
 	var top := UIKit.hbox(12)
@@ -516,6 +607,10 @@ func _refresh_gear() -> void:
 			var dw := ""
 			if String(sl[0]).begins_with("weapon:"):
 				dw = String(ContentDB.equipment.get("weapons", {}).get(Equipment.default_weapon(_gear_class), {}).get("name_ko", "기본"))
+			var empty := GearIcon.new()
+			empty.px = 36.0
+			empty.empty_slot = 0 if String(sl[0]).begins_with("weapon:") else (1 if String(sl[0]) == "armor" else 2)
+			h.add_child(empty)
 			h.add_child(UIKit.label("(비어 있음%s)" % ((" · 기본 " + dw) if dw != "" else ""), 12, Color(0.6, 0.6, 0.55)))
 		else:
 			equipped_uids.append(uid)
@@ -569,7 +664,16 @@ func _refresh_gear() -> void:
 		cb.clip_text = true
 		cb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		cb.disabled = not unlocked or mats < int(cost.get("sap_crystal", 0)) or int(prog.get("memory_shards", 0)) < int(cost.get("memory_shards", 0))
-		if not unlocked:
+		if GearIcon._final("icon.blueprint." + String(r.get("slot", "armor"))):
+			cb.text = "        " + cb.text
+			cb.custom_minimum_size = Vector2(340, 44)
+			var bi := GearIcon.new()
+			bi.px = 36.0
+			bi.blueprint_slot = String(r.get("slot", "armor"))
+			bi.locked = not unlocked
+			bi.position = Vector2(8, 4)
+			cb.add_child(bi)
+		elif not unlocked:
 			cb.text = "🔒 " + cb.text
 		cb.pressed.connect(func() -> void: gear_action.emit("craft", rid, 0))
 		cgrid.add_child(cb)
@@ -591,8 +695,14 @@ func _gear_detail(prog: Dictionary, equipped_uids: Array) -> Control:
 		return box
 	var uid := String(it.get("uid", ""))
 	var rarity := String(it.get("rarity", "common"))
+	var th := UIKit.hbox(8)
+	_detail_icon = GearIcon.new()
+	(_detail_icon as GearIcon).item = it
+	(_detail_icon as GearIcon).px = 48.0
+	th.add_child(_detail_icon)
 	var title := UIKit.label("[%s] %s" % [Equipment.rarity_name(rarity), it.get("name_ko", Equipment.display_name(it))], 14, Equipment.rarity_color(rarity))
-	box.add_child(title)
+	th.add_child(title)
+	box.add_child(th)
 	var lines := Equipment.describe(it)
 	var affix_start := 1 + (1 if not Equipment.base_def(it).get("basic_attack", {}).is_empty() else 0)
 	var mats := Equipment.material_count(prog)
@@ -658,6 +768,33 @@ func demo_equip_first() -> bool:
 	return false
 
 
+## 서버가 확정한 강화 결과 연출 (ACCOUNT_UPDATE.gear_result). seq 로 같은 결과의 재생을 한 번으로 막는다.
+func on_gear_result(res: Dictionary) -> void:
+	if res.is_empty():
+		return
+	var seq := int(res.get("seq", 0))
+	if seq != 0 and seq == _last_gear_seq:
+		return
+	_last_gear_seq = seq
+	if String(res.get("action", "")) != "enhance":
+		return
+	var kind := String(res.get("result", ""))
+	if not kind in ["success", "fail", "destroy"]:
+		return
+	sfx_requested.emit("sfx.enhance." + kind)
+	var vfx_id := "vfx.enhance." + kind
+	if not GearIcon._final(vfx_id) or menu_panel == null:
+		return
+	var px := 128.0 if kind == "destroy" else 96.0
+	var anim := UiFrameAnim.new()
+	anim.start(vfx_id, px)
+	menu_panel.add_child(anim)
+	var center := menu_panel.get_global_rect().get_center()
+	if _detail_icon != null and is_instance_valid(_detail_icon) and _detail_icon.is_inside_tree():
+		center = _detail_icon.get_global_rect().get_center()
+	anim.global_position = center - Vector2(px, px) * 0.5
+
+
 ## 데모/검증용: 메뉴 내용을 맨 아래로 스크롤 (제작 섹션 촬영)
 func demo_scroll_bottom() -> void:
 	if _menu_scroll != null:
@@ -693,11 +830,15 @@ func _item_button(it: Dictionary, equipped: bool) -> Button:
 	b.custom_minimum_size = Vector2(340, 0)
 	b.clip_text = true
 	b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	# 아이콘(icon.gear.<base>)은 v5 팩이 들어오면 자동으로 붙는다 (docs/asset_request_v5.md)
-	var icon_id := "icon.gear." + String(it.get("base", ""))
-	if AssetRegistry.has(icon_id) and AssetRegistry.status(icon_id) == "final":
-		b.icon = AssetRegistry.get_texture(icon_id)
-		b.add_theme_constant_override("icon_max_width", 20)
+	# v5 아이콘 묶음(장비 아이콘 + 등급 테두리 + 제작 망치 + 강화 배지)을 버튼 왼쪽에 겹친다. 팩이 없으면 글자만 남는다.
+	if GearIcon._final("icon.gear." + String(it.get("base", ""))):
+		b.text = "        " + b.text
+		b.custom_minimum_size = Vector2(340, 44)
+		var gi := GearIcon.new()
+		gi.item = it
+		gi.px = 36.0
+		gi.position = Vector2(8, 4)
+		b.add_child(gi)
 	return b
 
 

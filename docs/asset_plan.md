@@ -119,3 +119,10 @@
 
 ## 이미지 생성 요청 템플릿
 "둥근 몸, 짧은 팔다리, 큰 앞니와 넓은 납작 꼬리를 가진 비버 {직업}. 무기 {나무망치}. 따뜻한 숲색·수채화풍 부드러운 명암, 또렷한 윤곽. 3/4 탑다운 고정 카메라, 광원 좌상단. 방향 {정면/후면/좌/우}, 동작 {대기/걷기/공격/시전/피격/다운}, 128×128 투명 배경, 발 위치 y=105 고정, 프레임 간 무기·꼬리·얼굴 변형 금지, 글자·배경 무늬 금지."
+
+## v5 팩 연결 (2026-09-21, 장비·제작·강화 UI)
+- 출처: GitHub Release `assets-raw-v5` / `beaver_assets_v5.zip`. 팩 manifest 는 v4 와 같은 format_version=2 이며 actors 키가 점 ID 그대로다. importer `_run_v5()` 가 `actors` 를 훑어 프레임 1개는 texture, 여러 프레임 중 `vfx.` 는 one_shot 시트, 나머지(등급 테두리 5·빈 슬롯 4)는 select_frame 시트로 등록한다. 오디오는 `_run_pack_audio()` 공용.
+- ID (32): `icon.gear.<base>` 17, `ui.frame.rarity`(5프레임, 등급 지수 0~4), `ui.badge.enhance`(24, +N 은 코드), `ui.slot.gear`(4프레임: 무기/갑옷/장신구/잠김), `ui.icon.locked`(32), `ui.icon.crafted`(24), `icon.material.sap_crystal`, `icon.blueprint.{weapon,armor,trinket}`, `vfx.enhance.{success 6f@12, fail 4f@10, destroy 8f@10}`(96/96/128), `sfx.enhance.{success,fail,destroy}`(ogg).
+- 클라이언트: `HubScreen.GearIcon` 이 장비 아이콘 → 등급 테두리 → 제작 망치 → 강화 배지(+N) 순으로 겹쳐 그린다(팩이 없으면 글자만). 빈 슬롯은 `ui.slot.gear` 프레임, 도안은 `icon.blueprint.<slot>` + 잠김 자물쇠, 헤더에 재료 아이콘. 강화 결과는 서버 `ACCOUNT_UPDATE.gear_result{seq, result}` 를 받아 `UiFrameAnim` 이 한 번 재생하고 사라지며 `sfx.enhance.*` 를 같은 순간 재생한다. 같은 seq 는 다시 재생하지 않는다.
+- 검수: `check_assets` 431 항목 문제 0, `run_tests` v5 검사(단일 24·시트 3·VFX 3·SFX 3·테두리 투명 영역).
+

@@ -126,6 +126,7 @@ func _ready() -> void:
 	hub_screen.trait_requested.connect(func(cid: String, tid: String) -> void: net.send(Protocol.C.MASTERY_TRAIT, {"class_id": cid, "trait_id": tid}))
 	hub_screen.equip_requested.connect(func(slot: String, uid: String) -> void: net.send(Protocol.C.EQUIP, {"slot": slot, "uid": uid}))
 	hub_screen.gear_action.connect(func(action: String, uid: String, index: int) -> void: net.send(Protocol.C.GEAR_ACTION, {"action": action, "uid": uid, "index": index, "recipe": uid}))
+	hub_screen.sfx_requested.connect(func(id: String) -> void: world.play_sound(id, 0.0))
 	hud.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	result_panel.choice_made.connect(func(c: String) -> void: net.send(Protocol.C.ROOM_CHOICE, {"choice": c}))
 	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))
@@ -424,6 +425,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 		Protocol.S.ACCOUNT_UPDATE:
 			if mode == "hub":
 				hub_screen.show_progression(hub_info, net.account)
+				hub_screen.on_gear_result(p.get("gear_result", {}))
 		Protocol.S.LEAVE_EXPEDITION:
 			party = {}
 			room = {}

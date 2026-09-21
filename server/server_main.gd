@@ -706,6 +706,7 @@ func _handle_gear_action(s: Session, payload: Dictionary) -> void:
 	var uid := String(payload.get("uid", ""))
 	var err := ""
 	var note := ""
+	var result := ""   # 클라이언트 연출용 (success/fail/destroy/reforge/salvage/craft)
 	match String(payload.get("action", "")):
 		"enhance":
 			var erng := RandomNumberGenerator.new()
@@ -714,12 +715,15 @@ func _handle_gear_action(s: Session, payload: Dictionary) -> void:
 			err = Equipment.enhance(prog, uid, erng)
 			match err:
 				"":
+					result = "success"
 					note = "강화 성공: %s" % Equipment.find_item(prog, uid).get("name_ko", "")
 				"ENHANCE_FAILED":
 					err = ""
+					result = "fail"
 					note = "강화 실패: %s (재료만 소모, 단계 유지)" % before.get("name_ko", "")
 				"ENHANCE_DESTROYED":
 					err = ""
+					result = "destroy"
 					note = "강화 파괴! %s 이(가) 부서졌습니다" % before.get("name_ko", "")
 			_log(1, "%s enhance %s -> %s" % [s.nickname, before.get("name_ko", uid), note])
 		"reforge":
@@ -757,7 +761,8 @@ func _handle_gear_action(s: Session, payload: Dictionary) -> void:
 		return
 	if inst != null and inst.members.has(s.account_id):
 		inst.members[s.account_id]["gear"] = _gear_for(s.account_id, s.class_id)
-	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
+	var action := String(payload.get("action", ""))
+	Net.send_to_peer(s.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc), "gear_result": {"seq": Time.get_ticks_usec(), "action": action, "result": result if result != "" else action, "uid": uid}})
 	Net.send_to_peer(s.peer_id, Protocol.S.NOTICE, {"text": note})
 
 

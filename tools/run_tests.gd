@@ -68,6 +68,8 @@ func _ready() -> void:
 	test_v4_pack_assets()
 	print("-- test_equipment")
 	test_equipment()
+	print("-- test_v5_pack_assets")
+	test_v5_pack_assets()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
 	for f in failures:
 		printerr("FAIL: " + f)
@@ -2044,4 +2046,40 @@ func test_equipment() -> void:
 	# 드랍 굴림: 보스는 확정 희귀 이상, 창고 상한
 	var dd: Dictionary = eqdb["drop"]
 	check(float(dd.get("room_chance", 0)) > 0.0 and String(dd.get("boss_min_rarity", "")) == "rare" and int(dd.get("inventory_cap", 0)) == 60, "drop rules: room chance, boss min rarity rare, cap 60")
+
+
+## v5 팩: 장비 아이콘 17·등급 테두리 5프레임·빈 슬롯 4프레임·배지·자물쇠·망치·재료·도안 3·강화 VFX 3·효과음 3 이 최종본으로 연결되고 프레임 선택이 맞는지
+func test_v5_pack_assets() -> void:
+	var singles := ["icon.material.sap_crystal", "icon.blueprint.weapon", "icon.blueprint.armor", "icon.blueprint.trinket", "ui.badge.enhance", "ui.icon.locked", "ui.icon.crafted"]
+	for tbl: String in ["weapons", "armors", "trinkets"]:
+		for bid: String in ContentDB.equipment[tbl].keys():
+			singles.append("icon.gear." + bid)
+	var ok := true
+	for id: String in singles:
+		if not (AssetRegistry.has(id) and AssetRegistry.status(id) == "final" and not bool(AssetRegistry.get_sheet(id).get("is_fallback", true))):
+			ok = false
+			print("  missing v5 single: " + id)
+	check(ok and singles.size() == 24, "v5: 24 single icons registered as final and loadable")
+	var rar := AssetRegistry.get_sheet("ui.frame.rarity")
+	check(AssetRegistry.status("ui.frame.rarity") == "final" and int(rar["hframes"]) == 5 and String(rar["mode"]) == "select_frame" and rar["frame_size"] == Vector2(64, 64), "v5: rarity frame is a 5-frame select_frame sheet")
+	var slot := AssetRegistry.get_sheet("ui.slot.gear")
+	check(AssetRegistry.status("ui.slot.gear") == "final" and int(slot["hframes"]) == 4 and String(slot["mode"]) == "select_frame", "v5: empty slot glyphs are a 4-frame select_frame sheet")
+	# 등급 지수 → 프레임 인덱스 (0 일반 … 4 전설), 프레임 텍스처가 서로 다른 조각
+	var f0 := AssetRegistry.get_frame_texture("ui.frame.rarity", Equipment.rarity_index("common"))
+	var f4 := AssetRegistry.get_frame_texture("ui.frame.rarity", Equipment.rarity_index("legendary"))
+	check(Equipment.rarity_index("legendary") == 4 and f0 != f4 and f0.get_width() == 64, "v5: rarity index picks distinct 64px frames")
+	var inner := f4.get_image().get_pixel(32, 32)
+	var edge := f4.get_image().get_pixel(2, 32)
+	check(inner.a == 0.0 and edge.a > 0.5, "v5: rarity frame inner area is transparent and the border is opaque")
+	for kind: Array in [["success", 6, 12.0], ["fail", 4, 10.0], ["destroy", 8, 10.0]]:
+		var sh := AssetRegistry.get_sheet("vfx.enhance." + String(kind[0]))
+		check(AssetRegistry.status("vfx.enhance." + String(kind[0])) == "final" and int(sh["hframes"]) == int(kind[1]) and is_equal_approx(float(sh["fps"]), float(kind[2])) and String(sh["mode"]) == "one_shot" and not bool(sh["hold_last"]), "v5: enhance %s vfx %d frames @%d fps one_shot" % [kind[0], int(kind[1]), int(kind[2])])
+		var au := AssetRegistry.get_audio("sfx.enhance." + String(kind[0]))
+		check(au != null and String(AssetRegistry.entry("sfx.enhance." + String(kind[0])).get("ext", "")) == "ogg", "v5: enhance %s sfx loads (ogg)" % kind[0])
+	var mf: Dictionary = AssetRegistry.manifest
+	var v5n := 0
+	for e: Dictionary in mf.get("assets", []):
+		if String(e.get("source", {}).get("pack", "")) == "beaver_assets_v5":
+			v5n += 1
+	check(v5n == 32 and mf.get("packs", {}).has("beaver_assets_v5"), "v5: 32 manifest entries from the pack and the pack is listed")
 

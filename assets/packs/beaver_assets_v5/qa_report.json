@@ -1,0 +1,448 @@
+{
+  "result": "pass",
+  "scope": "file-level checks, visual inspection of exported sheets and icons; no Godot integration test",
+  "graphics_ids": 29,
+  "png_frames": 51,
+  "png_sheets": 29,
+  "audio_ids": 3,
+  "rarity_inner_48x48_alpha_zero": true,
+  "rarity_colors_exact": true,
+  "images": [
+    {
+      "id": "icon.gear.guardian_hammer",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.guardian_log",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.sawtooth_axe",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.sawtooth_greatsaw",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.pinecone_sling",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.pinecone_launcher",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.sap_staff",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.sap_dripper",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.hydro_pump",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.hydro_wrench",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.bark_vest",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.shell_plate",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.moss_cloak",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.river_pebble",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.acorn_charm",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.firefly_bead",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.gear.resin_ring",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "ui.frame.rarity",
+      "frame_count": 5,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        320,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "ui.badge.enhance",
+      "frame_count": 1,
+      "frame_size": [
+        24,
+        24
+      ],
+      "sheet_size": [
+        24,
+        24
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "ui.slot.gear",
+      "frame_count": 4,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        256,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "ui.icon.locked",
+      "frame_count": 1,
+      "frame_size": [
+        32,
+        32
+      ],
+      "sheet_size": [
+        32,
+        32
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "ui.icon.crafted",
+      "frame_count": 1,
+      "frame_size": [
+        24,
+        24
+      ],
+      "sheet_size": [
+        24,
+        24
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.material.sap_crystal",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.blueprint.weapon",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.blueprint.armor",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "icon.blueprint.trinket",
+      "frame_count": 1,
+      "frame_size": [
+        64,
+        64
+      ],
+      "sheet_size": [
+        64,
+        64
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "vfx.enhance.success",
+      "frame_count": 6,
+      "frame_size": [
+        96,
+        96
+      ],
+      "sheet_size": [
+        576,
+        96
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "vfx.enhance.fail",
+      "frame_count": 4,
+      "frame_size": [
+        96,
+        96
+      ],
+      "sheet_size": [
+        384,
+        96
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    },
+    {
+      "id": "vfx.enhance.destroy",
+      "frame_count": 8,
+      "frame_size": [
+        128,
+        128
+      ],
+      "sheet_size": [
+        1024,
+        128
+      ],
+      "rgba_and_transparency": "pass",
+      "sheet_matches_frames": "pass"
+    }
+  ],
+  "audio": [
+    {
+      "id": "sfx.enhance.success",
+      "duration_seconds": 0.75,
+      "codec": "vorbis",
+      "peak": 0.34148,
+      "channels": 1,
+      "sample_rate": 44100,
+      "decodes": "pass"
+    },
+    {
+      "id": "sfx.enhance.fail",
+      "duration_seconds": 0.55,
+      "codec": "vorbis",
+      "peak": 0.49599,
+      "channels": 1,
+      "sample_rate": 44100,
+      "decodes": "pass"
+    },
+    {
+      "id": "sfx.enhance.destroy",
+      "duration_seconds": 0.85,
+      "codec": "vorbis",
+      "peak": 0.52744,
+      "channels": 1,
+      "sample_rate": 44100,
+      "decodes": "pass"
+    }
+  ],
+  "integration_tested": false
+}

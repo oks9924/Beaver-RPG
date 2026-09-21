@@ -1,0 +1,46 @@
+{
+  "format_version": 2,
+  "pack_id": "beaver_assets_v5",
+  "integration_tested": false,
+  "audio": {
+    "sfx.enhance.success": {
+      "id": "sfx.enhance.success",
+      "status": "final",
+      "path": "audio/sfx.enhance.success.ogg",
+      "duration_seconds": 0.75,
+      "sample_rate_hz": 44100,
+      "channels": 1,
+      "loop": false,
+      "event": "enhancement_result_success",
+      "trigger": "once after authoritative server result; deduplicate by request/result ID",
+      "generation_method": "original procedural synthesis",
+      "source_wav": "sources/audio/sfx.enhance.success.wav"
+    },
+    "sfx.enhance.fail": {
+      "id": "sfx.enhance.fail",
+      "status": "final",
+      "path": "audio/sfx.enhance.fail.ogg",
+      "duration_seconds": 0.55,
+      "sample_rate_hz": 44100,
+      "channels": 1,
+      "loop": false,
+      "event": "enhancement_result_fail",
+      "trigger": "once after authoritative server result; deduplicate by request/result ID",
+      "generation_method": "original procedural synthesis",
+      "source_wav": "sources/audio/sfx.enhance.fail.wav"
+    },
+    "sfx.enhance.destroy": {
+      "id": "sfx.enhance.destroy",
+      "status": "final",
+      "path": "audio/sfx.enhance.destroy.ogg",
+      "duration_seconds": 0.85,
+      "sample_rate_hz": 44100,
+      "channels": 1,
+      "loop": false,
+      "event": "enhancement_result_destroy",
+      "trigger": "once after authoritative server result; deduplicate by request/result ID",
+      "generation_method": "original procedural synthesis",
+      "source_wav": "sources/audio/sfx.enhance.destroy.wav"
+    }
+  }
+}

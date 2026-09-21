@@ -1,0 +1,1611 @@
+{
+  "format_version": 2,
+  "pack_id": "beaver_assets_v5",
+  "pack_version": "5.0",
+  "status": "integration_draft",
+  "asset_art_status": "final",
+  "integration_tested": false,
+  "scope": "asset_request_v5.md A B C D (including optional)",
+  "merge_mode": "animations_by_actor_id",
+  "dependencies": [],
+  "style_reference": "beaver_assets_v4",
+  "directions": [
+    "all"
+  ],
+  "actors": {
+    "icon.blueprint.armor": {
+      "id": "icon.blueprint.armor",
+      "category": "icon",
+      "group": "C",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.blueprint.armor/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.blueprint.armor.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.blueprint.trinket": {
+      "id": "icon.blueprint.trinket",
+      "category": "icon",
+      "group": "C",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.blueprint.trinket/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.blueprint.trinket.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.blueprint.weapon": {
+      "id": "icon.blueprint.weapon",
+      "category": "icon",
+      "group": "C",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.blueprint.weapon/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.blueprint.weapon.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.acorn_charm": {
+      "id": "icon.gear.acorn_charm",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.acorn_charm/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.acorn_charm.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.bark_vest": {
+      "id": "icon.gear.bark_vest",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.bark_vest/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.bark_vest.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.firefly_bead": {
+      "id": "icon.gear.firefly_bead",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.firefly_bead/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.firefly_bead.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.guardian_hammer": {
+      "id": "icon.gear.guardian_hammer",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.guardian_hammer/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.guardian_hammer.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.guardian_log": {
+      "id": "icon.gear.guardian_log",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.guardian_log/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.guardian_log.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.hydro_pump": {
+      "id": "icon.gear.hydro_pump",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.hydro_pump/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.hydro_pump.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.hydro_wrench": {
+      "id": "icon.gear.hydro_wrench",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.hydro_wrench/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.hydro_wrench.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.moss_cloak": {
+      "id": "icon.gear.moss_cloak",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.moss_cloak/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.moss_cloak.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.pinecone_launcher": {
+      "id": "icon.gear.pinecone_launcher",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.pinecone_launcher/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.pinecone_launcher.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.pinecone_sling": {
+      "id": "icon.gear.pinecone_sling",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.pinecone_sling/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.pinecone_sling.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.resin_ring": {
+      "id": "icon.gear.resin_ring",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.resin_ring/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.resin_ring.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.river_pebble": {
+      "id": "icon.gear.river_pebble",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.river_pebble/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.river_pebble.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.sap_dripper": {
+      "id": "icon.gear.sap_dripper",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.sap_dripper/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.sap_dripper.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.sap_staff": {
+      "id": "icon.gear.sap_staff",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.sap_staff/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.sap_staff.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.sawtooth_axe": {
+      "id": "icon.gear.sawtooth_axe",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.sawtooth_axe/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.sawtooth_axe.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.sawtooth_greatsaw": {
+      "id": "icon.gear.sawtooth_greatsaw",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.sawtooth_greatsaw/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.sawtooth_greatsaw.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.gear.shell_plate": {
+      "id": "icon.gear.shell_plate",
+      "category": "icon",
+      "group": "A",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.gear.shell_plate/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.gear.shell_plate.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "icon.material.sap_crystal": {
+      "id": "icon.material.sap_crystal",
+      "category": "icon",
+      "group": "C",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/icon.material.sap_crystal/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/icon.material.sap_crystal.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "ui.badge.enhance": {
+      "id": "ui.badge.enhance",
+      "category": "ui",
+      "group": "B",
+      "status": "final",
+      "frame_size": [
+        24,
+        24
+      ],
+      "anchor_px": [
+        12,
+        12
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/ui.badge.enhance/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            24,
+            24
+          ],
+          "anchor_px": [
+            12,
+            12
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/ui.badge.enhance.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          24,
+          24
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "ui.icon.crafted": {
+      "id": "ui.icon.crafted",
+      "category": "ui",
+      "group": "B",
+      "status": "final",
+      "frame_size": [
+        24,
+        24
+      ],
+      "anchor_px": [
+        12,
+        12
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/ui.icon.crafted/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            24,
+            24
+          ],
+          "anchor_px": [
+            12,
+            12
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/ui.icon.crafted.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          24,
+          24
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "ui.icon.locked": {
+      "id": "ui.icon.locked",
+      "category": "ui",
+      "group": "B",
+      "status": "final",
+      "frame_size": [
+        32,
+        32
+      ],
+      "anchor_px": [
+        16,
+        16
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/ui.icon.locked/default/all_00.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            32,
+            32
+          ],
+          "anchor_px": [
+            16,
+            16
+          ],
+          "frame_labels": [
+            "default"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/ui.icon.locked.png",
+        "columns": 1,
+        "rows": 1,
+        "frame_size": [
+          32,
+          32
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "ui.slot.gear": {
+      "id": "ui.slot.gear",
+      "category": "ui",
+      "group": "B",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/ui.slot.gear/default/all_00.png",
+            "assets/ui.slot.gear/default/all_01.png",
+            "assets/ui.slot.gear/default/all_02.png",
+            "assets/ui.slot.gear/default/all_03.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "weapon",
+            "armor",
+            "trinket",
+            "locked"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/ui.slot.gear.png",
+        "columns": 4,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "vfx.enhance.destroy": {
+      "id": "vfx.enhance.destroy",
+      "category": "vfx",
+      "group": "D",
+      "status": "final",
+      "frame_size": [
+        128,
+        128
+      ],
+      "anchor_px": [
+        64,
+        64
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 10.0,
+          "loop": false,
+          "frames": [
+            "assets/vfx.enhance.destroy/default/all_00.png",
+            "assets/vfx.enhance.destroy/default/all_01.png",
+            "assets/vfx.enhance.destroy/default/all_02.png",
+            "assets/vfx.enhance.destroy/default/all_03.png",
+            "assets/vfx.enhance.destroy/default/all_04.png",
+            "assets/vfx.enhance.destroy/default/all_05.png",
+            "assets/vfx.enhance.destroy/default/all_06.png",
+            "assets/vfx.enhance.destroy/default/all_07.png"
+          ],
+          "hold_last_frame": false,
+          "hide_after_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            128,
+            128
+          ],
+          "anchor_px": [
+            64,
+            64
+          ],
+          "frame_labels": [
+            "phase_0",
+            "phase_1",
+            "phase_2",
+            "phase_3",
+            "phase_4",
+            "phase_5",
+            "phase_6",
+            "phase_7"
+          ],
+          "playback_mode": "one_shot",
+          "duration_seconds": 0.8
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/vfx.enhance.destroy.png",
+        "columns": 8,
+        "rows": 1,
+        "frame_size": [
+          128,
+          128
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "vfx.enhance.fail": {
+      "id": "vfx.enhance.fail",
+      "category": "vfx",
+      "group": "D",
+      "status": "final",
+      "frame_size": [
+        96,
+        96
+      ],
+      "anchor_px": [
+        48,
+        48
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 10.0,
+          "loop": false,
+          "frames": [
+            "assets/vfx.enhance.fail/default/all_00.png",
+            "assets/vfx.enhance.fail/default/all_01.png",
+            "assets/vfx.enhance.fail/default/all_02.png",
+            "assets/vfx.enhance.fail/default/all_03.png"
+          ],
+          "hold_last_frame": false,
+          "hide_after_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            96,
+            96
+          ],
+          "anchor_px": [
+            48,
+            48
+          ],
+          "frame_labels": [
+            "phase_0",
+            "phase_1",
+            "phase_2",
+            "phase_3"
+          ],
+          "playback_mode": "one_shot",
+          "duration_seconds": 0.4
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/vfx.enhance.fail.png",
+        "columns": 4,
+        "rows": 1,
+        "frame_size": [
+          96,
+          96
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "vfx.enhance.success": {
+      "id": "vfx.enhance.success",
+      "category": "vfx",
+      "group": "D",
+      "status": "final",
+      "frame_size": [
+        96,
+        96
+      ],
+      "anchor_px": [
+        48,
+        48
+      ],
+      "artwork_method": "image generation; mechanical crop and resize",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 12.0,
+          "loop": false,
+          "frames": [
+            "assets/vfx.enhance.success/default/all_00.png",
+            "assets/vfx.enhance.success/default/all_01.png",
+            "assets/vfx.enhance.success/default/all_02.png",
+            "assets/vfx.enhance.success/default/all_03.png",
+            "assets/vfx.enhance.success/default/all_04.png",
+            "assets/vfx.enhance.success/default/all_05.png"
+          ],
+          "hold_last_frame": false,
+          "hide_after_last_frame": true,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            96,
+            96
+          ],
+          "anchor_px": [
+            48,
+            48
+          ],
+          "frame_labels": [
+            "phase_0",
+            "phase_1",
+            "phase_2",
+            "phase_3",
+            "phase_4",
+            "phase_5"
+          ],
+          "playback_mode": "one_shot",
+          "duration_seconds": 0.5
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/vfx.enhance.success.png",
+        "columns": 6,
+        "rows": 1,
+        "frame_size": [
+          96,
+          96
+        ],
+        "margin": 0,
+        "spacing": 0
+      }
+    },
+    "ui.frame.rarity": {
+      "id": "ui.frame.rarity",
+      "category": "ui",
+      "group": "B",
+      "status": "final",
+      "frame_size": [
+        64,
+        64
+      ],
+      "anchor_px": [
+        32,
+        32
+      ],
+      "artwork_method": "code-native SVG",
+      "animations": {
+        "default_all": {
+          "state": "default",
+          "direction": "all",
+          "fps": 0,
+          "loop": false,
+          "frames": [
+            "assets/ui.frame.rarity/default/all_00.png",
+            "assets/ui.frame.rarity/default/all_01.png",
+            "assets/ui.frame.rarity/default/all_02.png",
+            "assets/ui.frame.rarity/default/all_03.png",
+            "assets/ui.frame.rarity/default/all_04.png"
+          ],
+          "hold_last_frame": true,
+          "hide_after_last_frame": false,
+          "visual_contact_frame": -1,
+          "frame_size": [
+            64,
+            64
+          ],
+          "anchor_px": [
+            32,
+            32
+          ],
+          "frame_labels": [
+            "normal",
+            "uncommon",
+            "rare",
+            "epic",
+            "legendary"
+          ],
+          "playback_mode": "select_frame",
+          "duration_seconds": null
+        }
+      },
+      "spritesheet": {
+        "path": "sheets/ui.frame.rarity.png",
+        "columns": 5,
+        "rows": 1,
+        "frame_size": [
+          64,
+          64
+        ],
+        "margin": 0,
+        "spacing": 0
+      },
+      "frame_colors": {
+        "normal": "#ffffff",
+        "uncommon": "#7be07b",
+        "rare": "#6fb6ff",
+        "epic": "#c58cff",
+        "legendary": "#ffb347"
+      },
+      "transparent_inner_rect": [
+        8,
+        8,
+        48,
+        48
+      ]
+    }
+  }
+}
