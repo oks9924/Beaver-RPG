@@ -420,7 +420,10 @@ func _on_message(type: int, p: Dictionary) -> void:
 		Protocol.S.ERROR:
 			var code := String(p.get("error", ""))
 			var text := UIKit.error_text(code, p)
-			if mode == "hub":
+			if demo and code == Protocol.ERR_NICK_TAKEN and mode == "login":
+				# 데모 계정이 이미 있으면(같은 데이터 폴더 재사용) 가입 대신 로그인한다.
+				net.send(Protocol.C.LOGIN, {"nick": String(launch_args["demo"]), "password": "demopass1"})
+			elif mode == "hub":
 				hub_screen.add_chat("서버", text, "hub")
 			elif hud.visible:
 				hud.toast(text, 3.0)
@@ -903,7 +906,7 @@ func _reconcile(server_pos: Vector2, ack: int, me: PackedFloat32Array) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if bot != null:
 		return
-	if event is InputEventKey and event.pressed and (event as InputEventKey).keycode == KEY_ESCAPE and mode in ["hub", "connect", "login"] and not settings_panel.visible and not npc_panel.visible:
+	if event is InputEventKey and event.pressed and (event as InputEventKey).keycode == KEY_ESCAPE and mode in ["hub", "connect", "login"] and not settings_panel.visible and not npc_panel.visible and not hub_screen.menu_open():
 		settings_panel.show_panel()
 		get_viewport().set_input_as_handled()
 		return
@@ -999,13 +1002,24 @@ func _demo_tick(dt: float) -> void:
 			if _demo_step == 0 and _demo_t > 1.0:
 				_demo_step = 1
 				_screenshot("02_hub.png")
-			elif _demo_step == 1 and _demo_t > 1.6 and party.is_empty():
+			elif _demo_step >= 1 and _demo_step <= 8 and _demo_t > 1.3 + 0.4 * (_demo_step - 1):
+				# 메뉴 탭을 차례로 열어 찍는다 (열기 → 다음 틱에 촬영). 각 탭은 두 단계(열기/촬영)를 쓴다.
+				var tabs: Array = ["village", "mastery", "codex", "quest"]
+				var ti: int = (_demo_step - 1) / 2
+				if (_demo_step - 1) % 2 == 0:
+					hub_screen.open_menu(String(tabs[ti]))
+				else:
+					_screenshot("02%s_menu_%s.png" % [String("bcde"[ti]), String(tabs[ti])])
+				_demo_step += 1
+			elif _demo_step == 9 and _demo_t > 4.6:
+				_demo_step = 11
+				hub_screen.close_menu()
+			elif _demo_step == 11 and _demo_t > 4.9 and party.is_empty():
 				_demo_step = 2
-				net.send(Protocol.C.BOARD_CREATE, {"public": true, "difficulty": "normal", "class_id": selected_class})
 			elif _demo_step == 2 and not party.is_empty() and _demo_t > 2.2:
 				_demo_step = 3
 				net.send(Protocol.C.READY, {"ready": true, "class_id": selected_class})
-			elif _demo_step == 3 and _demo_t > 2.8:
+			elif _demo_step == 3 and _demo_t > 2.8 and _demo_party_ready():
 				_demo_step = 4
 				_screenshot("03_party.png")
 				net.send(Protocol.C.BOARD_START)
@@ -1069,6 +1083,18 @@ func _demo_tick(dt: float) -> void:
 				get_tree().quit()
 	if _demo_t > 90.0:
 		get_tree().quit(1)
+
+
+## 데모 파티 출정 조건: --demo-party=N 이면 N명이 모여 전원 준비될 때까지 기다린다 (봇을 같이 붙여 밀도 캡처용)
+func _demo_party_ready() -> bool:
+	var want := int(launch_args.get("demo-party", 1))
+	var members: Array = party.get("members", [])
+	if members.size() < want:
+		return _demo_t > 40.0
+	for m: Dictionary in members:
+		if not bool(m.get("ready", false)):
+			return _demo_t > 40.0
+	return true
 
 
 ## 데모 모드의 자동 입력: 가장 가까운 적에게 접근해 공격하고, 예고 범위에서는 회피한다.
