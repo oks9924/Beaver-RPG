@@ -25,14 +25,25 @@
 | 제단 | 운의 제단(도토리 15/40 → 45%/85% 유물, 큰 판은 희귀 보장), 피의 제단(체력 35% → 도토리 25), 저주받은 상자(희귀 유물 + 2방 받는 피해 +30%), 전투의 제단(다음 방 정예 + 예산 +4, 완주 시 기억 조각 +2) | `data/events.json` | `_resolve_event` 효과 유형 5개 추가 |
 | 휴식처 | 각자 휴식(회복 40% + 회복 도구) 또는 숫돌(무작위 강화 1, 회복 없음). 안 고르면 휴식 | — | `_apply_rest_choice`, `NODE_ACTION rest_choice` |
 | 시간 문 | 방을 70 + 10×인원 초 안에 깨면 도토리 +10, 경험치 +25% | `rules.room_par` | `_on_room_finished` |
-| 페이싱 대응안 | 섬멸 웨이브 2→3, 예산 6→9, 다음 웨이브 조건 3마리 이하. 보스 체력 520→900(두꺼비 1050·뿌리왕 1425), 기믹 간격 12→9초, 갑각 온전 시 받는 피해 60%, 기믹 실패 시 보스 5% 회복 + 추가 적 2 (1~2인도) | `rooms.json`, `bosses.json`, `party_scaling.json` | `damage_taken_mult`, `_finish_mechanic` |
+| 페이싱 대응안 | 섬멸 웨이브 2→4, 예산 6→14(거점·장치 +4, 호위 +3, 정예 +3), 다음 웨이브 조건 4마리 이하, 디렉터 예산 90%·초당 12%·5마리 이하일 때 4마리씩 증원. 동시 적 상한 1인 12 → 4인 27. 기본 적 체력 소폭 하향(달팽이 34, 멧돼지 48, 거머리 30, 개구리 40). 보스 체력 520→900(두꺼비 1050·뿌리왕 1425), 기믹 간격 12→9초, 갑각 온전 시 받는 피해 60%, 기믹 실패 시 보스 5% 회복 + 추가 적 2 (1~2인도) | `rooms.json`, `bosses.json`, `party_scaling.json` | `damage_taken_mult`, `_finish_mechanic` |
 
 ## 3. 인원 스케일과의 관계
 인원 프로필(1~4인)이 먼저 곱해지고 그 위에 난이도 → 서약 → 위험도 순으로 곱한다. DRG 처럼 4인은 1인보다 적 수(예산 ×2.0)와 체력(×1.2)이 함께 오르며, 위험도는 파티 공통이다.
 
+## 4. 밀도 측정 (봇, 2026-09-21)
+| 조합 | 섬멸방 스폰 | 결과 |
+|---|---|---|
+| 1인 수호목수 | 23 | 전멸 (봇) |
+| 1인 사수 | 25 | 완주 62초 |
+| 4인 수호목수 | 43 | 완주 59초 |
+| 4인 혼합 | 46 | 완주 42초, 다음 거점방 전멸 (봇) |
+
+밀도 상향 전 1인 섬멸방은 약 10마리였다. 봇은 회피·구역·포탑을 못 쓰므로 근접 1인 전멸은 봇 한계와 난이도 신호를 함께 담는다. 사람 기준으로 너무 빡빡하면 아래 손잡이 중 `reserve_frac` 과 `max_enemies_on_screen` 부터 내린다.
+
 ## 4. 조정 손잡이 (실기 뒤 만질 것)
 - 방이 길다/짧다 → `rules.director.reserve_frac`(증원 양), `credit_per_sec_frac`(증원 속도), `rooms.*.waves.base_budget`.
 - 뒤로 갈수록 너무 어렵다 → `rules.danger.per_combat_min`, `max`, `hp_weight`.
+- 동시 적이 많다/적다 → `party_scaling.screen_caps.max_enemies_on_screen`(1인 기본), `per_extra_player`.
 - 정예가 잦다/드물다 → `elites.spawn.base_chance`, `max_affix_elites_per_wave`.
 - 서약이 싱겁다 → `pacts.json` 의 `*_per_rank`, `_rewards.shards_mult_per_heat`.
 - 희귀가 안 나온다 → `rules.rarity_weights`, `rarity_layer_bonus`.

@@ -1012,7 +1012,7 @@ func _step_enemy_passives(e: Dictionary, def: Dictionary, dt: float) -> void:
 			for o: Dictionary in enemies.values():
 				if o.get("summoned_by", -1) == e["id"] and o["ai"] != Protocol.EnemyAI.DEAD:
 					alive_mine += 1
-			var cap := int(ContentDB.party_scaling.get("screen_caps", {}).get("max_enemies_on_screen", 12))
+			var cap := _enemy_cap()
 			if alive_mine < int(sm.get("max_alive", 3)) and int(e["summoned"]) < int(sm.get("cap_total", 6)) and _alive_enemy_count() < cap:
 				var pos: Vector2 = e["pos"] + Vector2(rng.randf_range(-60, 60), rng.randf_range(-60, 60))
 				var child := _spawn_enemy(String(sm.get("id", "sap_snail")), _clamp_in_bounds(pos, 20.0))
@@ -1790,7 +1790,7 @@ func _spawn_wave() -> void:
 		elite_spawned = true
 		var esp: Array = spawns[0]
 		_spawn_enemy(String(elite_def.get("id", "thorn_boar")), Vector2(esp[0], esp[1]), elite_def)
-	var cap := int(ContentDB.party_scaling.get("screen_caps", {}).get("max_enemies_on_screen", 12))
+	var cap := _enemy_cap()
 	var spawned := 0
 	var guard := 0
 	var alive := _alive_enemy_count()
@@ -1880,7 +1880,7 @@ func _step_director(dt: float) -> void:
 	if cheapest.is_empty():
 		return
 	var spawns: Array = room_def.get("enemy_spawns", [[900, 400]])
-	var cap := int(ContentDB.party_scaling.get("screen_caps", {}).get("max_enemies_on_screen", 12))
+	var cap := _enemy_cap()
 	var n := 0
 	while n < int(dr.get("group_max", 3)) and _director_reserve > 0.0 and _alive_enemy_count() < cap:
 		var pick: Dictionary = _weighted_pick(enemy_pool)
@@ -2153,3 +2153,9 @@ func _affix_on_death(e: Dictionary) -> void:
 			var off := Vector2.RIGHT.rotated(i * TAU / maxi(int(sp.get("count", 2)), 1)) * 26.0
 			_spawn_enemy(String(e["type"]), (e["pos"] as Vector2) + off, {}, {"no_affix": true, "hp_frac": float(sp.get("hp_frac", 0.3)), "scale": float(sp.get("scale", 0.75)), "split_depth": int(e.get("split_depth", 0)) + 1})
 		events.append({"k": "split", "eid": e["id"], "x": e["pos"].x, "y": e["pos"].y})
+
+
+## 동시 적 상한: 기본값 + 추가 인원당 가산 (party_scaling.screen_caps)
+func _enemy_cap() -> int:
+	var caps: Dictionary = ContentDB.party_scaling.get("screen_caps", {})
+	return int(caps.get("max_enemies_on_screen", 16)) + int(caps.get("per_extra_player", 4)) * maxi(n_players - 1, 0)

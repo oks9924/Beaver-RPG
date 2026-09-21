@@ -1663,7 +1663,7 @@ func test_roguelike_systems() -> void:
 	boss._finish_mechanic(false, "test")
 	check(is_equal_approx(boss.hp, boss.max_hp * 0.55) and br.enemies.size() == adds_before + 2, "failed mechanic heals the boss 5%% and spawns 2 adds (%d)" % (br.enemies.size() - adds_before))
 	check(int(ContentDB.bosses["ironclaw"]["hp"]) == 900 and int(ContentDB.bosses["ironclaw"]["mechanic_gap_sec"]) == 9, "pacing: boss hp 900, mechanic gap 9s")
-	check(int(ContentDB.get_room_def("annihilate")["waves"]["wave_count"]) == 3 and float(ContentDB.get_room_def("annihilate")["waves"]["base_budget"]) >= 9.0, "pacing: annihilate rooms have 3 waves and budget 9")
+	check(int(ContentDB.get_room_def("annihilate")["waves"]["wave_count"]) == 4 and float(ContentDB.get_room_def("annihilate")["waves"]["base_budget"]) >= 14.0, "density: annihilate rooms have 4 waves and budget 14")
 
 
 func test_v4_pack_assets() -> void:

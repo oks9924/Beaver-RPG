@@ -1076,6 +1076,8 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 	var res := inst.last_result
 	var victory: bool = int(res.get("outcome", 0)) == Protocol.Outcome.VICTORY
 	var run_over: bool = false
+	var rstats: Dictionary = res.get("stats", {})
+	_log(1, "room %s (%s) %s: n=%d spawned=%d killed=%d elapsed=%.0fs" % [res.get("room_id", ""), inst.id, "clear" if victory else "wipe", int(res.get("n", 0)), int(rstats.get("enemies_spawned", 0)), int(rstats.get("enemies_killed", 0)), float(res.get("elapsed", 0.0))])
 	if victory:
 		metrics["rooms_cleared"] += 1
 		world["hub"]["total_rooms_cleared"] = int(world["hub"].get("total_rooms_cleared", 0)) + 1

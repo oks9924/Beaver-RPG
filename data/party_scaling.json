@@ -56,8 +56,10 @@
   }
  },
  "screen_caps": {
+  "_comment": "동시 적 상한 = base + per_extra_player × (인원-1): 1인 12, 4인 27. 스냅샷은 적 1마리당 15B 라 MTU 안.",
   "max_enemies_on_screen": 12,
-  "max_projectiles": 40,
+  "per_extra_player": 5,
+  "max_projectiles": 48,
   "max_ground_zones": 8
  }
 }
