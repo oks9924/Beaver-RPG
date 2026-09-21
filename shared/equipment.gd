@@ -80,7 +80,7 @@ static func roll_item(rng: RandomNumberGenerator, class_id: String, level: int, 
 	var table := "weapons" if slot == "weapon" else ("armors" if slot == "armor" else "trinkets")
 	var pool: Array = []
 	for bid: String in db().get(table, {}).keys():
-		if slot != "weapon" or String(db()[table][bid].get("class", "")) == class_id:
+		if slot != "weapon" or class_id == "" or String(db()[table][bid].get("class", "")) == class_id:
 			pool.append(bid)
 	pool.sort()
 	if pool.is_empty():
@@ -93,6 +93,8 @@ static func roll_item(rng: RandomNumberGenerator, class_id: String, level: int, 
 	var tier_max := int(rdef.get("tier_max", 1))
 	var attack_shape := ""
 	if slot == "weapon":
+		if class_id == "":
+			class_id = String(bdef.get("class", ""))   # 아무 직업 무기나 나오는 바닥 드랍: 특성 필터는 그 무기의 직업 기준
 		var cdef := ContentDB.get_class_def(class_id)
 		attack_shape = String(bdef.get("basic_attack", {}).get("shape", cdef.get("basic_attack", {}).get("shape", "arc")))
 	var candidates: Array = []

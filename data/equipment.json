@@ -1,488 +1,494 @@
 {
- "_comment": "영구 장비 (마을 창고에 남는다). 슬롯: weapon(직업별, 직업당 2종), armor, trinket1, trinket2. 등급은 rarities 순서대로 부가 속성 줄이 1줄씩 늘고 전설은 고유 특성(affixes.json uniques) 1개를 더 갖는다. 기본 속성(base)은 지역 레벨(level_scale)과 함께 오르고 등급과 무관하다. 합산은 caps 로 잘라 유물 빌드가 런의 중심이 되게 한다.",
- "rarity_order": [
-  "common",
-  "uncommon",
-  "rare",
-  "epic",
-  "legendary"
- ],
- "rarities": {
-  "common": {
-   "name_ko": "일반",
-   "color": "#ffffff",
-   "lines": 0,
-   "weight": 55,
-   "tier_max": 1,
-   "roll_min": 0.0,
-   "roll_max": 0.5
-  },
-  "uncommon": {
-   "name_ko": "고급",
-   "color": "#7be07b",
-   "lines": 1,
-   "weight": 28,
-   "tier_max": 1,
-   "roll_min": 0.0,
-   "roll_max": 0.6
-  },
-  "rare": {
-   "name_ko": "희귀",
-   "color": "#6fb6ff",
-   "lines": 2,
-   "weight": 12,
-   "tier_max": 2,
-   "roll_min": 0.25,
-   "roll_max": 0.8
-  },
-  "epic": {
-   "name_ko": "영웅",
-   "color": "#c58cff",
-   "lines": 3,
-   "weight": 4,
-   "tier_max": 3,
-   "roll_min": 0.5,
-   "roll_max": 1.0
-  },
-  "legendary": {
-   "name_ko": "전설",
-   "color": "#ffb347",
-   "lines": 3,
-   "weight": 1,
-   "tier_max": 3,
-   "roll_min": 0.7,
-   "roll_max": 1.0,
-   "unique": true
-  }
- },
- "drop": {
-  "_comment": "방 클리어 시 접속 인원 각자 개별 굴림. 정예·보스는 확정(최소 등급 상향). 서약 열기 1당 상위 등급 가중치 +3%p. 창고 상한 초과면 드랍은 사라지고 알림만 간다.",
-  "room_chance": 0.25,
-  "elite_guaranteed": true,
-  "elite_min_rarity": "uncommon",
-  "boss_guaranteed": true,
-  "boss_min_rarity": "rare",
-  "heat_rarity_bonus": 0.03,
-  "depth_rarity_bonus": 0.01,
-  "slot_weights": {
-   "weapon": 0.4,
-   "armor": 0.3,
-   "trinket": 0.3
-  },
-  "inventory_cap": 60,
-  "crystal_on_elite": 1,
-  "crystal_on_boss": 3
- },
- "level_scale": {
-  "1": 1.0,
-  "2": 1.25,
-  "3": 1.5
- },
- "caps": {
-  "_comment": "장비 합산 상한 (유물·마을 보너스와 별도)",
-  "damage_mult": 0.35,
-  "max_hp_add": 60,
-  "damage_reduction": 0.15,
-  "cdr": 0.15,
-  "speed_mult": 0.15,
-  "acorn_mult": 0.5,
-  "boss_damage_mult": 0.3,
-  "knockback_mult": 0.6,
-  "heal_mult": 0.4,
-  "dodge_invuln_add": 0.2,
-  "shop_discount": 0.3,
-  "status_resist": 0.5
- },
- "weapons": {
-  "guardian_hammer": {
-   "class": "guardian",
-   "name_ko": "나무망치",
-   "desc_ko": "기본 호 공격. 균형 잡힌 방어형 무기",
-   "base": {
-    "damage_mult": 0.05
-   },
-   "default": true
-  },
-  "guardian_log": {
-   "class": "guardian",
-   "name_ko": "통나무",
-   "desc_ko": "느리고 넓게 밀친다. 넉백·경직이 크다",
-   "base": {
-    "damage_mult": 0.03,
-    "knockback_mult": 0.15
-   },
-   "basic_attack": {
-    "damage": 17,
-    "windup_sec": 0.34,
-    "active_sec": 0.12,
-    "recovery_sec": 0.4,
-    "range": 98,
-    "angle_deg": 165,
-    "knockback": 75,
-    "stagger_sec": 0.28
-   }
-  },
-  "sawtooth_axe": {
-   "class": "sawtooth",
-   "name_ko": "쌍톱 손도끼",
-   "desc_ko": "빠른 연타. 열의를 빨리 쌓는다",
-   "base": {
-    "damage_mult": 0.05
-   },
-   "default": true
-  },
-  "sawtooth_greatsaw": {
-   "class": "sawtooth",
-   "name_ko": "대톱",
-   "desc_ko": "느리지만 무겁다. 한 방이 크고 경직을 준다",
-   "base": {
-    "damage_mult": 0.03,
-    "stagger_add": 0.05
-   },
-   "basic_attack": {
-    "damage": 15,
-    "windup_sec": 0.26,
-    "active_sec": 0.1,
-    "recovery_sec": 0.34,
-    "range": 90,
-    "angle_deg": 90,
-    "knockback": 45,
-    "stagger_sec": 0.2
-   }
-  },
-  "pinecone_sling": {
-   "class": "pinecone",
-   "name_ko": "솔방울 새총",
-   "desc_ko": "단발 장거리. 표식 공략에 알맞다",
-   "base": {
-    "damage_mult": 0.05
-   },
-   "default": true
-  },
-  "pinecone_launcher": {
-   "class": "pinecone",
-   "name_ko": "솔방울 투척기",
-   "desc_ko": "근거리 산탄 3발. 가까울수록 강하다",
-   "base": {
-    "damage_mult": 0.02,
-    "proj_damage_add": 1
-   },
-   "basic_attack": {
-    "damage": 4,
-    "windup_sec": 0.14,
-    "active_sec": 0.05,
-    "recovery_sec": 0.3,
-    "shape": "projectile",
-    "projectile": {
-     "speed": 480,
-     "radius": 8,
-     "ttl_sec": 0.45,
-     "asset": "vfx.projectile_pinecone"
-    },
-    "pellets": 3,
-    "spread_deg": 26,
-    "knockback": 14,
-    "stagger_sec": 0.0
-   }
-  },
-  "sap_staff": {
-   "class": "sapshaman",
-   "name_ko": "수액 지팡이",
-   "desc_ko": "회복량이 오른다. 단일 회복형",
-   "base": {
-    "damage_mult": 0.03,
-    "heal_mult": 0.06
-   },
-   "default": true
-  },
-  "sap_dripper": {
-   "class": "sapshaman",
-   "name_ko": "수액 방울총",
-   "desc_ko": "맞은 적이 출혈한다. 지속 피해형",
-   "base": {
-    "damage_mult": 0.02,
-    "proj_bleed": 2
-   },
-   "basic_attack": {
-    "damage": 5,
-    "windup_sec": 0.14,
-    "active_sec": 0.05,
-    "recovery_sec": 0.28,
-    "shape": "projectile",
-    "projectile": {
-     "speed": 520,
-     "radius": 9,
-     "ttl_sec": 1.0,
-     "asset": "vfx.projectile_sap"
-    },
-    "knockback": 6,
-    "stagger_sec": 0.0
-   }
-  },
-  "hydro_pump": {
-   "class": "hydro",
-   "name_ko": "물총 펌프",
-   "desc_ko": "압력탄 사격. 설치물 사이에서 싸운다",
-   "base": {
-    "damage_mult": 0.05
-   },
-   "default": true
-  },
-  "hydro_wrench": {
-   "class": "hydro",
-   "name_ko": "수문 렌치",
-   "desc_ko": "근접 휘두르기. 설치물이 튼튼해지고 급류가 길어진다",
-   "base": {
-    "damage_mult": 0.02,
-    "structure_hp_mult": 0.15,
-    "e_length_add": 20
-   },
-   "basic_attack": {
-    "damage": 11,
-    "windup_sec": 0.18,
-    "active_sec": 0.08,
-    "recovery_sec": 0.26,
-    "shape": "arc",
-    "range": 76,
-    "angle_deg": 120,
-    "knockback": 45,
-    "stagger_sec": 0.15
-   }
-  }
- },
- "armors": {
-  "bark_vest": {
-   "name_ko": "나무껍질 조끼",
-   "desc_ko": "최대 체력이 오른다",
-   "base": {
-    "max_hp_add": 14
-   }
-  },
-  "shell_plate": {
-   "name_ko": "껍질 판갑",
-   "desc_ko": "체력과 피해 감소",
-   "base": {
-    "max_hp_add": 8,
-    "damage_reduction": 0.03
-   }
-  },
-  "moss_cloak": {
-   "name_ko": "이끼 망토",
-   "desc_ko": "가볍다. 체력과 이동 속도",
-   "base": {
-    "max_hp_add": 6,
-    "speed_mult": 0.04
-   }
-  }
- },
- "trinkets": {
-  "river_pebble": {
-   "name_ko": "강돌 부적",
-   "desc_ko": "회피 무적 시간이 길어진다",
-   "base": {
-    "dodge_invuln_add": 0.05
-   }
-  },
-  "acorn_charm": {
-   "name_ko": "도토리 부적",
-   "desc_ko": "도토리 획득량이 오른다",
-   "base": {
-    "acorn_mult": 0.1
-   }
-  },
-  "firefly_bead": {
-   "name_ko": "반딧불 구슬",
-   "desc_ko": "이동 속도가 오른다",
-   "base": {
-    "speed_mult": 0.04
-   }
-  },
-  "resin_ring": {
-   "name_ko": "송진 반지",
-   "desc_ko": "스킬 재사용 대기시간이 준다",
-   "base": {
-    "cdr": 0.04
-   }
-  }
- },
- "materials": {
-  "sap_crystal": {
-   "name_ko": "수액 결정",
-   "desc_ko": "장비를 분해하면 나온다. 강화·재감정에 쓴다"
-  }
- },
- "enhance": {
-  "_comment": "강화 +1~+5: 기본 속성만 단계당 +10%. 결과 3단계: 성공 / 실패(재료만 소모, 단계 유지) / 파괴(장비 소멸, destroy_chance 고정). 성공률은 success_chance[다음 단계-1], 나머지가 실패. 비용은 cost[level] × (1 + 등급 지수 × rarity_cost_mult)",
-  "max": 5,
-  "base_mult_per_level": 0.1,
-  "cost": [
-   3,
-   5,
-   8,
-   12,
-   18
+  "_comment": "영구 장비 (마을 창고에 남는다). 슬롯: weapon(직업별, 직업당 2종), armor, trinket1, trinket2. 등급은 rarities 순서대로 부가 속성 줄이 1줄씩 늘고 전설은 고유 특성(affixes.json uniques) 1개를 더 갖는다. 기본 속성(base)은 지역 레벨(level_scale)과 함께 오르고 등급과 무관하다. 합산은 caps 로 잘라 유물 빌드가 런의 중심이 되게 한다.",
+  "rarity_order": [
+    "common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legendary"
   ],
-  "rarity_cost_mult": 0.5,
-  "success_chance": [
-   0.95,
-   0.85,
-   0.7,
-   0.55,
-   0.4
-  ],
-  "destroy_chance": 0.01
- },
- "reforge": {
-  "_comment": "재감정: 부가 속성 1줄을 골라 같은 등급 계층 안에서 다시 굴린다(다른 줄과 중복 금지, 고유 특성은 불가). 비용은 등급별 수액 결정",
-  "cost": {
-   "uncommon": 2,
-   "rare": 4,
-   "epic": 8,
-   "legendary": 15
+  "rarities": {
+    "common": {
+      "name_ko": "일반",
+      "color": "#ffffff",
+      "lines": 0,
+      "weight": 55,
+      "tier_max": 1,
+      "roll_min": 0.0,
+      "roll_max": 0.5
+    },
+    "uncommon": {
+      "name_ko": "고급",
+      "color": "#7be07b",
+      "lines": 1,
+      "weight": 28,
+      "tier_max": 1,
+      "roll_min": 0.0,
+      "roll_max": 0.6
+    },
+    "rare": {
+      "name_ko": "희귀",
+      "color": "#6fb6ff",
+      "lines": 2,
+      "weight": 12,
+      "tier_max": 2,
+      "roll_min": 0.25,
+      "roll_max": 0.8
+    },
+    "epic": {
+      "name_ko": "영웅",
+      "color": "#c58cff",
+      "lines": 3,
+      "weight": 4,
+      "tier_max": 3,
+      "roll_min": 0.5,
+      "roll_max": 1.0
+    },
+    "legendary": {
+      "name_ko": "전설",
+      "color": "#ffb347",
+      "lines": 3,
+      "weight": 1,
+      "tier_max": 3,
+      "roll_min": 0.7,
+      "roll_max": 1.0,
+      "unique": true
+    }
+  },
+  "drop": {
+    "_comment": "창고 상한·재료 지급·슬롯 가중치. 장비 드랍 자체는 ground_drop(적 처치 시 땅에 떨어짐)이 담당한다.",
+    "slot_weights": {
+      "weapon": 0.4,
+      "armor": 0.3,
+      "trinket": 0.3
+    },
+    "inventory_cap": 60,
+    "crystal_on_elite": 1,
+    "crystal_on_boss": 3
+  },
+  "ground_drop": {
+    "_comment": "적을 처치하면 그 자리에 장비가 떨어진다(Hero Siege 식). 모든 장비(다른 직업 무기 포함)가 나올 수 있고 등급은 rarities.weight 로 굴린다. 정예·보스는 최소 등급 보장. 서약 열기·던전 깊이가 상위 등급 가중치를 올린다. 떨어진 장비는 밟으면 줍고(창고 여유 필요), I 키 가방에서 버리거나 파티원에게 건넬 수 있다. 버린 사람은 owner_lock_sec 동안 다시 줍지 못한다. 방을 떠나면 바닥의 장비는 사라진다.",
+    "normal_chance": 0.06,
+    "elite_chance": 0.6,
+    "elite_min_rarity": "uncommon",
+    "boss_count": 2,
+    "boss_min_rarity": "rare",
+    "heat_rarity_bonus": 0.03,
+    "depth_rarity_bonus": 0.01,
+    "pickup_radius": 30,
+    "scatter": 44,
+    "owner_lock_sec": 2.5
+  },
+  "level_scale": {
+    "1": 1.0,
+    "2": 1.25,
+    "3": 1.5
+  },
+  "caps": {
+    "_comment": "장비 합산 상한 (유물·마을 보너스와 별도)",
+    "damage_mult": 0.35,
+    "max_hp_add": 60,
+    "damage_reduction": 0.15,
+    "cdr": 0.15,
+    "speed_mult": 0.15,
+    "acorn_mult": 0.5,
+    "boss_damage_mult": 0.3,
+    "knockback_mult": 0.6,
+    "heal_mult": 0.4,
+    "dodge_invuln_add": 0.2,
+    "shop_discount": 0.3,
+    "status_resist": 0.5
+  },
+  "weapons": {
+    "guardian_hammer": {
+      "class": "guardian",
+      "name_ko": "나무망치",
+      "desc_ko": "기본 호 공격. 균형 잡힌 방어형 무기",
+      "base": {
+        "damage_mult": 0.05
+      },
+      "default": true
+    },
+    "guardian_log": {
+      "class": "guardian",
+      "name_ko": "통나무",
+      "desc_ko": "느리고 넓게 밀친다. 넉백·경직이 크다",
+      "base": {
+        "damage_mult": 0.03,
+        "knockback_mult": 0.15
+      },
+      "basic_attack": {
+        "damage": 17,
+        "windup_sec": 0.34,
+        "active_sec": 0.12,
+        "recovery_sec": 0.4,
+        "range": 98,
+        "angle_deg": 165,
+        "knockback": 75,
+        "stagger_sec": 0.28
+      }
+    },
+    "sawtooth_axe": {
+      "class": "sawtooth",
+      "name_ko": "쌍톱 손도끼",
+      "desc_ko": "빠른 연타. 열의를 빨리 쌓는다",
+      "base": {
+        "damage_mult": 0.05
+      },
+      "default": true
+    },
+    "sawtooth_greatsaw": {
+      "class": "sawtooth",
+      "name_ko": "대톱",
+      "desc_ko": "느리지만 무겁다. 한 방이 크고 경직을 준다",
+      "base": {
+        "damage_mult": 0.03,
+        "stagger_add": 0.05
+      },
+      "basic_attack": {
+        "damage": 15,
+        "windup_sec": 0.26,
+        "active_sec": 0.1,
+        "recovery_sec": 0.34,
+        "range": 90,
+        "angle_deg": 90,
+        "knockback": 45,
+        "stagger_sec": 0.2
+      }
+    },
+    "pinecone_sling": {
+      "class": "pinecone",
+      "name_ko": "솔방울 새총",
+      "desc_ko": "단발 장거리. 표식 공략에 알맞다",
+      "base": {
+        "damage_mult": 0.05
+      },
+      "default": true
+    },
+    "pinecone_launcher": {
+      "class": "pinecone",
+      "name_ko": "솔방울 투척기",
+      "desc_ko": "근거리 산탄 3발. 가까울수록 강하다",
+      "base": {
+        "damage_mult": 0.02,
+        "proj_damage_add": 1
+      },
+      "basic_attack": {
+        "damage": 4,
+        "windup_sec": 0.14,
+        "active_sec": 0.05,
+        "recovery_sec": 0.3,
+        "shape": "projectile",
+        "projectile": {
+          "speed": 480,
+          "radius": 8,
+          "ttl_sec": 0.45,
+          "asset": "vfx.projectile_pinecone"
+        },
+        "pellets": 3,
+        "spread_deg": 26,
+        "knockback": 14,
+        "stagger_sec": 0.0
+      }
+    },
+    "sap_staff": {
+      "class": "sapshaman",
+      "name_ko": "수액 지팡이",
+      "desc_ko": "회복량이 오른다. 단일 회복형",
+      "base": {
+        "damage_mult": 0.03,
+        "heal_mult": 0.06
+      },
+      "default": true
+    },
+    "sap_dripper": {
+      "class": "sapshaman",
+      "name_ko": "수액 방울총",
+      "desc_ko": "맞은 적이 출혈한다. 지속 피해형",
+      "base": {
+        "damage_mult": 0.02,
+        "proj_bleed": 2
+      },
+      "basic_attack": {
+        "damage": 5,
+        "windup_sec": 0.14,
+        "active_sec": 0.05,
+        "recovery_sec": 0.28,
+        "shape": "projectile",
+        "projectile": {
+          "speed": 520,
+          "radius": 9,
+          "ttl_sec": 1.0,
+          "asset": "vfx.projectile_sap"
+        },
+        "knockback": 6,
+        "stagger_sec": 0.0
+      }
+    },
+    "hydro_pump": {
+      "class": "hydro",
+      "name_ko": "물총 펌프",
+      "desc_ko": "압력탄 사격. 설치물 사이에서 싸운다",
+      "base": {
+        "damage_mult": 0.05
+      },
+      "default": true
+    },
+    "hydro_wrench": {
+      "class": "hydro",
+      "name_ko": "수문 렌치",
+      "desc_ko": "근접 휘두르기. 설치물이 튼튼해지고 급류가 길어진다",
+      "base": {
+        "damage_mult": 0.02,
+        "structure_hp_mult": 0.15,
+        "e_length_add": 20
+      },
+      "basic_attack": {
+        "damage": 11,
+        "windup_sec": 0.18,
+        "active_sec": 0.08,
+        "recovery_sec": 0.26,
+        "shape": "arc",
+        "range": 76,
+        "angle_deg": 120,
+        "knockback": 45,
+        "stagger_sec": 0.15
+      }
+    }
+  },
+  "armors": {
+    "bark_vest": {
+      "name_ko": "나무껍질 조끼",
+      "desc_ko": "최대 체력이 오른다",
+      "base": {
+        "max_hp_add": 14
+      }
+    },
+    "shell_plate": {
+      "name_ko": "껍질 판갑",
+      "desc_ko": "체력과 피해 감소",
+      "base": {
+        "max_hp_add": 8,
+        "damage_reduction": 0.03
+      }
+    },
+    "moss_cloak": {
+      "name_ko": "이끼 망토",
+      "desc_ko": "가볍다. 체력과 이동 속도",
+      "base": {
+        "max_hp_add": 6,
+        "speed_mult": 0.04
+      }
+    }
+  },
+  "trinkets": {
+    "river_pebble": {
+      "name_ko": "강돌 부적",
+      "desc_ko": "회피 무적 시간이 길어진다",
+      "base": {
+        "dodge_invuln_add": 0.05
+      }
+    },
+    "acorn_charm": {
+      "name_ko": "도토리 부적",
+      "desc_ko": "도토리 획득량이 오른다",
+      "base": {
+        "acorn_mult": 0.1
+      }
+    },
+    "firefly_bead": {
+      "name_ko": "반딧불 구슬",
+      "desc_ko": "이동 속도가 오른다",
+      "base": {
+        "speed_mult": 0.04
+      }
+    },
+    "resin_ring": {
+      "name_ko": "송진 반지",
+      "desc_ko": "스킬 재사용 대기시간이 준다",
+      "base": {
+        "cdr": 0.04
+      }
+    }
+  },
+  "materials": {
+    "sap_crystal": {
+      "name_ko": "수액 결정",
+      "desc_ko": "장비를 분해하면 나온다. 강화·재감정에 쓴다"
+    }
+  },
+  "enhance": {
+    "_comment": "강화 +1~+5: 기본 속성만 단계당 +10%. 결과 3단계: 성공 / 실패(재료만 소모, 단계 유지) / 파괴(장비 소멸, destroy_chance 고정). 성공률은 success_chance[다음 단계-1], 나머지가 실패. 비용은 cost[level] × (1 + 등급 지수 × rarity_cost_mult)",
+    "max": 5,
+    "base_mult_per_level": 0.1,
+    "cost": [
+      3,
+      5,
+      8,
+      12,
+      18
+    ],
+    "rarity_cost_mult": 0.5,
+    "success_chance": [
+      0.95,
+      0.85,
+      0.7,
+      0.55,
+      0.4
+    ],
+    "destroy_chance": 0.01
+  },
+  "reforge": {
+    "_comment": "재감정: 부가 속성 1줄을 골라 같은 등급 계층 안에서 다시 굴린다(다른 줄과 중복 금지, 고유 특성은 불가). 비용은 등급별 수액 결정",
+    "cost": {
+      "uncommon": 2,
+      "rare": 4,
+      "epic": 8,
+      "legendary": 15
+    }
+  },
+  "salvage": {
+    "_comment": "분해: 장비를 없애고 수액 결정을 얻는다. 장착 중이면 불가. 강화 단계당 +1",
+    "value": {
+      "common": 1,
+      "uncommon": 2,
+      "rare": 5,
+      "epic": 12,
+      "legendary": 30
+    }
+  },
+  "recipes": {
+    "_comment": "제작 도안: 수액 결정 + 기억 조각으로 정해진 슬롯·등급의 장비를 굴린다(무기는 현재 직업). unlock 이 비어 있으면 처음부터, boss 면 그 보스를 잡은 계정에 해금(progression.blueprints)",
+    "list": [
+      {
+        "id": "bp_uncommon_weapon",
+        "name_ko": "고급 무기 도안",
+        "desc_ko": "현재 직업 무기 · 고급 · 지역 1",
+        "slot": "weapon",
+        "rarity": "uncommon",
+        "level": 1,
+        "cost": {
+          "sap_crystal": 4,
+          "memory_shards": 2
+        },
+        "unlock": {}
+      },
+      {
+        "id": "bp_uncommon_armor",
+        "name_ko": "고급 갑옷 도안",
+        "desc_ko": "갑옷 · 고급 · 지역 1",
+        "slot": "armor",
+        "rarity": "uncommon",
+        "level": 1,
+        "cost": {
+          "sap_crystal": 4,
+          "memory_shards": 2
+        },
+        "unlock": {}
+      },
+      {
+        "id": "bp_uncommon_trinket",
+        "name_ko": "고급 장신구 도안",
+        "desc_ko": "장신구 · 고급 · 지역 1",
+        "slot": "trinket",
+        "rarity": "uncommon",
+        "level": 1,
+        "cost": {
+          "sap_crystal": 4,
+          "memory_shards": 2
+        },
+        "unlock": {}
+      },
+      {
+        "id": "bp_rare_weapon",
+        "name_ko": "희귀 무기 도안",
+        "desc_ko": "현재 직업 무기 · 희귀 · 지역 2",
+        "slot": "weapon",
+        "rarity": "rare",
+        "level": 2,
+        "cost": {
+          "sap_crystal": 10,
+          "memory_shards": 5
+        },
+        "unlock": {
+          "boss": "ironclaw"
+        }
+      },
+      {
+        "id": "bp_rare_armor",
+        "name_ko": "희귀 갑옷 도안",
+        "desc_ko": "갑옷 · 희귀 · 지역 2",
+        "slot": "armor",
+        "rarity": "rare",
+        "level": 2,
+        "cost": {
+          "sap_crystal": 10,
+          "memory_shards": 5
+        },
+        "unlock": {
+          "boss": "ironclaw"
+        }
+      },
+      {
+        "id": "bp_rare_trinket",
+        "name_ko": "희귀 장신구 도안",
+        "desc_ko": "장신구 · 희귀 · 지역 2",
+        "slot": "trinket",
+        "rarity": "rare",
+        "level": 2,
+        "cost": {
+          "sap_crystal": 10,
+          "memory_shards": 5
+        },
+        "unlock": {
+          "boss": "lantern_toad"
+        }
+      },
+      {
+        "id": "bp_epic_weapon",
+        "name_ko": "영웅 무기 도안",
+        "desc_ko": "현재 직업 무기 · 영웅 · 지역 3",
+        "slot": "weapon",
+        "rarity": "epic",
+        "level": 3,
+        "cost": {
+          "sap_crystal": 24,
+          "memory_shards": 12
+        },
+        "unlock": {
+          "boss": "lantern_toad"
+        }
+      },
+      {
+        "id": "bp_epic_armor",
+        "name_ko": "영웅 갑옷 도안",
+        "desc_ko": "갑옷 · 영웅 · 지역 3",
+        "slot": "armor",
+        "rarity": "epic",
+        "level": 3,
+        "cost": {
+          "sap_crystal": 24,
+          "memory_shards": 12
+        },
+        "unlock": {
+          "boss": "root_king"
+        }
+      },
+      {
+        "id": "bp_epic_trinket",
+        "name_ko": "영웅 장신구 도안",
+        "desc_ko": "장신구 · 영웅 · 지역 3",
+        "slot": "trinket",
+        "rarity": "epic",
+        "level": 3,
+        "cost": {
+          "sap_crystal": 24,
+          "memory_shards": 12
+        },
+        "unlock": {
+          "boss": "root_king"
+        }
+      }
+    ]
   }
- },
- "salvage": {
-  "_comment": "분해: 장비를 없애고 수액 결정을 얻는다. 장착 중이면 불가. 강화 단계당 +1",
-  "value": {
-   "common": 1,
-   "uncommon": 2,
-   "rare": 5,
-   "epic": 12,
-   "legendary": 30
-  }
- },
- "recipes": {
-  "_comment": "제작 도안: 수액 결정 + 기억 조각으로 정해진 슬롯·등급의 장비를 굴린다(무기는 현재 직업). unlock 이 비어 있으면 처음부터, boss 면 그 보스를 잡은 계정에 해금(progression.blueprints)",
-  "list": [
-   {
-    "id": "bp_uncommon_weapon",
-    "name_ko": "고급 무기 도안",
-    "desc_ko": "현재 직업 무기 · 고급 · 지역 1",
-    "slot": "weapon",
-    "rarity": "uncommon",
-    "level": 1,
-    "cost": {
-     "sap_crystal": 4,
-     "memory_shards": 2
-    },
-    "unlock": {}
-   },
-   {
-    "id": "bp_uncommon_armor",
-    "name_ko": "고급 갑옷 도안",
-    "desc_ko": "갑옷 · 고급 · 지역 1",
-    "slot": "armor",
-    "rarity": "uncommon",
-    "level": 1,
-    "cost": {
-     "sap_crystal": 4,
-     "memory_shards": 2
-    },
-    "unlock": {}
-   },
-   {
-    "id": "bp_uncommon_trinket",
-    "name_ko": "고급 장신구 도안",
-    "desc_ko": "장신구 · 고급 · 지역 1",
-    "slot": "trinket",
-    "rarity": "uncommon",
-    "level": 1,
-    "cost": {
-     "sap_crystal": 4,
-     "memory_shards": 2
-    },
-    "unlock": {}
-   },
-   {
-    "id": "bp_rare_weapon",
-    "name_ko": "희귀 무기 도안",
-    "desc_ko": "현재 직업 무기 · 희귀 · 지역 2",
-    "slot": "weapon",
-    "rarity": "rare",
-    "level": 2,
-    "cost": {
-     "sap_crystal": 10,
-     "memory_shards": 5
-    },
-    "unlock": {
-     "boss": "ironclaw"
-    }
-   },
-   {
-    "id": "bp_rare_armor",
-    "name_ko": "희귀 갑옷 도안",
-    "desc_ko": "갑옷 · 희귀 · 지역 2",
-    "slot": "armor",
-    "rarity": "rare",
-    "level": 2,
-    "cost": {
-     "sap_crystal": 10,
-     "memory_shards": 5
-    },
-    "unlock": {
-     "boss": "ironclaw"
-    }
-   },
-   {
-    "id": "bp_rare_trinket",
-    "name_ko": "희귀 장신구 도안",
-    "desc_ko": "장신구 · 희귀 · 지역 2",
-    "slot": "trinket",
-    "rarity": "rare",
-    "level": 2,
-    "cost": {
-     "sap_crystal": 10,
-     "memory_shards": 5
-    },
-    "unlock": {
-     "boss": "lantern_toad"
-    }
-   },
-   {
-    "id": "bp_epic_weapon",
-    "name_ko": "영웅 무기 도안",
-    "desc_ko": "현재 직업 무기 · 영웅 · 지역 3",
-    "slot": "weapon",
-    "rarity": "epic",
-    "level": 3,
-    "cost": {
-     "sap_crystal": 24,
-     "memory_shards": 12
-    },
-    "unlock": {
-     "boss": "lantern_toad"
-    }
-   },
-   {
-    "id": "bp_epic_armor",
-    "name_ko": "영웅 갑옷 도안",
-    "desc_ko": "갑옷 · 영웅 · 지역 3",
-    "slot": "armor",
-    "rarity": "epic",
-    "level": 3,
-    "cost": {
-     "sap_crystal": 24,
-     "memory_shards": 12
-    },
-    "unlock": {
-     "boss": "root_king"
-    }
-   },
-   {
-    "id": "bp_epic_trinket",
-    "name_ko": "영웅 장신구 도안",
-    "desc_ko": "장신구 · 영웅 · 지역 3",
-    "slot": "trinket",
-    "rarity": "epic",
-    "level": 3,
-    "cost": {
-     "sap_crystal": 24,
-     "memory_shards": 12
-    },
-    "unlock": {
-     "boss": "root_king"
-    }
-   }
-  ]
- }
 }

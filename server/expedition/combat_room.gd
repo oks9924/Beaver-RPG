@@ -45,6 +45,11 @@ var _director_reserve: float = 0.0     # 웨이브 뒤 증원용 예산 (RoR2 �
 var _director_credits: float = 0.0
 var _affix_elites_this_wave: int = 0
 var _forced_elite_done: bool = false
+var ground_items: Dictionary = {}   # gid -> {gid, item, pos, t, lock: {account_id: elapsed_until}} 바닥에 떨어진 장비
+var next_ground_id: int = 1
+var pending_pickups: Array = []     # [{aid, gi}] 밟은 장비. 서버 본체가 계정 창고에 넣고, 못 넣으면 return_ground_item 으로 되돌린다
+var drop_profile: Dictionary = {}   # {heat, depth, level, tutorial, mult}
+var _boss_loot_done: bool = false
 var enemy_pool: Array = []
 var boss: RefCounted = null        # 보스방일 때 BossController (단계 2-3)
 var _retreat_t: float = -1.0
@@ -75,6 +80,7 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 	var dr: Dictionary = game_rules.get("director", {})
 	_director_reserve = wave_budget_total * float(dr.get("reserve_frac", 0.5)) if float(w.get("base_budget", 0.0)) > 0.0 else 0.0
 	explore = bool(opts.get("explore", false))
+	drop_profile = opts.get("drop", {})
 	if explore:
 		objective = "explore"
 	entry_dir = String(opts.get("entry_dir", ""))
@@ -398,6 +404,7 @@ func step(dt: float) -> Array:
 			if float(hz["life"]) <= 0.0:
 				hazards.remove_at(i)
 	_step_water(dt)
+	_step_ground_items()
 	if explore:
 		_step_doors(dt)
 		return events
@@ -504,11 +511,8 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		action = p["action"]
 	elif _can_act(p):
 		var cdef: Dictionary = ContentDB.get_class_def(p["class_id"])
-		if btn & Protocol.BTN_ATTACK:
-			var atk := basic_attack_def(p)
-			_face_aim(p)
-			_start_action(p, Protocol.Action.WINDUP, "basic", float(atk.get("windup_sec", 0.2)))
-		elif pressed & Protocol.BTN_Q and float(p["cd"]["q"]) <= 0.0:
+		# 스킬·회복·건설·상호작용이 기본 공격보다 먼저다 (자동 공격이 BTN_ATTACK 을 계속 누르고 있어도 다른 입력이 먹도록)
+		if pressed & Protocol.BTN_Q and float(p["cd"]["q"]) <= 0.0:
 			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "q", float(cdef["skills"]["q"].get("cast_sec", 0.2)))
 		elif pressed & Protocol.BTN_E and float(p["cd"]["e"]) <= 0.0:
@@ -533,6 +537,10 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 					p["action"] = Protocol.Action.INTERACTING
 					p["action_kind"] = "interact"
 					p["interact_target"] = oid
+		if p["action"] == Protocol.Action.IDLE and btn & Protocol.BTN_ATTACK:
+			var atk := basic_attack_def(p)
+			_face_aim(p)
+			_start_action(p, Protocol.Action.WINDUP, "basic", float(atk.get("windup_sec", 0.2)))
 		action = p["action"]
 	if action == Protocol.Action.RESCUING:
 		var t: Dictionary = players.get(p["rescue_target"], {})
@@ -1443,6 +1451,7 @@ func _kill_enemy(e: Dictionary, attacker: Dictionary) -> void:
 		team_wood = mini(team_wood + wood, int(rules.get("wood_cap", 30)))
 		stats["wood_gained"] += wood
 	events.append({"k": "enemy_died", "eid": e["id"], "by": attacker["id"], "type": e["type"], "x": e["pos"].x, "y": e["pos"].y})
+	_roll_ground_drop(e)
 	_affix_on_death(e)
 	if players.has(attacker.get("id", "")):
 		_fire_procs(attacker, "on_kill", {"enemy": e})
@@ -2254,6 +2263,9 @@ func _check_outcome() -> void:
 		if _alive_enemy_count() == 0 or objective == "tutorial":
 			outcome = Protocol.Outcome.VICTORY
 			events.append({"k": "room_clear", "elapsed": elapsed})
+			if boss != null and not _boss_loot_done:
+				_boss_loot_done = true
+				drop_boss_loot(boss.pos)
 		return
 	if objective == "annihilate" and _all_spawned and _director_reserve <= 0.001 and _alive_enemy_count() == 0:
 		outcome = Protocol.Outcome.VICTORY
@@ -2359,3 +2371,100 @@ func _affix_on_death(e: Dictionary) -> void:
 func _enemy_cap() -> int:
 	var caps: Dictionary = ContentDB.party_scaling.get("screen_caps", {})
 	return int(caps.get("max_enemies_on_screen", 16)) + int(caps.get("per_extra_player", 4)) * maxi(n_players - 1, 0)
+
+
+# ------------------------------------------------------------------ 바닥 장비 (적 처치 드랍 · 줍기 · 버리기)
+
+func _ground_rules() -> Dictionary:
+	return ContentDB.equipment.get("ground_drop", {})
+
+
+## 적 처치 시 그 자리에 장비를 굴린다. 정예는 확률·최소 등급이 높다. 튜토리얼·허수아비는 없음.
+func _roll_ground_drop(e: Dictionary) -> void:
+	var gd := _ground_rules()
+	if gd.is_empty() or bool(drop_profile.get("tutorial", false)) or String(e["def"].get("role", "")) == "dummy":
+		return
+	var elite := bool(e.get("elite", false))
+	var chance := float(gd.get("elite_chance", 0.6)) if elite else float(gd.get("normal_chance", 0.06))
+	chance *= float(drop_profile.get("mult", 1.0))
+	if rng.randf() >= chance:
+		return
+	_spawn_drop(e["pos"], String(gd.get("elite_min_rarity", "uncommon")) if elite else "")
+
+
+## 보스 처치: boss_count 개를 최소 등급 이상으로 떨어뜨린다 (방 승리 판정 시 한 번).
+func drop_boss_loot(at: Vector2) -> void:
+	var gd := _ground_rules()
+	if gd.is_empty() or bool(drop_profile.get("tutorial", false)):
+		return
+	for i in maxi(int(gd.get("boss_count", 2)), 1):
+		_spawn_drop(at, String(gd.get("boss_min_rarity", "rare")))
+
+
+func _spawn_drop(at: Vector2, min_rarity: String) -> void:
+	var gd := _ground_rules()
+	var bonus := float(drop_profile.get("heat", 0)) * float(gd.get("heat_rarity_bonus", 0.03)) + float(drop_profile.get("depth", 0)) * float(gd.get("depth_rarity_bonus", 0.01))
+	var rarity := Equipment.roll_rarity(rng, min_rarity, bonus)
+	var item := Equipment.roll_item(rng, "", int(drop_profile.get("level", 1)), rarity, "", int(rng.randi()))
+	if item.is_empty():
+		return
+	var sc := float(gd.get("scatter", 44.0))
+	var pos := _clamp_in_bounds(at + Vector2(rng.randf_range(-sc, sc), rng.randf_range(-sc, sc)), 24.0)
+	place_ground_item(item, pos, "", at, false)
+
+
+## 바닥에 장비를 놓는다. lock_aid 는 owner_lock_sec 동안 다시 줍지 못한다(버린 사람). external=true 면 틱 밖(장비 행동)에서 호출된 것이라 다음 틱 이벤트에 싣는다.
+func place_ground_item(item: Dictionary, pos: Vector2, lock_aid: String = "", from: Vector2 = Vector2.INF, external: bool = true) -> int:
+	var gid := next_ground_id
+	next_ground_id += 1
+	var gi := {"gid": gid, "item": item, "pos": pos, "t": elapsed, "lock": {}}
+	if lock_aid != "":
+		gi["lock"][lock_aid] = elapsed + float(_ground_rules().get("owner_lock_sec", 2.5))
+	ground_items[gid] = gi
+	var ev := ground_entry(gi)
+	ev["k"] = "drop"
+	if from != Vector2.INF:
+		ev["fx"] = from.x
+		ev["fy"] = from.y
+	if external:
+		pending_events.append(ev)
+	else:
+		events.append(ev)
+	return gid
+
+
+func ground_entry(gi: Dictionary) -> Dictionary:
+	var it: Dictionary = gi["item"]
+	return {"gid": int(gi["gid"]), "x": (gi["pos"] as Vector2).x, "y": (gi["pos"] as Vector2).y, "rarity": String(it.get("rarity", "common")), "base": String(it.get("base", "")),
+		"name": String(it.get("name_ko", "")), "slot": String(it.get("slot", "")), "enh": int(it.get("enhance", 0)), "uid": String(it.get("uid", ""))}
+
+
+func ground_payload() -> Array:
+	var out: Array = []
+	for gi: Dictionary in ground_items.values():
+		out.append(ground_entry(gi))
+	return out
+
+
+## 창고가 가득 차는 등 줍기가 실패하면 그 자리에 되돌리고, 그 사람은 lock_sec 동안 다시 밟아도 줍지 않는다 (알림 반복 방지).
+func return_ground_item(gi: Dictionary, aid: String, lock_sec: float = 4.0) -> void:
+	gi["lock"][aid] = elapsed + lock_sec
+	ground_items[int(gi["gid"])] = gi
+
+
+func _step_ground_items() -> void:
+	if ground_items.is_empty():
+		return
+	var r := float(_ground_rules().get("pickup_radius", 30.0))
+	for p: Dictionary in players.values():
+		if p["state"] != Protocol.EntState.ALIVE or not bool(p.get("connected", true)):
+			continue
+		for gid: int in ground_items.keys():
+			var gi: Dictionary = ground_items[gid]
+			if elapsed < float((gi["lock"] as Dictionary).get(p["id"], -1.0)):
+				continue
+			if (gi["pos"] as Vector2).distance_to(p["pos"]) <= r:
+				ground_items.erase(gid)
+				pending_pickups.append({"aid": p["id"], "gi": gi})
+				break   # 한 틱에 한 사람이 하나만
+

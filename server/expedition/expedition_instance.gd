@@ -40,6 +40,7 @@ var run_finished_unreported: bool = false
 var explore_pending: bool = false     # 체크포인트 복구 직후: 첫 재접속 때 탐색 방을 다시 만든다
 static var debug_route_layers: int = 0   # 테스트용: 0 이면 전체 던전, N 이면 첫 지역 주 경로 앞 N개 방만(옆길·보스 없음), -1 이면 보스 방만
 static var debug_boss: String = ""        # 테스트·연습용: 지정 보스방 하나만 있는 경로 (ironclaw / lantern_toad / root_king)
+static var debug_drop_mult: float = 1.0   # 테스트용: 적 처치 장비 드랍 확률 배수 (운영 1.0)
 
 
 func _init(expedition_id: String, seed_: int) -> void:
@@ -772,7 +773,8 @@ func start_room(explore: bool = false, entry_dir: String = "", broadcast: bool =
 	var room_seed := int(rng.randi())
 	var node := current_node()
 	var opts := {"budget_add": float(run.get("next_room_budget_add", 0.0)), "team_wood": int(run.get("team_wood", 0)), "enemy_pool": ContentDB.get_room_def(room_id).get("enemy_pool", run.get("enemy_pool", [])),
-		"explore": explore, "entry_dir": entry_dir, "doors": _door_list(node) if not node.is_empty() else []}
+		"explore": explore, "entry_dir": entry_dir, "doors": _door_list(node) if not node.is_empty() else [],
+		"drop": {"heat": heat, "depth": int(run.get("layer", 0)), "level": int(run.get("region_index", 0)) + 1, "tutorial": tutorial, "mult": debug_drop_mult}}
 	if not explore:
 		run["next_room_budget_add"] = 0.0
 	room = CombatRoom.new(ContentDB.get_room_def(room_id), effective_profile(profile), ContentDB.rules, room_seed, member_list, opts)
@@ -810,7 +812,7 @@ func room_enter_payload() -> Dictionary:
 		"expedition_id": id, "room_index": room_index, "room_id": room_id, "room_def": def, "seed": room.seed_value if room else 0,
 		"n": n_locked, "profile": ContentDB.get_party_profile(n_locked), "party": party, "difficulty": difficulty, "node": current_node(),
 		"explore": room.explore if room else false, "entry_dir": room.entry_dir if room else "", "spawns": room.entry_spawns if room else {}, "doors": room.doors if room else [],
-		"cell": run.get("cell", ""), "region_index": run.get("region_index", 0), "run": run_payload(),
+		"cell": run.get("cell", ""), "region_index": run.get("region_index", 0), "run": run_payload(), "ground_items": room.ground_payload() if room else [],
 		"rules": {"down_duration_sec": ContentDB.rule("down_duration_sec"), "rescue_hold_sec": ContentDB.rule("rescue_hold_sec"), "rescue_range": ContentDB.rule("rescue_range"), "dodge_charges": ContentDB.rule("dodge_charges"), "build_cost_wood": ContentDB.rule("build_cost_wood"), "dungeon_doors": ContentDB.rule("dungeon_doors", {})},
 		"content_version": content_version,
 	}
@@ -869,6 +871,9 @@ func step(dt: float, snapshot_every: int) -> Dictionary:
 	if state != Protocol.ExpState.IN_ROOM or room == null or suspended:
 		return out
 	out["events"] = room.step(dt).duplicate()
+	if not room.pending_pickups.is_empty():
+		out["pickups"] = room.pending_pickups.duplicate()
+		room.pending_pickups.clear()
 	_snap_accum += 1
 	if _snap_accum >= snapshot_every:
 		_snap_accum = 0

@@ -70,6 +70,8 @@ func _ready() -> void:
 	test_v4_pack_assets()
 	print("-- test_equipment")
 	test_equipment()
+	print("-- test_ground_drops")
+	test_ground_drops()
 	print("-- test_v5_pack_assets")
 	test_v5_pack_assets()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
@@ -2093,9 +2095,57 @@ func test_equipment() -> void:
 	check(Equipment.blueprints_for_boss("ironclaw").size() == 2 and Equipment.recipe_unlocked(prog3, Equipment.recipe_def("bp_rare_weapon")), "ironclaw kill unlocks the two rare blueprints")
 	prog3["memory_shards"] = 1
 	check(Equipment.craft(prog3, "bp_rare_armor", "guardian", crng).get("error", "") == "NOT_ENOUGH_SHARDS", "crafting checks memory shards")
-	# 드랍 굴림: 보스는 확정 희귀 이상, 창고 상한
-	var dd: Dictionary = eqdb["drop"]
-	check(float(dd.get("room_chance", 0)) > 0.0 and String(dd.get("boss_min_rarity", "")) == "rare" and int(dd.get("inventory_cap", 0)) == 60, "drop rules: room chance, boss min rarity rare, cap 60")
+	# 바닥 드랍 규칙: 일반·정예 확률, 보스 확정 희귀 이상, 창고 상한. 아무 직업 무기나 나올 수 있다
+	var gd: Dictionary = eqdb["ground_drop"]
+	check(float(gd.get("normal_chance", 0)) > 0.0 and float(gd.get("elite_chance", 0)) > float(gd.get("normal_chance", 0)) and String(gd.get("boss_min_rarity", "")) == "rare" and int(eqdb["drop"].get("inventory_cap", 0)) == 60, "ground drop rules: normal < elite chance, boss min rarity rare, cap 60")
+	var classes_seen := {}
+	for i in 200:
+		var w := Equipment.roll_item(crng, "", 1, "common", "weapon", i + 1)
+		classes_seen[String(w.get("class", ""))] = true
+	check(classes_seen.size() >= 4, "ground drops roll weapons of any class (%d classes in 200 rolls)" % classes_seen.size())
+
+
+## 적 처치 → 바닥 드랍 → 밟아서 줍기(서버 본체가 처리할 목록) → 버리기(본인은 잠시 못 주움)
+func test_ground_drops() -> void:
+	var room := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 77, _members(1), {"drop": {"heat": 0, "depth": 0, "level": 1, "tutorial": false, "mult": 1000.0}})
+	var dt := 1.0 / 30.0
+	var p: Dictionary = room.players["p0"]
+	var e: Dictionary = room.enemies.values()[0]
+	var before := room.ground_items.size()
+	room._damage_enemy(e, 100000.0, p, 0.0, 0.0)
+	room.step(dt)
+	check(room.ground_items.size() == before + 1, "killing an enemy with drop chance x1000 leaves one item on the ground")
+	var gi: Dictionary = room.ground_items.values()[0]
+	var dropped := false
+	for ev: Dictionary in room.events:
+		if ev.get("k", "") == "drop" and int(ev.get("gid", -1)) == int(gi["gid"]):
+			dropped = true
+	check(dropped or room.pending_events.is_empty(), "drop event carries the ground id")
+	check((gi["pos"] as Vector2).distance_to(e["pos"]) <= 80.0, "item lands near the corpse")
+	# 밟으면 pending_pickups 로 넘어가고 바닥에서 사라진다
+	p["pos"] = gi["pos"]
+	room.step(dt)
+	check(room.pending_pickups.size() == 1 and not room.ground_items.has(int(gi["gid"])), "walking over an item queues a pickup and removes it from the floor")
+	var pk: Dictionary = room.pending_pickups[0]
+	room.pending_pickups.clear()
+	# 창고가 찼다면 되돌리고 잠시 잠근다
+	room.return_ground_item(pk["gi"], "p0", 4.0)
+	room.step(dt)
+	check(room.ground_items.size() == 1 and room.pending_pickups.is_empty(), "returned item is locked for that player")
+	# 버린 장비: 본인은 owner_lock_sec 동안 못 줍고, 이벤트는 다음 틱에 실린다
+	var gid2 := room.place_ground_item({"uid": "it_x", "slot": "armor", "base": "bark_vest", "rarity": "epic", "name_ko": "테스트 조끼", "affixes": []}, p["pos"], "p0")
+	var evs := room.step(dt)
+	var seen := false
+	for ev: Dictionary in evs:
+		if ev.get("k", "") == "drop" and int(ev.get("gid", -1)) == gid2 and String(ev.get("rarity", "")) == "epic":
+			seen = true
+	check(seen and room.ground_items.has(gid2) and room.pending_pickups.is_empty(), "dropped item stays on the floor for its owner and is announced next tick")
+	check(room.ground_payload().size() == 2 and String(room.ground_payload()[0].get("name", "")) != "", "ground payload lists items for late joiners")
+	# 자동 공격 우선순위: 공격 버튼을 계속 누른 채 Q 를 누르면 스킬이 나간다
+	var room2 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 78, _members(1))
+	room2.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT, Protocol.BTN_ATTACK | Protocol.BTN_Q)
+	room2.step(dt)
+	check(room2.players["p0"]["action"] == Protocol.Action.CAST and room2.players["p0"]["action_kind"] == "q", "skill wins over a held attack button")
 
 
 ## v5 팩: 장비 아이콘 17·등급 테두리 5프레임·빈 슬롯 4프레임·배지·자물쇠·망치·재료·도안 3·강화 VFX 3·효과음 3 이 최종본으로 연결되고 프레임 선택이 맞는지
