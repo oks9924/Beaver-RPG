@@ -312,7 +312,7 @@
   }
  },
  "enhance": {
-  "_comment": "강화 +1~+5: 기본 속성만 오른다(등급 무관). 비용은 다음 단계 기준 cost[level] × (1 + 등급 지수 × rarity_cost_mult) 수액 결정",
+  "_comment": "강화 +1~+5: 기본 속성만 단계당 +10%. 결과 3단계: 성공 / 실패(재료만 소모, 단계 유지) / 파괴(장비 소멸, destroy_chance 고정). 성공률은 success_chance[다음 단계-1], 나머지가 실패. 비용은 cost[level] × (1 + 등급 지수 × rarity_cost_mult)",
   "max": 5,
   "base_mult_per_level": 0.1,
   "cost": [
@@ -322,7 +322,15 @@
    12,
    18
   ],
-  "rarity_cost_mult": 0.5
+  "rarity_cost_mult": 0.5,
+  "success_chance": [
+   0.95,
+   0.85,
+   0.7,
+   0.55,
+   0.4
+  ],
+  "destroy_chance": 0.01
  },
  "reforge": {
   "_comment": "재감정: 부가 속성 1줄을 골라 같은 등급 계층 안에서 다시 굴린다(다른 줄과 중복 금지, 고유 특성은 불가). 비용은 등급별 수액 결정",
@@ -342,5 +350,139 @@
    "epic": 12,
    "legendary": 30
   }
+ },
+ "recipes": {
+  "_comment": "제작 도안: 수액 결정 + 기억 조각으로 정해진 슬롯·등급의 장비를 굴린다(무기는 현재 직업). unlock 이 비어 있으면 처음부터, boss 면 그 보스를 잡은 계정에 해금(progression.blueprints)",
+  "list": [
+   {
+    "id": "bp_uncommon_weapon",
+    "name_ko": "고급 무기 도안",
+    "desc_ko": "현재 직업 무기 · 고급 · 지역 1",
+    "slot": "weapon",
+    "rarity": "uncommon",
+    "level": 1,
+    "cost": {
+     "sap_crystal": 4,
+     "memory_shards": 2
+    },
+    "unlock": {}
+   },
+   {
+    "id": "bp_uncommon_armor",
+    "name_ko": "고급 갑옷 도안",
+    "desc_ko": "갑옷 · 고급 · 지역 1",
+    "slot": "armor",
+    "rarity": "uncommon",
+    "level": 1,
+    "cost": {
+     "sap_crystal": 4,
+     "memory_shards": 2
+    },
+    "unlock": {}
+   },
+   {
+    "id": "bp_uncommon_trinket",
+    "name_ko": "고급 장신구 도안",
+    "desc_ko": "장신구 · 고급 · 지역 1",
+    "slot": "trinket",
+    "rarity": "uncommon",
+    "level": 1,
+    "cost": {
+     "sap_crystal": 4,
+     "memory_shards": 2
+    },
+    "unlock": {}
+   },
+   {
+    "id": "bp_rare_weapon",
+    "name_ko": "희귀 무기 도안",
+    "desc_ko": "현재 직업 무기 · 희귀 · 지역 2",
+    "slot": "weapon",
+    "rarity": "rare",
+    "level": 2,
+    "cost": {
+     "sap_crystal": 10,
+     "memory_shards": 5
+    },
+    "unlock": {
+     "boss": "ironclaw"
+    }
+   },
+   {
+    "id": "bp_rare_armor",
+    "name_ko": "희귀 갑옷 도안",
+    "desc_ko": "갑옷 · 희귀 · 지역 2",
+    "slot": "armor",
+    "rarity": "rare",
+    "level": 2,
+    "cost": {
+     "sap_crystal": 10,
+     "memory_shards": 5
+    },
+    "unlock": {
+     "boss": "ironclaw"
+    }
+   },
+   {
+    "id": "bp_rare_trinket",
+    "name_ko": "희귀 장신구 도안",
+    "desc_ko": "장신구 · 희귀 · 지역 2",
+    "slot": "trinket",
+    "rarity": "rare",
+    "level": 2,
+    "cost": {
+     "sap_crystal": 10,
+     "memory_shards": 5
+    },
+    "unlock": {
+     "boss": "lantern_toad"
+    }
+   },
+   {
+    "id": "bp_epic_weapon",
+    "name_ko": "영웅 무기 도안",
+    "desc_ko": "현재 직업 무기 · 영웅 · 지역 3",
+    "slot": "weapon",
+    "rarity": "epic",
+    "level": 3,
+    "cost": {
+     "sap_crystal": 24,
+     "memory_shards": 12
+    },
+    "unlock": {
+     "boss": "lantern_toad"
+    }
+   },
+   {
+    "id": "bp_epic_armor",
+    "name_ko": "영웅 갑옷 도안",
+    "desc_ko": "갑옷 · 영웅 · 지역 3",
+    "slot": "armor",
+    "rarity": "epic",
+    "level": 3,
+    "cost": {
+     "sap_crystal": 24,
+     "memory_shards": 12
+    },
+    "unlock": {
+     "boss": "root_king"
+    }
+   },
+   {
+    "id": "bp_epic_trinket",
+    "name_ko": "영웅 장신구 도안",
+    "desc_ko": "장신구 · 영웅 · 지역 3",
+    "slot": "trinket",
+    "rarity": "epic",
+    "level": 3,
+    "cost": {
+     "sap_crystal": 24,
+     "memory_shards": 12
+    },
+    "unlock": {
+     "boss": "root_king"
+    }
+   }
+  ]
  }
 }

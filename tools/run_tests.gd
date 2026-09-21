@@ -2000,6 +2000,47 @@ func test_equipment() -> void:
 	Equipment.equip(prog2, "armor", "")
 	var mats_before := Equipment.material_count(prog2)
 	check(Equipment.salvage_value(rare_arm) == 5 + 5 and Equipment.salvage(prog2, "ra") == "" and Equipment.find_item(prog2, "ra").is_empty() and Equipment.material_count(prog2) == mats_before + 10, "salvage removes the item and pays rarity value + enhance level")
+	# 강화 결과 3단계: 성공률은 단계마다 내려가고 파괴는 1% 고정, 실패는 재료만 소모
+	var table: Array = eqdb["enhance"]["success_chance"]
+	var falling := true
+	for i in range(1, table.size()):
+		if float(table[i]) > float(table[i - 1]):
+			falling = false
+	check(falling and float(table[0]) >= 0.9 and is_equal_approx(float(eqdb["enhance"]["destroy_chance"]), 0.01), "success chance falls with level (%s), destroy fixed at 1%%" % [table])
+	var outcomes := {"ok": 0, "fail": 0, "destroy": 0}
+	var trials := 3000
+	var orng := RandomNumberGenerator.new()
+	orng.seed = 4242
+	for i in trials:
+		var pr := {"inventory": [{"uid": "e%d" % i, "slot": "armor", "base": "bark_vest", "rarity": "common", "level": 1, "affixes": [], "unique": "", "enhance": 4, "name_ko": "x"}], "equipped": {"armor": "e%d" % i}, "materials": {"sap_crystal": 100}}
+		var r := Equipment.enhance(pr, "e%d" % i, orng)
+		if r == "":
+			outcomes["ok"] += 1
+			if int(pr["inventory"][0]["enhance"]) != 5:
+				outcomes["ok"] = -99999
+		elif r == "ENHANCE_FAILED":
+			outcomes["fail"] += 1
+			if int(pr["inventory"][0]["enhance"]) != 4 or Equipment.material_count(pr) == 100:
+				outcomes["fail"] = -99999
+		elif r == "ENHANCE_DESTROYED":
+			outcomes["destroy"] += 1
+			if not (pr["inventory"] as Array).is_empty() or String(pr["equipped"]["armor"]) != "":
+				outcomes["destroy"] = -99999
+	var p_ok := float(outcomes["ok"]) / trials
+	var p_destroy := float(outcomes["destroy"]) / trials
+	check(absf(p_ok - float(table[4])) < 0.04 and absf(p_destroy - 0.01) < 0.008 and outcomes["fail"] > 0, "+4→+5 outcomes match the table (ok %.2f fail %d destroy %.3f); failure keeps the level, destruction removes and unequips" % [p_ok, outcomes["fail"], p_destroy])
+	# 제작 도안: 기본 3종 열림, 보스 도안 잠김 → 해금 → 비용 차감·창고 추가
+	var prog3 := {"inventory": [], "equipped": {}, "materials": {"sap_crystal": 50}, "memory_shards": 20, "blueprints": []}
+	var crng := RandomNumberGenerator.new()
+	crng.seed = 8
+	check(Equipment.recipes().size() == 9 and Equipment.recipe_unlocked(prog3, Equipment.recipe_def("bp_uncommon_weapon")) and not Equipment.recipe_unlocked(prog3, Equipment.recipe_def("bp_rare_weapon")), "9 recipes; uncommon open, rare locked at start")
+	check(Equipment.craft(prog3, "bp_rare_weapon", "guardian", crng).get("error", "") == "RECIPE_LOCKED", "locked recipe refused")
+	var made := Equipment.craft(prog3, "bp_uncommon_weapon", "sawtooth", crng)
+	check(made.has("item") and String(made["item"]["rarity"]) == "uncommon" and String(made["item"]["class"]) == "sawtooth" and (made["item"]["affixes"] as Array).size() == 1 and Equipment.material_count(prog3) == 46 and int(prog3["memory_shards"]) == 18 and prog3["inventory"].size() == 1, "crafting rolls the recipe's slot/rarity for the current class and pays crystals + shards")
+	prog3["blueprints"].append_array(Equipment.blueprints_for_boss("ironclaw"))
+	check(Equipment.blueprints_for_boss("ironclaw").size() == 2 and Equipment.recipe_unlocked(prog3, Equipment.recipe_def("bp_rare_weapon")), "ironclaw kill unlocks the two rare blueprints")
+	prog3["memory_shards"] = 1
+	check(Equipment.craft(prog3, "bp_rare_armor", "guardian", crng).get("error", "") == "NOT_ENOUGH_SHARDS", "crafting checks memory shards")
 	# 드랍 굴림: 보스는 확정 희귀 이상, 창고 상한
 	var dd: Dictionary = eqdb["drop"]
 	check(float(dd.get("room_chance", 0)) > 0.0 and String(dd.get("boss_min_rarity", "")) == "rare" and int(dd.get("inventory_cap", 0)) == 60, "drop rules: room chance, boss min rarity rare, cap 60")

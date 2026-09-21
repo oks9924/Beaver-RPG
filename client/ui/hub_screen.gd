@@ -532,6 +532,29 @@ func _refresh_gear() -> void:
 		b.pressed.connect(func() -> void: _select_gear(uid))
 		grid.add_child(b)
 	gear_box.add_child(grid)
+	# 제작 도안: 처음부터 열린 고급 3종 + 보스 처치로 해금되는 희귀·영웅
+	gear_box.add_child(UIKit.label("제작 (송진 대장장이의 작업대) — 수액 결정 + 기억 조각 %d" % int(prog.get("memory_shards", 0)), 14, Color(1.0, 0.9, 0.7)))
+	var cgrid := GridContainer.new()
+	cgrid.columns = 3
+	cgrid.add_theme_constant_override("h_separation", 6)
+	cgrid.add_theme_constant_override("v_separation", 4)
+	var mats := Equipment.material_count(prog)
+	for r: Dictionary in Equipment.recipes():
+		var rid := String(r.get("id", ""))
+		var cost: Dictionary = r.get("cost", {})
+		var unlocked := Equipment.recipe_unlocked(prog, r)
+		var cb := Button.new()
+		cb.text = "%s  (결정 %d · 조각 %d)" % [r.get("name_ko", rid), int(cost.get("sap_crystal", 0)), int(cost.get("memory_shards", 0))]
+		cb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		cb.add_theme_font_size_override("font_size", 12)
+		cb.add_theme_color_override("font_color", Equipment.rarity_color(String(r.get("rarity", "uncommon"))))
+		cb.tooltip_text = String(r.get("desc_ko", "")) + ("" if unlocked else "\n잠김: %s 처치 시 해금" % ContentDB.bosses.get(String(r.get("unlock", {}).get("boss", "")), {}).get("name_ko", "지역 보스"))
+		cb.disabled = not unlocked or mats < int(cost.get("sap_crystal", 0)) or int(prog.get("memory_shards", 0)) < int(cost.get("memory_shards", 0))
+		if not unlocked:
+			cb.text = "🔒 " + cb.text
+		cb.pressed.connect(func() -> void: gear_action.emit("craft", rid, 0))
+		cgrid.add_child(cb)
+	gear_box.add_child(cgrid)
 
 
 func _select_gear(uid: String) -> void:
@@ -585,9 +608,11 @@ func _gear_detail(prog: Dictionary, equipped_uids: Array) -> Control:
 			target = "trinket1" if String(eqp.get("trinket1", "")) == "" else "trinket2"
 		actions.add_child(UIKit.button("장착", func() -> void: equip_requested.emit(target, uid)))
 	var ecost := Equipment.enhance_cost(it)
-	var eb := UIKit.button("강화 +%d (%d)" % [int(it.get("enhance", 0)) + 1, ecost] if ecost >= 0 else "강화 최대 (+%d)" % int(ContentDB.equipment.get("enhance", {}).get("max", 5)), func() -> void: gear_action.emit("enhance", uid, 0))
+	var succ := int(round(Equipment.enhance_success_chance(it) * 100.0))
+	var destroy := int(round(Equipment.enhance_destroy_chance() * 100.0))
+	var eb := UIKit.button("강화 +%d (%d) 성공 %d%% · 파괴 %d%%" % [int(it.get("enhance", 0)) + 1, ecost, succ, destroy] if ecost >= 0 else "강화 최대 (+%d)" % int(ContentDB.equipment.get("enhance", {}).get("max", 5)), func() -> void: gear_action.emit("enhance", uid, 0))
 	eb.disabled = ecost < 0 or mats < ecost
-	eb.tooltip_text = "기본 속성 ×(1 + 0.1 × 단계). 수액 결정 %d" % maxi(ecost, 0)
+	eb.tooltip_text = "기본 속성 ×(1 + 0.1 × 단계). 수액 결정 %d\n성공 %d%% / 실패 %d%% (재료만 소모, 단계 유지) / 파괴 %d%% (장비 소멸)" % [maxi(ecost, 0), succ, maxi(100 - succ - destroy, 0), destroy]
 	actions.add_child(eb)
 	var sb := UIKit.button("분해 (+%d 결정)" % Equipment.salvage_value(it), func() -> void: gear_action.emit("salvage", uid, 0))
 	sb.disabled = is_eq
@@ -641,6 +666,11 @@ func _item_button(it: Dictionary, equipped: bool) -> Button:
 	b.add_theme_color_override("font_color", Equipment.rarity_color(rarity))
 	b.tooltip_text = "\n".join(Equipment.describe(it))
 	b.custom_minimum_size = Vector2(340, 0)
+	# 아이콘(icon.gear.<base>)은 v5 팩이 들어오면 자동으로 붙는다 (docs/asset_request_v5.md)
+	var icon_id := "icon.gear." + String(it.get("base", ""))
+	if AssetRegistry.has(icon_id) and AssetRegistry.status(icon_id) == "final":
+		b.icon = AssetRegistry.get_texture(icon_id)
+		b.add_theme_constant_override("icon_max_width", 20)
 	return b
 
 

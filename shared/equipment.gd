@@ -359,8 +359,23 @@ static func is_equipped(prog: Dictionary, uid: String) -> bool:
 	return false
 
 
-## 강화: 수액 결정을 쓰고 enhance +1. 돌려주는 값 "" 또는 오류 코드
-static func enhance(prog: Dictionary, uid: String) -> String:
+## 다음 단계 성공률 (success_chance[현재 단계]). 파괴는 destroy_chance 고정, 나머지가 실패(재료만 소모).
+static func enhance_success_chance(item: Dictionary) -> float:
+	var en: Dictionary = db().get("enhance", {})
+	var table: Array = en.get("success_chance", [0.95, 0.85, 0.7, 0.55, 0.4])
+	var lv := int(item.get("enhance", 0))
+	if table.is_empty():
+		return 1.0
+	return clampf(float(table[mini(lv, table.size() - 1)]), 0.0, 1.0)
+
+
+static func enhance_destroy_chance() -> float:
+	return clampf(float(db().get("enhance", {}).get("destroy_chance", 0.01)), 0.0, 1.0)
+
+
+## 강화: 수액 결정을 쓰고 굴린다. 돌려주는 값: "" 성공(enhance +1), "ENHANCE_FAILED" 실패(재료만 소모), "ENHANCE_DESTROYED" 파괴(창고에서 제거), 그 외 오류 코드.
+## 굴림 순서: [0, destroy) 파괴 → [destroy, destroy + success) 성공 → 나머지 실패. rng 가 없으면 항상 성공(테스트·도구용).
+static func enhance(prog: Dictionary, uid: String, rng: RandomNumberGenerator = null) -> String:
 	var it := find_item(prog, uid)
 	if it.is_empty():
 		return "NO_ITEM"
@@ -370,9 +385,90 @@ static func enhance(prog: Dictionary, uid: String) -> String:
 	if material_count(prog) < cost:
 		return "NOT_ENOUGH_MATERIALS"
 	add_material(prog, -cost)
+	if rng != null:
+		var roll := rng.randf()
+		var destroy := enhance_destroy_chance()
+		if roll < destroy:
+			var inv: Array = prog.get("inventory", [])
+			for i in inv.size():
+				if String(inv[i].get("uid", "")) == uid:
+					inv.remove_at(i)
+					break
+			_unequip_uid(prog, uid)
+			return "ENHANCE_DESTROYED"
+		if roll >= destroy + enhance_success_chance(it):
+			return "ENHANCE_FAILED"
 	it["enhance"] = int(it.get("enhance", 0)) + 1
 	it["name_ko"] = display_name(it)
 	return ""
+
+
+static func _unequip_uid(prog: Dictionary, uid: String) -> void:
+	var eqp: Dictionary = prog.get("equipped", {})
+	for sk: String in ["armor", "trinket1", "trinket2"]:
+		if String(eqp.get(sk, "")) == uid:
+			eqp[sk] = ""
+	var w: Variant = eqp.get("weapon", {})
+	if w is Dictionary:
+		for cid: String in (w as Dictionary).keys().duplicate():
+			if String(w[cid]) == uid:
+				(w as Dictionary).erase(cid)
+
+
+# ------------------------------------------------------------------ 제작 도안
+
+static func recipes() -> Array:
+	return db().get("recipes", {}).get("list", [])
+
+
+static func recipe_def(rid: String) -> Dictionary:
+	for r: Dictionary in recipes():
+		if String(r.get("id", "")) == rid:
+			return r
+	return {}
+
+
+## 도안 해금 여부: unlock 이 비면 항상, boss 면 progression.blueprints 에 도안 id 가 있어야 한다
+static func recipe_unlocked(prog: Dictionary, r: Dictionary) -> bool:
+	var unlock: Dictionary = r.get("unlock", {})
+	if unlock.is_empty():
+		return true
+	return (prog.get("blueprints", []) as Array).has(String(r.get("id", "")))
+
+
+## 보스 처치로 해금되는 도안 id 목록
+static func blueprints_for_boss(boss_id: String) -> Array:
+	var out: Array = []
+	for r: Dictionary in recipes():
+		if String(r.get("unlock", {}).get("boss", "")) == boss_id:
+			out.append(String(r.get("id", "")))
+	return out
+
+
+## 제작: 비용(수액 결정·기억 조각)을 내고 도안의 슬롯·등급·레벨로 굴린다. 돌려주는 값 {"error": code} 또는 {"item": ...}
+static func craft(prog: Dictionary, rid: String, class_id: String, rng: RandomNumberGenerator) -> Dictionary:
+	var r := recipe_def(rid)
+	if r.is_empty():
+		return {"error": "NO_RECIPE"}
+	if not recipe_unlocked(prog, r):
+		return {"error": "RECIPE_LOCKED"}
+	var cost: Dictionary = r.get("cost", {})
+	if material_count(prog) < int(cost.get("sap_crystal", 0)):
+		return {"error": "NOT_ENOUGH_MATERIALS"}
+	if int(prog.get("memory_shards", 0)) < int(cost.get("memory_shards", 0)):
+		return {"error": "NOT_ENOUGH_SHARDS"}
+	var inv: Array = prog.get("inventory", [])
+	if inv.size() >= int(db().get("drop", {}).get("inventory_cap", 60)):
+		return {"error": "INVENTORY_FULL"}
+	var item := roll_item(rng, class_id, int(r.get("level", 1)), String(r.get("rarity", "uncommon")), String(r.get("slot", "armor")), int(rng.randi()))
+	if item.is_empty():
+		return {"error": "NO_RECIPE"}
+	add_material(prog, -int(cost.get("sap_crystal", 0)))
+	prog["memory_shards"] = int(prog.get("memory_shards", 0)) - int(cost.get("memory_shards", 0))
+	item["crafted"] = true
+	inv.append(item)
+	prog["inventory"] = inv
+	return {"item": item}
 
 
 ## 재감정: index 번째 부가 속성을 같은 등급 계층 안에서 새 특성으로 다시 굴린다 (다른 줄과 중복 금지)

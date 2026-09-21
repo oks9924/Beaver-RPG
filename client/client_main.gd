@@ -125,7 +125,7 @@ func _ready() -> void:
 	hub_screen.upgrade_requested.connect(func(sid: String) -> void: net.send(Protocol.C.HUB_UPGRADE, {"structure": sid}))
 	hub_screen.trait_requested.connect(func(cid: String, tid: String) -> void: net.send(Protocol.C.MASTERY_TRAIT, {"class_id": cid, "trait_id": tid}))
 	hub_screen.equip_requested.connect(func(slot: String, uid: String) -> void: net.send(Protocol.C.EQUIP, {"slot": slot, "uid": uid}))
-	hub_screen.gear_action.connect(func(action: String, uid: String, index: int) -> void: net.send(Protocol.C.GEAR_ACTION, {"action": action, "uid": uid, "index": index}))
+	hub_screen.gear_action.connect(func(action: String, uid: String, index: int) -> void: net.send(Protocol.C.GEAR_ACTION, {"action": action, "uid": uid, "index": index, "recipe": uid}))
 	hud.chat_sent.connect(func(t: String) -> void: net.send(Protocol.C.CHAT, {"text": t}))
 	result_panel.choice_made.connect(func(c: String) -> void: net.send(Protocol.C.ROOM_CHOICE, {"choice": c}))
 	run_panels.reward_picked.connect(func(i: int) -> void: net.send(Protocol.C.REWARD_PICK, {"index": i}))

@@ -708,9 +708,20 @@ func _handle_gear_action(s: Session, payload: Dictionary) -> void:
 	var note := ""
 	match String(payload.get("action", "")):
 		"enhance":
-			err = Equipment.enhance(prog, uid)
-			if err == "":
-				note = "강화 성공: %s" % Equipment.find_item(prog, uid).get("name_ko", "")
+			var erng := RandomNumberGenerator.new()
+			erng.randomize()
+			var before := Equipment.find_item(prog, uid).duplicate(true)
+			err = Equipment.enhance(prog, uid, erng)
+			match err:
+				"":
+					note = "강화 성공: %s" % Equipment.find_item(prog, uid).get("name_ko", "")
+				"ENHANCE_FAILED":
+					err = ""
+					note = "강화 실패: %s (재료만 소모, 단계 유지)" % before.get("name_ko", "")
+				"ENHANCE_DESTROYED":
+					err = ""
+					note = "강화 파괴! %s 이(가) 부서졌습니다" % before.get("name_ko", "")
+			_log(1, "%s enhance %s -> %s" % [s.nickname, before.get("name_ko", uid), note])
 		"reforge":
 			var rng := RandomNumberGenerator.new()
 			rng.randomize()
@@ -726,6 +737,15 @@ func _handle_gear_action(s: Session, payload: Dictionary) -> void:
 			err = Equipment.salvage(prog, uid)
 			if err == "":
 				note = "분해: %s → 수액 결정 +%d" % [it.get("name_ko", ""), gain]
+		"craft":
+			var crng := RandomNumberGenerator.new()
+			crng.randomize()
+			var cr := Equipment.craft(prog, String(payload.get("recipe", "")), s.class_id, crng)
+			if cr.has("error"):
+				err = String(cr["error"])
+			else:
+				var made: Dictionary = cr["item"]
+				note = "제작: [%s] %s" % [Equipment.rarity_name(String(made.get("rarity", ""))), made.get("name_ko", "")]
 		_:
 			err = Protocol.ERR_BAD_STATE
 	if err != "":
@@ -1245,6 +1265,16 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 				crystals = int(ContentDB.equipment.get("drop", {}).get("crystal_on_elite", 1))
 		if crystals > 0:
 			Equipment.add_material(prog, crystals)
+		var new_bps: Array = []
+		if victory and String(res.get("boss_id", "")) != "":
+			var bps: Array = prog.get("blueprints", [])
+			for bid: String in Equipment.blueprints_for_boss(String(res["boss_id"])):
+				if not bps.has(bid):
+					bps.append(bid)
+					new_bps.append(String(Equipment.recipe_def(bid).get("name_ko", bid)))
+			prog["blueprints"] = bps
+		if not new_bps.is_empty():
+			inst.outbox.append({"to": "members", "type": Protocol.S.NOTICE, "payload": {"text": "%s: 제작 도안 해금 — %s" % [inst.members[aid]["nickname"], ", ".join(PackedStringArray(new_bps))]}})
 		if not gear_drop.is_empty():
 			var it: Dictionary = gear_drop["item"]
 			var txt := "%s 획득: [%s] %s" % [inst.members[aid]["nickname"], Equipment.rarity_name(String(it.get("rarity", ""))), it.get("name_ko", "")]
