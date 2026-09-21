@@ -45,7 +45,7 @@
 | 임포트 | v4 131 ID + 오디오 17 → 510장 합성, 매니페스트 399항목: 최종 394 · 파생 5 · 임시 0 | SKIP/FAIL 0 |
 | `--tool=check_assets` | 399항목 규격·프레임 | 문제 0 |
 | `test_v4_pack_assets` | 직업 3종 8상태·적 9종·보스 2종 시트, idle 보존, 타일 인덱스 수, 소품 상태 수, VFX·거목 활성 루프·예고 경계, 아이콘·초상·NPC, 임시 0, 카드 content_rect, 오디오 17 디코딩·루프 | 16/16 (단위 총 552) |
-| 데모 캡처 | 톱니전사 방(새 시트·갉아 돌진·물가), 두꺼비 보스방(습지 타일·두꺼비), 뿌리왕 보스방(뿌리댐 타일·뿌리왕), 마을(NPC·훈련장·작업실) | 스크립트 오류 0, 런타임 대체 0 — `docs/screenshots/{room_v4_sawtooth,boss_toad_v4,boss_rootking_v4,hub_v4}.png` |
+| 데모 캡처 | 톱니전사 방(새 시트·갉아 돌진·물가), 두꺼비 보스방(습지 타일·두꺼비), 뿌리왕 보스방(뿌리댐 타일·뿌리왕), 마을(NPC·훈련장·작업실). 스킬 캡처(데모가 Q/E/R 을 누르고 서버 시전 이벤트 뒤에 촬영): 거목 활성 루프, 도토리 산탄, 벌목 열풍, 뿌리 결속, 급류 밸브 — `docs/screenshots/skill_*.png` | 스크립트 오류 0, 런타임 대체 0 — `docs/screenshots/{room_v4_sawtooth,boss_toad_v4,boss_rootking_v4,hub_v4}.png` |
 | 회귀 | 보스 420 · 통합 42 · export 스모크(ogg 포함) | 통과 |
 
 미확인(실기): 4방향 체형·발 위치, 탈피·뿌리 재생 실제 타이밍, 오디오 청취·4인 동시 효과음 음량. 팩의 미확인 항목 대조는 `assets/packs/beaver_assets_v4/qa_results.json`.

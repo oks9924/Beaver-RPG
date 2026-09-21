@@ -49,6 +49,14 @@ var _demo_t: float = 0.0
 var _demo_step: int = 0
 var _shots_dir: String = ""
 var _demo_phase_shots: int = 0
+# 데모 스킬 캡처: 방에서 Q/E/R 을 번갈아 누르고, 서버가 실제로 시전 이벤트를 보낸 뒤에 찍는다 (자원 부족 등으로 실패한 시전은 찍지 않는다)
+var _demo_want: Array = ["q", "e", "r"]
+var _demo_press_t: float = 0.0
+var _demo_press_i: int = 0
+var _demo_shots_pending: Array = []   # [[절대 초, 파일명]]
+var _demo_attack_shot: bool = false
+var _demo_force_btn: int = 0
+var _demo_hold_until: float = 0.0
 var _route_offer: Dictionary = {}
 
 
@@ -429,6 +437,16 @@ func _on_message(type: int, p: Dictionary) -> void:
 
 func _on_room_event(ev: Dictionary) -> void:
 	var k := String(ev.get("k", ""))
+	if demo and String(ev.get("id", "")) == my_id:
+		var now := Time.get_ticks_msec() / 1000.0
+		if k == "skill" and _demo_want.has(String(ev.get("slot", ""))):
+			var slot := String(ev.get("slot", ""))
+			_demo_want.erase(slot)
+			_demo_shots_pending.append([now + 0.3, "20_skill_%s.png" % slot])
+			_demo_shots_pending.append([now + 1.5, "21_skill_%s_late.png" % slot])
+		elif k == "swing" and not _demo_attack_shot:
+			_demo_attack_shot = true
+			_demo_shots_pending.append([now + 0.15, "22_attack.png"])
 	match k:
 		"swing":
 			var pos := Vector2(float(ev.get("x", 0)), float(ev.get("y", 0)))
@@ -992,6 +1010,17 @@ func _demo_tick(dt: float) -> void:
 				_screenshot("03_party.png")
 				net.send(Protocol.C.BOARD_START)
 		"room":
+			if _demo_step >= 5 and _demo_t > 2.5 and not _demo_want.is_empty() and _demo_t - _demo_press_t >= 1.2:
+				_demo_press_t = _demo_t
+				var slot: String = _demo_want[_demo_press_i % _demo_want.size()]
+				_demo_press_i += 1
+				_demo_force_btn = {"q": Protocol.BTN_Q, "e": Protocol.BTN_E, "r": Protocol.BTN_R}[slot]
+				_demo_hold_until = _demo_t + 0.6
+			var now := Time.get_ticks_msec() / 1000.0
+			for i in range(_demo_shots_pending.size() - 1, -1, -1):
+				if now >= float(_demo_shots_pending[i][0]):
+					_screenshot(String(_demo_shots_pending[i][1]))
+					_demo_shots_pending.remove_at(i)
 			if _demo_step == 4:
 				_demo_step = 5
 				_demo_t = 0.0
@@ -1073,8 +1102,12 @@ func _demo_input() -> Dictionary:
 			mv = aim.normalized()
 		else:
 			btn |= Protocol.BTN_ATTACK
-			if _me_snapshot[Protocol.SNAP_P.CD_E] <= 0.0:
-				btn |= Protocol.BTN_E
+	if _demo_force_btn != 0:
+		if _demo_t <= _demo_hold_until:
+			btn = _demo_force_btn   # 시전 중엔 기본 공격·이동을 멈추고 버튼을 유지한다
+			mv = Vector2.ZERO
+		else:
+			_demo_force_btn = 0
 	return {"mv": mv, "btn": btn, "aim": aim}
 
 
