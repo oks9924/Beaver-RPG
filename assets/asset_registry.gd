@@ -67,6 +67,12 @@ func resolve_path(id: String) -> String:
 		var p := override_dir.path_join(id + "." + ext)
 		if FileAccess.file_exists(p):
 			return p
+		if String(e.get("type", "")) == "audio":
+			# 오디오는 매니페스트 확장자와 달라도 wav/ogg 둘 다 받는다 (실행 파일 옆 asset_overrides/<id>.wav 또는 .ogg)
+			for alt in ["wav", "ogg"]:
+				var ap := override_dir.path_join(id + "." + alt)
+				if alt != ext and FileAccess.file_exists(ap):
+					return ap
 	var fp: String = e.get("final_path", "")
 	if fp != "" and _exists(fp):
 		return fp
