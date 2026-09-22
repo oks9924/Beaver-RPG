@@ -18,6 +18,7 @@ var boss_state: Dictionary = {}
 var explore: bool = false          # 탐색 모드(클리어된 방): 문이 열려 있다
 var ground_items: Dictionary = {}  # gid -> {pos, from, rarity, base, name, slot, enh, t} 바닥에 떨어진 장비 (이벤트로 갱신)
 var local_pos: Vector2 = Vector2.ZERO   # 내 캐릭터 위치 (가까운 일반 장비 이름표 표시용)
+var local_id: String = ""               # 내 계정 ID: 남의 개인 드랍(owner 가 다른 사람)은 그리지 않는다
 var _object_tex: Dictionary = {}
 var _mechanic_fx: Dictionary = {}   # mechanic id ("IC-01") -> {"success": bool, "t": sec since end, "active": bool}
 const MECHANIC_OF_KIND := {Protocol.ObKind.PILLAR: "ic_01", Protocol.ObKind.GATE: "ic_02", Protocol.ObKind.CLAW_LINK: "ic_03", Protocol.ObKind.CORRIDOR: "ic_04", Protocol.ObKind.ANCHOR: "ic_05",
@@ -801,7 +802,15 @@ func ground_spawn(e: Dictionary) -> void:
 	_add_ground(e, true)
 
 
+## 개인 드랍은 주인에게만 보인다. 공용(버린 장비, owner "")은 모두에게.
+func ground_visible(e: Dictionary) -> bool:
+	var owner := String(e.get("owner", ""))
+	return owner == "" or owner == local_id
+
+
 func _add_ground(e: Dictionary, animate: bool) -> void:
+	if not ground_visible(e):
+		return
 	var pos := Vector2(float(e.get("x", 0)), float(e.get("y", 0)))
 	var from := Vector2(float(e.get("fx", pos.x)), float(e.get("fy", pos.y))) if animate else pos
 	ground_items[int(e.get("gid", 0))] = {"pos": pos, "from": from, "rarity": String(e.get("rarity", "common")), "base": String(e.get("base", "")),

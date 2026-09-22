@@ -205,7 +205,11 @@ func _on_message(type: int, p: Dictionary) -> void:
 					"wipe": _count("wipe")
 					"explore": _count("explore_rooms")
 					"door": _count("door_travels")
-					"drop": _count("drops")
+					"drop":
+						if String(ev.get("owner", "")) == "" or String(ev.get("owner", "")) == _my_id:
+							_count("drops")
+						else:
+							_count("drops_others")
 					"pickup": _count("pickups")
 		Protocol.S.ROOM_RESULT:
 			result["room_result"] = {"outcome": p.get("outcome", 0), "run_outcome": p.get("run_outcome", 0), "elapsed": p.get("elapsed", 0), "stats": p.get("stats", {}), "rewards": p.get("rewards", {}), "run_stats": p.get("run_stats", {}), "run": p.get("run", {})}

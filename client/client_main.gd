@@ -309,6 +309,7 @@ func _on_auth(p: Dictionary) -> void:
 			net.send(Protocol.C.LOGIN, {"nick": String(launch_args["demo"]), "password": "demopass1"})
 		return
 	my_id = String(net.account.get("id", ""))
+	world.local_id = my_id
 	settings.store_token(net.host, net.port, my_id, net.token, String(net.account.get("nickname", "")))
 	login_screen.set_status("로그인 성공. 월드 동기화 중...", true)
 
@@ -495,12 +496,13 @@ func _on_room_event(ev: Dictionary) -> void:
 		"enemy_died":
 			world.play_sound("sfx.snail_death")
 		"drop":
-			world.ground_spawn(ev)
-			var ri := Equipment.rarity_index(String(ev.get("rarity", "common")))
-			if ri >= 2:
-				world.play_sound("sfx.enhance.success", 0.15)
-			if ri >= 3:
-				hud.toast("[%s] %s 드랍!" % [Equipment.rarity_name(String(ev.get("rarity", ""))), ev.get("name", "")], 2.5)
+			if world.ground_visible(ev):   # 남의 개인 드랍은 보이지도, 울리지도 않는다
+				world.ground_spawn(ev)
+				var ri := Equipment.rarity_index(String(ev.get("rarity", "common")))
+				if ri >= 2:
+					world.play_sound("sfx.enhance.success", 0.15)
+				if ri >= 3:
+					hud.toast("[%s] %s 드랍!" % [Equipment.rarity_name(String(ev.get("rarity", ""))), ev.get("name", "")], 2.5)
 		"pickup":
 			var gi := world.ground_remove(int(ev.get("gid", 0)))
 			if not gi.is_empty():

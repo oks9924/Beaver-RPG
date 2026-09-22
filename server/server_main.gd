@@ -1362,10 +1362,14 @@ func _resolve_pickup(inst: ExpeditionInstance, pk: Dictionary) -> void:
 		metrics["save_failures"] += 1
 		inst.room.return_ground_item(gi, aid)
 		return
-	inst.room.pending_events.append({"k": "pickup", "gid": int(gi["gid"]), "by": aid, "rarity": String(item.get("rarity", "")), "name": String(item.get("name_ko", ""))})
+	inst.room.pending_events.append({"k": "pickup", "gid": int(gi["gid"]), "by": aid, "owner": String(gi.get("owner", "")), "rarity": String(item.get("rarity", "")), "name": String(item.get("name_ko", ""))})
 	if ps != null:
 		Net.send_to_peer(ps.peer_id, Protocol.S.ACCOUNT_UPDATE, {"account": _public_account(acc)})
-	_send_to_members(inst, Protocol.S.NOTICE, {"text": "%s 획득: [%s] %s" % [inst.members[aid]["nickname"] if inst.members.has(aid) else aid, Equipment.rarity_name(String(item.get("rarity", ""))), item.get("name_ko", "")]})
+	var txt := "%s 획득: [%s] %s" % [inst.members[aid]["nickname"] if inst.members.has(aid) else aid, Equipment.rarity_name(String(item.get("rarity", ""))), item.get("name_ko", "")]
+	if Equipment.rarity_index(String(item.get("rarity", ""))) >= 2 or String(gi.get("owner", "")) == "":
+		_send_to_members(inst, Protocol.S.NOTICE, {"text": txt})   # 희귀 이상 개인 드랍과 공용(버린) 장비는 파티 전원에게
+	elif ps != null:
+		Net.send_to_peer(ps.peer_id, Protocol.S.NOTICE, {"text": txt})
 	_log(1, "%s picked up %s (%s)" % [aid, item.get("name_ko", ""), item.get("rarity", "")])
 
 

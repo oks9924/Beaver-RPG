@@ -2141,6 +2141,34 @@ func test_ground_drops() -> void:
 			seen = true
 	check(seen and room.ground_items.has(gid2) and room.pending_pickups.is_empty(), "dropped item stays on the floor for its owner and is announced next tick")
 	check(room.ground_payload().size() == 2 and String(room.ground_payload()[0].get("name", "")) != "", "ground payload lists items for late joiners")
+	# 개인 드랍: 2인 파티에서 적 하나를 잡으면 사람마다 따로 굴리고(×1000 이면 둘 다), 남의 것은 밟아도 안 줍는다. 버린 장비(owner "")는 누구나
+	var r3 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(2), ContentDB.rules, 79, _members(2), {"drop": {"heat": 0, "depth": 0, "level": 1, "tutorial": false, "mult": 1000.0}})
+	var e3: Dictionary = r3.enemies.values()[0]
+	r3._damage_enemy(e3, 100000.0, r3.players["p0"], 0.0, 0.0)
+	r3.step(dt)
+	var owners := {}
+	for gi3: Dictionary in r3.ground_items.values():
+		owners[String(gi3.get("owner", ""))] = true
+	check(r3.ground_items.size() == 2 and owners.has("p0") and owners.has("p1"), "personal drops: one roll per party member, each item owned")
+	var p1_item: Dictionary = {}
+	for gi3: Dictionary in r3.ground_items.values():
+		if String(gi3.get("owner", "")) == "p1":
+			p1_item = gi3
+		else:
+			gi3["pos"] = Vector2(-900, -900)   # p0 의 것은 멀리 치워 두고 p1 의 것만 밟게 한다
+	r3.players["p0"]["pos"] = p1_item["pos"]
+	r3.players["p1"]["pos"] = Vector2(-999, -999)
+	r3.step(dt)
+	check(r3.pending_pickups.is_empty() and r3.ground_items.has(int(p1_item["gid"])), "another player cannot pick up someone else's personal drop")
+	r3.players["p1"]["pos"] = p1_item["pos"]
+	r3.step(dt)
+	check(r3.pending_pickups.size() == 1 and String(r3.pending_pickups[0]["aid"]) == "p1", "the owner picks up their own drop")
+	r3.pending_pickups.clear()
+	var pub := r3.place_ground_item({"uid": "it_pub", "slot": "armor", "base": "bark_vest", "rarity": "common", "name_ko": "공용 조끼", "affixes": []}, Vector2(300, 300), "p1")
+	r3.step(dt)
+	r3.players["p0"]["pos"] = Vector2(300, 300)
+	r3.step(dt)
+	check(r3.pending_pickups.size() == 1 and String(r3.pending_pickups[0]["aid"]) == "p0" and not r3.ground_items.has(pub), "a dropped (public) item can be picked up by anyone else")
 	# 자동 공격 우선순위: 공격 버튼을 계속 누른 채 Q 를 누르면 스킬이 나간다
 	var room2 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 78, _members(1))
 	room2.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT, Protocol.BTN_ATTACK | Protocol.BTN_Q)

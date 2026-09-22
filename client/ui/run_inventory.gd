@@ -32,7 +32,7 @@ func _ready() -> void:
 	_target = OptionButton.new()
 	th.add_child(_target)
 	v.add_child(th)
-	v.add_child(UIKit.label("장착 변경은 마을 메뉴에서. 버린 장비는 방 바닥에 남고 파티원이 주울 수 있으며, 방을 떠나면 사라집니다.", 12, Color(0.75, 0.75, 0.7)))
+	v.add_child(UIKit.label("장착 변경은 마을 메뉴에서. 드랍은 개인별(내 것만 보임)이고, 버린 장비는 공용이라 파티원이 주울 수 있으며 방을 떠나면 사라집니다.", 12, Color(0.75, 0.75, 0.7)))
 	var sc := ScrollContainer.new()
 	sc.custom_minimum_size = Vector2(440, 320)
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

@@ -2379,7 +2379,8 @@ func _ground_rules() -> Dictionary:
 	return ContentDB.equipment.get("ground_drop", {})
 
 
-## 적 처치 시 그 자리에 장비를 굴린다. 정예는 확률·최소 등급이 높다. 튜토리얼·허수아비는 없음.
+## 적 처치 시 그 자리에 장비를 굴린다 — **개인 드랍**: 접속 중인 파티원마다 따로 굴리고, 떨어진 장비는 그 사람에게만 보이고 그 사람만 줍는다.
+## 정예는 확률·최소 등급이 높다. 튜토리얼·허수아비는 없음.
 func _roll_ground_drop(e: Dictionary) -> void:
 	var gd := _ground_rules()
 	if gd.is_empty() or bool(drop_profile.get("tutorial", false)) or String(e["def"].get("role", "")) == "dummy":
@@ -2387,21 +2388,33 @@ func _roll_ground_drop(e: Dictionary) -> void:
 	var elite := bool(e.get("elite", false))
 	var chance := float(gd.get("elite_chance", 0.6)) if elite else float(gd.get("normal_chance", 0.06))
 	chance *= float(drop_profile.get("mult", 1.0))
-	if rng.randf() >= chance:
-		return
-	_spawn_drop(e["pos"], String(gd.get("elite_min_rarity", "uncommon")) if elite else "")
+	for aid: String in _loot_owners():
+		if rng.randf() >= chance:
+			continue
+		_spawn_drop(e["pos"], String(gd.get("elite_min_rarity", "uncommon")) if elite else "", aid)
 
 
-## 보스 처치: boss_count 개를 최소 등급 이상으로 떨어뜨린다 (방 승리 판정 시 한 번).
+## 보스 처치: 파티원마다 boss_count 개를 최소 등급 이상으로 (방 승리 판정 시 한 번).
 func drop_boss_loot(at: Vector2) -> void:
 	var gd := _ground_rules()
 	if gd.is_empty() or bool(drop_profile.get("tutorial", false)):
 		return
-	for i in maxi(int(gd.get("boss_count", 2)), 1):
-		_spawn_drop(at, String(gd.get("boss_min_rarity", "rare")))
+	for aid: String in _loot_owners():
+		for i in maxi(int(gd.get("boss_count", 2)), 1):
+			_spawn_drop(at, String(gd.get("boss_min_rarity", "rare")), aid)
 
 
-func _spawn_drop(at: Vector2, min_rarity: String) -> void:
+## 드랍을 받을 사람: 접속 중인 파티원 전원 (다운·사망도 포함 — 방이 끝나기 전에 구조되면 줍는다)
+func _loot_owners() -> Array:
+	var out: Array = []
+	for p: Dictionary in players.values():
+		if bool(p.get("connected", true)):
+			out.append(String(p["id"]))
+	out.sort()
+	return out
+
+
+func _spawn_drop(at: Vector2, min_rarity: String, owner: String) -> void:
 	var gd := _ground_rules()
 	var bonus := float(drop_profile.get("heat", 0)) * float(gd.get("heat_rarity_bonus", 0.03)) + float(drop_profile.get("depth", 0)) * float(gd.get("depth_rarity_bonus", 0.01))
 	var rarity := Equipment.roll_rarity(rng, min_rarity, bonus)
@@ -2410,14 +2423,15 @@ func _spawn_drop(at: Vector2, min_rarity: String) -> void:
 		return
 	var sc := float(gd.get("scatter", 44.0))
 	var pos := _clamp_in_bounds(at + Vector2(rng.randf_range(-sc, sc), rng.randf_range(-sc, sc)), 24.0)
-	place_ground_item(item, pos, "", at, false)
+	place_ground_item(item, pos, "", at, false, owner)
 
 
-## 바닥에 장비를 놓는다. lock_aid 는 owner_lock_sec 동안 다시 줍지 못한다(버린 사람). external=true 면 틱 밖(장비 행동)에서 호출된 것이라 다음 틱 이벤트에 싣는다.
-func place_ground_item(item: Dictionary, pos: Vector2, lock_aid: String = "", from: Vector2 = Vector2.INF, external: bool = true) -> int:
+## 바닥에 장비를 놓는다. owner 가 있으면 그 사람에게만 보이고 그 사람만 줍는다(개인 드랍); "" 이면 공용(버린 장비).
+## lock_aid 는 owner_lock_sec 동안 다시 줍지 못한다(버린 사람). external=true 면 틱 밖(장비 행동)에서 호출된 것이라 다음 틱 이벤트에 싣는다.
+func place_ground_item(item: Dictionary, pos: Vector2, lock_aid: String = "", from: Vector2 = Vector2.INF, external: bool = true, owner: String = "") -> int:
 	var gid := next_ground_id
 	next_ground_id += 1
-	var gi := {"gid": gid, "item": item, "pos": pos, "t": elapsed, "lock": {}}
+	var gi := {"gid": gid, "item": item, "pos": pos, "t": elapsed, "lock": {}, "owner": owner}
 	if lock_aid != "":
 		gi["lock"][lock_aid] = elapsed + float(_ground_rules().get("owner_lock_sec", 2.5))
 	ground_items[gid] = gi
@@ -2436,7 +2450,7 @@ func place_ground_item(item: Dictionary, pos: Vector2, lock_aid: String = "", fr
 func ground_entry(gi: Dictionary) -> Dictionary:
 	var it: Dictionary = gi["item"]
 	return {"gid": int(gi["gid"]), "x": (gi["pos"] as Vector2).x, "y": (gi["pos"] as Vector2).y, "rarity": String(it.get("rarity", "common")), "base": String(it.get("base", "")),
-		"name": String(it.get("name_ko", "")), "slot": String(it.get("slot", "")), "enh": int(it.get("enhance", 0)), "uid": String(it.get("uid", ""))}
+		"name": String(it.get("name_ko", "")), "slot": String(it.get("slot", "")), "enh": int(it.get("enhance", 0)), "uid": String(it.get("uid", "")), "owner": String(gi.get("owner", ""))}
 
 
 func ground_payload() -> Array:
@@ -2463,6 +2477,8 @@ func _step_ground_items() -> void:
 			var gi: Dictionary = ground_items[gid]
 			if elapsed < float((gi["lock"] as Dictionary).get(p["id"], -1.0)):
 				continue
+			if String(gi.get("owner", "")) != "" and String(gi.get("owner", "")) != String(p["id"]):
+				continue   # 남의 개인 드랍
 			if (gi["pos"] as Vector2).distance_to(p["pos"]) <= r:
 				ground_items.erase(gid)
 				pending_pickups.append({"aid": p["id"], "gi": gi})
