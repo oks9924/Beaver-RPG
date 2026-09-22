@@ -21683,6 +21683,1521 @@
 			"provided": true,
 			"linked": true,
 			"verified": "not_run"
+		},
+		{
+			"id": "prop.willow.boulder_cluster",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.willow.boulder_cluster.png",
+			"source_size": [
+				384,
+				144
+			],
+			"frame_size": [
+				192,
+				144
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				192,
+				144
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.willow.trunk",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.willow.trunk.png",
+			"source_size": [
+				256,
+				96
+			],
+			"frame_size": [
+				128,
+				96
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				128,
+				96
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.willow.trunk_long_h",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.willow.trunk_long_h.png",
+			"source_size": [
+				384,
+				128
+			],
+			"frame_size": [
+				384,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1"
+				]
+			},
+			"render_size": [
+				384,
+				128
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.willow.trunk_long_v",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.willow.trunk_long_v.png",
+			"source_size": [
+				128,
+				384
+			],
+			"frame_size": [
+				128,
+				384
+			],
+			"columns": 1,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1"
+				]
+			},
+			"render_size": [
+				128,
+				384
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.willow.stump_cluster",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.willow.stump_cluster.png",
+			"source_size": [
+				320,
+				120
+			],
+			"frame_size": [
+				160,
+				120
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				160,
+				120
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.willow.bush",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.willow.bush.png",
+			"source_size": [
+				288,
+				80
+			],
+			"frame_size": [
+				96,
+				80
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				96,
+				80
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "decal.willow.dirt",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.willow.dirt.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "decal.willow.leaves",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.willow.leaves.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "decal.willow.puddle",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.willow.puddle.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "prop.swamp.boulder_cluster",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.swamp.boulder_cluster.png",
+			"source_size": [
+				384,
+				144
+			],
+			"frame_size": [
+				192,
+				144
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				192,
+				144
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.swamp.trunk",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.swamp.trunk.png",
+			"source_size": [
+				256,
+				96
+			],
+			"frame_size": [
+				128,
+				96
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				128,
+				96
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.swamp.trunk_long_h",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.swamp.trunk_long_h.png",
+			"source_size": [
+				384,
+				128
+			],
+			"frame_size": [
+				384,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1"
+				]
+			},
+			"render_size": [
+				384,
+				128
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.swamp.trunk_long_v",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.swamp.trunk_long_v.png",
+			"source_size": [
+				128,
+				384
+			],
+			"frame_size": [
+				128,
+				384
+			],
+			"columns": 1,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1"
+				]
+			},
+			"render_size": [
+				128,
+				384
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.swamp.stump_cluster",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.swamp.stump_cluster.png",
+			"source_size": [
+				320,
+				120
+			],
+			"frame_size": [
+				160,
+				120
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				160,
+				120
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.swamp.bush",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.swamp.bush.png",
+			"source_size": [
+				288,
+				80
+			],
+			"frame_size": [
+				96,
+				80
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				96,
+				80
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "decal.swamp.dirt",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.swamp.dirt.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "decal.swamp.leaves",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.swamp.leaves.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "decal.swamp.puddle",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.swamp.puddle.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "prop.dam.boulder_cluster",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.dam.boulder_cluster.png",
+			"source_size": [
+				384,
+				144
+			],
+			"frame_size": [
+				192,
+				144
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				192,
+				144
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.dam.trunk",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.dam.trunk.png",
+			"source_size": [
+				256,
+				96
+			],
+			"frame_size": [
+				128,
+				96
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				128,
+				96
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.dam.trunk_long_h",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.dam.trunk_long_h.png",
+			"source_size": [
+				384,
+				128
+			],
+			"frame_size": [
+				384,
+				128
+			],
+			"columns": 1,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1"
+				]
+			},
+			"render_size": [
+				384,
+				128
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.dam.trunk_long_v",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.dam.trunk_long_v.png",
+			"source_size": [
+				128,
+				384
+			],
+			"frame_size": [
+				128,
+				384
+			],
+			"columns": 1,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1"
+				]
+			},
+			"render_size": [
+				128,
+				384
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.dam.stump_cluster",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.dam.stump_cluster.png",
+			"source_size": [
+				320,
+				120
+			],
+			"frame_size": [
+				160,
+				120
+			],
+			"columns": 2,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2"
+				]
+			},
+			"render_size": [
+				160,
+				120
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "prop.dam.bush",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/prop.dam.bush.png",
+			"source_size": [
+				288,
+				80
+			],
+			"frame_size": [
+				96,
+				80
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				96,
+				80
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			},
+			"hitbox_ref": "obstacle"
+		},
+		{
+			"id": "decal.dam.dirt",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.dam.dirt.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "decal.dam.leaves",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.dam.leaves.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
+		},
+		{
+			"id": "decal.dam.puddle",
+			"type": "sprite_sheet",
+			"status": "final",
+			"path": "",
+			"final_path": "res://assets/final/decal.dam.puddle.png",
+			"source_size": [
+				768,
+				192
+			],
+			"frame_size": [
+				256,
+				192
+			],
+			"columns": 3,
+			"rows": 1,
+			"anchor": [
+				0.5,
+				0.75
+			],
+			"directions": [
+				"all"
+			],
+			"animation": {
+				"name": "default_all",
+				"frames": [
+					0,
+					1,
+					2
+				],
+				"fps": 1.0,
+				"loop": false,
+				"event_frames": {
+
+				},
+				"mode": "select_frame",
+				"hold_last": true,
+				"frame_labels": [
+					"variant_1",
+					"variant_2",
+					"variant_3"
+				]
+			},
+			"render_size": [
+				256,
+				192
+			],
+			"provided": true,
+			"linked": true,
+			"verified": "not_run",
+			"source": {
+				"pack": "beaver_assets_v7",
+				"method": "imagegen + crop/resize/atlas",
+				"license": "project-internal generated art",
+				"origin": "GitHub Release assets-raw-v7"
+			}
 		}
 	],
 	"packs": {
@@ -21727,6 +23242,12 @@
 			"manifest": "assets/packs/beaver_assets_v6/manifest.json",
 			"status": "applied",
 			"note": "5직업 걷기·공격 시트 10장 교체 (고정 몸체 컷아웃, 앵커 0.82)"
+		},
+		"beaver_assets_v7": {
+			"root": "GitHub Release assets-raw-v7 / beaver_assets_v7.zip",
+			"manifest": "assets/packs/beaver_assets_v7/asset_manifest.v7.patch.json",
+			"status": "applied",
+			"note": "방 지형 프리팹 조각 소품 18(바위 덩어리·통나무·긴 통나무 가로/세로·그루터기·덤불 × 3지역) + 바닥 장식 9 (select_frame 변형 시트)"
 		}
 	},
 	"import_tool": "tools/import_asset_pack.gd"

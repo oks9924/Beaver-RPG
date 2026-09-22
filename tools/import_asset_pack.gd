@@ -22,6 +22,7 @@ var v4_audio: Dictionary = {}
 var v5: Dictionary = {}
 var v5_audio: Dictionary = {}
 var v6_dir: String = ""   # 걷기·공격 교체 팩(완성 시트 10장). 다른 팩을 다시 임포트한 뒤 마지막에 덮어쓴다
+var v7_dir: String = ""   # 방 지형 소품·바닥 장식 팩(완성 시트 27장 + 매니페스트 패치)
 var manifest: Dictionary = {}
 var made: int = 0
 var only: String = ""
@@ -55,6 +56,8 @@ func _init() -> void:
 			v5_audio = _read_json(packs_dir.path_join("beaver_assets_v5/audio_manifest.json"))
 	if DirAccess.dir_exists_absolute(packs_dir.path_join("beaver_assets_v6/project_files/assets/final")):
 		v6_dir = packs_dir.path_join("beaver_assets_v6")
+	if FileAccess.file_exists(packs_dir.path_join("beaver_assets_v7/asset_manifest.v7.patch.json")):
+		v7_dir = packs_dir.path_join("beaver_assets_v7")
 	var mj := JSON.new()
 	mj.parse(FileAccess.get_file_as_string(MANIFEST))
 	manifest = mj.data
@@ -408,11 +411,14 @@ func _run() -> void:
 	_run_v4()
 	_run_v5()
 	_run_v6()
+	_run_v7()
 	# 팩 참조 문서 정보
 	manifest["packs"] = {
 		"beaver_assets_v1": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_에셋팩_v1.zip", "manifest": "assets/packs/beaver_assets_v1/manifest.json", "status": v1.get("status", ""), "note": "플레이어 5직업 기본 자세, 수호목수 이동·공격·Q/E/R, 적 12·보스 3 기본 자세"},
 		"beaver_combat_v2": {"root": "GitHub Release assets-raw-v1 / 비버_RPG_전투애니메이션_v2.zip", "manifest": "assets/packs/beaver_combat_v2/manifest.json", "status": v2.get("status", ""), "note": "적 공격 12, 보스 패턴 4×3, 시전·약점 노출, 기믹 장치 15종 진행/성공/실패"},
 	}
+	if v7_dir != "":
+		manifest["packs"]["beaver_assets_v7"] = {"root": "GitHub Release assets-raw-v7 / beaver_assets_v7.zip", "manifest": "assets/packs/beaver_assets_v7/asset_manifest.v7.patch.json", "status": "applied", "note": "방 지형 프리팹 조각 소품 18(바위 덩어리·통나무·긴 통나무 가로/세로·그루터기·덤불 × 3지역) + 바닥 장식 9 (select_frame 변형 시트)"}
 	if v6_dir != "":
 		manifest["packs"]["beaver_assets_v6"] = {"root": "GitHub Release assets-raw-v6 / beaver_assets_v6.zip", "manifest": "assets/packs/beaver_assets_v6/manifest.json", "status": "applied", "note": "5직업 걷기·공격 시트 10장 교체 (고정 몸체 컷아웃, 앵커 0.82)"}
 	if not v3a.is_empty():
@@ -915,4 +921,40 @@ func _run_v6() -> void:
 			"license": "project-internal (in-house generated art, see pack README)", "origin": V6_ORIGIN}
 		made += 1
 	report.append("v6: replaced %d walk/attack sheets" % V6_IDS.size())
+
+
+## v7: 완성 시트 27장을 final 로 복사하고 팩의 매니페스트 패치(신규 ID)를 병합한다 (같은 ID 는 덮어쓴다). 소품은 hitbox_ref obstacle.
+func _run_v7() -> void:
+	if v7_dir == "":
+		report.append("SKIP v7 (pack not found)")
+		return
+	var patch := _read_json(v7_dir.path_join("asset_manifest.v7.patch.json"))
+	var n := 0
+	for e: Dictionary in patch.get("assets", []):
+		var id := String(e.get("id", ""))
+		var src := v7_dir.path_join("project_files/assets/final").path_join(id + ".png")
+		if not FileAccess.file_exists(src):
+			report.append("SKIP %s (v7 sheet missing)" % id)
+			continue
+		var dst := String(e.get("final_path", "res://assets/final/%s.png" % id))
+		DirAccess.copy_absolute(src, ProjectSettings.globalize_path(dst))
+		var entry := e.duplicate(true)
+		entry["path"] = ""
+		entry["linked"] = true
+		if id.begins_with("prop."):
+			entry["hitbox_ref"] = "obstacle"
+		var srcm: Dictionary = entry.get("source", {})
+		srcm["origin"] = "GitHub Release assets-raw-v7"
+		entry["source"] = srcm
+		var replaced := false
+		for i in (manifest["assets"] as Array).size():
+			if String(manifest["assets"][i].get("id", "")) == id:
+				manifest["assets"][i] = entry
+				replaced = true
+				break
+		if not replaced:
+			manifest["assets"].append(entry)
+		n += 1
+		made += 1
+	report.append("v7: merged %d prop/decal sheets" % n)
 

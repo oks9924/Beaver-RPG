@@ -175,9 +175,9 @@
    "decor": [
     {
      "u": 0.5,
-     "v": 0.5,
+     "v": 0.56,
      "asset_role": "trunk_long_h",
-     "size": 1.0
+     "size": 0.72
     }
    ]
   },
@@ -213,9 +213,9 @@
    "decor": [
     {
      "u": 0.5,
-     "v": 0.5,
+     "v": 0.62,
      "asset_role": "trunk_long_v",
-     "size": 1.0
+     "size": 0.21
     }
    ]
   },

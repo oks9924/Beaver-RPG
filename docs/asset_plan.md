@@ -126,3 +126,9 @@
 - 클라이언트: `HubScreen.GearIcon` 이 장비 아이콘 → 등급 테두리 → 제작 망치 → 강화 배지(+N) 순으로 겹쳐 그린다(팩이 없으면 글자만). 빈 슬롯은 `ui.slot.gear` 프레임, 도안은 `icon.blueprint.<slot>` + 잠김 자물쇠, 헤더에 재료 아이콘. 강화 결과는 서버 `ACCOUNT_UPDATE.gear_result{seq, result}` 를 받아 `UiFrameAnim` 이 한 번 재생하고 사라지며 `sfx.enhance.*` 를 같은 순간 재생한다. 같은 seq 는 다시 재생하지 않는다.
 - 검수: `check_assets` 431 항목 문제 0, `run_tests` v5 검사(단일 24·시트 3·VFX 3·SFX 3·테두리 투명 영역).
 
+## v7 — 방 지형 프리팹 조각 소품·바닥 장식 (2026-09-22, 연결 완료)
+- 출처: GitHub Release `assets-raw-v7` / `beaver_assets_v7.zip` (`project_files/assets/final/` 완성 시트 27장 + `asset_manifest.v7.patch.json`). 임포터 `_run_v7()` 이 시트를 final 로 복사하고 패치 항목을 병합한다(소품은 hitbox_ref obstacle).
+- ID: `prop.{willow,swamp,dam}.{boulder_cluster(2), trunk(2), trunk_long_h(1), trunk_long_v(1), stump_cluster(2), bush(3)}`, `decal.{willow,swamp,dam}.{dirt,leaves,puddle}(각 3)`. 모두 select_frame(변형 고르기), 앵커 (0.5, 0.75).
+- 연결: `data/chunks.json` roles/decals 가 v7 ID 를 우선 쓰고 없으면 기존 소품으로 대체. 긴 통나무는 충돌 원 3개 위에 그림 1장(가로 v 0.56·폭 72%, 세로 v 0.62·폭 21%). 바닥 장식은 바닥 스프라이트의 자식으로 그려 캐릭터·소품 아래에 온다.
+- 미납품: 웅덩이 가장자리 타일(선택 C). 웅덩이는 물 타일 사각.
+

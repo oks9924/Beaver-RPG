@@ -141,9 +141,16 @@ func set_decor(list: Array) -> void:
 		d.queue_free()
 	_decor_sprites.clear()
 	for d: Dictionary in list:
-		var spr := _prop_sprite(String(d.get("asset", "")), int(d.get("frame", 0)), float(d.get("size", 120)))
-		spr.position = Vector2(float(d.get("x", 0)), float(d.get("y", 0)))
-		add_child(spr)
+		var aid := String(d.get("asset", ""))
+		var spr := _prop_sprite(aid, int(d.get("frame", 0)), float(d.get("size", 120)))
+		if aid.begins_with("decal."):
+			# 바닥 장식: 바닥 스프라이트의 자식으로 두어 캐릭터·소품 아래에 그린다
+			spr.position = Vector2(float(d.get("x", 0)), float(d.get("y", 0))) - bounds.position
+			spr.offset = Vector2.ZERO
+			_ground.add_child(spr)
+		else:
+			spr.position = Vector2(float(d.get("x", 0)), float(d.get("y", 0)))
+			add_child(spr)
 		_decor_sprites.append(spr)
 
 

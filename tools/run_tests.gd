@@ -2134,7 +2134,24 @@ func test_room_gen() -> void:
 		check(String(o["asset"]) == "" or AssetRegistry.has(String(o["asset"])), "chunk collider uses a known prop id (%s)" % o.get("asset", ""))
 	for d: Dictionary in a.get("decor", []):
 		check(AssetRegistry.has(String(d["asset"])) and AssetRegistry.status(String(d["asset"])) == "final", "decor only references final assets")
-	check(RoomGen.asset_for_role("willow_river", "boulder") == "prop.willow.rock" and RoomGen.asset_for_role("ancient_root_dam", "trunk") == "prop.dam.timber", "roles fall back to existing props until v7 lands")
+	check(RoomGen.asset_for_role("willow_river", "boulder") == "prop.willow.boulder_cluster" and RoomGen.asset_for_role("ancient_root_dam", "trunk") == "prop.dam.trunk", "roles use the v7 props now that they are final")
+	# v7 팩: 27개 ID 가 final·select_frame 이고 변형 수가 요청과 같다
+	var v7_expect := {"boulder_cluster": 2, "trunk": 2, "trunk_long_h": 1, "trunk_long_v": 1, "stump_cluster": 2, "bush": 3}
+	var v7_ok := 0
+	for reg: String in ["willow", "swamp", "dam"]:
+		for role: String in v7_expect.keys():
+			var vid := "prop.%s.%s" % [reg, role]
+			var sh := AssetRegistry.get_sheet(vid)
+			if AssetRegistry.status(vid) == "final" and not bool(sh["is_fallback"]) and int(sh["hframes"]) == int(v7_expect[role]) and String(sh["mode"]) == "select_frame":
+				v7_ok += 1
+		for kind: String in ["dirt", "leaves", "puddle"]:
+			var did := "decal.%s.%s" % [reg, kind]
+			var dsh := AssetRegistry.get_sheet(did)
+			if AssetRegistry.status(did) == "final" and not bool(dsh["is_fallback"]) and int(dsh["hframes"]) == 3:
+				v7_ok += 1
+	check(v7_ok == 27, "v7 pack: 27 prop/decal sheets registered as final select_frame variants (%d)" % v7_ok)
+	var deco_room := RoomGen.decorate(ContentDB.get_room_def("swamp_annihilate"), 777)
+	check((deco_room.get("decor", []) as Array).size() >= 2, "generated room now carries floor decals (%d)" % (deco_room.get("decor", []) as Array).size())
 	# 막힌 방은 검사에 걸린다
 	var blocked := base.duplicate(true)
 	blocked["obstacles"] = [{"shape": "circle", "x": 700, "y": 450, "r": 480, "asset": "prop.willow.rock"}]

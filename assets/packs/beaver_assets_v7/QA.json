@@ -1,0 +1,723 @@
+{
+  "asset_count": 27,
+  "variant_count": 60,
+  "runtime_checks": "not_run",
+  "checks": [
+    {
+      "id": "prop.willow.boulder_cluster",
+      "frame_count": 2,
+      "sheet_size": [
+        384,
+        144
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          9,
+          23,
+          173,
+          101
+        ],
+        [
+          9,
+          18,
+          173,
+          106
+        ]
+      ],
+      "sha256": "96c6d29d530f2bb4b23fef8e69a31cb2dede6055998ce52eab2465812501beff"
+    },
+    {
+      "id": "prop.willow.trunk",
+      "frame_count": 2,
+      "sheet_size": [
+        256,
+        96
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          7,
+          8,
+          114,
+          75
+        ],
+        [
+          7,
+          8,
+          114,
+          75
+        ]
+      ],
+      "sha256": "d6ca643cd6bb1cf11fb24ec9150efa4d9aababb455d8d7d8fcde7567899408fe"
+    },
+    {
+      "id": "prop.willow.trunk_long_h",
+      "frame_count": 1,
+      "sheet_size": [
+        384,
+        128
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          19,
+          35,
+          346,
+          75
+        ]
+      ],
+      "sha256": "ad4f3a11970fd506e8e9df0cafa799c07375f0bf07af8c72e30748ae2c8b50c5"
+    },
+    {
+      "id": "prop.willow.trunk_long_v",
+      "frame_count": 1,
+      "sheet_size": [
+        128,
+        384
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          21,
+          19,
+          86,
+          346
+        ]
+      ],
+      "sha256": "8ffa3753190013340a2b76da57846c80c31ad4eedc54ecc3d59d8a18d0480c9b"
+    },
+    {
+      "id": "prop.willow.stump_cluster",
+      "frame_count": 2,
+      "sheet_size": [
+        320,
+        120
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          8,
+          9,
+          144,
+          94
+        ],
+        [
+          14,
+          9,
+          132,
+          94
+        ]
+      ],
+      "sha256": "f7ca2ee44dfede6bfeb7403de1ca2326d2b41e9492104f08dfbec666447d5ec9"
+    },
+    {
+      "id": "prop.willow.bush",
+      "frame_count": 3,
+      "sheet_size": [
+        288,
+        80
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          5,
+          13,
+          86,
+          56
+        ],
+        [
+          11,
+          7,
+          73,
+          62
+        ],
+        [
+          5,
+          15,
+          86,
+          54
+        ]
+      ],
+      "sha256": "8d5abc96a3083c496e008fad5488f69974c22a0bce3e72f14e4943ee432bcd56"
+    },
+    {
+      "id": "decal.willow.dirt",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          52,
+          230,
+          113
+        ],
+        [
+          13,
+          30,
+          230,
+          135
+        ],
+        [
+          13,
+          61,
+          230,
+          104
+        ]
+      ],
+      "sha256": "30cb40df1e53b804472d19b80b784a857f713f348009a3a3f5a4b15f6b5bc12d"
+    },
+    {
+      "id": "decal.willow.leaves",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          34,
+          230,
+          131
+        ],
+        [
+          13,
+          20,
+          230,
+          145
+        ],
+        [
+          13,
+          27,
+          230,
+          138
+        ]
+      ],
+      "sha256": "c1a8cdcbd9ed008c56899fd550e216184fc8c308ad924370594c1c7a5c00b3bd"
+    },
+    {
+      "id": "decal.willow.puddle",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          41,
+          230,
+          124
+        ],
+        [
+          13,
+          20,
+          230,
+          145
+        ],
+        [
+          13,
+          70,
+          230,
+          95
+        ]
+      ],
+      "sha256": "2b8bcff06141c35e4665eb6cc08f16722e7cee635fb269f27a710294d1ae3dd2"
+    },
+    {
+      "id": "prop.swamp.boulder_cluster",
+      "frame_count": 2,
+      "sheet_size": [
+        384,
+        144
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          19,
+          12,
+          153,
+          112
+        ],
+        [
+          10,
+          12,
+          171,
+          112
+        ]
+      ],
+      "sha256": "f3bb45638572b6b26c8faade0a71d52191249fba0fd784466e216d582fc7a082"
+    },
+    {
+      "id": "prop.swamp.trunk",
+      "frame_count": 2,
+      "sheet_size": [
+        256,
+        96
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          9,
+          8,
+          109,
+          75
+        ],
+        [
+          11,
+          8,
+          106,
+          75
+        ]
+      ],
+      "sha256": "86b92952906df75fe3d12c6940975982667083c3c7fd9b18c2c21644b008fdf5"
+    },
+    {
+      "id": "prop.swamp.trunk_long_h",
+      "frame_count": 1,
+      "sheet_size": [
+        384,
+        128
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          19,
+          18,
+          346,
+          92
+        ]
+      ],
+      "sha256": "5701a492e95436cbb0881c6345037913609b7a28ce5e95e9ae09f286fb7cea45"
+    },
+    {
+      "id": "prop.swamp.trunk_long_v",
+      "frame_count": 1,
+      "sheet_size": [
+        128,
+        384
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          28,
+          19,
+          71,
+          346
+        ]
+      ],
+      "sha256": "12456dff68684aba8e88221a5f1665b2b83a42fe26e36dc609f0aa1d1e2259e0"
+    },
+    {
+      "id": "prop.swamp.stump_cluster",
+      "frame_count": 2,
+      "sheet_size": [
+        320,
+        120
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          23,
+          9,
+          114,
+          94
+        ],
+        [
+          20,
+          9,
+          119,
+          94
+        ]
+      ],
+      "sha256": "8450971c57900b073871841b67a503accbc2af0936292a53f552ddf768994a70"
+    },
+    {
+      "id": "prop.swamp.bush",
+      "frame_count": 3,
+      "sheet_size": [
+        288,
+        80
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          7,
+          69,
+          62
+        ],
+        [
+          15,
+          7,
+          65,
+          62
+        ],
+        [
+          11,
+          7,
+          74,
+          62
+        ]
+      ],
+      "sha256": "009e76f34a779e5e8488d5d1232c7418dbb910c7e3dd2962abe352b94fdda0b4"
+    },
+    {
+      "id": "decal.swamp.dirt",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          19,
+          15,
+          218,
+          150
+        ],
+        [
+          27,
+          15,
+          202,
+          150
+        ],
+        [
+          21,
+          15,
+          214,
+          150
+        ]
+      ],
+      "sha256": "70bc0a79b89e8c312cdc9faec8246b3400b20816c3cd1fd1bb34fcaf0cb31938"
+    },
+    {
+      "id": "decal.swamp.leaves",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          30,
+          230,
+          135
+        ],
+        [
+          16,
+          15,
+          223,
+          150
+        ],
+        [
+          14,
+          15,
+          228,
+          150
+        ]
+      ],
+      "sha256": "2f56985d5a470fbbe7c30e2c80d82ee397a2feb646b1a48462159146b3ccd378"
+    },
+    {
+      "id": "decal.swamp.puddle",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          41,
+          230,
+          124
+        ],
+        [
+          14,
+          15,
+          228,
+          150
+        ],
+        [
+          13,
+          32,
+          230,
+          133
+        ]
+      ],
+      "sha256": "9829dbc3b2b4ad1415957af67ff27976b013c06b4403f8e6abbe292e8fa5bd93"
+    },
+    {
+      "id": "prop.dam.boulder_cluster",
+      "frame_count": 2,
+      "sheet_size": [
+        384,
+        144
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          25,
+          12,
+          142,
+          112
+        ],
+        [
+          27,
+          12,
+          138,
+          112
+        ]
+      ],
+      "sha256": "2d223853e461886c0359dc40aa9f20c96aac7aee25f53c39609e83177062a128"
+    },
+    {
+      "id": "prop.dam.trunk",
+      "frame_count": 2,
+      "sheet_size": [
+        256,
+        96
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          6,
+          22,
+          115,
+          61
+        ],
+        [
+          6,
+          15,
+          115,
+          68
+        ]
+      ],
+      "sha256": "dd502fffe648b3eb608baf725433cb31d66ed18c681c69d1f426389f0c59f8e6"
+    },
+    {
+      "id": "prop.dam.trunk_long_h",
+      "frame_count": 1,
+      "sheet_size": [
+        384,
+        128
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          19,
+          45,
+          346,
+          65
+        ]
+      ],
+      "sha256": "5a46da14d154dc89d2159bff570944f9c54faa34eab3084a8ae1d10e5831eef7"
+    },
+    {
+      "id": "prop.dam.trunk_long_v",
+      "frame_count": 1,
+      "sheet_size": [
+        128,
+        384
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          30,
+          19,
+          68,
+          346
+        ]
+      ],
+      "sha256": "62345c9245851f005cab7803dc3135e752040181422bf99b5ecf6fa596fc9a25"
+    },
+    {
+      "id": "prop.dam.stump_cluster",
+      "frame_count": 2,
+      "sheet_size": [
+        320,
+        120
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          14,
+          9,
+          131,
+          94
+        ],
+        [
+          14,
+          9,
+          131,
+          94
+        ]
+      ],
+      "sha256": "803a0626573884335806d57ace8f89d6db916ae472bf7d4bd83dd01ee160cdbb"
+    },
+    {
+      "id": "prop.dam.bush",
+      "frame_count": 3,
+      "sheet_size": [
+        288,
+        80
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          5,
+          12,
+          86,
+          57
+        ],
+        [
+          5,
+          21,
+          86,
+          48
+        ],
+        [
+          7,
+          7,
+          81,
+          62
+        ]
+      ],
+      "sha256": "e226439d2548f50007dc58153d0424b0bba3e4cd5d57be688156abdf477ce3d4"
+    },
+    {
+      "id": "decal.dam.dirt",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          20,
+          15,
+          216,
+          150
+        ],
+        [
+          13,
+          31,
+          230,
+          134
+        ],
+        [
+          13,
+          15,
+          229,
+          150
+        ]
+      ],
+      "sha256": "f45ab267e7e3e6a25e25725858c81c4c05e996f496eebe8d136fb5d4ea57c4b8"
+    },
+    {
+      "id": "decal.dam.leaves",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          20,
+          230,
+          145
+        ],
+        [
+          13,
+          15,
+          230,
+          150
+        ],
+        [
+          13,
+          17,
+          230,
+          148
+        ]
+      ],
+      "sha256": "4c84d1d9586d478b0616199178e824ad1d7f0332b557d0ff5c7f23c0a4f7772b"
+    },
+    {
+      "id": "decal.dam.puddle",
+      "frame_count": 3,
+      "sheet_size": [
+        768,
+        192
+      ],
+      "alpha": true,
+      "edge_clear": true,
+      "visual_bounds_xywh": [
+        [
+          13,
+          57,
+          230,
+          108
+        ],
+        [
+          13,
+          32,
+          230,
+          133
+        ],
+        [
+          13,
+          48,
+          230,
+          117
+        ]
+      ],
+      "sha256": "6a2abd4b08e1c64dc4b339f0095729ef8e54bb6bfc256b636873a9faedcbdbe9"
+    }
+  ],
+  "apply_script_checks": {
+    "preserves_existing_assets": true,
+    "repeat_application_no_duplicate_ids": true,
+    "backups_created": true
+  }
+}
