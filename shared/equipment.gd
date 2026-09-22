@@ -294,8 +294,10 @@ static func equip(prog: Dictionary, slot: String, uid: String) -> String:
 
 
 ## 기본 속성 배율 = 지역 레벨 배율 × (1 + 강화 단계 × base_mult_per_level)
+## 기본 수치 배율 = 지역 레벨 × 등급(base_mult, 일반 1.00 → 전설 1.28) × 강화(+10%/단계)
 static func base_scale(item: Dictionary) -> float:
 	var scale := float(db().get("level_scale", {}).get(str(int(item.get("level", 1))), 1.0))
+	scale *= float(rarity_def(String(item.get("rarity", "common"))).get("base_mult", 1.0))
 	return scale * (1.0 + int(item.get("enhance", 0)) * float(db().get("enhance", {}).get("base_mult_per_level", 0.1)))
 
 

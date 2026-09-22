@@ -72,6 +72,8 @@ func _ready() -> void:
 	test_equipment()
 	print("-- test_ground_drops")
 	test_ground_drops()
+	print("-- test_room_gen")
+	test_room_gen()
 	print("-- test_v5_pack_assets")
 	test_v5_pack_assets()
 	print("tests passed=%d failed=%d" % [passed, failures.size()])
@@ -2030,7 +2032,7 @@ func test_equipment() -> void:
 	var c0 := Equipment.enhance_cost(rare_arm)
 	check(c0 == int(ceil(3.0 * (1.0 + 2 * 0.5))), "enhance cost = 3 × (1 + rarity index × 0.5) for rare (%d)" % c0)
 	check(Equipment.enhance(prog2, "ra") == "" and int(rare_arm["enhance"]) == 1 and Equipment.material_count(prog2) == 100 - c0, "enhance +1 consumes crystals")
-	check(is_equal_approx(float(Equipment.item_mods(rare_arm)["mods"]["max_hp_add"]), 14.0 * 1.1 + Equipment.affix_value([6, 20], 0.5, "int")), "enhance scales only the base stat (+10% per level)")
+	check(is_equal_approx(float(Equipment.item_mods(rare_arm)["mods"]["max_hp_add"]), 14.0 * 1.10 * 1.1 + Equipment.affix_value([6, 20], 0.5, "int")), "enhance scales only the base stat (+10% per level, on top of the rare base_mult 1.10)")
 	check(rare_arm["name_ko"].ends_with("+1") and Equipment.describe(rare_arm)[0].contains("강화 +1"), "name and description show the enhance level")
 	for i in 4:
 		Equipment.enhance(prog2, "ra")
@@ -2103,6 +2105,37 @@ func test_equipment() -> void:
 		var w := Equipment.roll_item(crng, "", 1, "common", "weapon", i + 1)
 		classes_seen[String(w.get("class", ""))] = true
 	check(classes_seen.size() >= 4, "ground drops roll weapons of any class (%d classes in 200 rolls)" % classes_seen.size())
+
+
+## 방 지형 랜덤화: 재현성, 보스·튜토리얼 제외, 보호 지점 침범 없음, 연결성, 원정 입장 페이로드에 생성 지형 포함
+func test_room_gen() -> void:
+	var base := ContentDB.get_room_def("hold_point")
+	var a := RoomGen.decorate(base, 4242)
+	var b := RoomGen.decorate(base, 4242)
+	var c := RoomGen.decorate(base, 4243)
+	check(a.has("generated") and JSON.stringify(a) == JSON.stringify(b), "room gen is reproducible for the same seed")
+	check(JSON.stringify(a.get("obstacles", [])) != JSON.stringify(c.get("obstacles", [])), "different seeds give different obstacles")
+	check((a["obstacles"] as Array).size() >= 3 and JSON.stringify(a["hold_zone"]) == JSON.stringify(base["hold_zone"]) and JSON.stringify(a["player_spawns"]) == JSON.stringify(base["player_spawns"]), "generated room keeps anchors (hold zone, spawns) and has obstacles")
+	for o: Dictionary in a["obstacles"]:
+		for pt: Dictionary in RoomGen.protected_points(a):
+			check(Vector2(float(o["x"]), float(o["y"])).distance_to(pt["pos"]) >= float(pt["keep"]) + float(o["r"]) - 0.5, "obstacle keeps clear of protected point")
+	check(RoomGen.validate(a).is_empty(), "generated room is fully connected")
+	var boss := ContentDB.get_room_def("boss_ironclaw")
+	check(not RoomGen.decorate(boss, 1).has("generated") and JSON.stringify(RoomGen.decorate(boss, 1)) == JSON.stringify(boss), "boss rooms are never randomized")
+	# 막힌 방은 검사에 걸린다
+	var blocked := base.duplicate(true)
+	blocked["obstacles"] = [{"shape": "circle", "x": 700, "y": 450, "r": 480, "asset": "prop.willow.rock"}]
+	check(not RoomGen.validate(blocked).is_empty(), "validator reports unreachable points")
+	# 원정 입장 페이로드는 생성된 지형을 담는다
+	var inst := ExpeditionInstance.new("exp_gen", 99)
+	var s0 := Session.new(1)
+	s0.account_id = "g0"
+	s0.nickname = "G0"
+	s0.class_id = "guardian"
+	inst.add_member(s0)
+	inst.start_run()
+	var payload := inst.room_enter_payload()
+	check(JSON.stringify(payload["room_def"]["obstacles"]) == JSON.stringify(inst.room.room_def["obstacles"]), "enter payload carries the generated obstacles")
 
 
 ## 적 처치 → 바닥 드랍 → 밟아서 줍기(서버 본체가 처리할 목록) → 버리기(본인은 잠시 못 주움)

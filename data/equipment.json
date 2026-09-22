@@ -12,47 +12,52 @@
       "name_ko": "일반",
       "color": "#ffffff",
       "lines": 0,
-      "weight": 55,
+      "weight": 62,
       "tier_max": 1,
       "roll_min": 0.0,
-      "roll_max": 0.5
+      "roll_max": 0.5,
+      "base_mult": 1.0
     },
     "uncommon": {
       "name_ko": "고급",
       "color": "#7be07b",
       "lines": 1,
-      "weight": 28,
+      "weight": 26,
       "tier_max": 1,
       "roll_min": 0.0,
-      "roll_max": 0.6
+      "roll_max": 0.6,
+      "base_mult": 1.04
     },
     "rare": {
       "name_ko": "희귀",
       "color": "#6fb6ff",
       "lines": 2,
-      "weight": 12,
+      "weight": 9,
       "tier_max": 2,
       "roll_min": 0.25,
-      "roll_max": 0.8
+      "roll_max": 0.8,
+      "base_mult": 1.1
     },
     "epic": {
       "name_ko": "영웅",
       "color": "#c58cff",
       "lines": 3,
-      "weight": 4,
+      "weight": 2.5,
       "tier_max": 3,
       "roll_min": 0.5,
-      "roll_max": 1.0
+      "roll_max": 1.0,
+      "base_mult": 1.18
     },
     "legendary": {
       "name_ko": "전설",
       "color": "#ffb347",
       "lines": 3,
-      "weight": 1,
+      "weight": 0.5,
       "tier_max": 3,
       "roll_min": 0.7,
       "roll_max": 1.0,
-      "unique": true
+      "unique": true,
+      "base_mult": 1.28
     }
   },
   "drop": {
@@ -67,9 +72,9 @@
     "crystal_on_boss": 3
   },
   "ground_drop": {
-    "_comment": "적을 처치하면 그 자리에 장비가 떨어진다(Hero Siege 식). 모든 장비(다른 직업 무기 포함)가 나올 수 있고 등급은 rarities.weight 로 굴린다. 정예·보스는 최소 등급 보장. 서약 열기·던전 깊이가 상위 등급 가중치를 올린다. 떨어진 장비는 밟으면 줍고(창고 여유 필요), I 키 가방에서 버리거나 파티원에게 건넬 수 있다. 버린 사람은 owner_lock_sec 동안 다시 줍지 못한다. 방을 떠나면 바닥의 장비는 사라진다.",
-    "normal_chance": 0.06,
-    "elite_chance": 0.6,
+    "_comment": "적을 처치하면 그 자리에 장비가 떨어진다(Hero Siege 식, 개인 드랍: 접속 파티원마다 따로 굴리고 주인만 보고 줍는다 — 인원과 무관하게 한 사람이 받는 수는 같다). 사람당 일반 1.5% · 정예 35%(고급 이상) · 보스 2개(희귀 이상) → 30분 한 판에 약 20개. 등급은 rarities.weight(62/26/9/2.5/0.5: 한 등급 오를 때 3~5배 희귀)로 굴리고 base_mult(1.00→1.28)와 부가 줄·굴림 구간으로 성능이 15~20%씩 오른다. 서약 열기·던전 깊이가 상위 등급 가중치를 올린다. 버린 장비만 공용. 검증: --tool=drop_sim",
+    "normal_chance": 0.015,
+    "elite_chance": 0.35,
     "elite_min_rarity": "uncommon",
     "boss_count": 2,
     "boss_min_rarity": "rare",

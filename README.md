@@ -14,7 +14,7 @@ server/      전용 서버 (인증, JSON 저장소, 공용 마을, 원정 인스
 client/      설치형 클라이언트 (접속/로그인/마을/원정 모집판/전투 HUD/결과, 예측·보간, 봇 모드)
 data/        직업·적·방·인원 프로필·규칙 JSON (숫자는 여기서만 조절)
 assets/      asset_manifest.json(ID↔파일), asset_registry.gd, placeholders/(임시), fonts/(Noto Sans KR, OFL)
-tools/       lint_all, run_tests, test_boss, check_assets, check_routes, gen_placeholders, import_asset_pack
+tools/       lint_all, run_tests, test_boss, check_assets, check_routes, check_rooms(방 지형 랜덤화 점검), drop_sim(드랍 표 시뮬레이션), gen_placeholders, import_asset_pack
 tests/       integration/run_integration.sh (서버 + 다중 headless 클라이언트), run_party_matrix.sh (조합 검증), run_export_smoke.sh
 scripts/     run_server.sh, run_client.sh, build.sh, deploy.sh, stop_server.sh, backup/restore, systemd 유닛
 docs/        architecture.md, asset_plan.md, asset_request_v3.md, verification.md, deploy.md, deploy_windows.md, playtest_checklist.md, playtest_notes.md
@@ -63,6 +63,8 @@ godot --headless --path . -- --tool=check_assets
 godot --headless --path . -- --tool=run_tests        # 단위 552개
 godot --headless --path . -- --tool=test_boss        # 보스 3종 × 기믹 5개 × 인원 1~4 (420개)
 godot --headless --path . -- --tool=check_routes     # 시드 100개 던전 격자 점검 (GEN-01: 방 수·문 대칭·보스 도달·문 위치)
+godot --headless --path . -- --tool=check_rooms      # 18방 × 시드 100개 지형 랜덤화 점검 (GEN-02: 재현성·보호 지점·연결성)
+godot --headless --path . -- --tool=drop_sim         # 드랍 표 시뮬레이션 1,000판 (등급별 판당 개수·전설까지 판 수)
 tests/integration/run_integration.sh /path/to/godot  # 서버 + 다중 클라이언트 (42개)
 tests/integration/run_party_matrix.sh /path/to/godot # 동일 직업 4인·혼합·1인 조합 봇 완주
 tests/integration/run_export_smoke.sh /path/to/godot # export 실행 파일 왕복

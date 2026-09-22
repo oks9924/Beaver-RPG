@@ -777,7 +777,7 @@ func start_room(explore: bool = false, entry_dir: String = "", broadcast: bool =
 		"drop": {"heat": heat, "depth": int(run.get("layer", 0)), "level": int(run.get("region_index", 0)) + 1, "tutorial": tutorial, "mult": debug_drop_mult}}
 	if not explore:
 		run["next_room_budget_add"] = 0.0
-	room = CombatRoom.new(ContentDB.get_room_def(room_id), effective_profile(profile), ContentDB.rules, room_seed, member_list, opts)
+	room = CombatRoom.new(RoomGen.decorate(ContentDB.get_room_def(room_id), room_seed), effective_profile(profile), ContentDB.rules, room_seed, member_list, opts)
 	if not explore:
 		run["next_room_elite"] = 0
 		if int(run.get("curse_rooms", 0)) > 0:
@@ -803,7 +803,7 @@ func start_room(explore: bool = false, entry_dir: String = "", broadcast: bool =
 
 
 func room_enter_payload() -> Dictionary:
-	var def := ContentDB.get_room_def(room_id)
+	var def: Dictionary = room.room_def if room != null else ContentDB.get_room_def(room_id)   # 시드로 뿌린 지형을 그대로 보낸다
 	var party: Array = []
 	for aid: String in members.keys():
 		var m: Dictionary = members[aid]
