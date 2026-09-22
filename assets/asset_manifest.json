@@ -23325,7 +23325,7 @@
 			"channels": 1,
 			"duration_sec": 3.36,
 			"bus": "SFX",
-			"gain_db": 2.0,
+			"gain_db": 5.0,
 			"source": {
 				"pack": "in-house",
 				"actor": "sfx.drop.legendary",
@@ -23334,7 +23334,7 @@
 				"license": "project-internal",
 				"origin": "repo tools/gen_drop_sfx.py"
 			},
-			"note": "전설 드랍 효과음 — 사용자가 준 참고 소리(Hero Siege 3.0 드랍음)를 tools/match_sfx.py 로 분석해 사인+대역 잡음으로 재합성 (원본 파일은 저장소에 없음). 낮은 울림(60~280Hz) 3.3초",
+			"note": "전설 드랍 효과음 — 사용자가 준 참고 소리(Hero Siege 3.0 드랍음)를 tools/match_sfx.py 로 분석해 사인+대역 잡음으로 재합성 (원본 파일은 저장소에 없음). 낮은 울림(60~280Hz) 3.3초, 타격 구간 중·고역 ×2.5(--hit=2.5), 몸통 보상 gain +5dB",
 			"provided": true,
 			"linked": true,
 			"verified": "not_run"

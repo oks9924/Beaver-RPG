@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """참고 소리(wav)를 분석해 비슷한 소리를 다시 합성한다 (표준 라이브러리만).
 원본을 복사하지 않고, 프레임마다 강한 주파수 성분(최대 12개)을 뽑아 사인 합성으로 재구성한 뒤 잡음 성분을 얹는다.
-사용: python3 tools/match_sfx.py <참고.wav> <출력.wav> [--gain=1.0] [--max-sec=2.5]
+사용: python3 tools/match_sfx.py <참고.wav> <출력.wav> [--gain=1.0] [--max-sec=2.5] [--hit=1.0 타격 구간 중·고역 배율]
    예: python3 tools/match_sfx.py ref_legendary.wav assets/final/audio/sfx_drop_legendary.wav
 """
 import cmath, math, struct, sys, wave
@@ -94,9 +94,11 @@ def band_rms(sr, mono):
     return [math.sqrt(a / max(cnt, 1)) for a in acc]
 
 
-def resynth(sr, frames, total_len, gain, band_gain=(1.0, 1.0, 1.0)):
+def resynth(sr, frames, total_len, gain, band_gain=(1.0, 1.0, 1.0), hit=1.0, hit_window=0.6):
+    """hit: 타격 구간(가장 큰 소리의 60% 이상인 앞부분 프레임)의 중·고역 잡음 배율 — 날카로운 타격음을 세게"""
     import random
     rnd = random.Random(1)
+    max_rms = max((f[3] for f in frames), default=1.0)
     n = int(total_len * sr)
     out = [0.0] * n
     # 프레임 사이를 선형 보간하며 사인 성분을 이어 붙인다 (주파수는 가까운 것끼리 이어진다고 보고 프레임 단위로 페이드)
@@ -116,6 +118,9 @@ def resynth(sr, frames, total_len, gain, band_gain=(1.0, 1.0, 1.0)):
                 out[idx] += a * env * math.sin(2 * math.pi * f * idx / sr)
         # 대역별 잡음: 저역은 평활(둥근 울림), 중역은 그대로, 고역은 차분(날카로운 타격·쉭 소리)
         lo_g, mid_g, hi_g = [v * 2.2 * g for v, g in zip(noise_rms, band_gain)]
+        if hit != 1.0 and t0 < hit_window and rms >= 0.6 * max_rms:
+            mid_g *= hit
+            hi_g *= hit
         if lo_g + mid_g + hi_g > 0.002:
             for i in range(length):
                 idx = start + i
@@ -154,14 +159,15 @@ if __name__ == "__main__":
     frames = analyze(sr, mono)
     ref_b = band_rms(sr, mono)
     bg = [1.0, 1.0, 1.0]
+    hit = float(opts.get("hit", 1.0))
     out = []
     for it in range(3):
         # 분석-합성 반복: 대역별 잡음 이득을 참고 소리의 대역 RMS 에 맞춘다
-        out = resynth(sr, frames, len(mono) / sr + 0.05, float(opts.get("gain", 1.0)), tuple(bg))
+        out = resynth(sr, frames, len(mono) / sr + 0.05, float(opts.get("gain", 1.0)), tuple(bg), hit)
         got = band_rms(sr, out)
         for b in range(3):
             if got[b] > 1e-6 and ref_b[b] > 1e-6:
-                bg[b] = max(0.2, min(12.0, bg[b] * ref_b[b] / got[b]))
+                bg[b] = max(0.2, min(40.0, bg[b] * ref_b[b] / got[b]))
     out = normalize(out, float(opts.get("gain", 1.0)))
     write_wav(args[1], sr, out)
     print("band rms ref=%s out=%s gains=%s" % (["%.3f" % v for v in ref_b], ["%.3f" % v for v in band_rms(sr, out)], ["%.2f" % v for v in bg]))
