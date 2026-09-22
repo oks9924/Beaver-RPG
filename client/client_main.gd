@@ -500,8 +500,7 @@ func _on_room_event(ev: Dictionary) -> void:
 			if world.ground_visible(ev):   # 남의 개인 드랍은 보이지도, 울리지도 않는다
 				world.ground_spawn(ev)
 				var ri := Equipment.rarity_index(String(ev.get("rarity", "common")))
-				if ri >= 2:
-					world.play_sound("sfx.enhance.success", 0.15)
+				world.play_sound("sfx.drop." + String(ev.get("rarity", "common")), 0.5 if ri == 0 else 0.12)   # 등급별 착지음 (여러 개 동시엔 일반은 한 번만)
 				if ri >= 3:
 					hud.toast("[%s] %s 드랍!" % [Equipment.rarity_name(String(ev.get("rarity", ""))), ev.get("name", "")], 2.5)
 		"pickup":
@@ -509,7 +508,7 @@ func _on_room_event(ev: Dictionary) -> void:
 			if not gi.is_empty():
 				world.spawn_effect("vfx.rescue_ring", gi["pos"], 0.0, 0.35)
 			if ev.get("by", "") == my_id:
-				world.play_sound("sfx.ui_click", 0.1)
+				world.play_sound("sfx.pickup", 0.08)
 				hud.toast("[%s] %s 획득" % [Equipment.rarity_name(String(ev.get("rarity", ""))), ev.get("name", "")], 2.0)
 		"hit":
 			var key := "p:" + String(ev.get("id", ""))

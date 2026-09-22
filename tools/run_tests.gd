@@ -2150,6 +2150,11 @@ func test_room_gen() -> void:
 			if AssetRegistry.status(did) == "final" and not bool(dsh["is_fallback"]) and int(dsh["hframes"]) == 3:
 				v7_ok += 1
 	check(v7_ok == 27, "v7 pack: 27 prop/decal sheets registered as final select_frame variants (%d)" % v7_ok)
+	var sfx_ok := 0
+	for sid: String in ["sfx.drop.common", "sfx.drop.uncommon", "sfx.drop.rare", "sfx.drop.epic", "sfx.drop.legendary", "sfx.pickup"]:
+		if AssetRegistry.status(sid) == "final" and AssetRegistry.get_audio(sid) != null:
+			sfx_ok += 1
+	check(sfx_ok == 6, "drop/pickup sounds registered and loadable (%d/6)" % sfx_ok)
 	var deco_room := RoomGen.decorate(ContentDB.get_room_def("swamp_annihilate"), 777)
 	check((deco_room.get("decor", []) as Array).size() >= 2, "generated room now carries floor decals (%d)" % (deco_room.get("decor", []) as Array).size())
 	# 막힌 방은 검사에 걸린다
