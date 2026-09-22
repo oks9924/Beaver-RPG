@@ -202,31 +202,36 @@ func test_tempo() -> void:
 	# 웨이브 간격은 tempo.wave_gap_mult 로 줄어든다
 	var room := _solo_room("hydro", 5)
 	check(is_equal_approx(room._wave_gap_t, float(ContentDB.get_room_def("test_arena")["waves"]["wave_gap_sec"]) * float(t["wave_gap_mult"])), "wave gap scaled by wave_gap_mult (%.2f)" % room._wave_gap_t)
-	# 원거리: 기본 공격 준비 동작 중 이동 가능(느리게). 근접: 준비 동작 중 정지.
-	var p: Dictionary = room.players["p0"]
-	for e: Dictionary in room.enemies.values():
-		e["pos"] = Vector2(-9999, -9999)
-	var x0: float = p["pos"].x
+	# 기본 공격은 준비·명중·후딜 어느 단계에서도 이동을 막지 않는다 (후딜 없음). 공격 버튼을 누르는 동안은 마우스 방향을 본다.
 	var dt := 1.0 / 30.0
-	room.queue_input("p0", 1, Vector2.RIGHT, Vector2.RIGHT * 100, Protocol.BTN_ATTACK)
-	room.step(dt)
-	check(p["action"] == Protocol.Action.WINDUP and p["action_kind"] == "basic", "ranged basic attack enters windup")
-	room.queue_input("p0", 2, Vector2.RIGHT, Vector2.RIGHT * 100, 0)
-	room.step(dt)
-	var moved: float = p["pos"].x - x0
-	check(p["action"] == Protocol.Action.WINDUP or p["action"] == Protocol.Action.RECOVERY, "still inside the attack after 2 ticks")
-	check(moved > 0.0 and moved < float(p["speed"]) * dt * 2.0 + 0.01, "ranged windup moves slowly (%.1f px in 2 ticks, speed %s)" % [moved, str(p["speed"])])
-	var room_m := _solo_room("guardian", 6)
-	var pm: Dictionary = room_m.players["p0"]
-	for e: Dictionary in room_m.enemies.values():
+	for cls in ["hydro", "guardian"]:
+		var r := _solo_room(cls, 5)
+		var p: Dictionary = r.players["p0"]
+		for e: Dictionary in r.enemies.values():
+			e["pos"] = Vector2(-9999, -9999)
+		var x0: float = p["pos"].x
+		var phases := {}
+		for i in 12:
+			r.queue_input("p0", 1 + i, Vector2.RIGHT, Vector2.LEFT * 100, Protocol.BTN_ATTACK)
+			r.step(dt)
+			phases[int(p["action"])] = true
+			check(p["facing"].x < 0.0, "%s faces the aim while attacking and walking the other way" % cls)
+		check(phases.has(Protocol.Action.WINDUP) and phases.has(Protocol.Action.RECOVERY), "%s went through windup and recovery" % cls)
+		var moved: float = p["pos"].x - x0
+		var expect := float(p["speed"]) * dt * 12.0 * float(t.get("basic_attack_move_mult", 1.0))
+		check(absf(moved - expect) < 1.0, "%s keeps full speed through basic attacks (%.1f vs %.1f)" % [cls, moved, expect])
+	# 스킬 시전은 여전히 멈춘다
+	var rc := _solo_room("guardian", 6)
+	var pc: Dictionary = rc.players["p0"]
+	for e: Dictionary in rc.enemies.values():
 		e["pos"] = Vector2(-9999, -9999)
-	var xm0: float = pm["pos"].x
-	room_m.queue_input("p0", 1, Vector2.RIGHT, Vector2.RIGHT * 100, Protocol.BTN_ATTACK)
-	room_m.step(dt)
-	check(pm["action"] == Protocol.Action.WINDUP, "melee basic attack enters windup")
-	room_m.queue_input("p0", 2, Vector2.RIGHT, Vector2.RIGHT * 100, 0)
-	room_m.step(dt)
-	check(pm["action"] == Protocol.Action.WINDUP and is_equal_approx(pm["pos"].x, xm0), "melee windup does not move (%.1f)" % (pm["pos"].x - xm0))
+	var xc0: float = pc["pos"].x
+	rc.queue_input("p0", 1, Vector2.RIGHT, Vector2.RIGHT * 100, Protocol.BTN_Q)
+	rc.step(dt)
+	check(pc["action"] == Protocol.Action.CAST, "Q enters cast")
+	rc.queue_input("p0", 2, Vector2.RIGHT, Vector2.RIGHT * 100, 0)
+	rc.step(dt)
+	check(is_equal_approx(pc["pos"].x, xc0), "cast does not move (%.1f)" % (pc["pos"].x - xc0))
 
 
 ## 바라보는 방향: 이동 키 방향을 따르고, 마우스(조준)는 공격·스킬 시작 순간에만 방향을 정한다. 마을도 같다.

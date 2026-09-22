@@ -19,7 +19,7 @@ var data: Dictionary = {
 	"fullscreen": false,
 	"show_dev_overlay": false,
 	"flash_reduce": false,
-	"auto_attack": true,   # 가만히 서 있고 적이 가까우면 마우스 방향으로 계속 기본 공격
+	"auto_attack": true,   # 적이 가까우면 걷는 중에도 마우스 방향으로 계속 기본 공격
 	"hit_stop": true,      # 내 공격이 맞을 때 아주 짧은 타격 정지
 	"keybinds": {},        # action -> physical keycode (재설정한 키만)
 	"last_class": "guardian",

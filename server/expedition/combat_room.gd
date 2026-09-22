@@ -494,7 +494,9 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		p["aim"] = aim   # 반복 틱에서는 마지막 조준을 유지한다 (시전 완료 시 사용)
 	var action: int = p["action"]
 	if action == Protocol.Action.IDLE or action == Protocol.Action.RECOVERY:
-		p["facing"] = SimRules.move_facing(mv, p["facing"])   # 이동 키 방향을 본다. 마우스 방향은 공격·스킬 시작 순간에만 적용
+		p["facing"] = SimRules.move_facing(mv, p["facing"])   # 이동 키 방향을 본다. 마우스 방향은 공격 중·스킬 시작 순간에만 적용
+		if btn & Protocol.BTN_ATTACK:
+			_face_aim(p)   # 공격 버튼(자동 공격 포함)을 누르고 있는 동안은 걸으면서도 마우스 방향을 본다
 	if pressed & Protocol.BTN_DODGE and int(p["dodge_charges"]) > 0 and action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY, Protocol.Action.INTERACTING] and float(p["stagger_t"]) <= 0.0:
 		p["dodge_charges"] = int(p["dodge_charges"]) - 1
 		p["action"] = Protocol.Action.DODGE
@@ -576,9 +578,9 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 			if not o.is_empty() and o["kind"] == Protocol.ObKind.SLUICE_LEVER:
 				o["progress"] = 0.0
 		return
-	# 원거리 기본 공격은 준비 동작 중에도 느리게 움직일 수 있다 (tempo.ranged_move_during_windup, 쏘면서 이동)
-	var ranged_windup := action == Protocol.Action.WINDUP and String(p["action_kind"]) == "basic" and String(basic_attack_def(p).get("shape", "arc")) == "projectile"
-	var can_move := (action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY] or ranged_windup) and float(p["stagger_t"]) <= 0.0 and float(p["root_t"]) <= 0.0
+	# 기본 공격(준비·명중·후딜)은 이동을 막지 않는다 (tempo.basic_attack_move_mult, 기본 1.0 = 후딜 없음). 스킬 시전·상호작용은 여전히 멈춘다.
+	var basic_phase := action in [Protocol.Action.WINDUP, Protocol.Action.ACTIVE, Protocol.Action.RECOVERY] and String(p["action_kind"]) == "basic"
+	var can_move := (action == Protocol.Action.IDLE or basic_phase) and float(p["stagger_t"]) <= 0.0 and float(p["root_t"]) <= 0.0
 	var slow := 1.0
 	if _in_water(p["pos"]) and water_zone.get("state", 0) == 2:
 		slow = 1.0 - float(rules.get("sluice_player_slow", 0.3))
@@ -589,7 +591,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 	if action == Protocol.Action.DODGE:
 		p["pos"] = SimRules.move(p["pos"], p["dodge_dir"], float(p["speed"]) * float(rules.get("dodge_speed_mult", 3.0)), dt, bounds, float(p["radius"]), obstacles)
 	elif can_move and mv.length_squared() > 0.0001:
-		var speed := float(p["speed"]) * (0.6 if action == Protocol.Action.RECOVERY else (float(ContentDB.tempo().get("ranged_move_during_windup", 0.6)) if ranged_windup else 1.0)) * slow
+		var speed := float(p["speed"]) * (float(ContentDB.tempo().get("basic_attack_move_mult", 1.0)) if basic_phase else 1.0) * slow
 		if float(p["haste_t"]) > 0.0:
 			speed *= 1.0 + float(p["haste_mult"])
 		if float(p["whirl_t"]) > 0.0:

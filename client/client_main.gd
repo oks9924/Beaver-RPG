@@ -1025,8 +1025,8 @@ func _physics_process(dt: float) -> void:
 			var npc := world.nearest_npc(_pred_pos, float(ContentDB.rule("hub_talk_range", 90.0)))
 			if not npc.is_empty():
 				net.send(Protocol.C.NPC_TALK, {"npc": npc.get("id", "")})
-	# 자동 공격: 설정이 켜져 있고, 이동 키를 안 누르고, 살아 있는 적이 가까이 있으면 마우스 방향으로 계속 기본 공격 (스킬·상호작용 입력이 있으면 그쪽이 우선)
-	if mode == "room" and not demo and bool(settings.data.get("auto_attack", true)) and not _text_focused() and mv.length_squared() < 0.01 and not world.explore and not run_inventory.visible \
+	# 자동 공격: 설정이 켜져 있고 살아 있는 적이 가까이 있으면, 걷는 중에도 마우스 방향으로 공격 속도에 맞춰 계속 기본 공격 (스킬·상호작용 입력이 있으면 그쪽이 우선)
+	if mode == "room" and not demo and bool(settings.data.get("auto_attack", true)) and not _text_focused() and not world.explore and not run_inventory.visible \
 			and (btn & (Protocol.BTN_Q | Protocol.BTN_E | Protocol.BTN_R | Protocol.BTN_INTERACT | Protocol.BTN_HEAL | Protocol.BTN_BUILD)) == 0 \
 			and world.enemy_within(_pred_pos, float(ContentDB.rule("auto_attack_range", 300.0))):
 		btn |= Protocol.BTN_ATTACK
@@ -1379,20 +1379,18 @@ func _refresh_bag() -> void:
 		run_inventory.refresh(net.account, room.get("party", []), my_id)
 
 
-## 서버와 같은 이동 가능 규칙: 대기·후딜, 그리고 원거리 기본 공격의 준비 동작(tempo.ranged_move_during_windup)
+## 서버와 같은 이동 가능 규칙: 대기, 그리고 기본 공격의 모든 단계(준비·명중·후딜). 스킬 시전·상호작용은 멈춘다.
+func _is_basic_phase(action: int, action_kind: int) -> bool:
+	return action in [Protocol.Action.WINDUP, Protocol.Action.ACTIVE, Protocol.Action.RECOVERY] and action_kind == int(Protocol.ACTION_KIND_CODES.get("basic", 1))
+
+
 func _action_can_move(action: int, action_kind: int) -> bool:
-	if action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY]:
-		return true
-	if action == Protocol.Action.WINDUP and action_kind == int(Protocol.ACTION_KIND_CODES.get("basic", 1)):
-		return String(ContentDB.get_class_def(_my_class()).get("basic_attack", {}).get("shape", "arc")) == "projectile"
-	return false
+	return action == Protocol.Action.IDLE or _is_basic_phase(action, action_kind)
 
 
 func _move_factor(action: int, action_kind: int) -> float:
-	if action == Protocol.Action.RECOVERY:
-		return 0.6
-	if action == Protocol.Action.WINDUP and _action_can_move(action, action_kind):
-		return float(ContentDB.tempo().get("ranged_move_during_windup", 0.6))
+	if _is_basic_phase(action, action_kind):
+		return float(ContentDB.tempo().get("basic_attack_move_mult", 1.0))
 	return 1.0
 
 
