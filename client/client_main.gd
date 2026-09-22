@@ -29,6 +29,7 @@ var _pred_pos: Vector2 = Vector2.ZERO
 var _vis_offset: Vector2 = Vector2.ZERO   # 서버 보정으로 생긴 위치 차이를 화면에서 서서히 흡수한다 (순간 이동·떨림 방지)
 var _prev_pred: Vector2 = Vector2.ZERO    # 직전 물리 틱의 예측 위치. 30Hz 예측을 화면 주사율에 맞춰 보간한다
 var _prev_btn: int = 0
+var _hit_stop_last: float = -10.0
 var selected_class: String = "guardian"
 var npc_panel := NpcPanel.new()
 var run_inventory := RunInventory.new()
@@ -492,6 +493,8 @@ func _on_room_event(ev: Dictionary) -> void:
 			var key := "e:%d" % int(ev.get("eid", 0))
 			if world.entities.has(key):
 				world.entities[key].flash()
+			if ev.get("by", "") == my_id:
+				_hit_stop()
 			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30))
 			world.play_sound("sfx.snail_hit")
 		"enemy_died":
@@ -942,7 +945,7 @@ func _reconcile(server_pos: Vector2, ack: int, me: PackedFloat32Array) -> void:
 	while not _pending.is_empty() and int(_pending[0]["seq"]) <= ack:
 		_pending.pop_front()
 	var pos := server_pos
-	var movable := int(me[Protocol.SNAP_P.STATE]) == Protocol.EntState.ALIVE and int(me[Protocol.SNAP_P.ACTION]) in [Protocol.Action.IDLE, Protocol.Action.RECOVERY]
+	var movable := int(me[Protocol.SNAP_P.STATE]) == Protocol.EntState.ALIVE and _action_can_move(int(me[Protocol.SNAP_P.ACTION]), int(me[Protocol.SNAP_P.ACTION_KIND]) if me.size() > Protocol.SNAP_P.ACTION_KIND else 0)
 	if movable:
 		var speed := float(ContentDB.get_class_def(_my_class()).get("move_speed", 180))
 		for inp: Dictionary in _pending:
@@ -1036,7 +1039,10 @@ func _physics_process(dt: float) -> void:
 	if mode == "room":
 		speed = float(ContentDB.get_class_def(_my_class()).get("move_speed", 180))
 		if not _me_snapshot.is_empty():
-			movable = int(_me_snapshot[Protocol.SNAP_P.STATE]) == Protocol.EntState.ALIVE and int(_me_snapshot[Protocol.SNAP_P.ACTION]) in [Protocol.Action.IDLE, Protocol.Action.RECOVERY]
+			var act_now := int(_me_snapshot[Protocol.SNAP_P.ACTION])
+			var kind_now := int(_me_snapshot[Protocol.SNAP_P.ACTION_KIND]) if _me_snapshot.size() > Protocol.SNAP_P.ACTION_KIND else 0
+			movable = int(_me_snapshot[Protocol.SNAP_P.STATE]) == Protocol.EntState.ALIVE and _action_can_move(act_now, kind_now)
+			speed *= _move_factor(act_now, kind_now)
 		_pending.append({"seq": _seq, "mv": mv, "dt": dt})
 		if _pending.size() > 60:
 			_pending.pop_front()
@@ -1371,4 +1377,37 @@ func _refresh_bag() -> void:
 	hud.set_bag(inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60)))
 	if run_inventory.visible:
 		run_inventory.refresh(net.account, room.get("party", []), my_id)
+
+
+## 서버와 같은 이동 가능 규칙: 대기·후딜, 그리고 원거리 기본 공격의 준비 동작(tempo.ranged_move_during_windup)
+func _action_can_move(action: int, action_kind: int) -> bool:
+	if action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY]:
+		return true
+	if action == Protocol.Action.WINDUP and action_kind == int(Protocol.ACTION_KIND_CODES.get("basic", 1)):
+		return String(ContentDB.get_class_def(_my_class()).get("basic_attack", {}).get("shape", "arc")) == "projectile"
+	return false
+
+
+func _move_factor(action: int, action_kind: int) -> float:
+	if action == Protocol.Action.RECOVERY:
+		return 0.6
+	if action == Protocol.Action.WINDUP and _action_can_move(action, action_kind):
+		return float(ContentDB.tempo().get("ranged_move_during_windup", 0.6))
+	return 1.0
+
+
+## 타격 정지: 내 공격이 맞으면 아주 짧게 시간을 늦춰 손맛을 준다 (설정 hit_stop, tempo.hit_stop_sec). 실시간 타이머로 복구한다.
+func _hit_stop() -> void:
+	if demo or not bool(settings.data.get("hit_stop", true)):
+		return
+	var sec := float(ContentDB.tempo().get("hit_stop_sec", 0.0))
+	if sec <= 0.0:
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _hit_stop_last < float(ContentDB.tempo().get("hit_stop_min_gap_sec", 0.12)):
+		return
+	_hit_stop_last = now
+	Engine.time_scale = 0.05
+	var t := get_tree().create_timer(sec, true, false, true)
+	t.timeout.connect(func() -> void: Engine.time_scale = 1.0)
 

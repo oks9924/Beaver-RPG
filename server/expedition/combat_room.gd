@@ -576,7 +576,9 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 			if not o.is_empty() and o["kind"] == Protocol.ObKind.SLUICE_LEVER:
 				o["progress"] = 0.0
 		return
-	var can_move := action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY] and float(p["stagger_t"]) <= 0.0 and float(p["root_t"]) <= 0.0
+	# 원거리 기본 공격은 준비 동작 중에도 느리게 움직일 수 있다 (tempo.ranged_move_during_windup, 쏘면서 이동)
+	var ranged_windup := action == Protocol.Action.WINDUP and String(p["action_kind"]) == "basic" and String(basic_attack_def(p).get("shape", "arc")) == "projectile"
+	var can_move := (action in [Protocol.Action.IDLE, Protocol.Action.RECOVERY] or ranged_windup) and float(p["stagger_t"]) <= 0.0 and float(p["root_t"]) <= 0.0
 	var slow := 1.0
 	if _in_water(p["pos"]) and water_zone.get("state", 0) == 2:
 		slow = 1.0 - float(rules.get("sluice_player_slow", 0.3))
@@ -587,7 +589,7 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 	if action == Protocol.Action.DODGE:
 		p["pos"] = SimRules.move(p["pos"], p["dodge_dir"], float(p["speed"]) * float(rules.get("dodge_speed_mult", 3.0)), dt, bounds, float(p["radius"]), obstacles)
 	elif can_move and mv.length_squared() > 0.0001:
-		var speed := float(p["speed"]) * (0.6 if action == Protocol.Action.RECOVERY else 1.0) * slow
+		var speed := float(p["speed"]) * (0.6 if action == Protocol.Action.RECOVERY else (float(ContentDB.tempo().get("ranged_move_during_windup", 0.6)) if ranged_windup else 1.0)) * slow
 		if float(p["haste_t"]) > 0.0:
 			speed *= 1.0 + float(p["haste_mult"])
 		if float(p["whirl_t"]) > 0.0:
@@ -2023,7 +2025,7 @@ func _spawn_wave() -> void:
 		_spawn_enemy(String(def["id"]), pos)
 		spawned += 1
 	wave_index += 1
-	_wave_gap_t = float(room_def.get("waves", {}).get("wave_gap_sec", 2.0))
+	_wave_gap_t = float(room_def.get("waves", {}).get("wave_gap_sec", 2.0)) * float(ContentDB.tempo().get("wave_gap_mult", 1.0))
 	events.append({"k": "wave", "index": wave_index, "count": wave_count, "spawned": spawned})
 	if wave_index >= wave_count:
 		_all_spawned = true
@@ -2069,7 +2071,7 @@ func _step_waves(dt: float) -> void:
 	if _all_spawned or objective_done or objective == "boss":
 		return
 	_wave_gap_t -= dt
-	var threshold := int(room_def.get("waves", {}).get("next_wave_when_alive_at_most", 1))
+	var threshold := int(room_def.get("waves", {}).get("next_wave_when_alive_at_most", 1)) + int(ContentDB.tempo().get("wave_alive_at_most_add", 0))
 	if _wave_gap_t <= 0.0 and _alive_enemy_count() <= threshold:
 		_spawn_wave()
 

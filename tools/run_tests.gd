@@ -18,6 +18,8 @@ func _ready() -> void:
 	test_sim_rules()
 	print("-- test_facing_rules")
 	test_facing_rules()
+	print("-- test_tempo")
+	test_tempo()
 	print("-- test_combat_room_flow")
 	test_combat_room_flow()
 	print("-- test_combat_room_down_rescue_wipe")
@@ -170,6 +172,61 @@ func test_sim_rules() -> void:
 	check(p2.x <= 40.0 + 0.001, "move blocked by obstacle")
 	check(SimRules.dir_row(Vector2(0, 1)) == 0 and SimRules.dir_row(Vector2(0, -1)) == 1 and SimRules.dir_row(Vector2(-1, 0)) == 2 and SimRules.dir_row(Vector2(1, 0)) == 3, "dir rows")
 	check(SimRules.move_facing(Vector2(0, -3), Vector2.RIGHT) == Vector2.UP and SimRules.move_facing(Vector2.ZERO, Vector2.RIGHT) == Vector2.RIGHT, "move_facing: key direction, else keep")
+
+
+## 속도감(tempo): rules.tempo 배율이 로드 시 클래스·무기·적 수치에 적용되고, 원거리 기본 공격은 준비 동작 중에도 느리게 움직인다.
+func test_tempo() -> void:
+	var t: Dictionary = ContentDB.tempo()
+	check(not t.is_empty(), "tempo block exists in rules.json")
+	var raw_classes: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/classes.json"))
+	var raw_cls: Dictionary = raw_classes["classes"] if raw_classes.has("classes") else raw_classes
+	var g_raw: Dictionary = raw_cls["guardian"]
+	var g: Dictionary = ContentDB.get_class_def("guardian")
+	check(is_equal_approx(float(g["move_speed"]), roundf(float(g_raw["move_speed"]) * float(t["player_speed_mult"]))), "class move_speed scaled by player_speed_mult (%s)" % str(g["move_speed"]))
+	check(float(g["move_speed"]) > float(g_raw["move_speed"]), "guardian is faster than raw data (%s > %s)" % [str(g["move_speed"]), str(g_raw["move_speed"])])
+	var gba: Dictionary = g["basic_attack"]
+	var gba_raw: Dictionary = g_raw["basic_attack"]
+	check(is_equal_approx(float(gba["windup_sec"]), snappedf(float(gba_raw["windup_sec"]) * float(t["melee_windup_mult"]), 0.01)), "melee windup scaled (%s)" % str(gba["windup_sec"]))
+	check(is_equal_approx(float(gba["recovery_sec"]), snappedf(float(gba_raw["recovery_sec"]) * float(t["melee_recovery_mult"]), 0.01)), "melee recovery scaled (%s)" % str(gba["recovery_sec"]))
+	var h_raw: Dictionary = raw_cls["hydro"]["basic_attack"]
+	var h: Dictionary = ContentDB.get_class_def("hydro")["basic_attack"]
+	check(String(h.get("shape", "")) == "projectile", "hydro basic attack is a projectile")
+	check(is_equal_approx(float(h["windup_sec"]), snappedf(float(h_raw["windup_sec"]) * float(t["ranged_windup_mult"]), 0.01)), "ranged windup scaled (%s)" % str(h["windup_sec"]))
+	check(is_equal_approx(float(h["recovery_sec"]), snappedf(float(h_raw["recovery_sec"]) * float(t["ranged_recovery_mult"]), 0.01)), "ranged recovery scaled (%s)" % str(h["recovery_sec"]))
+	var raw_enemies: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
+	var raw_en: Dictionary = raw_enemies["enemies"] if raw_enemies.has("enemies") else raw_enemies
+	var s_raw: Dictionary = raw_en["sap_snail"]
+	var s_def: Dictionary = ContentDB.get_enemy_def("sap_snail")
+	check(is_equal_approx(float(s_def["move_speed"]), roundf(float(s_raw["move_speed"]) * float(t["enemy_speed_mult"]))), "enemy move_speed scaled (%s)" % str(s_def["move_speed"]))
+	check(is_equal_approx(float(s_def["hp"]), maxf(roundf(float(s_raw["hp"]) * float(t["enemy_hp_mult"])), 1.0)), "enemy hp scaled (%s)" % str(s_def["hp"]))
+	# 웨이브 간격은 tempo.wave_gap_mult 로 줄어든다
+	var room := _solo_room("hydro", 5)
+	check(is_equal_approx(room._wave_gap_t, float(ContentDB.get_room_def("test_arena")["waves"]["wave_gap_sec"]) * float(t["wave_gap_mult"])), "wave gap scaled by wave_gap_mult (%.2f)" % room._wave_gap_t)
+	# 원거리: 기본 공격 준비 동작 중 이동 가능(느리게). 근접: 준비 동작 중 정지.
+	var p: Dictionary = room.players["p0"]
+	for e: Dictionary in room.enemies.values():
+		e["pos"] = Vector2(-9999, -9999)
+	var x0: float = p["pos"].x
+	var dt := 1.0 / 30.0
+	room.queue_input("p0", 1, Vector2.RIGHT, Vector2.RIGHT * 100, Protocol.BTN_ATTACK)
+	room.step(dt)
+	check(p["action"] == Protocol.Action.WINDUP and p["action_kind"] == "basic", "ranged basic attack enters windup")
+	room.queue_input("p0", 2, Vector2.RIGHT, Vector2.RIGHT * 100, 0)
+	room.step(dt)
+	var moved: float = p["pos"].x - x0
+	check(p["action"] == Protocol.Action.WINDUP or p["action"] == Protocol.Action.RECOVERY, "still inside the attack after 2 ticks")
+	check(moved > 0.0 and moved < float(p["speed"]) * dt * 2.0 + 0.01, "ranged windup moves slowly (%.1f px in 2 ticks, speed %s)" % [moved, str(p["speed"])])
+	var room_m := _solo_room("guardian", 6)
+	var pm: Dictionary = room_m.players["p0"]
+	for e: Dictionary in room_m.enemies.values():
+		e["pos"] = Vector2(-9999, -9999)
+	var xm0: float = pm["pos"].x
+	room_m.queue_input("p0", 1, Vector2.RIGHT, Vector2.RIGHT * 100, Protocol.BTN_ATTACK)
+	room_m.step(dt)
+	check(pm["action"] == Protocol.Action.WINDUP, "melee basic attack enters windup")
+	room_m.queue_input("p0", 2, Vector2.RIGHT, Vector2.RIGHT * 100, 0)
+	room_m.step(dt)
+	check(pm["action"] == Protocol.Action.WINDUP and is_equal_approx(pm["pos"].x, xm0), "melee windup does not move (%.1f)" % (pm["pos"].x - xm0))
 
 
 ## 바라보는 방향: 이동 키 방향을 따르고, 마우스(조준)는 공격·스킬 시작 순간에만 방향을 정한다. 마을도 같다.
@@ -999,7 +1056,8 @@ func test_class_sapshaman() -> void:
 		if ev["k"] == "healed" and ev["id"] == "p0":
 			healed_amount += float(ev["amount"])
 	seq += 12
-	check(healed_amount >= 18.0 + seeds * 3 - 0.01 and int(p["resource"]) == 0, "life sap heals base + seeds and consumes seeds (%.0f)" % healed_amount)
+	# 씨앗은 시전 시 0 으로 소모되고, 회복 자체가 (0.5초 간격이 지났다면) 씨앗 1 을 다시 준다
+	check(healed_amount >= 18.0 + seeds * 3 - 0.01 and int(p["resource"]) <= 1, "life sap heals base + seeds and consumes seeds (%.0f)" % healed_amount)
 	check(e0["slow_t"] > 0.0, "enemy inside life sap is slowed")
 	var sp0: Vector2 = e0["pos"]
 	e0["ai"] = Protocol.EnemyAI.CHASE

@@ -27,6 +27,7 @@ func setup(s: ClientSettings) -> void:
 	_slider("화면 흔들림", "screen_shake", 0.0, 1.0, 0.1)
 	_toggle("섬광·번쩍임 감소", "flash_reduce")
 	_toggle("자동 공격 (서 있을 때 마우스 방향으로 계속 공격)", "auto_attack")
+	_toggle("타격 정지 (명중 시 아주 짧은 멈춤)", "hit_stop")
 	_slider("배경 음악", "volume_bgm", 0.0, 1.0, 0.05)
 	_slider("효과음", "volume_sfx", 0.0, 1.0, 0.05)
 	_slider("환경음", "volume_ambient", 0.0, 1.0, 0.05)

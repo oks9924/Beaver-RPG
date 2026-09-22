@@ -60,7 +60,7 @@ func _ready() -> void:
 	add_child(camera)
 	camera.enabled = true
 	camera.position_smoothing_enabled = true
-	camera.position_smoothing_speed = 8.0
+	camera.position_smoothing_speed = float(ContentDB.tempo().get("camera_smoothing", 8.0))
 	for i in 6:
 		var ap := AudioStreamPlayer.new()
 		add_child(ap)

@@ -3,7 +3,7 @@ extends Node
 
 const PROTOCOL_VERSION: int = 1
 const CONTENT_VERSION: String = "0.4.0"
-const BUILD_VERSION: String = "0.4.6-v7"
+const BUILD_VERSION: String = "0.4.8-tempo"
 const DEFAULT_PORT: int = 7777
 const MAX_PARTY_SIZE: int = 4
 

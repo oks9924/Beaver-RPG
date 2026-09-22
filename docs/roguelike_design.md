@@ -88,3 +88,4 @@
 - 정예가 잦다/드물다 → `elites.spawn.base_chance`, `max_affix_elites_per_wave`.
 - 서약이 싱겁다 → `pacts.json` 의 `*_per_rank`, `_rewards.shards_mult_per_heat`.
 - 희귀가 안 나온다 → `rules.rarity_weights`, `rarity_layer_bonus`.
+- 속도감이 느리다/정신없다 → `rules.tempo`(2026-09-22 추가, 로드 시 데이터에 곱해진다): `player_speed_mult`(이동 1.2), `melee_windup_mult`/`melee_recovery_mult`(근접 준비 0.73·후딜 0.55), `ranged_windup_mult`/`ranged_recovery_mult`(원거리 0.67·0.58), `ranged_move_during_windup`(원거리 준비 중 이동 속도 0.6), `enemy_speed_mult`(1.15), `enemy_hp_mult`(0.88), `wave_gap_mult`(웨이브 간격 0.55), `wave_alive_at_most_add`(다음 웨이브 조건 +2), `hit_stop_sec`/`hit_stop_min_gap_sec`(클라이언트 타격 정지 0.04초·최소 간격 0.12초, 설정에서 끔), `camera_smoothing`(12). 회피 재충전은 `dodge_recharge_sec` 2.5, 문 이동은 `dungeon_doors.all_sec` 1.5·`majority_sec` 6.0, 스냅샷 `server_snapshot_hz` 20. 모두 1.0/0 으로 두면 이전 속도로 돌아간다.

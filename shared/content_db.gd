@@ -59,7 +59,53 @@ func reload() -> void:
 	chunks = _load_json("chunks.json") if FileAccess.file_exists(DATA_DIR + "chunks.json") else {}
 	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village, mastery, npcs, quests, equipment, gear_affixes]:
 		d.erase("_comment")
+	_apply_tempo()
 	_validate()
+
+
+func tempo() -> Dictionary:
+	return rules.get("tempo", {})
+
+
+## 속도감 묶음(rules.tempo)을 데이터에 곱한다: 직업 이동 속도·기본 공격 준비/후딜, 무기의 기본 공격 덮어쓰기, 일반 적 이동 속도·체력. 보스는 그대로.
+## 서버·클라이언트가 같은 ContentDB 를 쓰므로 예측과 판정이 같은 값을 본다.
+func _apply_tempo() -> void:
+	var t := tempo()
+	if t.is_empty():
+		return
+	var ps := float(t.get("player_speed_mult", 1.0))
+	for cid: String in classes.keys():
+		var c: Variant = classes[cid]
+		if not c is Dictionary or not (c as Dictionary).has("move_speed"):
+			continue
+		c["move_speed"] = roundf(float(c["move_speed"]) * ps)
+		var cba: Dictionary = c.get("basic_attack", {})
+		_tempo_attack(cba, String(cba.get("shape", "arc")) == "projectile", t)
+	for wid: String in equipment.get("weapons", {}).keys():
+		var w: Dictionary = equipment["weapons"][wid]
+		var ba: Dictionary = w.get("basic_attack", {})
+		if ba.is_empty():
+			continue
+		var cshape: String = String(classes.get(String(w.get("class", "")), {}).get("basic_attack", {}).get("shape", "arc"))
+		_tempo_attack(ba, String(ba.get("shape", cshape)) == "projectile", t)
+	var es := float(t.get("enemy_speed_mult", 1.0))
+	var eh := float(t.get("enemy_hp_mult", 1.0))
+	for eid: String in enemies.keys():
+		var e: Variant = enemies[eid]
+		if not e is Dictionary or not (e as Dictionary).has("move_speed"):
+			continue
+		e["move_speed"] = roundf(float(e["move_speed"]) * es)
+		if e.has("hp"):
+			e["hp"] = maxf(roundf(float(e["hp"]) * eh), 1.0)
+
+
+func _tempo_attack(ba: Dictionary, ranged: bool, t: Dictionary) -> void:
+	var wm := float(t.get("ranged_windup_mult" if ranged else "melee_windup_mult", 1.0))
+	var rm := float(t.get("ranged_recovery_mult" if ranged else "melee_recovery_mult", 1.0))
+	if ba.has("windup_sec"):
+		ba["windup_sec"] = snappedf(float(ba["windup_sec"]) * wm, 0.01)
+	if ba.has("recovery_sec"):
+		ba["recovery_sec"] = snappedf(float(ba["recovery_sec"]) * rm, 0.01)
 
 
 func _load_json(file: String) -> Dictionary:
