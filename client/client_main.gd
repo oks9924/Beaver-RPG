@@ -375,6 +375,7 @@ func _on_message(type: int, p: Dictionary) -> void:
 				world.set_npcs([])
 				var ra: Dictionary = def.get("assets", {})
 				world.setup(Rect2(b["x"], b["y"], b["w"], b["h"]), String(ra.get("ground", "tile.willow.ground")), def.get("obstacles", []), def.get("water", []), String(ra.get("wall", "tile.willow.wall")), String(ra.get("water", "tile.willow.water")), String(ra.get("shore", "tile.willow.shore")))
+				world.set_decor(def.get("decor", []))   # 프리팹 조각의 장식(긴 통나무·바닥 자국)
 				_pending.clear()
 				_vis_offset = Vector2.ZERO
 				_me_snapshot = PackedFloat32Array()

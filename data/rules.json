@@ -4,7 +4,7 @@
  "dodge_charges": 2,
  "auto_attack_range": 300,
  "room_gen": {"_comment": "방 내부 지형 랜덤화 (GEN-02). 보스·튜토리얼 제외. 장애물은 문·시작 위치·적 등장·목표물에서 떨어뜨리고, 격자 채우기로 모든 지점이 이어지는지 확인한다.",
-  "enabled": true, "obstacles_min": 4, "obstacles_max": 9, "explore_obstacles_min": 3, "explore_obstacles_max": 6, "radius_min": 36, "radius_max": 60,
+  "enabled": true, "mode": "prefab", "prefab_extra_max": 2, "prefab_max_obstacles": 14, "obstacles_min": 4, "obstacles_max": 9, "explore_obstacles_min": 3, "explore_obstacles_max": 6, "radius_min": 36, "radius_max": 60,
   "spacing": 150, "keep_spawn": 140, "keep_enemy": 100, "keep_anchor": 90, "keep_door": 160, "edge_margin": 110,
   "water_keep_chance": 0.7, "water_h_min": 60, "water_h_max": 100, "grid": 40, "player_radius": 18, "tries": 12},
  "dodge_recharge_sec": 4.0,

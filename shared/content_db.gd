@@ -10,6 +10,7 @@ var npcs: Dictionary = {}
 var quests: Dictionary = {}
 var equipment: Dictionary = {}      # data/equipment.json (영구 장비: 무기·갑옷·장신구·등급)
 var gear_affixes: Dictionary = {}   # data/affixes.json (장비 부가 속성·전설 고유)
+var chunks: Dictionary = {}         # data/chunks.json (방 지형 프리팹 조각)
 var enemies: Dictionary = {}
 var party_scaling: Dictionary = {}
 var rules: Dictionary = {}
@@ -55,6 +56,7 @@ func reload() -> void:
 	quests = _load_json("quests.json") if FileAccess.file_exists(DATA_DIR + "quests.json") else {}
 	equipment = _load_json("equipment.json") if FileAccess.file_exists(DATA_DIR + "equipment.json") else {}
 	gear_affixes = _load_json("affixes.json") if FileAccess.file_exists(DATA_DIR + "affixes.json") else {}
+	chunks = _load_json("chunks.json") if FileAccess.file_exists(DATA_DIR + "chunks.json") else {}
 	for d: Dictionary in [relics, upgrades, events, shop, regions, bosses, village, mastery, npcs, quests, equipment, gear_affixes]:
 		d.erase("_comment")
 	_validate()

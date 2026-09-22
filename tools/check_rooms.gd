@@ -28,6 +28,11 @@ func _ready() -> void:
 				stats["fallback_rooms"][rid] = int(stats["fallback_rooms"].get(rid, 0)) + 1
 				continue
 			stats["generated"] += 1
+			var meta: Dictionary = def["generated"]
+			for row: Array in meta.get("chunks", []):
+				for cid: String in row:
+					stats["chunk_use"] = stats.get("chunk_use", {})
+					stats["chunk_use"][cid] = int(stats["chunk_use"].get(cid, 0)) + 1
 			var obs: Array = def.get("obstacles", [])
 			stats["obst_min"] = mini(int(stats["obst_min"]), obs.size())
 			stats["obst_max"] = maxi(int(stats["obst_max"]), obs.size())
@@ -52,4 +57,6 @@ func _ready() -> void:
 		print("  " + pr)
 	if stats.has("fallback_rooms"):
 		print("  fallback by room: %s" % [stats["fallback_rooms"]])
+	if stats.has("chunk_use"):
+		print("  chunk use: %s" % [stats["chunk_use"]])
 	get_tree().quit(1 if not problems.is_empty() or int(stats["fallback"]) > int(stats["generated"]) / 20 else 0)

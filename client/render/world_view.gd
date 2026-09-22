@@ -87,6 +87,9 @@ func setup(area_bounds: Rect2, ground_asset: String, obstacles: Array, water: Ar
 	_obstacles = obstacles
 	var oi := 0
 	for ob: Dictionary in obstacles:
+		if ob.has("asset") and String(ob["asset"]) == "":
+			oi += 1
+			continue   # 합성 장식(긴 통나무 등)이 대신 그리는 충돌 원
 		var spr := _prop_sprite(String(ob.get("asset", "prop.willow.rock")), int(ob.get("frame", oi)), float(ob.get("size", float(ob.get("r", 40)) * 2.4)))
 		spr.position = Vector2(float(ob["x"]), float(ob["y"]))
 		add_child(spr)

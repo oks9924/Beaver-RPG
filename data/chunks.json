@@ -1,0 +1,466 @@
+{
+ "_comment": "방 지형 프리팹 조각 (GEN-03). 방을 cell 크기 격자로 나누고 칸마다 조각을 고른다. 좌표 u,v 는 조각 안 0~1, 반지름 r 은 조각의 짧은 변 대비 비율. colliders 는 충돌 원(role 로 지역 소품을 고른다), water 는 물 웅덩이, decor 는 충돌 없는 장식(v7 에셋이 없으면 생략). tags: open(비어 있음) wall_h/wall_v(가로/세로 벽) center(가운데 막힘) corner(구석) pond(물). 문이 닿는 칸은 open 계열만 쓴다.",
+ "cell": {
+  "w": 350,
+  "h": 300
+ },
+ "roles": {
+  "willow_river": {
+   "boulder": [
+    "prop.willow.boulder_cluster",
+    "prop.willow.rock"
+   ],
+   "trunk": [
+    "prop.willow.trunk",
+    "prop.willow.log"
+   ],
+   "stump": [
+    "prop.willow.stump_cluster",
+    "prop.willow.log"
+   ],
+   "bush": [
+    "prop.willow.bush",
+    "prop.willow.rock"
+   ]
+  },
+  "black_sap_swamp": {
+   "boulder": [
+    "prop.swamp.boulder_cluster",
+    "prop.swamp.stump"
+   ],
+   "trunk": [
+    "prop.swamp.trunk",
+    "prop.swamp.stump"
+   ],
+   "stump": [
+    "prop.swamp.stump_cluster",
+    "prop.swamp.stump"
+   ],
+   "bush": [
+    "prop.swamp.bush",
+    "prop.swamp.mushroom"
+   ]
+  },
+  "ancient_root_dam": {
+   "boulder": [
+    "prop.dam.boulder_cluster",
+    "prop.dam.gear"
+   ],
+   "trunk": [
+    "prop.dam.trunk",
+    "prop.dam.timber"
+   ],
+   "stump": [
+    "prop.dam.stump_cluster",
+    "prop.dam.timber"
+   ],
+   "bush": [
+    "prop.dam.bush",
+    "prop.dam.gear"
+   ]
+  }
+ },
+ "decals": {
+  "willow_river": [
+   "decal.willow.dirt",
+   "decal.willow.leaves",
+   "decal.willow.puddle"
+  ],
+  "black_sap_swamp": [
+   "decal.swamp.dirt",
+   "decal.swamp.leaves",
+   "decal.swamp.puddle"
+  ],
+  "ancient_root_dam": [
+   "decal.dam.dirt",
+   "decal.dam.leaves",
+   "decal.dam.puddle"
+  ]
+ },
+ "chunks": [
+  {
+   "id": "open",
+   "tags": [
+    "open"
+   ],
+   "weight": 3,
+   "colliders": []
+  },
+  {
+   "id": "open_stone",
+   "tags": [
+    "open"
+   ],
+   "weight": 3,
+   "colliders": [
+    {
+     "u": 0.5,
+     "v": 0.5,
+     "r": 0.14,
+     "role": "boulder"
+    }
+   ]
+  },
+  {
+   "id": "open_bush",
+   "tags": [
+    "open"
+   ],
+   "weight": 3,
+   "colliders": [
+    {
+     "u": 0.28,
+     "v": 0.7,
+     "r": 0.09,
+     "role": "bush"
+    },
+    {
+     "u": 0.74,
+     "v": 0.3,
+     "r": 0.09,
+     "role": "bush"
+    }
+   ]
+  },
+  {
+   "id": "boulder_pair",
+   "tags": [
+    "center"
+   ],
+   "weight": 3,
+   "colliders": [
+    {
+     "u": 0.36,
+     "v": 0.5,
+     "r": 0.17,
+     "role": "boulder"
+    },
+    {
+     "u": 0.66,
+     "v": 0.56,
+     "r": 0.15,
+     "role": "boulder"
+    }
+   ]
+  },
+  {
+   "id": "trunk_h",
+   "tags": [
+    "wall_h"
+   ],
+   "weight": 3,
+   "colliders": [
+    {
+     "u": 0.3,
+     "v": 0.5,
+     "r": 0.12,
+     "role": "trunk",
+     "part": "trunk_h"
+    },
+    {
+     "u": 0.5,
+     "v": 0.5,
+     "r": 0.12,
+     "role": "trunk",
+     "part": "trunk_h"
+    },
+    {
+     "u": 0.7,
+     "v": 0.5,
+     "r": 0.12,
+     "role": "trunk",
+     "part": "trunk_h"
+    }
+   ],
+   "decor": [
+    {
+     "u": 0.5,
+     "v": 0.5,
+     "asset_role": "trunk_long_h",
+     "size": 1.0
+    }
+   ]
+  },
+  {
+   "id": "trunk_v",
+   "tags": [
+    "wall_v"
+   ],
+   "weight": 3,
+   "colliders": [
+    {
+     "u": 0.5,
+     "v": 0.28,
+     "r": 0.12,
+     "role": "trunk",
+     "part": "trunk_v"
+    },
+    {
+     "u": 0.5,
+     "v": 0.5,
+     "r": 0.12,
+     "role": "trunk",
+     "part": "trunk_v"
+    },
+    {
+     "u": 0.5,
+     "v": 0.72,
+     "r": 0.12,
+     "role": "trunk",
+     "part": "trunk_v"
+    }
+   ],
+   "decor": [
+    {
+     "u": 0.5,
+     "v": 0.5,
+     "asset_role": "trunk_long_v",
+     "size": 1.0
+    }
+   ]
+  },
+  {
+   "id": "corridor_h",
+   "tags": [
+    "wall_h"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.3,
+     "v": 0.22,
+     "r": 0.11,
+     "role": "trunk"
+    },
+    {
+     "u": 0.55,
+     "v": 0.22,
+     "r": 0.11,
+     "role": "trunk"
+    },
+    {
+     "u": 0.3,
+     "v": 0.78,
+     "r": 0.11,
+     "role": "trunk"
+    },
+    {
+     "u": 0.55,
+     "v": 0.78,
+     "r": 0.11,
+     "role": "trunk"
+    }
+   ]
+  },
+  {
+   "id": "stump_ring",
+   "tags": [
+    "center"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.5,
+     "v": 0.24,
+     "r": 0.09,
+     "role": "stump"
+    },
+    {
+     "u": 0.74,
+     "v": 0.42,
+     "r": 0.09,
+     "role": "stump"
+    },
+    {
+     "u": 0.66,
+     "v": 0.74,
+     "r": 0.09,
+     "role": "stump"
+    },
+    {
+     "u": 0.34,
+     "v": 0.74,
+     "r": 0.09,
+     "role": "stump"
+    },
+    {
+     "u": 0.26,
+     "v": 0.42,
+     "r": 0.09,
+     "role": "stump"
+    }
+   ]
+  },
+  {
+   "id": "corner_nw",
+   "tags": [
+    "corner"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.2,
+     "v": 0.2,
+     "r": 0.14,
+     "role": "boulder"
+    },
+    {
+     "u": 0.42,
+     "v": 0.18,
+     "r": 0.1,
+     "role": "bush"
+    },
+    {
+     "u": 0.18,
+     "v": 0.44,
+     "r": 0.1,
+     "role": "bush"
+    }
+   ]
+  },
+  {
+   "id": "corner_se",
+   "tags": [
+    "corner"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.8,
+     "v": 0.8,
+     "r": 0.14,
+     "role": "boulder"
+    },
+    {
+     "u": 0.58,
+     "v": 0.82,
+     "r": 0.1,
+     "role": "bush"
+    },
+    {
+     "u": 0.82,
+     "v": 0.56,
+     "r": 0.1,
+     "role": "bush"
+    }
+   ]
+  },
+  {
+   "id": "diagonal",
+   "tags": [
+    "center"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.25,
+     "v": 0.25,
+     "r": 0.11,
+     "role": "stump"
+    },
+    {
+     "u": 0.5,
+     "v": 0.5,
+     "r": 0.13,
+     "role": "boulder"
+    },
+    {
+     "u": 0.75,
+     "v": 0.75,
+     "r": 0.11,
+     "role": "stump"
+    }
+   ]
+  },
+  {
+   "id": "crossroads",
+   "tags": [
+    "corner"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.2,
+     "v": 0.2,
+     "r": 0.11,
+     "role": "boulder"
+    },
+    {
+     "u": 0.8,
+     "v": 0.2,
+     "r": 0.11,
+     "role": "boulder"
+    },
+    {
+     "u": 0.2,
+     "v": 0.8,
+     "r": 0.11,
+     "role": "boulder"
+    },
+    {
+     "u": 0.8,
+     "v": 0.8,
+     "r": 0.11,
+     "role": "boulder"
+    }
+   ]
+  },
+  {
+   "id": "pond",
+   "tags": [
+    "pond",
+    "center"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.2,
+     "v": 0.3,
+     "r": 0.1,
+     "role": "bush"
+    },
+    {
+     "u": 0.8,
+     "v": 0.7,
+     "r": 0.1,
+     "role": "bush"
+    }
+   ],
+   "water": [
+    {
+     "u": 0.3,
+     "v": 0.3,
+     "w": 0.4,
+     "h": 0.4
+    }
+   ]
+  },
+  {
+   "id": "reed_field",
+   "tags": [
+    "open"
+   ],
+   "weight": 2,
+   "colliders": [
+    {
+     "u": 0.3,
+     "v": 0.35,
+     "r": 0.07,
+     "role": "bush"
+    },
+    {
+     "u": 0.55,
+     "v": 0.6,
+     "r": 0.07,
+     "role": "bush"
+    },
+    {
+     "u": 0.75,
+     "v": 0.3,
+     "r": 0.07,
+     "role": "bush"
+    }
+   ]
+  }
+ ]
+}

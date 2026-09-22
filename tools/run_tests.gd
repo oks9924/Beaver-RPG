@@ -2122,6 +2122,19 @@ func test_room_gen() -> void:
 	check(RoomGen.validate(a).is_empty(), "generated room is fully connected")
 	var boss := ContentDB.get_room_def("boss_ironclaw")
 	check(not RoomGen.decorate(boss, 1).has("generated") and JSON.stringify(RoomGen.decorate(boss, 1)) == JSON.stringify(boss), "boss rooms are never randomized")
+	# 프리팹 조각: 격자 메타·조각 ID·충돌 원 소품은 지역 소품, 장식은 최종 에셋만
+	var meta: Dictionary = a.get("generated", {})
+	check(String(meta.get("mode", "")) == "prefab" and int(meta.get("cols", 0)) == 4 and int(meta.get("rows", 0)) == 3, "prefab mode: 1400x900 room is a 4x3 chunk grid (%s)" % [meta])
+	var ids := {}
+	for row: Array in meta.get("chunks", []):
+		for cid: String in row:
+			ids[cid] = true
+	check(ids.size() >= 2, "several different chunks used (%d)" % ids.size())
+	for o: Dictionary in a["obstacles"]:
+		check(String(o["asset"]) == "" or AssetRegistry.has(String(o["asset"])), "chunk collider uses a known prop id (%s)" % o.get("asset", ""))
+	for d: Dictionary in a.get("decor", []):
+		check(AssetRegistry.has(String(d["asset"])) and AssetRegistry.status(String(d["asset"])) == "final", "decor only references final assets")
+	check(RoomGen.asset_for_role("willow_river", "boulder") == "prop.willow.rock" and RoomGen.asset_for_role("ancient_root_dam", "trunk") == "prop.dam.timber", "roles fall back to existing props until v7 lands")
 	# 막힌 방은 검사에 걸린다
 	var blocked := base.duplicate(true)
 	blocked["obstacles"] = [{"shape": "circle", "x": 700, "y": 450, "r": 480, "asset": "prop.willow.rock"}]
