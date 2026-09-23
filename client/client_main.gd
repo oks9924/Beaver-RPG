@@ -495,10 +495,11 @@ func _on_room_event(ev: Dictionary) -> void:
 				world.entities[key].flash()
 			if ev.get("by", "") == my_id:
 				_hit_stop()
-			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30))
+			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30.0 * _enemy_vis()))
 			world.play_sound("sfx.snail_hit")
 		"enemy_died":
-			world.play_sound("sfx.snail_death")
+			# 몹이 많아진 만큼 죽는 소리 간격을 벌려 효과음 자리(6개)를 드랍 소리에 남긴다
+			world.play_sound("sfx.snail_death", 0.06 * maxf(float(ContentDB.tempo().get("enemy_count_mult", 1.0)), 1.0))
 		"drop":
 			if world.ground_visible(ev):   # 남의 개인 드랍은 보이지도, 울리지도 않는다
 				world.ground_spawn(ev)
@@ -603,7 +604,7 @@ func _on_room_event(ev: Dictionary) -> void:
 			world.spawn_effect("vfx.thorn_trap", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))), 0.0, 0.4, 104.0, 3)
 			world.play_sound("sfx.wood_block", 0.1)
 		"mark_burst":
-			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30))
+			world.spawn_effect("vfx.hit_spark", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))) + Vector2(0, -30.0 * _enemy_vis()))
 		"dash":
 			world.spawn_effect("vfx.gnaw_dash", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))), Vector2(float(ev.get("fx", 1)), float(ev.get("fy", 0))).angle())
 			world.play_sound("sfx.dodge", 0.1)
@@ -613,7 +614,7 @@ func _on_room_event(ev: Dictionary) -> void:
 		"rooted":
 			var rk := "e:%d" % int(ev.get("eid", 0))
 			if world.entities.has(rk):
-				world.spawn_effect("vfx.root_bind", (world.entities[rk] as Node2D).position, 0.0, float(ev.get("sec", 1.5)))
+				world.spawn_effect("vfx.root_bind", (world.entities[rk] as Node2D).position, 0.0, float(ev.get("sec", 1.5)), 128.0 * _enemy_vis())
 		"heal_zone":
 			world.spawn_effect("vfx.sap_bloom", Vector2(float(ev.get("x", 0)), float(ev.get("y", 0))))
 			world.play_sound("sfx.rescue", 0.1)
@@ -773,7 +774,7 @@ func _apply_hub_snapshot(p: Dictionary) -> void:
 		ev.is_local = id == my_id
 		ev.display_name = _roster_nick(id)
 		if not ev.is_local:
-			ev.facing = Vector2(float(e[3]), float(e[4]))   # 내 캐릭터의 방향은 로컬 입력이 결정한다 (15Hz 스냅샷과 섞이면 깜빡임)
+			ev.facing = Vector2(float(e[3]), float(e[4]))   # 내 캐릭터의 방향은 로컬 입력이 결정한다 (20Hz 스냅샷과 섞이면 깜빡임)
 		ev.hp = 1.0
 		ev.max_hp = 1.0
 		ev.party_color = world.party_color(idx)
@@ -856,7 +857,7 @@ func _apply_room_snapshot(p: Dictionary) -> void:
 		ev.ai_state = int(e[Protocol.SNAP_E.AI])
 		ev.status_bits = int(e[Protocol.SNAP_E.STATUS]) if e.size() > Protocol.SNAP_E.STATUS else 0
 		ev.target_pos = pos
-		if ev.ai_state != Protocol.EnemyAI.DEAD:
+		if not ev.ai_state in [Protocol.EnemyAI.DEAD, Protocol.EnemyAI.RETREAT]:
 			_enemies_alive += 1
 	world.remove_missing(ekeys, "e:")
 	_feed_minimap(p)
@@ -1377,6 +1378,11 @@ func _refresh_bag() -> void:
 	hud.set_bag(inv.size(), int(ContentDB.equipment.get("drop", {}).get("inventory_cap", 60)))
 	if run_inventory.visible:
 		run_inventory.refresh(net.account, room.get("party", []), my_id)
+
+
+## 일반 몹 표시 크기 배율 (rules.tempo.enemy_visual_scale): 몹 위에 붙는 효과의 높이·크기를 맞춘다
+func _enemy_vis() -> float:
+	return float(ContentDB.tempo().get("enemy_visual_scale", 1.0))
 
 
 ## 서버와 같은 이동 가능 규칙: 대기, 그리고 기본 공격의 모든 단계(준비·명중·후딜). 스킬 시전·상호작용은 멈춘다.

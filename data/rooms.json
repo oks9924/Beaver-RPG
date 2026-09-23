@@ -1,6 +1,7 @@
 {
  "test_arena": {
   "id": "test_arena",
+  "count_mult_exempt": true,
   "name_ko": "버들강 하류 시험장",
   "region": "willow_river",
   "objective": "annihilate",

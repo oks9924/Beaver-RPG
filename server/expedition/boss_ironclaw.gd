@@ -1103,7 +1103,7 @@ func telegraphs() -> Array:
 	return [PackedFloat32Array([0, telegraph["x"], telegraph["y"], telegraph["r"], t, telegraph["total"], 0, 0, 0])]
 
 
-## 스냅샷 (15Hz, MTU 안에 들어가도록 문자열은 id 만 보낸다: 이름·안내문은 클라이언트가 ContentDB 로 만든다)
+## 스냅샷 (20Hz, MTU 안에 들어가도록 문자열은 id 만 보낸다: 이름·안내문은 클라이언트가 ContentDB 로 만든다)
 func snapshot() -> Dictionary:
 	var flags := (1 if claw_weak else 0) | (2 if joint_weak_t > 0.0 else 0) | (4 if exposed_t > 0.0 else 0) | (8 if state == BS.MOLT else 0) | (16 if enrage_t > 0.0 else 0) | (32 if extra_vuln_t > 0.0 else 0)
 	return {

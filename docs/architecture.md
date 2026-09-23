@@ -4,7 +4,7 @@
 - 엔진: **Godot 4.4.1 stable**, 타입 지정 GDScript. 서버와 클라이언트는 같은 프로젝트를 공유하되 다른 프로세스로 실행된다.
 - 서버는 `dedicated_server` feature(export preset) 또는 `-- --server` 인자로 기동하며, 클라이언트 노드·렌더링에 의존하지 않는다.
 - 통신: ENet 고수준 멀티플레이. 입력은 `unreliable_ordered`, 상태 전이·보상·오류는 `reliable`. 채널 분리는 후속 작업.
-- 서버 시뮬레이션 30Hz, 전투 스냅샷 15Hz, 허브 스냅샷 10Hz (`data/rules.json` 에서 조절).
+- 서버 시뮬레이션 30Hz, 전투 스냅샷 20Hz (`server_snapshot_hz`, 틱을 소수로 모아 30Hz 틱 3번에 2번), 허브 스냅샷 10Hz (`data/rules.json` 에서 조절).
 - 클라이언트는 입력 의도(이동 벡터·조준·버튼 비트)만 보낸다. 피해·체력·재화·위치·난수는 서버가 확정한다.
 
 ## 모듈 경계

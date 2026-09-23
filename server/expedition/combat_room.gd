@@ -27,10 +27,14 @@ var objective_done: bool = false
 var wave_index: int = 0
 var wave_count: int = 1
 var wave_budget_total: float = 0.0
+var count_mult: float = 1.0          # 몹 물량 배율 (tempo.enemy_count_mult). 보스·튜토리얼·탐색·시험방은 1. 늘어난 몫은 일반 몹만 — 정예·분열체·보스 소환물은 그대로
+var enemy_hp_factor: float = 1.0     # 물량 방의 일반 몹 체력 배율 (tempo.enemy_count_hp_mult)
+var enemy_damage_factor: float = 1.0 # 물량 방의 일반 몹 피해 배율 = count_mult ^ -tempo.enemy_damage_count_exp
+var _wood_frac: float = 0.0
 var _wave_gap_t: float = 0.0
 var _all_spawned: bool = false
 var events: Array = []
-var stats := {"enemies_spawned": 0, "enemies_killed": 0, "downs": 0, "rescues": 0, "deaths": 0, "kills_by_type": {}, "wood_gained": 0, "builds": 0, "sluice_toggles": 0, "gnaws": 0, "secrets": []}
+var stats := {"kill_units": 0.0, "xp_units": 0.0, "enemies_spawned": 0, "enemies_killed": 0, "downs": 0, "rescues": 0, "deaths": 0, "kills_by_type": {}, "wood_gained": 0, "builds": 0, "sluice_toggles": 0, "gnaws": 0, "secrets": []}
 var hit_damage_mult: float = 1.0
 var team_wood: int = 0
 var water_zone: Dictionary = {}   # {x,y,w,h,state(0 low,1 warning,2 high), t}
@@ -76,7 +80,13 @@ func _init(def: Dictionary, party_profile: Dictionary, game_rules: Dictionary, s
 	team_wood = int(opts.get("team_wood", 0))
 	var w: Dictionary = def.get("waves", {})
 	wave_count = maxi(int(w.get("wave_count", 1)), 1)
-	wave_budget_total = (float(w.get("base_budget", 4.0)) + float(opts.get("budget_add", 0.0))) * float(profile.get("wave_budget_mult", 1.0))
+	var tempo: Dictionary = game_rules.get("tempo", {})
+	if not (objective in ["boss", "tutorial"] or bool(opts.get("explore", false)) or bool(def.get("count_mult_exempt", false))):
+		count_mult = maxf(float(tempo.get("enemy_count_mult", 1.0)), 0.1)
+	if count_mult != 1.0:
+		enemy_hp_factor = float(tempo.get("enemy_count_hp_mult", 1.0))
+		enemy_damage_factor = pow(count_mult, -float(tempo.get("enemy_damage_count_exp", 0.0)))
+	wave_budget_total = (float(w.get("base_budget", 4.0)) + float(opts.get("budget_add", 0.0))) * float(profile.get("wave_budget_mult", 1.0)) * count_mult
 	var dr: Dictionary = game_rules.get("director", {})
 	_director_reserve = wave_budget_total * float(dr.get("reserve_frac", 0.5)) if float(w.get("base_budget", 0.0)) > 0.0 else 0.0
 	explore = bool(opts.get("explore", false))
@@ -1236,7 +1246,7 @@ func _step_enemy_passives(e: Dictionary, def: Dictionary, dt: float) -> void:
 			e["aura_t"] = 1.0
 			for o: Dictionary in enemies.values():
 				if o["id"] != e["id"] and o["ai"] != Protocol.EnemyAI.DEAD and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(aura.get("radius", 150)):
-					o["hp"] = minf(float(o["hp"]) + float(aura["enemy_heal_per_sec"]), float(o["max_hp"]))
+					o["hp"] = minf(float(o["hp"]) + float(aura["enemy_heal_per_sec"]) * float(e.get("horde_hp", 1.0)), float(o["max_hp"]))
 
 
 static func _path_length(path: Array) -> float:
@@ -1450,7 +1460,17 @@ func _kill_enemy(e: Dictionary, attacker: Dictionary) -> void:
 	stats["enemies_killed"] += 1
 	var kbt: Dictionary = stats["kills_by_type"]
 	kbt[e["type"]] = int(kbt.get(e["type"], 0)) + 1
+	# 보상 단위: 물량 몫 일반 몹 한 마리는 1/count_mult 마리로 친다 (경험치·도토리·숙련이 판당 같게)
+	var ku := 1.0 / float(e.get("horde", 1.0))
+	stats["kill_units"] = float(stats["kill_units"]) + ku
+	stats["xp_units"] = float(stats["xp_units"]) + ku * float(int(e["def"].get("xp", 5)))
+	attacker["stats"]["kill_units"] = float(attacker["stats"].get("kill_units", 0.0)) + ku
 	var wood := int(e["def"].get("wood_drop", 0)) * (int(ContentDB.elites.get("spawn", {}).get("wood_mult", 3)) if bool(e.get("elite", false)) else 1)
+	if float(e.get("horde", 1.0)) != 1.0:
+		# 물량 몫 일반 몹은 목재를 count_mult 로 나눠 판당 목재를 유지한다 (소수점은 모아 둔다)
+		_wood_frac += float(e["def"].get("wood_drop", 0)) / float(e["horde"])
+		wood = int(floor(_wood_frac + 0.0001))
+		_wood_frac -= float(wood)
 	if wood > 0:
 		team_wood = mini(team_wood + wood, int(rules.get("wood_cap", 30)))
 		stats["wood_gained"] += wood
@@ -1493,7 +1513,7 @@ func _step_projectiles(dt: float) -> void:
 		if not dead and int(pr["kind"]) == 0:
 			for o: Dictionary in objects.values():
 				if o["kind"] in [Protocol.ObKind.STRUCTURE, Protocol.ObKind.DAM] and (o["pos"] as Vector2).distance_to(pos) <= float(o["r"]) + float(pr["r"]):
-					o["hp"] = float(o["hp"]) - float(pr["dmg"])
+					o["hp"] = float(o["hp"]) - float(pr["dmg"]) / float(pr.get("sdiv", 1.0))
 					dead = true
 					break
 		if not dead:
@@ -1687,7 +1707,7 @@ func _spawn_enemy(type_id: String, pos: Vector2, elite: Dictionary = {}, opts: D
 	var affix_ids: Array = ContentDB.affix_ids()
 	if elite.is_empty() and not bool(opts.get("no_affix", false)) and not affix_ids.is_empty() and String(def.get("role", "")) != "dummy":
 		# RoR2 식 정예: 일반 스폰이 profile.elite_chance 로 접두 정예가 된다 (웨이브당 상한)
-		var chance := float(profile.get("elite_chance", 0.0))
+		var chance := affix_elite_chance(float(profile.get("elite_chance", 0.0)))
 		var forced := bool(profile.get("force_elite", false)) and not _forced_elite_done
 		if forced or (chance > 0.0 and _affix_elites_this_wave < int(espawn.get("max_affix_elites_per_wave", 1)) and rng.randf() < chance):
 			_forced_elite_done = _forced_elite_done or forced
@@ -1698,7 +1718,9 @@ func _spawn_enemy(type_id: String, pos: Vector2, elite: Dictionary = {}, opts: D
 		affix = String(affix_ids[rng.randi() % affix_ids.size()])   # 정예방의 고정 정예에도 접두 하나
 	elif not elite.is_empty():
 		affix = String(elite.get("affix", ""))
-	var max_hp := float(def.get("hp", 30)) * float(profile.get("enemy_hp_mult", 1.0)) * float(elite.get("hp_mult", 1.0)) * float(opts.get("hp_frac", 1.0))
+	# 물량 방: 늘어난 몫은 일반 몹만이라 체력·피해 배율도 일반 몹만 받는다 (정예·분열체는 수가 그대로라 제외)
+	var horde_on := elite.is_empty() and not bool(opts.get("no_horde", false)) and count_mult != 1.0
+	var max_hp := float(def.get("hp", 30)) * float(profile.get("enemy_hp_mult", 1.0)) * float(elite.get("hp_mult", 1.0)) * float(opts.get("hp_frac", 1.0)) * (enemy_hp_factor if horde_on else 1.0)
 	var e := {
 		"id": next_enemy_id, "type": type_id, "def": def, "role": String(def.get("role", "approach")), "pos": pos, "facing": Vector2(-1, 0), "hp": max_hp, "max_hp": max_hp,
 		"radius": float(def.get("radius", 20)), "speed": float(def.get("move_speed", 60)), "ai": Protocol.EnemyAI.SEEK,
@@ -1706,6 +1728,7 @@ func _spawn_enemy(type_id: String, pos: Vector2, elite: Dictionary = {}, opts: D
 		"slow_t": 0.0, "slow_mult": 0.0, "vuln_t": 0.0, "vuln_mult": 0.0,
 		"elite": not elite.is_empty(), "damage_mult": float(elite.get("damage_mult", 1.0)), "summon_t": float(def.get("summon", {}).get("every_sec", 0.0)), "summoned": 0, "combo_left": 0, "aura_t": 0.0,
 		"affix": affix, "last_hit_t": -100.0, "split_depth": int(opts.get("split_depth", 0)),
+		"horde": count_mult if horde_on else 1.0, "horde_hp": enemy_hp_factor if horde_on else 1.0, "horde_dmg": enemy_damage_factor if horde_on else 1.0,
 	}
 	if float(opts.get("scale", 1.0)) != 1.0:
 		e["radius"] = float(e["radius"]) * float(opts.get("scale", 1.0))
@@ -1735,7 +1758,7 @@ func _enemy_move(e: Dictionary, dir: Vector2, dt: float, speed_mult: float = 1.0
 	if (e["pos"] as Vector2).distance_to(before) < speed * dt * 0.3:
 		for o: Dictionary in objects.values():
 			if o["kind"] in [Protocol.ObKind.STRUCTURE, Protocol.ObKind.DAM] and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(o["r"]) + float(e["radius"]) + 8.0:
-				o["hp"] = float(o["hp"]) - float(rules.get("structure_enemy_dps", 6.0)) * float(e["def"].get("structure_dps_mult", 1.0)) * dt
+				o["hp"] = float(o["hp"]) - float(rules.get("structure_enemy_dps", 6.0)) * float(e["def"].get("structure_dps_mult", 1.0)) / float(e.get("horde", 1.0)) * dt
 				break
 
 
@@ -1887,14 +1910,14 @@ func _enemy_begin_windup(e: Dictionary, atk: Dictionary) -> void:
 		"line":
 			e["telegraph"] = {"type": 1, "x": e["pos"].x, "y": e["pos"].y, "len": float(atk.get("length", 380)), "w": float(atk.get("width", 64)), "dx": e["facing"].x, "dy": e["facing"].y, "total": windup, "asset": atk.get("telegraph_asset", "vfx.telegraph_line")}
 		"projectile":
-			e["telegraph"] = {"type": 0, "x": e["pos"].x, "y": e["pos"].y, "r": 30.0, "total": windup, "asset": atk.get("telegraph_asset", "vfx.telegraph_circle")}
+			e["telegraph"] = {"type": 0, "x": e["pos"].x, "y": e["pos"].y, "r": 30.0 * float(rules.get("tempo", {}).get("enemy_radius_mult", 1.0)), "total": windup, "asset": atk.get("telegraph_asset", "vfx.telegraph_circle")}
 		_:
 			var center: Vector2 = e["pos"] + e["facing"] * float(atk.get("forward_offset", 28))
 			e["telegraph"] = {"type": 0, "x": center.x, "y": center.y, "r": float(atk.get("radius", 40)), "total": windup, "asset": atk.get("telegraph_asset", "vfx.telegraph_circle")}
 
 
 func _enemy_attack_begin(e: Dictionary, atk: Dictionary) -> void:
-	var dmg_mult := float(e.get("damage_mult", 1.0))
+	var dmg_mult := float(e.get("damage_mult", 1.0)) * float(e.get("horde_dmg", 1.0))
 	match String(atk.get("shape", "circle")):
 		"leap":
 			var tg: Dictionary = e["telegraph"]
@@ -1919,6 +1942,8 @@ func _enemy_attack_begin(e: Dictionary, atk: Dictionary) -> void:
 			if not tp.is_empty():
 				dir = ((tp["pos"] as Vector2) - (e["pos"] as Vector2)).normalized()
 			_spawn_projectile(e["pos"] + dir * 18.0, dir * float(pr.get("speed", 340)), float(pr.get("radius", 10)), float(pr.get("damage", 9)) * dmg_mult, 0, "e%d" % int(e["id"]), float(pr.get("ttl_sec", 1.7)), 0, 0.0, 0.0)
+			# 구조물 피해는 물량 몫만큼 나눈다 (플레이어 피해 배율 대신): 원래 피해 × 정예 배율 / count_mult
+			projectiles[projectiles.size() - 1]["sdiv"] = float(e.get("horde", 1.0)) * float(e.get("horde_dmg", 1.0))
 			if pr.has("on_hit"):
 				projectiles[projectiles.size() - 1]["on_hit"] = pr["on_hit"]
 			e["telegraph"] = {}
@@ -1947,13 +1972,13 @@ func _enemy_charge_step(e: Dictionary, atk: Dictionary, dt: float) -> void:
 			continue
 		if (p["pos"] as Vector2).distance_to(e["pos"]) <= half_w + float(p["radius"]):
 			(e["charge_hit"] as Array).append(p["id"])
-			_damage_player(p, float(atk.get("damage", 14)) * float(e.get("damage_mult", 1.0)), e["pos"], "e%d" % int(e["id"]), e)
+			_damage_player(p, float(atk.get("damage", 14)) * float(e.get("damage_mult", 1.0)) * float(e.get("horde_dmg", 1.0)), e["pos"], "e%d" % int(e["id"]), e)
 			var kb := float(atk.get("knockback", 100))
 			if p["state"] == Protocol.EntState.ALIVE and kb > 0.0:
 				p["pos"] = SimRules.move(p["pos"], dir, kb, 1.0, bounds, float(p["radius"]), obstacles)
 	for o: Dictionary in objects.values():
 		if o["kind"] == Protocol.ObKind.STRUCTURE and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(o["r"]) + float(e["radius"]) + 4.0:
-			o["hp"] = float(o["hp"]) - 30.0
+			o["hp"] = float(o["hp"]) - 30.0 / float(e.get("horde", 1.0))
 			e["t"] = 0.0  # 구조물에 부딪히면 돌진이 멈춘다
 
 
@@ -2073,8 +2098,7 @@ func _step_waves(dt: float) -> void:
 	if _all_spawned or objective_done or objective == "boss":
 		return
 	_wave_gap_t -= dt
-	var threshold := int(room_def.get("waves", {}).get("next_wave_when_alive_at_most", 1)) + int(ContentDB.tempo().get("wave_alive_at_most_add", 0))
-	if _wave_gap_t <= 0.0 and _alive_enemy_count() <= threshold:
+	if _wave_gap_t <= 0.0 and _alive_enemy_count() <= wave_threshold():
 		_spawn_wave()
 
 
@@ -2083,7 +2107,7 @@ func _step_director(dt: float) -> void:
 	if _director_reserve <= 0.0 or objective_done or objective in ["boss", "tutorial"]:
 		return
 	var dr: Dictionary = rules.get("director", {})
-	if _alive_enemy_count() > int(dr.get("reinforce_when_alive_at_most", 3)):
+	if _alive_enemy_count() > roundi(float(dr.get("reinforce_when_alive_at_most", 3)) * count_mult):
 		return
 	_director_credits += wave_budget_total * float(dr.get("credit_per_sec_frac", 0.08)) * dt
 	if _cheapest_affordable(_director_reserve).is_empty():
@@ -2095,7 +2119,7 @@ func _step_director(dt: float) -> void:
 	var spawns: Array = room_def.get("enemy_spawns", [[900, 400]])
 	var cap := _enemy_cap()
 	var n := 0
-	while n < int(dr.get("group_max", 3)) and _director_reserve > 0.0 and _alive_enemy_count() < cap:
+	while n < roundi(float(dr.get("group_max", 3)) * count_mult) and _director_reserve > 0.0 and _alive_enemy_count() < cap:
 		var pick: Dictionary = _weighted_pick(enemy_pool)
 		var def := ContentDB.get_enemy_def(String(pick.get("id", "")))
 		if def.is_empty() or not bool(def.get("implemented", false)):
@@ -2164,7 +2188,7 @@ func _step_objective(dt: float) -> void:
 				for e: Dictionary in enemies.values():
 					if not e["ai"] in [Protocol.EnemyAI.DEAD, Protocol.EnemyAI.RETREAT] and (e["pos"] as Vector2).distance_to(o["pos"]) <= float(o["contest_radius"]):
 						contested = true
-						o["hp"] = maxf(float(o["hp"]) - float(rules.get("escort_enemy_dps", 3.0)) * dt, 0.0)
+						o["hp"] = maxf(float(o["hp"]) - float(rules.get("escort_enemy_dps", 3.0)) / float(e.get("horde", 1.0)) * dt, 0.0)
 				o["state"] = 2 if contested else (1 if near else 0)
 				if near and not contested:
 					var path: Array = o["path"]
@@ -2334,7 +2358,7 @@ func result_summary() -> Dictionary:
 		for entry: Dictionary in boss.log:
 			if String(entry.get("event", "")) == "success":
 				mech_ok.append(String(entry.get("mechanic", "")))
-	return {"outcome": outcome, "elapsed": elapsed, "ticks": tick, "seed": seed_value, "n": n_players, "objective": objective, "stats": stats.duplicate(true), "players": per, "team_wood": team_wood, "boss_id": boss_id, "mechanics_succeeded": mech_ok, "room_id": String(room_def.get("id", "")), "elite": room_def.has("elite")}
+	return {"outcome": outcome, "elapsed": elapsed, "ticks": tick, "seed": seed_value, "n": n_players, "objective": objective, "stats": stats.duplicate(true), "players": per, "team_wood": team_wood, "boss_id": boss_id, "mechanics_succeeded": mech_ok, "room_id": String(room_def.get("id", "")), "elite": room_def.has("elite"), "count_mult": count_mult}
 
 
 # ------------------------------------------------------------------ 정예 접두 (data/elites.json)
@@ -2367,14 +2391,34 @@ func _affix_on_death(e: Dictionary) -> void:
 	if not sp.is_empty() and int(e.get("split_depth", 0)) < int(sp.get("max_depth", 1)):
 		for i in int(sp.get("count", 2)):
 			var off := Vector2.RIGHT.rotated(i * TAU / maxi(int(sp.get("count", 2)), 1)) * 26.0
-			_spawn_enemy(String(e["type"]), (e["pos"] as Vector2) + off, {}, {"no_affix": true, "hp_frac": float(sp.get("hp_frac", 0.3)), "scale": float(sp.get("scale", 0.75)), "split_depth": int(e.get("split_depth", 0)) + 1})
+			_spawn_enemy(String(e["type"]), (e["pos"] as Vector2) + off, {}, {"no_affix": true, "no_horde": true, "hp_frac": float(sp.get("hp_frac", 0.3)), "scale": float(sp.get("scale", 0.75)), "split_depth": int(e.get("split_depth", 0)) + 1})
 		events.append({"k": "split", "eid": e["id"], "x": e["pos"].x, "y": e["pos"].y})
 
 
-## 동시 적 상한: 기본값 + 추가 인원당 가산 (party_scaling.screen_caps)
+## 동시 적 상한: 기본값 × 물량 배율 + 추가 인원당 가산 (party_scaling.screen_caps). 인원당 가산은 배율을 받지 않는다 (4인 스냅샷 MTU)
 func _enemy_cap() -> int:
 	var caps: Dictionary = ContentDB.party_scaling.get("screen_caps", {})
-	return int(caps.get("max_enemies_on_screen", 16)) + int(caps.get("per_extra_player", 4)) * maxi(n_players - 1, 0)
+	return roundi(float(caps.get("max_enemies_on_screen", 16)) * count_mult) + int(caps.get("per_extra_player", 4)) * maxi(n_players - 1, 0)
+
+
+## 다음 웨이브 조건(남은 적 수 이하). 99 이상은 "간격마다 무조건" 방이라 배율을 받지 않는다.
+func wave_threshold() -> int:
+	var base := int(room_def.get("waves", {}).get("next_wave_when_alive_at_most", 1)) + int(ContentDB.tempo().get("wave_alive_at_most_add", 0))
+	return base if base >= 99 else roundi(float(base) * count_mult)
+
+
+## 접두 정예 확률: 스폰이 count_mult 배로 늘어도 방당 정예 수가 같도록 1-(1-c)^(1/m)
+func affix_elite_chance(c: float) -> float:
+	if c <= 0.0 or count_mult == 1.0:
+		return c
+	if c >= 1.0:
+		return 1.0
+	return 1.0 - pow(1.0 - c, 1.0 / count_mult)
+
+
+## 일반 적 바닥 드랍 확률: 물량 몫 일반 몹은 배율로 나눠 판당 드랍 수를 유지한다 (정예·분열체·보스 소환물은 그대로)
+func normal_drop_chance(horde: float = -1.0) -> float:
+	return float(_ground_rules().get("normal_chance", 0.06)) / (count_mult if horde < 0.0 else horde)
 
 
 # ------------------------------------------------------------------ 바닥 장비 (적 처치 드랍 · 줍기 · 버리기)
@@ -2390,7 +2434,7 @@ func _roll_ground_drop(e: Dictionary) -> void:
 	if gd.is_empty() or bool(drop_profile.get("tutorial", false)) or String(e["def"].get("role", "")) == "dummy":
 		return
 	var elite := bool(e.get("elite", false))
-	var chance := float(gd.get("elite_chance", 0.6)) if elite else float(gd.get("normal_chance", 0.06))
+	var chance := float(gd.get("elite_chance", 0.6)) if elite else normal_drop_chance(float(e.get("horde", 1.0)))
 	chance *= float(drop_profile.get("mult", 1.0))
 	for aid: String in _loot_owners():
 		if rng.randf() >= chance:

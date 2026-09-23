@@ -1,6 +1,7 @@
 extends Node
-## DROP-02: 드랍 표 검증. 30분 한 판(사람 기준 처치 600 · 정예 12 · 보스 3)을 N번 시뮬레이션해 등급별 판당 개수와 전설까지 걸리는 판 수를 출력한다.
-## 실행: godot --headless --path . -- --tool=drop_sim [--runs=1000] [--kills=600] [--elites=12] [--bosses=3] [--heat=0]
+## DROP-02: 드랍 표 검증. 30분 한 판(사람 기준 처치 600 × rules.tempo.enemy_count_mult · 정예 12 · 보스 3)을 N번 시뮬레이션해 등급별 판당 개수와 전설까지 걸리는 판 수를 출력한다.
+## 일반 드랍 확률은 전투방과 같이 ÷enemy_count_mult (몹 물량이 늘어도 판당 드랍 수는 같다).
+## 실행: godot --headless --path . -- --tool=drop_sim [--runs=1000] [--kills=900 (물량 배율 적용 후 처치 수, 기본 600×배율)] [--elites=12] [--bosses=3] [--heat=0]
 
 func _ready() -> void:
 	var runs := 1000
@@ -15,6 +16,14 @@ func _ready() -> void:
 		if a.begins_with("--bosses="): bosses = int(a.trim_prefix("--bosses="))
 		if a.begins_with("--heat="): heat = int(a.trim_prefix("--heat="))
 	var gd: Dictionary = ContentDB.equipment.get("ground_drop", {})
+	# 몹 물량 배율: 한 판 처치 수는 ×m, 일반 드랍 확률은 ÷m (전투방 normal_drop_chance 와 같은 규칙). --kills 를 주면 그 값을 그대로 쓴다.
+	var m := maxf(float(ContentDB.tempo().get("enemy_count_mult", 1.0)), 0.1)
+	var kills_given := false
+	for a in OS.get_cmdline_user_args():
+		kills_given = kills_given or a.begins_with("--kills=")
+	if not kills_given:
+		kills = roundi(600.0 * m)
+	var normal_chance := float(gd.get("normal_chance", 0.015)) / m
 	var order := Equipment.rarity_order()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 12345
@@ -28,7 +37,7 @@ func _ready() -> void:
 		var got_leg := false
 		var drops := 0
 		for i in kills:
-			if rng.randf() < float(gd.get("normal_chance", 0.015)):
+			if rng.randf() < normal_chance:
 				var r := Equipment.roll_rarity(rng, "", bonus)
 				totals[r] += 1
 				drops += 1

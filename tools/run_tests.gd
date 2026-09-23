@@ -20,6 +20,8 @@ func _ready() -> void:
 	test_facing_rules()
 	print("-- test_tempo")
 	test_tempo()
+	print("-- test_horde")
+	test_horde()
 	print("-- test_combat_room_flow")
 	test_combat_room_flow()
 	print("-- test_combat_room_down_rescue_wipe")
@@ -232,6 +234,92 @@ func test_tempo() -> void:
 	rc.queue_input("p0", 2, Vector2.RIGHT, Vector2.RIGHT * 100, 0)
 	rc.step(dt)
 	check(is_equal_approx(pc["pos"].x, xc0), "cast does not move (%.1f)" % (pc["pos"].x - xc0))
+
+
+## 몹 물량(horde): 일반 몹 수 ×m·체력 ↓·크기 ↓. 보상·정예·호위 피해는 m 으로 나눠 판당 총량 유지. 보스·튜토리얼·탐색·시험방은 배율 1.
+func test_horde() -> void:
+	var t: Dictionary = ContentDB.tempo()
+	var m := float(t.get("enemy_count_mult", 1.0))
+	check(m > 1.0, "enemy_count_mult is on (%.2f)" % m)
+	var raw_enemies: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
+	var raw_en: Dictionary = raw_enemies["enemies"] if raw_enemies.has("enemies") else raw_enemies
+	for id: String in ["sap_snail", "shell_soldier", "river_leech"]:
+		check(is_equal_approx(float(ContentDB.get_enemy_def(id)["radius"]), snappedf(float(raw_en[id]["radius"]) * float(t["enemy_radius_mult"]), 0.1)), "%s radius scaled (%s)" % [id, str(ContentDB.get_enemy_def(id)["radius"])])
+	var raw_bosses: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/bosses.json"))
+	var bchecked := 0
+	for bid: String in ContentDB.bosses.keys():
+		var bd: Variant = ContentDB.bosses[bid]
+		if bd is Dictionary and (bd as Dictionary).has("radius") and raw_bosses.get(bid, {}) is Dictionary and (raw_bosses.get(bid, {}) as Dictionary).has("radius"):
+			bchecked += 1
+			check(is_equal_approx(float(bd["radius"]), float(raw_bosses[bid]["radius"])), "boss %s radius unchanged" % bid)
+	check(bchecked >= 1, "boss radii checked (%d)" % bchecked)
+	# 물량 배율이 적용되는 방
+	var def := ContentDB.get_room_def("annihilate")
+	var prof := ContentDB.get_party_profile(1)
+	var r := CombatRoom.new(def, prof, ContentDB.rules, 31, _members(1))
+	check(is_equal_approx(r.count_mult, m), "annihilate room uses count mult")
+	check(is_equal_approx(r.wave_budget_total, float(def["waves"]["base_budget"]) * float(prof.get("wave_budget_mult", 1.0)) * m), "wave budget scaled by count mult (%.1f)" % r.wave_budget_total)
+	var caps: Dictionary = ContentDB.party_scaling["screen_caps"]
+	check(r._enemy_cap() == roundi(float(caps["max_enemies_on_screen"]) * m), "solo enemy cap scaled (%d)" % r._enemy_cap())
+	var r4 := CombatRoom.new(def, ContentDB.get_party_profile(4), ContentDB.rules, 32, _members(4))
+	check(r4._enemy_cap() == roundi(float(caps["max_enemies_on_screen"]) * m) + int(caps["per_extra_player"]) * 3 and r4._enemy_cap() <= 36, "4p cap keeps per-player add unscaled for MTU (%d)" % r4._enemy_cap())
+	var base_thr := int(def["waves"]["next_wave_when_alive_at_most"]) + int(t.get("wave_alive_at_most_add", 0))
+	check(r.wave_threshold() == roundi(float(base_thr) * m), "next-wave gate scaled (%d)" % r.wave_threshold())
+	var hold := CombatRoom.new(ContentDB.get_room_def("hold_point"), prof, ContentDB.rules, 33, _members(1))
+	check(hold.wave_threshold() >= 99, "time-gated rooms keep their every-gap waves (%d)" % hold.wave_threshold())
+	check(is_equal_approx(r.normal_drop_chance(), float(ContentDB.equipment["ground_drop"]["normal_chance"]) / m), "normal drop chance divided by count mult")
+	var c := 0.06
+	var ce := r.affix_elite_chance(c)
+	check(ce < c and is_equal_approx(1.0 - pow(1.0 - ce, m), c), "per-spawn elite chance keeps per-room elites (%.4f)" % ce)
+	check(is_equal_approx(r.enemy_damage_factor, pow(m, -float(t.get("enemy_damage_count_exp", 0.0)))) and r.enemy_damage_factor < 1.0, "enemy damage factor in horde rooms (%.2f)" % r.enemy_damage_factor)
+	# 체력·피해 배율은 물량 몫 일반 몹만: 일반 몹은 줄고, 정예·분열체는 그대로
+	var snail_hp := float(ContentDB.get_enemy_def("sap_snail")["hp"]) * float(prof.get("enemy_hp_mult", 1.0))
+	var n0 := r._spawn_enemy("sap_snail", Vector2(600, 400), {}, {"no_affix": true})
+	check(is_equal_approx(float(n0["max_hp"]), snail_hp * float(t["enemy_count_hp_mult"])) and is_equal_approx(float(n0["horde_dmg"]), r.enemy_damage_factor) and is_equal_approx(float(n0["horde"]), m), "horde-room normal mob gets hp and damage factors (%.1f hp)" % float(n0["max_hp"]))
+	var el := r._spawn_enemy("sap_snail", Vector2(600, 420), {"hp_mult": 2.0, "damage_mult": 1.3, "scale": 1.25, "affix": "wet", "name_ko": "젖은 달팽이"})
+	check(is_equal_approx(float(el["max_hp"]), snail_hp * 2.0) and float(el["horde_dmg"]) == 1.0 and float(el["horde"]) == 1.0, "elites keep full hp and damage in horde rooms (%.1f)" % float(el["max_hp"]))
+	var sp := r._spawn_enemy("sap_snail", Vector2(600, 440), {}, {"no_affix": true, "no_horde": true, "hp_frac": 0.3})
+	check(is_equal_approx(float(sp["max_hp"]), snail_hp * 0.3) and float(sp["horde"]) == 1.0, "split children (from an elite) are not horde-scaled")
+	# 보상 단위: 일반 몹 3마리 = 3/m 마리, 정예 1마리 = 1 마리
+	var ku0 := float(r.stats["kill_units"])
+	r._kill_enemy(n0, r.players["p0"])
+	r._kill_enemy(el, r.players["p0"])
+	check(is_equal_approx(float(r.stats["kill_units"]) - ku0, 1.0 / m + 1.0) and is_equal_approx(float(r.players["p0"]["stats"]["kill_units"]), 1.0 / m + 1.0), "kill units count horde mobs as 1/m (%.3f)" % (float(r.stats["kill_units"]) - ku0))
+	check(is_equal_approx(r.normal_drop_chance(float(n0["horde"])), r.normal_drop_chance()) and is_equal_approx(r.normal_drop_chance(1.0), float(ContentDB.equipment["ground_drop"]["normal_chance"])), "drop chance follows the mob's own horde factor")
+	check(is_equal_approx(float(r.result_summary().get("count_mult", 0.0)), m), "result summary carries count mult")
+	# 배율 1 인 방: 보스·튜토리얼·탐색·시험방
+	var rb := CombatRoom.new(ContentDB.get_room_def("boss_ironclaw"), prof, ContentDB.rules, 34, _members(1))
+	var rt := CombatRoom.new(ContentDB.get_room_def("tutorial"), prof, ContentDB.rules, 35, _members(1))
+	var rx := CombatRoom.new(def, prof, ContentDB.rules, 36, _members(1), {"explore": true})
+	var ra := CombatRoom.new(ContentDB.get_room_def("test_arena"), prof, ContentDB.rules, 37, _members(1))
+	check(rb.count_mult == 1.0 and rt.count_mult == 1.0 and rx.count_mult == 1.0 and ra.count_mult == 1.0, "boss/tutorial/explore/test rooms keep count mult 1")
+	check(rb.enemy_damage_factor == 1.0 and is_equal_approx(rb.normal_drop_chance(), float(ContentDB.equipment["ground_drop"]["normal_chance"])), "boss room adds keep full damage and drop chance")
+	var badd := rb._spawn_enemy("sap_snail", Vector2(600, 400))
+	check(is_equal_approx(float(badd["max_hp"]), snail_hp) and float(badd["horde_dmg"]) == 1.0, "boss-room adds keep full hp (%.1f)" % float(badd["max_hp"]))
+	# 목재: 일반 처치 m 번에 wood_drop 만큼 (소수 누적), 정예는 그대로
+	var rw := CombatRoom.new(def, prof, ContentDB.rules, 38, _members(1), {"team_wood": 0})
+	for e: Dictionary in rw.enemies.values():
+		e["ai"] = Protocol.EnemyAI.DEAD
+	var wood_def := ""
+	for id: String in ContentDB.enemies.keys():
+		if ContentDB.enemies[id] is Dictionary and int(ContentDB.enemies[id].get("wood_drop", 0)) == 1:
+			wood_def = id
+			break
+	if wood_def != "":
+		var kills := 6
+		for i in kills:
+			var ew := rw._spawn_enemy(wood_def, Vector2(600, 400), {}, {"no_affix": true})
+			rw._kill_enemy(ew, rw.players["p0"])
+		check(rw.team_wood == int(floor(float(kills) / m + 0.0001)), "normal-kill wood divided by count mult (%d from %d kills)" % [rw.team_wood, kills])
+	# 스냅샷 간격: 30Hz 시뮬레이션에서 1.5틱마다 = 3틱에 2번
+	var inst := ExpeditionInstance.new("exp_horde", 555)
+	inst.add_member(_make_session(40))
+	inst.start_run()
+	var snaps := 0
+	for i in 30:
+		if inst.step(1.0 / 30.0, 1.5).get("snapshot") != null:
+			snaps += 1
+	check(snaps == 20, "20Hz snapshots from a 30Hz sim (%d in 30 ticks)" % snaps)
 
 
 ## 바라보는 방향: 이동 키 방향을 따르고, 마우스(조준)는 공격·스킬 시작 순간에만 방향을 정한다. 마을도 같다.

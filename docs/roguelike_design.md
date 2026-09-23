@@ -25,7 +25,7 @@
 | 제단 | 운의 제단(도토리 15/40 → 45%/85% 유물, 큰 판은 희귀 보장), 피의 제단(체력 35% → 도토리 25), 저주받은 상자(희귀 유물 + 2방 받는 피해 +30%), 전투의 제단(다음 방 정예 + 예산 +4, 완주 시 기억 조각 +2) | `data/events.json` | `_resolve_event` 효과 유형 5개 추가 |
 | 휴식처 | 각자 휴식(회복 40% + 회복 도구) 또는 숫돌(무작위 강화 1, 회복 없음). 안 고르면 휴식 | — | `_apply_rest_choice`, `NODE_ACTION rest_choice` |
 | 시간 문 | 방을 70 + 10×인원 초 안에 깨면 도토리 +10, 경험치 +25% | `rules.room_par` | `_on_room_finished` |
-| 페이싱 대응안 | 섬멸 웨이브 2→4, 예산 6→14(거점·장치 +4, 호위 +3, 정예 +3), 다음 웨이브 조건 4마리 이하, 디렉터 예산 90%·초당 12%·5마리 이하일 때 4마리씩 증원. 동시 적 상한 1인 12 → 4인 27. 기본 적 체력 소폭 하향(달팽이 34, 멧돼지 48, 거머리 30, 개구리 40). 보스 체력 520→900(두꺼비 1050·뿌리왕 1425), 기믹 간격 12→9초, 갑각 온전 시 받는 피해 60%, 기믹 실패 시 보스 5% 회복 + 추가 적 2 (1~2인도) | `rooms.json`, `bosses.json`, `party_scaling.json` | `damage_taken_mult`, `_finish_mechanic` |
+| 페이싱 대응안 | 섬멸 웨이브 2→4, 예산 6→14(거점·장치 +4, 호위 +3, 정예 +3), 다음 웨이브 조건 4마리 이하, 디렉터 예산 90%·초당 12%·5마리 이하일 때 4마리씩 증원. 동시 적 상한 1인 12 → 4인 27. (2026-09-23 몹 물량 ×1.5 이후: 다음 웨이브 조건·증원 조건/묶음·상한 기본값에 배율을 곱해 1인 18 → 4인 33, 체력은 ×0.65 — §7 참고) 기본 적 체력 소폭 하향(달팽이 34, 멧돼지 48, 거머리 30, 개구리 40). 보스 체력 520→900(두꺼비 1050·뿌리왕 1425), 기믹 간격 12→9초, 갑각 온전 시 받는 피해 60%, 기믹 실패 시 보스 5% 회복 + 추가 적 2 (1~2인도) | `rooms.json`, `bosses.json`, `party_scaling.json` | `damage_taken_mult`, `_finish_mechanic` |
 
 ## 3. 인원 스케일과의 관계
 인원 프로필(1~4인)이 먼저 곱해지고 그 위에 난이도 → 서약 → 위험도 순으로 곱한다. DRG 처럼 4인은 1인보다 적 수(예산 ×2.0)와 체력(×1.2)이 함께 오르며, 위험도는 파티 공통이다.
@@ -84,8 +84,9 @@
 ## 7. 조정 손잡이 (실기 뒤 만질 것)
 - 방이 길다/짧다 → `rules.director.reserve_frac`(증원 양), `credit_per_sec_frac`(증원 속도), `rooms.*.waves.base_budget`.
 - 뒤로 갈수록 너무 어렵다 → `rules.danger.per_combat_min`, `max`, `hp_weight`.
-- 동시 적이 많다/적다 → `party_scaling.screen_caps.max_enemies_on_screen`(1인 기본), `per_extra_player`.
+- 동시 적이 많다/적다 → `party_scaling.screen_caps.max_enemies_on_screen`(1인 기본, 몹 물량 배율이 곱해진다), `per_extra_player`(배율 없음).
 - 정예가 잦다/드물다 → `elites.spawn.base_chance`, `max_affix_elites_per_wave`.
 - 서약이 싱겁다 → `pacts.json` 의 `*_per_rank`, `_rewards.shards_mult_per_heat`.
 - 희귀가 안 나온다 → `rules.rarity_weights`, `rarity_layer_bonus`.
+- 몹이 적다/많다 → `rules.tempo.enemy_count_mult`(2026-09-23 추가, 1.5): 일반 전투방의 예산·다음 웨이브 조건·디렉터 증원 조건/묶음·동시 상한 기본값에 곱한다(보스·튜토리얼·탐색·시험방 제외). 늘어난 방의 일반 몹 한 마리는 체력 ×`enemy_count_hp_mult` 0.65(방당 총 체력 유지), 피해 ×`count_mult^-enemy_damage_count_exp`(1 → ×0.67, 받는 총 피해 유지). 정예·분열체·보스방 소환물은 수가 그대로라 체력·피해도 그대로. 처치당 드랍·경험치·도토리·숙련·목재는 물량 몫 일반 몹을 1/m 마리로 쳐서, 접두 정예 확률은 1-(1-c)^(1/m) 로, 호위·구조물 피해(접촉·투사체·돌진)는 1/m 로 해서 판당 총량이 같다. 동시 상한은 `round(12×m) + 5×(인원-1)` = 18/23/28/33 (인원당 가산은 스냅샷 크기 때문에 배율 없음). 크기: 충돌 반경 `enemy_radius_mult` 0.8, 그림 `enemy_visual_scale` 0.75 (보스 제외, 정예는 그 위에 ×1.35). m=1 이면 보정도 전부 사라진다.
 - 속도감이 느리다/정신없다 → `rules.tempo`(2026-09-22 추가, 로드 시 데이터에 곱해진다): `player_speed_mult`(이동 1.2), `melee_windup_mult`/`melee_recovery_mult`(근접 준비 0.73·후딜 0.55), `ranged_windup_mult`/`ranged_recovery_mult`(원거리 0.67·0.58), `basic_attack_move_mult`(기본 공격 준비·명중·후딜 중 이동 속도, 1.0 = 후딜 없음), `enemy_speed_mult`(1.15), `enemy_hp_mult`(0.88), `wave_gap_mult`(웨이브 간격 0.55), `wave_alive_at_most_add`(다음 웨이브 조건 +2), `hit_stop_sec`/`hit_stop_min_gap_sec`(클라이언트 타격 정지 0.04초·최소 간격 0.12초, 설정에서 끔), `camera_smoothing`(12). 회피 재충전은 `dodge_recharge_sec` 2.5, 문 이동은 `dungeon_doors.all_sec` 1.5·`majority_sec` 6.0, 스냅샷 `server_snapshot_hz` 20. 모두 1.0/0 으로 두면 이전 속도로 돌아간다.

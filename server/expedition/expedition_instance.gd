@@ -26,7 +26,7 @@ var tutorial: bool = false
 var pacts: Dictionary = {}          # 서약 {id: rank} (Hades 열기 식 난이도 모듈)
 var heat: int = 0
 var content_version: String = Protocol.CONTENT_VERSION
-var _snap_accum: int = 0
+var _snap_accum: float = 0.0
 var rooms_cleared: int = 0
 var host_nick: String = ""
 var rng := RandomNumberGenerator.new()
@@ -865,7 +865,7 @@ func _push_run_state() -> void:
 
 
 ## 서버 tick. 돌려주는 값: {"events": [...], "snapshot": {...} | null, "finished": bool}
-func step(dt: float, snapshot_every: int) -> Dictionary:
+func step(dt: float, snapshot_every: float) -> Dictionary:
 	var out := {"events": [], "snapshot": null, "finished": false}
 	_step_phase_timers()
 	if state != Protocol.ExpState.IN_ROOM or room == null or suspended:
@@ -874,9 +874,10 @@ func step(dt: float, snapshot_every: int) -> Dictionary:
 	if not room.pending_pickups.is_empty():
 		out["pickups"] = room.pending_pickups.duplicate()
 		room.pending_pickups.clear()
-	_snap_accum += 1
+	# 틱 수를 소수로 모은다: 30Hz 시뮬레이션에서 20Hz 스냅샷이면 1.5틱마다 = 3틱에 2번 보낸다
+	_snap_accum += 1.0
 	if _snap_accum >= snapshot_every:
-		_snap_accum = 0
+		_snap_accum -= snapshot_every
 		out["snapshot"] = room.snapshot()
 	if room.explore:
 		if room.pending_travel != "":
@@ -910,6 +911,8 @@ func _on_room_finished() -> void:
 	for type_id: String in room.stats["kills_by_type"].keys():
 		var cnt := int(room.stats["kills_by_type"][type_id])
 		xp += cnt * int(ContentDB.get_enemy_def(type_id).get("xp", 5))
+	if room.stats.has("xp_units"):
+		xp = roundi(float(room.stats["xp_units"]))   # 물량 몫 일반 몹은 1/count_mult 마리로 쳐서 판당 경험치 유지
 	run["xp"] = int(run["xp"]) + xp
 	var table: Array = ContentDB.rule("xp_per_level", [0])
 	var lvl := 1
@@ -929,6 +932,8 @@ func _on_room_finished() -> void:
 			var gained := 0
 			for i in kills:
 				gained += acorn_rng.randi_range(int(ContentDB.rule("acorns_per_kill_min", 2)), int(ContentDB.rule("acorns_per_kill_max", 4)))
+			if kills > 0:
+				gained = roundi(float(gained) * float(room.stats.get("kill_units", kills)) / float(kills))   # 물량 몫 일반 몹은 1/count_mult 마리로 쳐서 판당 도토리 유지
 			rp["acorns"] = mini(int(rp["acorns"]) + int(gained * mult), int(ContentDB.rule("acorn_cap", 999)))
 			last_result["players"][aid]["acorns_gained"] = int(gained * mult)
 	# Dead Cells 시간 문 식 기록 보너스: 기준 시간 안에 방을 깨면 도토리·경험치 보너스

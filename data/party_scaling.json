@@ -56,7 +56,7 @@
   }
  },
  "screen_caps": {
-  "_comment": "동시 적 상한 = base + per_extra_player × (인원-1): 1인 12, 4인 27. 스냅샷은 적 1마리당 15B 라 MTU 안.",
+  "_comment": "동시 적 상한 = round(base × rules.tempo.enemy_count_mult) + per_extra_player × (인원-1): 배율 1.5 에서 1인 18, 2인 23, 3인 28, 4인 33 (배율 1 이면 12/17/22/27). 인원당 가산은 배율을 받지 않는다 — 스냅샷은 적 1마리당 15B(시체 1초 포함)라 4인 33 이 MTU 1392B 안에 드는 선.",
   "max_enemies_on_screen": 12,
   "per_extra_player": 5,
   "max_projectiles": 48,

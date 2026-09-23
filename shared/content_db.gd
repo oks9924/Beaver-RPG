@@ -90,6 +90,9 @@ func _apply_tempo() -> void:
 		_tempo_attack(ba, String(ba.get("shape", cshape)) == "projectile", t)
 	var es := float(t.get("enemy_speed_mult", 1.0))
 	var eh := float(t.get("enemy_hp_mult", 1.0))
+	var er := float(t.get("enemy_radius_mult", 1.0))
+	# 일반 몹만 (보스는 bosses.json 이라 여기 오지 않는다). 정예·분열체·보스 소환물의 반경 배율은 전투방에서 이 값 위에 곱해진다.
+	# 물량 방의 체력·피해 배율(enemy_count_hp_mult 등)은 방마다 다르므로 여기서 곱하지 않고 CombatRoom._spawn_enemy 가 곱한다.
 	for eid: String in enemies.keys():
 		var e: Variant = enemies[eid]
 		if not e is Dictionary or not (e as Dictionary).has("move_speed"):
@@ -97,6 +100,8 @@ func _apply_tempo() -> void:
 		e["move_speed"] = roundf(float(e["move_speed"]) * es)
 		if e.has("hp"):
 			e["hp"] = maxf(roundf(float(e["hp"]) * eh), 1.0)
+		if e.has("radius"):
+			e["radius"] = snappedf(float(e["radius"]) * er, 0.1)
 
 
 func _tempo_attack(ba: Dictionary, ranged: bool, t: Dictionary) -> void:

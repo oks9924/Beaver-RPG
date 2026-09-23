@@ -30,6 +30,9 @@ var action_kind: int = 0
 var status_bits: int = 0
 var boss_pattern: String = ""
 var affix_color: Color = Color.TRANSPARENT   # 정예 접두 색 (링·이름표)
+var size_mult: float = 1.0   # 일반 몹 표시 크기 (rules.tempo.enemy_visual_scale). 플레이어·보스는 1
+var _base_scale: Vector2 = Vector2.ONE
+const ELITE_VISUAL := 1.35
 var _sprite := Sprite2D.new()
 var _guard := Sprite2D.new()
 var _anim: String = ""
@@ -53,6 +56,8 @@ func _ready() -> void:
 	_guard.visible = false
 	add_child(_guard)
 	font = AssetRegistry.get_font("font.ui.main")
+	if not is_player and sprite_prefix.begins_with("enemy."):
+		size_mult = float(ContentDB.tempo().get("enemy_visual_scale", 1.0))
 	_set_anim("idle")
 
 
@@ -82,10 +87,11 @@ func _set_anim(name: String) -> void:
 	if _fallback_only:
 		_sprite.hframes = 1
 		_sprite.vframes = 1
-		_sprite.scale = Vector2(0.75, 0.75)
+		_sprite.scale = Vector2(0.75, 0.75) * size_mult
 		_sprite.offset = Vector2(0, -32)
 		return
-	_sprite.scale = rs / fs * (1.35 if status_bits & Protocol.ST_ELITE else 1.0)
+	_base_scale = rs / fs
+	_apply_scale()
 	var anchor: Vector2 = _sheet["anchor"]
 	_sprite.offset = Vector2(fs.x * (0.5 - anchor.x), fs.y * (0.5 - anchor.y))
 
@@ -156,6 +162,7 @@ func _process(dt: float) -> void:
 	_last_pos = position
 	_set_anim(_pick_anim())
 	if not _fallback_only:
+		_apply_scale()   # 정예 표시는 스냅샷이 뒤늦게 알려 주므로 매 프레임 맞춘다
 		var frames: Array = _sheet["frames"]
 		var fps := float(_sheet["fps"])
 		if frames.size() > 1 and fps > 0.0:
@@ -200,22 +207,27 @@ func _process(dt: float) -> void:
 	queue_redraw()
 
 
+func _apply_scale() -> void:
+	_sprite.scale = _base_scale * size_mult * (ELITE_VISUAL if status_bits & Protocol.ST_ELITE else 1.0)
+
+
 func _draw() -> void:
-	# 그림자 겸 파티 색 링, 체력 바, 이름표. 실제 문구는 UI(폰트)로 렌더링한다.
-	draw_arc(Vector2.ZERO, 20, 0, TAU, 24, Color(party_color, 0.55) if is_player else Color(0.2, 0.1, 0.3, 0.5), 2.0)
+	# 그림자 겸 파티 색 링, 체력 바, 이름표. 실제 문구는 UI(폰트)로 렌더링한다. 일반 몹은 size_mult 만큼 작게.
+	var s := size_mult
+	draw_arc(Vector2.ZERO, 20 * s, 0, TAU, 24, Color(party_color, 0.55) if is_player else Color(0.2, 0.1, 0.3, 0.5), 2.0)
 	if status_bits & Protocol.ST_ELITE:
 		var ac := affix_color if affix_color.a > 0.0 else Color(1.0, 0.8, 0.3)
-		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(ac, 0.9), 3.0)
-		draw_arc(Vector2.ZERO, 36, 0, TAU, 32, Color(ac, 0.35), 6.0)
-		draw_string_outline(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, 4, Color(0.05, 0.03, 0.01, 0.9))
-		draw_string(font, Vector2(-30, -95), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Color(ac, 1.0).lightened(0.3))
+		draw_arc(Vector2.ZERO, 30 * s, 0, TAU, 32, Color(ac, 0.9), 3.0)
+		draw_arc(Vector2.ZERO, 36 * s, 0, TAU, 32, Color(ac, 0.35), 6.0)
+		draw_string_outline(font, Vector2(-30, -95 * s), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, 4, Color(0.05, 0.03, 0.01, 0.9))
+		draw_string(font, Vector2(-30, -95 * s), "정예", HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Color(ac, 1.0).lightened(0.3))
 	if is_player and state == Protocol.EntState.DOWNED:
 		draw_arc(Vector2.ZERO, 30, 0, TAU, 32, Color(1, 0.35, 0.2, 0.8), 3.0)
 		var t := "%.0f" % down_t
 		draw_string_outline(font, Vector2(-10, -72), t, HORIZONTAL_ALIGNMENT_CENTER, 20, 14, 4, Color(0.05, 0.03, 0.01, 0.9))
 		draw_string(font, Vector2(-10, -72), t, HORIZONTAL_ALIGNMENT_CENTER, 20, 14, Color(1, 0.6, 0.4))
 	var w := 44.0 if is_player else (120.0 if boss_state >= 0 else 36.0)
-	var y := -70.0 if is_player else (-150.0 if boss_state >= 0 else -60.0)
+	var y := -70.0 if is_player else (-150.0 if boss_state >= 0 else -60.0 * s)
 	draw_rect(Rect2(-w / 2, y, w, 6), Color(0, 0, 0, 0.6))
 	var frac := clampf(hp / maxf(max_hp, 1.0), 0.0, 1.0)
 	var col := Color(0.3, 0.85, 0.35) if is_player else Color(0.85, 0.3, 0.25)

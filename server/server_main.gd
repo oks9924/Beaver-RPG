@@ -1108,7 +1108,7 @@ func _physics_process(dt: float) -> void:
 		var snap := hub.snapshot()
 		for hs: Session in hub.sessions.values():
 			Net.send_snapshot(hs.peer_id, snap)
-	var snap_every := maxi(int(round(float(ContentDB.rule("server_sim_hz", 30)) / float(ContentDB.rule("server_snapshot_hz", 15)))), 1)
+	var snap_every := maxf(float(ContentDB.rule("server_sim_hz", 30)) / float(ContentDB.rule("server_snapshot_hz", 15)), 1.0)   # 소수 허용 (30/20 = 1.5틱)
 	var grace := float(ContentDB.rule("disconnect_grace_sec", 120.0))
 	for inst: ExpeditionInstance in expeditions.instances.values().duplicate():
 		var removed := inst.prune_disconnected(grace)
@@ -1229,7 +1229,7 @@ func _on_room_finished(inst: ExpeditionInstance) -> void:
 		var mastery: Dictionary = prog.get("class_mastery", {})
 		var entry: Dictionary = mastery.get(cls, {"xp": 0, "level": 1})
 		var xpr: Dictionary = ContentDB.mastery.get("xp", {})
-		var xp_gain := int(ps.get("kills", 0)) * int(xpr.get("per_kill", 5)) + (int(xpr.get("room_clear", 10)) if victory else int(xpr.get("room_wipe", 2)))
+		var xp_gain := roundi(float(ps.get("kill_units", ps.get("kills", 0))) * float(xpr.get("per_kill", 5))) + (int(xpr.get("room_clear", 10)) if victory else int(xpr.get("room_wipe", 2)))   # 물량 몫 일반 몹은 1/count_mult 마리
 		if victory and String(res.get("objective", "")) == "boss":
 			xp_gain += int(xpr.get("boss_kill", 40))
 		xp_gain = int(round(xp_gain * (1.0 + float(_permanent_bonus(aid).get("mastery_xp_mult", 0.0))) * float(ContentDB.rules.get("difficulties", {}).get(inst.difficulty, {}).get("xp_mult", 1.0))))
