@@ -40,6 +40,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 태그 빌드가 Release 에 zip 을 올리려면 필요 (저장소 기본 토큰은 읽기 전용)
     steps:
       - uses: actions/checkout@v4
       - name: Install Godot and export templates
