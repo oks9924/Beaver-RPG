@@ -3,6 +3,7 @@
  "content_version": "0.3.0",
  "dodge_charges": 2,
  "auto_attack_range": 300,
+ "input_buffer_sec": 0.4,
  "tempo": {"_comment": "속도감 묶음 (2026-09-22). ContentDB 가 로드 시 직업·무기·적 데이터에 곱하고, 전투방·클라이언트가 나머지를 읽는다. 실기에서 너무 빠르면 여기 값만 되돌린다 (전부 1.0 / 0 이면 이전과 같다).",
   "player_speed_mult": 1.2, "melee_windup_mult": 0.73, "melee_recovery_mult": 0.55, "ranged_windup_mult": 0.67, "ranged_recovery_mult": 0.58,
   "basic_attack_move_mult": 1.0, "enemy_speed_mult": 1.15, "enemy_hp_mult": 0.88, "wave_alive_at_most_add": 2, "wave_gap_mult": 0.55,

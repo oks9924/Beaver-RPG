@@ -22,6 +22,8 @@ func _ready() -> void:
 	test_tempo()
 	print("-- test_horde")
 	test_horde()
+	print("-- test_input_priority")
+	test_input_priority()
 	print("-- test_combat_room_flow")
 	test_combat_room_flow()
 	print("-- test_combat_room_down_rescue_wipe")
@@ -320,6 +322,85 @@ func test_horde() -> void:
 		if inst.step(1.0 / 30.0, 1.5).get("snapshot") != null:
 			snaps += 1
 	check(snaps == 20, "20Hz snapshots from a 30Hz sim (%d in 30 ticks)" % snaps)
+
+
+## 자동 공격 중 입력: 스킬은 기본 공격 준비·후딜을 끊고 바로 나가고, 명중 순간 누른 스킬은 버퍼로 곧 나간다. F 는 대상이 없으면 공격을 막지 않는다.
+func test_input_priority() -> void:
+	var dt := 1.0 / 30.0
+	var atk := Protocol.BTN_ATTACK
+	# 1) 준비 동작 중 Q → 즉시 시전
+	var r := _solo_room("guardian", 21)
+	var p: Dictionary = r.players["p0"]
+	for e: Dictionary in r.enemies.values():
+		e["pos"] = Vector2(-9999, -9999)
+	r.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT * 100, atk)
+	r.step(dt)
+	check(p["action"] == Protocol.Action.WINDUP and p["action_kind"] == "basic", "auto attack is winding up")
+	r.queue_input("p0", 2, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_Q)
+	r.step(dt)
+	check(p["action"] == Protocol.Action.CAST and p["action_kind"] == "q", "Q cancels basic windup and casts at once (%d/%s)" % [int(p["action"]), p["action_kind"]])
+	# 2) 명중 순간(ACTIVE)에 한 틱만 누른 E → 버퍼로 곧 나간다
+	var r2 := _solo_room("guardian", 22)
+	var p2: Dictionary = r2.players["p0"]
+	for e: Dictionary in r2.enemies.values():
+		e["pos"] = Vector2(-9999, -9999)
+	var seq := 1
+	var guard := 0
+	while p2["action"] != Protocol.Action.ACTIVE and guard < 60:
+		r2.queue_input("p0", seq, Vector2.ZERO, Vector2.RIGHT * 100, atk)
+		r2.step(dt)
+		seq += 1
+		guard += 1
+	check(p2["action"] == Protocol.Action.ACTIVE, "reached the basic attack hit frame")
+	r2.queue_input("p0", seq, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_E)
+	r2.step(dt)
+	seq += 1
+	var cast_at := -1
+	for i in 12:
+		if p2["action"] == Protocol.Action.CAST and p2["action_kind"] == "e":
+			cast_at = i
+			break
+		r2.queue_input("p0", seq, Vector2.ZERO, Vector2.RIGHT * 100, atk)
+		r2.step(dt)
+		seq += 1
+	check(cast_at >= 0 and cast_at <= 8, "E pressed during the hit frame is buffered and fires (tick %d)" % cast_at)
+	# 3) 재사용 대기 중인 스킬은 기본 공격을 끊지 않는다
+	var r3 := _solo_room("guardian", 23)
+	var p3: Dictionary = r3.players["p0"]
+	for e: Dictionary in r3.enemies.values():
+		e["pos"] = Vector2(-9999, -9999)
+	p3["cd"]["q"] = 5.0
+	r3.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT * 100, atk)
+	r3.step(dt)
+	r3.queue_input("p0", 2, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_Q)
+	r3.step(dt)
+	check(p3["action_kind"] == "basic", "a skill on cooldown does not cancel the basic attack")
+	# 4) F 를 눌러도 대상이 없으면 자동 공격이 계속된다
+	var r4 := _solo_room("guardian", 24)
+	var p4: Dictionary = r4.players["p0"]
+	for e: Dictionary in r4.enemies.values():
+		e["pos"] = Vector2(-9999, -9999)
+	r4.objects.clear()
+	r4.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_INTERACT)
+	r4.step(dt)
+	check(p4["action"] == Protocol.Action.WINDUP and p4["action_kind"] == "basic", "holding F with nothing to interact keeps attacking")
+	# 5) 공격 중 F: 쓰러진 동료가 곁에 있으면 기본 공격을 끊고 바로 구조한다
+	var r5 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(2), ContentDB.rules, 25, _members(2))
+	for e: Dictionary in r5.enemies.values():
+		e["ai"] = Protocol.EnemyAI.ROOTED
+		e["root_t"] = 1000.0
+		e["pos"] = Vector2(-9999, -9999)
+	var a: Dictionary = r5.players["p0"]
+	var b: Dictionary = r5.players["p1"]
+	b["pos"] = a["pos"] + Vector2(30, 0)
+	b["state"] = Protocol.EntState.DOWNED
+	b["down_t"] = 30.0
+	r5.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT * 100, atk)
+	r5.step(dt)
+	check(a["action"] == Protocol.Action.WINDUP, "p0 auto-attacking before rescue")
+	r5.queue_input("p0", 2, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_INTERACT)
+	r5.step(dt)
+	check(a["action"] == Protocol.Action.RESCUING, "F next to a downed ally cancels the basic attack and starts rescue (%d)" % int(a["action"]))
 
 
 ## 바라보는 방향: 이동 키 방향을 따르고, 마우스(조준)는 공격·스킬 시작 순간에만 방향을 정한다. 마을도 같다.

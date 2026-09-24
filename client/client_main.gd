@@ -1026,9 +1026,11 @@ func _physics_process(dt: float) -> void:
 			var npc := world.nearest_npc(_pred_pos, float(ContentDB.rule("hub_talk_range", 90.0)))
 			if not npc.is_empty():
 				net.send(Protocol.C.NPC_TALK, {"npc": npc.get("id", "")})
-	# 자동 공격: 설정이 켜져 있고 살아 있는 적이 가까이 있으면, 걷는 중에도 마우스 방향으로 공격 속도에 맞춰 계속 기본 공격 (스킬·상호작용 입력이 있으면 그쪽이 우선)
+	# 자동 공격: 설정이 켜져 있고 살아 있는 적이 가까이 있으면, 걷는 중에도 마우스 방향으로 공격 속도에 맞춰 계속 기본 공격.
+	# F 는 막지 않는다: 상호작용할 대상이 있으면 서버가 기본 공격을 끊고 상호작용을 시작하고, 없으면 공격이 계속된다.
+	# 스킬·회복·건설은 서버가 기본 공격을 끊고 바로 쓰며, 명중 순간에 누른 것은 잠깐 기억했다가 쓴다(입력 버퍼).
 	if mode == "room" and not demo and bool(settings.data.get("auto_attack", true)) and not _text_focused() and not world.explore and not run_inventory.visible \
-			and (btn & (Protocol.BTN_Q | Protocol.BTN_E | Protocol.BTN_R | Protocol.BTN_INTERACT | Protocol.BTN_HEAL | Protocol.BTN_BUILD)) == 0 \
+			and (btn & (Protocol.BTN_Q | Protocol.BTN_E | Protocol.BTN_R | Protocol.BTN_HEAL | Protocol.BTN_BUILD)) == 0 \
 			and world.enemy_within(_pred_pos, float(ContentDB.rule("auto_attack_range", 300.0))):
 		btn |= Protocol.BTN_ATTACK
 	var aim: Vector2 = demo_in["aim"] if demo else (world.get_global_mouse_position() - _pred_pos + Vector2(0, 24))

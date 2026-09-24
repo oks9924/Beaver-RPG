@@ -321,7 +321,7 @@ func add_player(m: Dictionary, spawn: Array, members_count: int = 1) -> Dictiona
 		"cd": {"q": 0.0, "e": 0.0, "r": 0.0}, "dodge_max": maxi(int(rules.get("dodge_charges", 2)) + int(mods.get("dodge_charges_add", 0)) + int(profile.get("dodge_charges_add", 0)), 1), "dodge_charges": 0, "dodge_recharge_t": 0.0,
 		"invuln_t": 0.0, "protect_t": 0.0, "shield": 0.0, "shield_t": 0.0, "front_guard_t": 0.0, "stagger_t": 0.0,
 		"down_t": 0.0, "rescue_target": "", "rescue_t": 0.0, "rescued_count": 0, "heal_uses": int(m.get("heal_uses", rules.get("heal_uses_per_expedition", 2))),
-		"connected": bool(m.get("connected", true)), "disconnect_t": 0.0, "inputs": [], "last_seq": 0, "prev_buttons": 0, "move_dir": Vector2.ZERO,
+		"connected": bool(m.get("connected", true)), "disconnect_t": 0.0, "inputs": [], "last_seq": 0, "prev_buttons": 0, "buf_btn": 0, "buf_until": -1.0, "move_dir": Vector2.ZERO,
 		"mods": mods, "procs": m.get("procs", []), "interact_target": 0, "grab_t": 0.0, "weapon_attack": m.get("weapon_attack", {}), "weapon_id": String(m.get("weapon_id", "")),
 		"resource": 0.0, "resource_t": 0.0, "haste_t": 0.0, "haste_mult": 0.0, "whirl_t": 0.0, "whirl_tick": 0.0, "heal_log": [], "delayed": [], "guard_bonus": 0.0, "build_kind": String(m.get("build_kind", "log_cover")),
 		"slow_t": 0.0, "slow_mult": 0.0, "root_t": 0.0, "bleed_t": 0.0, "bleed_dps": 0.0, "heal_cut_t": 0.0, "heal_cut_mult": 1.0,
@@ -492,6 +492,23 @@ func _can_act(p: Dictionary) -> bool:
 	return p["action"] == Protocol.Action.IDLE and float(p["stagger_t"]) <= 0.0 and float(p["whirl_t"]) <= 0.0
 
 
+## 기본 공격을 끊을 만한 입력인가: 쓸 수 있는 스킬·회복·건설, 또는 대상이 있는 상호작용(F)
+func _wants_priority_action(p: Dictionary, pressed: int, btn: int) -> bool:
+	if pressed & Protocol.BTN_Q and float(p["cd"]["q"]) <= 0.0:
+		return true
+	if pressed & Protocol.BTN_E and float(p["cd"]["e"]) <= 0.0:
+		return true
+	if pressed & Protocol.BTN_R and float(p["cd"]["r"]) <= 0.0:
+		return true
+	if pressed & Protocol.BTN_HEAL and int(p["heal_uses"]) > 0 and float(p["hp"]) < float(p["max_hp"]):
+		return true
+	if pressed & Protocol.BTN_BUILD:
+		return true
+	if btn & Protocol.BTN_INTERACT:
+		return _find_rescue_target(p) != "" or _find_interactable(p) != 0
+	return false
+
+
 func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 	var mv: Vector2 = inp["mv"]
 	var aim: Vector2 = inp["aim"]
@@ -502,7 +519,23 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 	p["move_dir"] = mv
 	if not inp.get("repeat", false):
 		p["aim"] = aim   # 반복 틱에서는 마지막 조준을 유지한다 (시전 완료 시 사용)
+	# 입력 버퍼: 스킬·회복·건설 누름을 잠깐(input_buffer_sec) 기억해, 기본 공격 명중 순간처럼 바로 못 쓸 때 누른 것도 곧 나가게 한다
+	var buf_mask := Protocol.BTN_Q | Protocol.BTN_E | Protocol.BTN_R | Protocol.BTN_HEAL | Protocol.BTN_BUILD
+	if pressed & buf_mask:
+		p["buf_btn"] = pressed & buf_mask
+		p["buf_until"] = elapsed + float(rules.get("input_buffer_sec", 0.4))
+	elif int(p.get("buf_btn", 0)) != 0:
+		if elapsed <= float(p.get("buf_until", -1.0)):
+			pressed |= int(p["buf_btn"])
+		else:
+			p["buf_btn"] = 0
 	var action: int = p["action"]
+	# 스킬·회복·건설·상호작용은 기본 공격의 준비·후딜을 끊고 바로 나간다 (자동 공격 중에도 입력이 씹히지 않도록)
+	if action in [Protocol.Action.WINDUP, Protocol.Action.RECOVERY] and String(p["action_kind"]) == "basic" and float(p["stagger_t"]) <= 0.0 and _wants_priority_action(p, pressed, btn):
+		p["action"] = Protocol.Action.IDLE
+		p["action_kind"] = ""
+		p["action_t"] = 0.0
+		action = Protocol.Action.IDLE
 	if action == Protocol.Action.IDLE or action == Protocol.Action.RECOVERY:
 		p["facing"] = SimRules.move_facing(mv, p["facing"])   # 이동 키 방향을 본다. 마우스 방향은 공격 중·스킬 시작 순간에만 적용
 		if btn & Protocol.BTN_ATTACK:
@@ -527,16 +560,21 @@ func _apply_input(p: Dictionary, inp: Dictionary, dt: float) -> void:
 		if pressed & Protocol.BTN_Q and float(p["cd"]["q"]) <= 0.0:
 			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "q", float(cdef["skills"]["q"].get("cast_sec", 0.2)))
+			p["buf_btn"] = 0
 		elif pressed & Protocol.BTN_E and float(p["cd"]["e"]) <= 0.0:
 			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "e", float(cdef["skills"]["e"].get("cast_sec", 0.2)))
+			p["buf_btn"] = 0
 		elif pressed & Protocol.BTN_R and float(p["cd"]["r"]) <= 0.0:
 			_face_aim(p)
 			_start_action(p, Protocol.Action.CAST, "r", float(cdef["skills"]["r"].get("cast_sec", 0.2)))
+			p["buf_btn"] = 0
 		elif pressed & Protocol.BTN_HEAL and int(p["heal_uses"]) > 0 and float(p["hp"]) < float(p["max_hp"]):
 			_start_action(p, Protocol.Action.CAST, "heal", float(rules.get("heal_cast_sec", 0.8)))
+			p["buf_btn"] = 0
 		elif pressed & Protocol.BTN_BUILD:
 			_try_build(p)
+			p["buf_btn"] = 0
 		elif btn & Protocol.BTN_INTERACT:
 			var target := _find_rescue_target(p)
 			if target != "":
