@@ -488,6 +488,12 @@ func _step_player(p: Dictionary, dt: float) -> void:
 	_step_action(p, dt)
 
 
+## 적이 장애물·벽과 부딪히는 반경: 맞는 크기(radius)는 작아도, 플레이어가 못 들어가는 틈(방 생성이 보장하는 크기)에는 못 들어가게
+## 플레이어 반경(room_gen.player_radius) 아래로 내려가지 않는다. 작은 몹이 장애물 사이 주머니에 숨어 방이 안 끝나는 것을 막는다.
+func _block_r(e: Dictionary) -> float:
+	return maxf(float(e["radius"]), float(rules.get("room_gen", {}).get("player_radius", 18.0)))
+
+
 func _can_act(p: Dictionary) -> bool:
 	return p["action"] == Protocol.Action.IDLE and float(p["stagger_t"]) <= 0.0 and float(p["whirl_t"]) <= 0.0
 
@@ -905,7 +911,7 @@ func _apply_cast(p: Dictionary, cdef: Dictionary, kind: String) -> void:
 					continue
 				_slow_enemy(e, float(eff.get("slow_mult", 0.3)), float(eff.get("slow_sec", 2.0)))
 				var kb := (float(eff.get("knockback", 120)) + float(m.get("e_knockback_add", 0.0))) * (1.0 + float(m.get("knockback_mult", 0.0)))
-				e["pos"] = SimRules.move(e["pos"], aim_dir, kb, 1.0, bounds, float(e["radius"]), all_obstacles())
+				e["pos"] = SimRules.move(e["pos"], aim_dir, kb, 1.0, bounds, _block_r(e), all_obstacles(), true)
 				_damage_enemy(e, _player_damage(p, float(eff.get("damage", 6)) + dmg_add), p, 0.0, 0.15)
 				hits += 1
 			for o: Dictionary in players.values():
@@ -1028,7 +1034,7 @@ func _circle_damage(p: Dictionary, center: Vector2, radius: float, dmg: float, k
 				_damage_enemy(e, dmg, p, knockback, stagger)
 			elif knockback > 0.0:
 				var dir: Vector2 = (e["pos"] - center).normalized() if (e["pos"] as Vector2).distance_to(center) > 0.01 else Vector2.RIGHT
-				e["pos"] = SimRules.move(e["pos"], dir, knockback, 1.0, bounds, float(e["radius"]), all_obstacles())
+				e["pos"] = SimRules.move(e["pos"], dir, knockback, 1.0, bounds, _block_r(e), all_obstacles(), true)
 			hits += 1
 	if boss != null and dmg > 0.0:
 		hits += boss.on_circle_attack(p, center, radius, dmg)
@@ -1110,7 +1116,7 @@ func _burst_dam(o: Dictionary) -> void:
 	for e: Dictionary in enemies.values():
 		if e["ai"] != Protocol.EnemyAI.DEAD and (e["pos"] as Vector2).distance_to(o["pos"]) <= float(o["burst_radius"]) + float(e["radius"]):
 			var dir: Vector2 = (e["pos"] - o["pos"]).normalized() if (e["pos"] as Vector2).distance_to(o["pos"]) > 0.01 else Vector2.RIGHT
-			e["pos"] = SimRules.move(e["pos"], dir, float(o["burst_knockback"]), 1.0, bounds, float(e["radius"]), obstacles)
+			e["pos"] = SimRules.move(e["pos"], dir, float(o["burst_knockback"]), 1.0, bounds, _block_r(e), obstacles, true)
 			_slow_enemy(e, 0.3, 2.0)
 			if not owner.is_empty():
 				_damage_enemy(e, float(o["burst_damage"]), owner, 0.0, 0.3)
@@ -1455,7 +1461,7 @@ func _damage_enemy(e: Dictionary, dmg: float, attacker: Dictionary, knockback: f
 			attacker["bleed_dps"] = maxf(float(attacker["bleed_dps"]), float(rf.get("bleed_dps", 2.0)))
 	if knockback > 0.0:
 		var dir: Vector2 = (e["pos"] - attacker["pos"]).normalized() if (e["pos"] as Vector2).distance_to(attacker["pos"]) > 0.01 else attacker["facing"]
-		e["pos"] = SimRules.move(e["pos"], dir, knockback, 1.0, bounds, float(e["radius"]), all_obstacles())
+		e["pos"] = SimRules.move(e["pos"], dir, knockback, 1.0, bounds, _block_r(e), all_obstacles(), true)
 	if stagger > 0.0 and float(e["stagger_resist_t"]) <= 0.0:
 		e["stagger_t"] = maxf(float(e["stagger_t"]), stagger)
 		e["stagger_resist_t"] = float(e["def"].get("stagger_resist_after_sec", 1.0))
@@ -1772,6 +1778,8 @@ func _spawn_enemy(type_id: String, pos: Vector2, elite: Dictionary = {}, opts: D
 		e["radius"] = float(e["radius"]) * float(opts.get("scale", 1.0))
 	if not elite.is_empty():
 		e["radius"] = float(e["radius"]) * float(elite.get("scale", 1.3))
+	if not obstacles.is_empty():
+		e["pos"] = SimRules.move(pos, Vector2.ZERO, 0.0, 0.0, bounds, _block_r(e), obstacles, true)   # 장애물과 겹쳐 나오지 않게 (분열체·소환물)
 		e["name_ko"] = String(elite.get("name_ko", def.get("name_ko", type_id)))
 		if affix != "" and not String(e["name_ko"]).begins_with(String(ContentDB.elites["affixes"][affix].get("name_ko", ""))):
 			e["name_ko"] = "%s %s" % [ContentDB.elites["affixes"][affix].get("name_ko", affix), e["name_ko"]]
@@ -1791,11 +1799,11 @@ func _enemy_move(e: Dictionary, dir: Vector2, dt: float, speed_mult: float = 1.0
 		speed *= 1.0 - minf(float(e.get("slow_mult", 0.0)), float(rules.get("caps", {}).get("slow_max", 0.5)))
 	speed *= 1.0 - _hazard_slow_at(e["pos"])
 	var before: Vector2 = e["pos"]
-	e["pos"] = SimRules.move(e["pos"], dir, speed, dt, bounds, float(e["radius"]), all_obstacles())
+	e["pos"] = SimRules.move(e["pos"], dir, speed, dt, bounds, _block_r(e), all_obstacles(), true)
 	# 구조물에 막히면 구조물을 공격한다
 	if (e["pos"] as Vector2).distance_to(before) < speed * dt * 0.3:
 		for o: Dictionary in objects.values():
-			if o["kind"] in [Protocol.ObKind.STRUCTURE, Protocol.ObKind.DAM] and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(o["r"]) + float(e["radius"]) + 8.0:
+			if o["kind"] in [Protocol.ObKind.STRUCTURE, Protocol.ObKind.DAM] and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(o["r"]) + _block_r(e) + 8.0:
 				o["hp"] = float(o["hp"]) - float(rules.get("structure_enemy_dps", 6.0)) * float(e["def"].get("structure_dps_mult", 1.0)) / float(e.get("horde", 1.0)) * dt
 				break
 
@@ -2003,7 +2011,7 @@ func _enemy_attack_begin(e: Dictionary, atk: Dictionary) -> void:
 
 func _enemy_charge_step(e: Dictionary, atk: Dictionary, dt: float) -> void:
 	var dir: Vector2 = e["charge_dir"]
-	e["pos"] = SimRules.move(e["pos"], dir, float(atk.get("charge_speed", 500)), dt, bounds, float(e["radius"]), all_obstacles())
+	e["pos"] = SimRules.move(e["pos"], dir, float(atk.get("charge_speed", 500)), dt, bounds, _block_r(e), all_obstacles(), true)
 	var half_w := float(atk.get("width", 64)) * 0.5
 	for p: Dictionary in players.values():
 		if p["state"] != Protocol.EntState.ALIVE or (e["charge_hit"] as Array).has(p["id"]):
@@ -2015,7 +2023,7 @@ func _enemy_charge_step(e: Dictionary, atk: Dictionary, dt: float) -> void:
 			if p["state"] == Protocol.EntState.ALIVE and kb > 0.0:
 				p["pos"] = SimRules.move(p["pos"], dir, kb, 1.0, bounds, float(p["radius"]), obstacles)
 	for o: Dictionary in objects.values():
-		if o["kind"] == Protocol.ObKind.STRUCTURE and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(o["r"]) + float(e["radius"]) + 4.0:
+		if o["kind"] == Protocol.ObKind.STRUCTURE and (o["pos"] as Vector2).distance_to(e["pos"]) <= float(o["r"]) + _block_r(e) + 4.0:
 			o["hp"] = float(o["hp"]) - 30.0 / float(e.get("horde", 1.0))
 			e["t"] = 0.0  # 구조물에 부딪히면 돌진이 멈춘다
 
@@ -2048,8 +2056,8 @@ func _separate_enemies() -> void:
 			var len := d.length()
 			if len < min_d and len > 0.001:
 				var push := d.normalized() * (min_d - len) * 0.5
-				a["pos"] = SimRules.move(a["pos"], -push, 1.0, 1.0, bounds, float(a["radius"]), obstacles)
-				b["pos"] = SimRules.move(b["pos"], push, 1.0, 1.0, bounds, float(b["radius"]), obstacles)
+				a["pos"] = SimRules.move(a["pos"], -push, 1.0, 1.0, bounds, _block_r(a), obstacles, true)
+				b["pos"] = SimRules.move(b["pos"], push, 1.0, 1.0, bounds, _block_r(b), obstacles, true)
 
 
 # ------------------------------------------------------------------ waves & objectives

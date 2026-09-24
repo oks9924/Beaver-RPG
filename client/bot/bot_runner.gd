@@ -534,11 +534,24 @@ func _phase_room() -> void:
 			var op := Vector2(target_obj[Protocol.SNAP_OB.X], target_obj[Protocol.SNAP_OB.Y])
 			var r := target_obj[Protocol.SNAP_OB.R]
 			if objective == "hold_point" or objective == "escort":
-				if op.distance_to(my_pos) > (r * 0.5 if objective == "hold_point" else 70.0):
+				# 목표 근처(점령·뗏목 방해 범위)에 적이 있으면 목표에 붙어 있지 말고 가서 잡는다.
+				# 근접 봇이 사거리 밖 적을 "때리는 척"만 하면 원거리·고정 적이 뗏목을 영원히 막아 방이 끝나지 않는다.
+				var obj_reach := 60.0 if String(args.get("class", "guardian")) in ["guardian", "sawtooth"] else 260.0
+				var threat := false
+				if not nearest.is_empty():
+					var ep := Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y])
+					threat = ep.distance_to(op) <= r + 220.0
+				if threat:
+					var ep2 := Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y])
+					aim = ep2 - my_pos
+					if best > obj_reach:
+						mv = aim.normalized()
+						_count("chase_ticks")
+					else:
+						btn |= Protocol.BTN_ATTACK
+						_count("attack_presses")
+				elif op.distance_to(my_pos) > (r * 0.5 if objective == "hold_point" else 70.0):
 					mv = (op - my_pos).normalized()
-				elif not nearest.is_empty() and best < 140.0:
-					aim = Vector2(nearest[Protocol.SNAP_E.X], nearest[Protocol.SNAP_E.Y]) - my_pos
-					btn |= Protocol.BTN_ATTACK
 			else:
 				if op.distance_to(my_pos) > r + 40.0:
 					mv = (op - my_pos).normalized()

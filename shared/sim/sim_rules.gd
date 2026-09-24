@@ -2,24 +2,45 @@ class_name SimRules
 ## 서버 판정과 클라이언트 예측이 공유하는 순수 수학 규칙. 노드·렌더링에 의존하지 않는다.
 
 
-static func move(pos: Vector2, dir: Vector2, speed: float, dt: float, bounds: Rect2, radius: float, obstacles: Array) -> Vector2:
+## strict=false(플레이어·클라이언트 예측): 예전 그대로 한 번만 밀어낸다.
+## strict=true(적): 여러 번 밀어내고, 몸보다 좁은 틈에 끼이면 움직이지 않는다 — 작은 몹이 플레이어가 못 가는 틈·주머니로 빠지지 않게.
+static func move(pos: Vector2, dir: Vector2, speed: float, dt: float, bounds: Rect2, radius: float, obstacles: Array, strict: bool = false) -> Vector2:
 	if dir.length_squared() > 1.0:
 		dir = dir.normalized()
 	var next := pos + dir * speed * dt
 	next.x = clampf(next.x, bounds.position.x + radius, bounds.end.x - radius)
 	next.y = clampf(next.y, bounds.position.y + radius, bounds.end.y - radius)
-	for ob: Dictionary in obstacles:
-		var c := Vector2(float(ob.get("x", 0)), float(ob.get("y", 0)))
-		var r := float(ob.get("r", 0)) + radius
-		var d := next - c
-		if d.length_squared() < r * r:
-			# 중심을 지나쳐 반대편으로 뚫고 나가지 않도록, 출발점이 있던 쪽으로 밀어낸다.
-			if d.dot(pos - c) <= 0.0:
-				d = pos - c
-			if d.length_squared() < 0.000001:
-				d = Vector2.RIGHT
-			next = c + d.normalized() * r
+	# strict: 밀어내기를 몇 번 되풀이한다 (가까운 두 장애물 사이에서 한쪽에서 밀려 다른 쪽에 박힌 채 끝나 틈을 빠져나가던 문제 방지)
+	for _iter in (4 if strict else 1):
+		var pushed := false
+		for ob: Dictionary in obstacles:
+			var c := Vector2(float(ob.get("x", 0)), float(ob.get("y", 0)))
+			var r := float(ob.get("r", 0)) + radius
+			var d := next - c
+			if d.length_squared() < r * r - 0.01:
+				# 중심을 지나쳐 반대편으로 뚫고 나가지 않도록, 출발점이 있던 쪽으로 밀어낸다.
+				if d.dot(pos - c) <= 0.0:
+					d = pos - c
+				if d.length_squared() < 0.000001:
+					d = Vector2.RIGHT
+				next = c + d.normalized() * r
+				pushed = true
+		if not pushed or not strict:
+			return next
+		next.x = clampf(next.x, bounds.position.x + radius, bounds.end.x - radius)
+		next.y = clampf(next.y, bounds.position.y + radius, bounds.end.y - radius)
+	# 그래도 겹치면 몸보다 좁은 틈에 끼인 것: 움직이지 않는다 (이미 겹친 채 시작했다면 빠져나가도록 허용)
+	if overlaps(next, radius, obstacles) and not overlaps(pos, radius, obstacles):
+		return pos
 	return next
+
+
+static func overlaps(pos: Vector2, radius: float, obstacles: Array) -> bool:
+	for ob: Dictionary in obstacles:
+		var r := float(ob.get("r", 0)) + radius
+		if pos.distance_squared_to(Vector2(float(ob.get("x", 0)), float(ob.get("y", 0)))) < r * r - 1.0:
+			return true
+	return false
 
 
 ## 부채꼴 판정: origin 에서 facing 방향, 반경 range, 각도 angle_deg 안에 target 원이 걸치는가.

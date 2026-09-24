@@ -313,6 +313,14 @@ func test_horde() -> void:
 			var ew := rw._spawn_enemy(wood_def, Vector2(600, 400), {}, {"no_affix": true})
 			rw._kill_enemy(ew, rw.players["p0"])
 		check(rw.team_wood == int(floor(float(kills) / m + 0.0001)), "normal-kill wood divided by count mult (%d from %d kills)" % [rw.team_wood, kills])
+	# 작은 몹도 플레이어가 못 지나가는 틈(플레이어 반경 기준)은 못 지나간다: 장애물 주머니에 숨어 방이 안 끝나는 것 방지
+	var rg := CombatRoom.new(ContentDB.get_room_def("test_arena"), prof, ContentDB.rules, 39, _members(1))
+	rg.obstacles = [{"x": 500.0, "y": 400.0, "r": 40.0}, {"x": 610.0, "y": 400.0, "r": 40.0}]   # 표면 사이 30px (플레이어 지름 36 보다 좁다)
+	var leech := rg._spawn_enemy("river_leech", Vector2(555, 300), {}, {"no_affix": true})
+	check(float(leech["radius"]) * 2.0 < 30.0, "leech body is narrower than the gap (r=%.1f)" % float(leech["radius"]))
+	for i in 90:
+		rg._enemy_move(leech, Vector2.DOWN, 1.0 / 30.0)
+	check(float(leech["pos"].y) < 400.0, "small enemy cannot slip through a gap players cannot (y=%.1f)" % float(leech["pos"].y))
 	# 스냅샷 간격: 30Hz 시뮬레이션에서 1.5틱마다 = 3틱에 2번
 	var inst := ExpeditionInstance.new("exp_horde", 555)
 	inst.add_member(_make_session(40))
