@@ -401,6 +401,34 @@ func test_input_priority() -> void:
 	r5.queue_input("p0", 2, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_INTERACT)
 	r5.step(dt)
 	check(a["action"] == Protocol.Action.RESCUING, "F next to a downed ally cancels the basic attack and starts rescue (%d)" % int(a["action"]))
+	# 자동 공격(공격 버튼)이 계속 눌린 채 F 를 끝까지 누르면 구조가 끊기지 않고 끝난다
+	var sq := 3
+	for i in int(ceil(float(ContentDB.rules.get("rescue_hold_sec", 3.0)) * 30.0)) + 10:
+		r5.queue_input("p0", sq, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_INTERACT)
+		r5.step(dt)
+		sq += 1
+	check(b["state"] == Protocol.EntState.ALIVE, "rescue completes while auto attack is held (state %d)" % int(b["state"]))
+	# 나무 갉기도 자동 공격 중 끝까지 된다
+	var r6 := CombatRoom.new(ContentDB.get_room_def("test_arena"), ContentDB.get_party_profile(1), ContentDB.rules, 26, _members(1))
+	for e: Dictionary in r6.enemies.values():
+		e["ai"] = Protocol.EnemyAI.ROOTED
+		e["root_t"] = 1000.0
+		e["pos"] = Vector2(-9999, -9999)
+	var tree: Dictionary = {}
+	for o: Dictionary in r6.objects.values():
+		if o["kind"] == Protocol.ObKind.GNAW_TREE:
+			tree = o
+	if not tree.is_empty():
+		r6.players["p0"]["pos"] = tree["pos"] + Vector2(50, 0)
+		r6.queue_input("p0", 1, Vector2.ZERO, Vector2.RIGHT * 100, atk)
+		r6.step(dt)
+		var gnawed := false
+		for i in 90:
+			r6.queue_input("p0", i + 2, Vector2.ZERO, Vector2.RIGHT * 100, atk | Protocol.BTN_INTERACT)
+			for ev: Dictionary in r6.step(dt):
+				if ev["k"] == "gnaw":
+					gnawed = true
+		check(gnawed and not r6.objects.has(tree["id"]), "gnawing a tree completes while auto attack is held")
 
 
 ## 바라보는 방향: 이동 키 방향을 따르고, 마우스(조준)는 공격·스킬 시작 순간에만 방향을 정한다. 마을도 같다.
